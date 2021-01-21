@@ -15,7 +15,7 @@ import (
 func tableGitHubOrganization() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_organization",
-		Description: "GITHUB ORGANIZATION",
+		Description: "Github Organization",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubOrganizationList,
 		},

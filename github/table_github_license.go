@@ -16,7 +16,7 @@ import (
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_license",
-		Description: "GITHUB LICENSE",
+		Description: "Github License",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubLicenseList,
 		},
