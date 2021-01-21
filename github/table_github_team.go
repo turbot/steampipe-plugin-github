@@ -15,6 +15,7 @@ import (
 func tableGitHubTeam() *plugin.Table {
 	return &plugin.Table{
 		Name: "github_team",
+		Description: "GITHUB TEAM",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubTeamList,
 		},

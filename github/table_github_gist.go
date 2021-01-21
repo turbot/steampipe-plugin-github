@@ -14,7 +14,8 @@ import (
 
 func tableGitHubGist() *plugin.Table {
 	return &plugin.Table{
-		Name: "github_gist",
+		Name:        "github_gist",
+		Description: "GITHUB GIST",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubGistList,
 		},
