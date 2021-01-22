@@ -177,6 +177,8 @@ github.com/turbot/go-kit v0.0.0-20210119154454-db924443f736 h1:j/cfIwIBSX4Z23k50
 github.com/turbot/go-kit v0.0.0-20210119154454-db924443f736/go.mod h1:hO/mY90fJXLWAJnAoDkYMvi3LVZ/r+z1tiz3E1uPSNA=
 github.com/turbot/steampipe-plugin-sdk v0.1.0 h1:M84UVDXVBAyK9MTJaydpMVROVOavNqaFfhC+mrfnUTo=
 github.com/turbot/steampipe-plugin-sdk v0.1.0/go.mod h1:jhmUevBAJQhpxCtwP+pnpYI13/ODrZb7eCI8MKd8jZA=
+github.com/turbotio/go-kit v0.0.0-20210112151755-54eca0bb5c54 h1:806biVihdEVtPDg7xXGj7mxE7zLbTIT08aAGRNunEL0=
+github.com/turbotio/go-kit v0.0.0-20210112151755-54eca0bb5c54/go.mod h1:bVFscB3ExC8E8g2Vlw5TleM5M3BSRTdh919pag2Tkm4=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

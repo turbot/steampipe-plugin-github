@@ -13,12 +13,13 @@ func Plugin(context.Context) *plugin.Plugin {
 		Name:             "steampipe-plugin-github",
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{
-			"github_gist":         tableGitHubGist(),
-			"github_license":      tableGitHubLicense(),
-			"github_organization": tableGitHubOrganization(),
-			"github_repository":   tableGitHubRepository(),
-			"github_team":         tableGitHubTeam(),
-			"github_user":         tableGitHubUser(),
+			"github_gist":             tableGitHubGist(),
+			"github_license":          tableGitHubLicense(),
+			"github_organization":     tableGitHubOrganization(),
+			"github_repository":       tableGitHubRepository(),
+			"github_repository_issue": tableGitHubRepositoryIssue(),
+			"github_team":             tableGitHubTeam(),
+			"github_user":             tableGitHubUser(),
 		},
 	}
 	return p
