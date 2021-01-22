@@ -16,7 +16,7 @@ import (
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_license",
-		Description: "Github License",
+		Description: "Github Licenses are common software licenses that you can associate with your repository.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubLicenseList,
 		},
@@ -27,20 +27,20 @@ func tableGitHubLicense() *plugin.Table {
 		Columns: []*plugin.Column{
 
 			// Top columns
-			{Name: "spdx_id", Type: pb.ColumnType_STRING, Transform: transform.FromField("SPDXID")},
-			{Name: "name", Type: pb.ColumnType_STRING},
-			{Name: "html_url", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
+			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: pb.ColumnType_STRING, Transform: transform.FromField("SPDXID")},
+			{Name: "name", Description: "The name of the license.", Type: pb.ColumnType_STRING},
+			{Name: "html_url", Description: "The HTML URL of the license.", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
 
 			// The body is huge and of limited value, exclude it for now
 			// {Name: "body", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "conditions", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "description", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "featured", Type: pb.ColumnType_BOOL, Hydrate: tableGitHubLicenseGetData},
-			{Name: "implementation", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "key", Type: pb.ColumnType_STRING},
-			{Name: "limitations", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "permissions", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "url", Type: pb.ColumnType_STRING},
+			{Name: "conditions", Description: "An array of license conditions (include-copyright,disclose-source, etc).", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
+			{Name: "description", Description: "The license description.", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
+			{Name: "featured", Description: "If true, the license is 'featured' in the Github UI.", Type: pb.ColumnType_BOOL, Hydrate: tableGitHubLicenseGetData},
+			{Name: "implementation", Description: "Implementation instructions for the license.", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
+			{Name: "key", Description: "The unique key of the license.", Type: pb.ColumnType_STRING},
+			{Name: "limitations", Description: "An array of limitations for the license (trademark-use, liability,warranty, etc).", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
+			{Name: "permissions", Description: "An array of permissions for the license (private-use, commercial-use,modifications, etc).", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
+			{Name: "url", Description: "The API url of the license.", Type: pb.ColumnType_STRING},
 		},
 	}
 }
