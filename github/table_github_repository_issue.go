@@ -39,6 +39,7 @@ func tableGitHubRepositoryIssue() *plugin.Table {
 			{Name: "events_url", Type: proto.ColumnType_STRING, Description: "The API Events URL."},
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the issue page in GitHub."},
 			{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the issue."},
+			{Name: "is_pull_request", Type: proto.ColumnType_BOOL, Description: "It true, the issue is a pull request.", Transform: transform.From(isPullRequest)},
 			{Name: "labels", Type: proto.ColumnType_JSON, Description: "An array of labels associated with this issue."},
 			{Name: "labels_url", Type: proto.ColumnType_STRING, Description: "The API Labels URL."},
 			{Name: "locked", Type: proto.ColumnType_BOOL, Description: "If true, the issue is locked."},
@@ -172,6 +173,11 @@ func getIssueTags(_ context.Context, d *transform.TransformData) (interface{}, e
 		}
 	}
 	return tags, nil
+}
+
+func isPullRequest(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	issue := d.HydrateItem.(*github.Issue)
+	return issue.IsPullRequest(), nil
 }
 
 //// HELPER FUNCTIONS

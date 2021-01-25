@@ -7,7 +7,7 @@ The `github_repository_issue` table can be used to query issues belonging to a r
 
 ## Examples
 
-### List the issues in a repository
+### List the issues (excluding pull requests) in a repository
 ```sql
 select
   repository_full_name,
@@ -17,7 +17,8 @@ select
 from
   github_repository_issue
 where
-  repository_full_name = 'turbot/steampipe';
+  repository_full_name = 'turbot/steampipe'
+  and not is_pull_request;
 ```
 
 ### List pull requests in a repository
@@ -33,7 +34,7 @@ from
   github_repository_issue
 where
   repository_full_name = 'turbot/steampipe'
-  and pull_request_links is not null;
+  and is_pull_request;
 ```
 
 ### List the unassigned open issues in a repository
@@ -50,10 +51,12 @@ from
 where
   repository_full_name = 'turbot/steampipe'
   and jsonb_array_length(assignees) = 0
-  and state = 'open';
+  and state = 'open'
+  and not is_pull_request;
+
 ```
 
-### List the open issues in a repository with a given label
+### List the open issues and PRs in a repository with a given label
 
 ```sql
 select
@@ -71,7 +74,7 @@ where
 ```
 
 
-### List the open issues in a repository assigned to a specific user
+### List the open issues and PRs in a repository assigned to a specific user
 
 ```sql
 select
