@@ -14,7 +14,7 @@ description: "Steampipe plugin for querying Github Repositories, Organizations, 
 The Github plugin is used to interact with the many resources in the Github API.
 
 ### Installation
-To download and install the latest aws plugin:
+To download and install the latest github plugin:
 ```bash
 steampipe plugin install github
 ```
