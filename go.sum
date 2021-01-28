@@ -99,7 +99,6 @@ github.com/google/go-cmp v0.4.1/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.1 h1:JFrFEBb2xKufg6XkJsJr+WbKb4FQlURi5RUcBveYu9k=
 github.com/google/go-cmp v0.5.1/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/google/go-github v17.0.0+incompatible h1:N0LgJ1j65A7kfXrZnUDaYCs/Sf4rEjNlfyDHW9dolSY=
 github.com/google/go-github/v32 v32.1.0 h1:GWkQOdXqviCPx7Q7Fj+KyPoGm4SwHRh8rheoPhd27II=
 github.com/google/go-github/v32 v32.1.0/go.mod h1:rIEpZD9CTDQwDK9GDrtMTycQNA4JU3qBsCizh3q2WCI=
 github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
@@ -175,10 +174,10 @@ github.com/tkrajina/go-reflector v0.5.4 h1:dS9aJEa/eYNQU/fwsb5CSiATOxcNyA/gG/A7a
 github.com/tkrajina/go-reflector v0.5.4/go.mod h1:9PyLgEOzc78ey/JmQQHbW8cQJ1oucLlNQsg8yFvkVk8=
 github.com/turbot/go-kit v0.0.0-20210119154454-db924443f736 h1:j/cfIwIBSX4Z23k50mgu7eLOGVcPi62ebV1Wm98OCyU=
 github.com/turbot/go-kit v0.0.0-20210119154454-db924443f736/go.mod h1:hO/mY90fJXLWAJnAoDkYMvi3LVZ/r+z1tiz3E1uPSNA=
+github.com/turbot/go-kit v0.1.0 h1:XioAB9/2rN5dbL7honmvhqyF4Wxh/k2VhL5rqyMhFx8=
+github.com/turbot/go-kit v0.1.0/go.mod h1:hO/mY90fJXLWAJnAoDkYMvi3LVZ/r+z1tiz3E1uPSNA=
 github.com/turbot/steampipe-plugin-sdk v0.1.0 h1:M84UVDXVBAyK9MTJaydpMVROVOavNqaFfhC+mrfnUTo=
 github.com/turbot/steampipe-plugin-sdk v0.1.0/go.mod h1:jhmUevBAJQhpxCtwP+pnpYI13/ODrZb7eCI8MKd8jZA=
-github.com/turbotio/go-kit v0.0.0-20210112151755-54eca0bb5c54 h1:806biVihdEVtPDg7xXGj7mxE7zLbTIT08aAGRNunEL0=
-github.com/turbotio/go-kit v0.0.0-20210112151755-54eca0bb5c54/go.mod h1:bVFscB3ExC8E8g2Vlw5TleM5M3BSRTdh919pag2Tkm4=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
