@@ -12,44 +12,6 @@ description: "Steampipe plugin for querying Github Repositories, Organizations, 
 
 The Github plugin is used to interact with the many resources in the Github API.
 
-### Installation
-
-To download and install the latest github plugin:
-
-```bash
-steampipe plugin install github
-```
-
-### Configuration
-
-The Github plugin uses a personal access token to authenticate to the Github API:
-1. [Create a Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).  You will need the following scopes:
-    - `repo` (all)
-    - `read:org`
-    - `read:user`
-    - `user:email`
-
-2. Set the `GITHUB_TOKEN` environment variable to your access token:
-
-```bash
-export GITHUB_TOKEN=111222333444555666777888999aaabbbcccddde
-```
-
-3. Run a query:
-
-```
-$ steampipe query
-Welcome to Steampipe v0.0.14
-Type ".inspect" for more information.
-> select name, owner_login, language from github_repository
-+------------------------------------+---------------+--------------+
-|                name                |  owner_login  |   language   |
-+------------------------------------+---------------+--------------+
-| my_repo                            | me            | Go           |
-| my_other_repo                      | me            | JavaScript   |
-+------------------------------------+---------------+--------------+
-```
-
 ### Scope
 
 The Github plugin query scope is generally the same as the Github API.
@@ -69,3 +31,36 @@ your first query!  It works this way in Steampipe because [that's how it works
 in the API](https://docs.github.com/en/rest/reference/orgs#list-organizations-for-a-user).
 While this may seem counter-intuitive at first, it actually can be quite
 useful.
+
+### Installation
+
+To download and install the latest github plugin:
+
+```bash
+steampipe plugin install github
+```
+
+### Configuration Arguments
+
+Token - The Github plugin uses a personal access token to authenticate to the Github API:
+[Create a Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).  You will need the following scopes:
+    - `repo` (all)
+    - `read:org`
+    - `read:user`
+    - `user:email`
+
+## Example configurations
+
+The default connection. This uses standard Application Default Credentials (ADC) against the active account as configured for github
+
+connection "github" {
+plugin    = "github"
+}
+A connection to a specific account, using standard ADC Credentials.
+
+connection "github_my_account" {
+plugin    = "github"
+token   = 111222333444555666777888999aaabbbcccddde
+}
+
+
