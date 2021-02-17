@@ -42,7 +42,9 @@ steampipe plugin install github
 
 ### Configuration Arguments
 
-Token - The Github plugin uses a personal access token to authenticate to the Github API:
+Token - Personal access tokens (PATs) are an alternative to using passwords for authentication to GitHub when using the GitHub API or the command line.
+
+The Github plugin uses a personal access token to authenticate to the Github API:
 [Create a Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).  You will need the following scopes:
     - `repo` (all)
     - `read:org`
