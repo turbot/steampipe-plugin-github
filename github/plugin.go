@@ -10,7 +10,11 @@ import (
 // Plugin returns this plugin
 func Plugin(context.Context) *plugin.Plugin {
 	p := &plugin.Plugin{
-		Name:             "steampipe-plugin-github",
+		Name: "steampipe-plugin-github",
+		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
+			NewInstance: ConfigInstance,
+			Schema:      ConfigSchema,
+		},
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{
 			"github_gist":             tableGitHubGist(),

@@ -56,7 +56,7 @@ func tableGitHubTeam() *plugin.Table {
 //// list ////
 
 func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	opt := &github.ListOptions{PerPage: 100}
 
@@ -111,7 +111,7 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		teamID = d.KeyColumnQuals["id"].GetInt64Value()
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.Team
 	var resp *github.Response

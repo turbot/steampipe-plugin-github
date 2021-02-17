@@ -2,10 +2,10 @@ package github
 
 import (
 	"context"
-	"github.com/turbot/steampipe-plugin-sdk/connection"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"os"
 	"time"
+
+	"github.com/turbot/steampipe-plugin-sdk/plugin"
 
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
@@ -14,8 +14,14 @@ import (
 )
 
 // create service client
-func connect(ctx context.Context, _ *connection.Manager) *github.Client {
+func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	logger := plugin.Logger(ctx)
+	githubConfig := GetConfig(d.Connection)
+	if &githubConfig != nil {
+		if githubConfig.Token != nil {
+			os.Setenv("GITHUB_TOKEN", *githubConfig.Token)
+		}
+	}
 	logger.Trace("G", os.Getenv("GITHUB_TOKEN"))
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},

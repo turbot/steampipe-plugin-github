@@ -73,7 +73,7 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 		State:       "all",
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	for {
 		var issues []*github.Issue
@@ -131,7 +131,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 	owner, repo = parseRepoFullName(fullName)
 	logger.Trace("tableGitHubRepositoryIssueGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.Issue
 	var resp *github.Response

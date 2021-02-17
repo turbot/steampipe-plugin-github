@@ -83,7 +83,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		login = d.KeyColumnQuals["login"].GetStringValue()
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.User
 	var resp *github.Response

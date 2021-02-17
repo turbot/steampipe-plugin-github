@@ -50,7 +50,7 @@ func tableGitHubGist() *plugin.Table {
 func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	opt := &github.GistListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
@@ -99,7 +99,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 //// hydrate functions ////
 
 func tableGitHubGistGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 	var id string
 
 	if h.Item != nil {
