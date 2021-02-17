@@ -39,6 +39,8 @@ To download and install the latest github plugin:
 ```bash
 steampipe plugin install github
 ```
+### Connection Configuration
+Connection configurations are defined using HCL in one or more Steampipe config files. Steampipe will load ALL configuration files from ~/.steampipe/config that have a .spc extension. A config file may contain multiple connections.
 
 ### Configuration Arguments
 
@@ -51,7 +53,7 @@ The Github plugin uses a personal access token to authenticate to the Github API
     - `read:user`
     - `user:email`
 
-## Example configurations
+### Example configurations
 
 The default connection. This uses standard Application Default Credentials (ADC) against the active account as configured for github
 
