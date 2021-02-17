@@ -16,12 +16,15 @@ import (
 // create service client
 func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	logger := plugin.Logger(ctx)
+
+	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
 	if &githubConfig != nil {
 		if githubConfig.Token != nil {
 			os.Setenv("GITHUB_TOKEN", *githubConfig.Token)
 		}
 	}
+
 	logger.Trace("G", os.Getenv("GITHUB_TOKEN"))
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
