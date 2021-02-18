@@ -27,7 +27,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	}
 
 	if token == "" {
-		panic("\n\n'token' must be set in the connection configuration file (~/.steampipe/config/github.spc)")
+		panic("'token' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
 	}
 
 	// logger.Trace("G", os.Getenv("GITHUB_TOKEN"))
