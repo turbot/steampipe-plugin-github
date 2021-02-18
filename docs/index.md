@@ -12,7 +12,7 @@ description: "Steampipe plugin for querying Github Repositories, Organizations, 
 
 The Github plugin is used to interact with the many resources in the Github API.
 
-### Installation
+## Installation
 
 To download and install the latest github plugin:
 
@@ -20,52 +20,31 @@ To download and install the latest github plugin:
 steampipe plugin install github
 ```
 
-### Configuration
 
-The Github plugin uses a personal access token to authenticate to the Github API:
-1. [Create a Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).  You will need the following scopes:
+## Credentials
+
+The Github plugin uses a personal access token to authenticate to the Github APIs.  You must create a [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) and assign the following scopes:
     - `repo` (all)
     - `read:org`
     - `read:user`
     - `user:email`
 
-2. Set the `GITHUB_TOKEN` environment variable to your access token:
 
-```bash
-export GITHUB_TOKEN=111222333444555666777888999aaabbbcccddde
-```
+## Connection Configuration
+Connection configurations are defined using HCL in one or more Steampipe config files. Steampipe will load ALL configuration files from ~/.steampipe/config that have a .spc extension. A config file may contain multiple connections.
 
-3. Run a query:
+Installing the latest github plugin will create a connection file (`~/.steampipe/config/github.spc`) with a single default connection named `github`. You must edit this connection to include your API `token`:
 
-```
-$ steampipe query
-Welcome to Steampipe v0.0.14
-Type ".inspect" for more information.
-> select name, owner_login, language from github_repository
-+------------------------------------+---------------+--------------+
-|                name                |  owner_login  |   language   |
-+------------------------------------+---------------+--------------+
-| my_repo                            | me            | Go           |
-| my_other_repo                      | me            | JavaScript   |
-+------------------------------------+---------------+--------------+
-```
+  ```hcl
+  connection "github" {
+    plugin = "github"
+    token  = "111222333444555666777888999aaabbbcccddde"
+  }
+  ```
 
 ### Scope
 
-The Github plugin query scope is generally the same as the Github API.
-Usually, this means you can list private resources that you have access to, as
-well as public resources that you own, or that are owned by organizations to
-which you belong.  The same Github APIs are used to get information for public
-resources, but the public items are returned in list calls (because there would
-be too many).  This has an interesting side effect in Steampipe in that you can
-sometimes query *a specific item* by *a specific key column or columns* that
-does not show up in a list query.
+The Github plugin query scope is generally the same as the Github API. Usually, this means you can list private resources that you have access to, as well as public resources that you own, or that are owned by organizations to which you belong. The same Github APIs are used to get information for public resources, but the public items are returned in list calls (because there would be too many). This has an interesting side effect in Steampipe in that you can sometimes query _a specific item_ by _a specific key column or columns_ that does not show up in a list query.
 
-For example, `select * from github_organization` will list details about all
-the Github Organizations to which you belong. `select * from
-github_organization where login = 'postgres'` will show you the publicly
-available details about the `postgres` organization, which didn't show up in
-your first query!  It works this way in Steampipe because [that's how it works
-in the API](https://docs.github.com/en/rest/reference/orgs#list-organizations-for-a-user).
-While this may seem counter-intuitive at first, it actually can be quite
-useful.
+For example, `select * from github_organization` will list details about all the Github Organizations to which you belong. `select * from github_organization where login = 'postgres'` will show you the publicly available details about the `postgres` organization, which didn't show up in your first query! It works this way in Steampipe because [that's how it works in the API](https://docs.github.com/en/rest/reference/orgs#list-organizations-for-a-user). While this may seem counter-intuitive at first, it actually can be quite useful.
+

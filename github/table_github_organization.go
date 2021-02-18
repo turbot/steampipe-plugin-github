@@ -83,7 +83,7 @@ func tableGitHubOrganization() *plugin.Table {
 //// list ////
 
 func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	opt := &github.ListOptions{PerPage: 100}
 
@@ -136,7 +136,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		login = d.KeyColumnQuals["login"].GetStringValue()
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.Organization
 	var resp *github.Response
@@ -168,7 +168,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	org := h.Item.(*github.Organization)
 	orgName := *org.Login
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var repositoryCollaborators []*github.User
 

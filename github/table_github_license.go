@@ -48,7 +48,7 @@ func tableGitHubLicense() *plugin.Table {
 //// list ////
 
 func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var items []*github.License
 	var resp *github.Response
@@ -92,7 +92,7 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 		key = d.KeyColumnQuals["key"].GetStringValue()
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.License
 	var resp *github.Response

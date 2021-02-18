@@ -91,7 +91,7 @@ type gitHubRepositoryCollaborator struct {
 //// list ////
 
 func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	opt := &github.RepositoryListOptions{Type: "all", ListOptions: github.ListOptions{PerPage: 100}}
 
@@ -146,7 +146,7 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 		repoName = d.KeyColumnQuals["name"].GetStringValue()
 	}
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var detail *github.Repository
 	var resp *github.Response
@@ -179,7 +179,7 @@ func tableGitHubRepositoryCollaboratorsGet(ctx context.Context, d *plugin.QueryD
 	owner := *repo.Owner.Login
 	repoName := *repo.Name
 
-	client := connect(ctx, d.ConnectionManager)
+	client := connect(ctx, d)
 
 	var repositoryCollaborators []*github.User
 
