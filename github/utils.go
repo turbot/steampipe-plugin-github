@@ -15,19 +15,25 @@ import (
 
 // create service client
 func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
-	logger := plugin.Logger(ctx)
+	// logger := plugin.Logger(ctx)
 
+	token := os.Getenv("GITHUB_TOKEN")
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
 	if &githubConfig != nil {
 		if githubConfig.Token != nil {
-			os.Setenv("GITHUB_TOKEN", *githubConfig.Token)
+			token = *githubConfig.Token
 		}
 	}
 
-	logger.Trace("G", os.Getenv("GITHUB_TOKEN"))
+	if token == "" {
+		panic("\n\n'token' must be set in the connection configuration file (~/.steampipe/config/github.spc)")
+	}
+
+	// logger.Trace("G", os.Getenv("GITHUB_TOKEN"))
+
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
