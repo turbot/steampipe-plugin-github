@@ -2,7 +2,7 @@
 
 _What's new?_
 
-- Added support for setting [connection configuration](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/index.md#connection-configuration) arguments for the plugin.
+- Added support for [connection configuration](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/index.md#connection-configuration). You may specify github `token` for each connection in a configuration file.
 
 ## v0.0.5 [2021-01-28]
 
