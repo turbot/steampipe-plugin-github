@@ -113,22 +113,7 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	client := connect(ctx, d)
 
-	var detail *github.Team
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, resp, err = client.Teams.GetTeamByID(ctx, orgID, teamID)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Teams.GetTeamByID(ctx, orgID, teamID)
 
 	if err != nil {
 		return nil, err

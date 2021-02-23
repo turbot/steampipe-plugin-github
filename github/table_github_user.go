@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v32/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -85,22 +83,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	client := connect(ctx, d)
 
-	var detail *github.User
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, resp, err = client.Users.Get(ctx, login)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Users.Get(ctx, login)
 
 	if err != nil {
 		return nil, err

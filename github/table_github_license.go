@@ -94,23 +94,7 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.License
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-
-		detail, resp, err = client.Licenses.Get(ctx, key)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Licenses.Get(ctx, key)
 
 	if err != nil {
 		return nil, err

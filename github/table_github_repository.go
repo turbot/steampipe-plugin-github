@@ -23,6 +23,14 @@ func tableGitHubRepository() *plugin.Table {
 			KeyColumns: plugin.AllColumns([]string{"owner_login", "name"}),
 			Hydrate:    tableGitHubRepositoryGet,
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: tableGitHubRepositoryCollaboratorsGet,
+				RetryConfig: &plugin.RetryConfig{
+					ShouldRetryError: shouldRetryError,
+				},
+			},
+		},
 		Columns: []*plugin.Column{
 
 			// Top columns
@@ -148,23 +156,7 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	client := connect(ctx, d)
 
-	var detail *github.Repository
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-
-		detail, resp, err = client.Repositories.Get(ctx, owner, repoName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Repositories.Get(ctx, owner, repoName)
 
 	if err != nil {
 		return nil, err
@@ -179,7 +171,7 @@ func tableGitHubRepositoryCollaboratorsGet(ctx context.Context, d *plugin.QueryD
 	owner := *repo.Owner.Login
 	repoName := *repo.Name
 
-	client := connect(ctx, d)
+	client := connect(ctx, d.ConnectionManager)
 
 	var repositoryCollaborators []*github.User
 
@@ -187,23 +179,7 @@ func tableGitHubRepositoryCollaboratorsGet(ctx context.Context, d *plugin.QueryD
 
 	for {
 
-		var users []*github.User
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			users, resp, err = client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
-			logger.Trace("tableGitHubRepositoryCollaboratorsGet", "Users", users)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		users, resp, err := client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
 
 		if err != nil {
 			return nil, err

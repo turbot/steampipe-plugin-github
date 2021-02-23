@@ -15,6 +15,12 @@ func Plugin(context.Context) *plugin.Plugin {
 			NewInstance: ConfigInstance,
 			Schema:      ConfigSchema,
 		},
+		DefaultGetConfig: &plugin.GetConfig{
+			ShouldIgnoreError: shouldIgnoreError([]string{"404"}),
+			RetryConfig: &plugin.RetryConfig{
+				ShouldRetryError: shouldRetryError,
+			},
+		},
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{
 			"github_gist":             tableGitHubGist(),

@@ -109,23 +109,7 @@ func tableGitHubGistGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		id = d.KeyColumnQuals["id"].GetStringValue()
 	}
 
-	var detail *github.Gist
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-
-		detail, resp, err = client.Gists.Get(ctx, id)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Gists.Get(ctx, id)
 
 	if err != nil {
 		return nil, err

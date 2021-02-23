@@ -23,6 +23,14 @@ func tableGitHubOrganization() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("login"),
 			Hydrate:    getOrganizationDetail,
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: tableGitHubOrganizationMembersGet,
+				RetryConfig: &plugin.RetryConfig{
+					ShouldRetryError: shouldRetryError,
+				},
+			},
+		},
 		Columns: []*plugin.Column{
 
 			// Top columns
@@ -136,25 +144,9 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		login = d.KeyColumnQuals["login"].GetStringValue()
 	}
 
-	client := connect(ctx, d)
+	client := connect(ctx, d.ConnectionManager)
 
-	var detail *github.Organization
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-
-		detail, resp, err = client.Organizations.Get(ctx, login)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	detail, _, err := client.Organizations.Get(ctx, login)
 
 	if err != nil {
 		return nil, err
@@ -168,7 +160,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	org := h.Item.(*github.Organization)
 	orgName := *org.Login
 
-	client := connect(ctx, d)
+	client := connect(ctx, d.ConnectionManager)
 
 	var repositoryCollaborators []*github.User
 
@@ -176,23 +168,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 
 	for {
 
-		var users []*github.User
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			users, resp, err = client.Organizations.ListMembers(ctx, orgName, opt)
-			logger.Info("Users", users)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		users, resp, err := client.Organizations.ListMembers(ctx, orgName, opt)
 
 		if err != nil {
 			return nil, err
