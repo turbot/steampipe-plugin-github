@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -17,10 +17,6 @@ func tableGitHubUser() *plugin.Table {
 		Name:        "github_user",
 		Description: "Github Users are user accounts in Github.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("login"),
-			Hydrate:    tableGitHubUserGet,
-		},
-		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("login"),
 			Hydrate:    tableGitHubUserGet,
 		},
@@ -63,7 +59,6 @@ func tableGitHubUser() *plugin.Table {
 
 //// hydrate functions ////
 
-// tableGitHubUserGet is both the Get and List hydrate function
 // Listing all users is not terribly useful, so we require a 'login' qual and essentially always
 // do a 'get':  from GitHub API docs: https://developer.github.com/v3/users/#list-users:
 //     	Lists all users, in the order that they signed up on GitHub. This list includes personal user
@@ -105,5 +100,6 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+	d.StreamListItem(ctx, detail)
+	return nil, nil
 }

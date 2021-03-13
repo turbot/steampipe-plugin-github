@@ -2,58 +2,40 @@
 
 Organizations are shared accounts where businesses and open-source projects can collaborate across many projects at once. Owners and administrators can manage member access to the organization's data and projects with sophisticated security and administrative features.
 
-The `github_organization` table will list the organization **that you are a member of**.  You can query **ANY** organization that you have access to by specifying its `login` explicitly in the where clause with  `where login=`  .
+You can query details for **ANY** organization with the `github_organization` table, but you must specify the `login` explicitly in the where or join clause  (`where login=`, `join github_organization on login=`).  
+
+To list organizations **that you are a member of**, use the `github_my_organization` table.  
 
 ## Examples
 
-### Basis info for the Github Organizations to which you belong
+### Basic info for a Github Organization
 
 ```sql
 select
   login as organization,
   name,
   twitter_username,
-  total_private_repos,
   public_repos,
-  plan_name,
-  plan_seats,
-  plan_filled_seats
+  public_gists,
+  member_logins
 from
-  github_organization;
+  github_organization
+where
+  login = 'postgres';
 ```
 
 
-### Show members of an organization
+### List members of an organization
 
 ```sql
 select
   login as organization,
   name,
-  m ->> 'login' as member_login,
-  m ->> 'type' as member_type
+  member_login
 from
   github_organization,
-  jsonb_array_elements(members) as m
+  jsonb_array_elements_text(member_logins) as member_login
 where
-  login = 'turbot';
+  login = 'google';
 ```
 
-
-### Show Organization security settings
-
-```sql
-select
-  login as organization,
-  jsonb_array_length(members) as num_members,
-  members_allowed_repository_creation_type,
-  members_can_create_internal_repos,
-  members_can_create_pages,
-  members_can_create_private_repos,
-  members_can_create_public_repos,
-  members_can_create_repos,
-  members_can_create_repositories,
-  default_repo_permission,
-  two_factor_requirement_enabled
-from
-  github_organization;
-```

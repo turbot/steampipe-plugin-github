@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/grpc/proto"

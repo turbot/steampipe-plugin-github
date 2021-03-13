@@ -23,11 +23,11 @@ select
   name,
   jsonb_pretty(permissions)
 from
-  github_license
+  github_license;
 ```
 
 
-### Count repositories by license
+### Count your repositories by license
 
 ```sql
 select
@@ -35,7 +35,7 @@ select
   count(r.license_key) as num_repos
 from
   github_license as l
-  left join github_repository as r on l.key = r.license_key
+  left join github_my_repository as r on l.key = r.license_key
 group by
   l.name
 order by

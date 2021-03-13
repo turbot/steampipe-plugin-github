@@ -27,6 +27,7 @@ The Github plugin uses a personal access token to authenticate to the Github API
     - `repo` (all)
     - `read:org`
     - `read:user`
+    - `gist`
     - `user:email`
 
 
