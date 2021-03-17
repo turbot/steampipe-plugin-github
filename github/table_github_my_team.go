@@ -24,7 +24,8 @@ func gitHubTeamColumns() []*plugin.Column {
 		// Not yet supported by go-github
 		//{Name: "created_at", Type: pb.ColumnType_TIMESTAMP, Hydrate: tableGitHubTeamGet, Transform: transform.Transform(convertTimestamp)},
 		{Name: "description", Type: pb.ColumnType_STRING, Description: "The description of the team."},
-		{Name: "html_url", Type: pb.ColumnType_STRING, Description: "The URL of the team page in GitHub."},
+		// Not yet supported by go-github
+		//{Name: "html_url", Type: pb.ColumnType_STRING, Description: "The URL of the team page in GitHub."},
 		{Name: "id", Type: pb.ColumnType_INT, Description: "The ID of the team."},
 		{Name: "members_url", Type: pb.ColumnType_STRING, Description: "The API Members URL."},
 		{Name: "node_id", Type: pb.ColumnType_STRING, Description: "The node id of the team."},
