@@ -96,23 +96,18 @@ type ConnectivityTestResultRow struct {
 // Wrap tests in a timeout
 func timeout(duration time.Duration, action ConnectivityTestAction) (*ConnectivityTestResultRow, error) {
 	ch := make(chan ConnectivityTestResultRow)
-	timeout := make(chan bool, 1)
+	timeout := time.After(duration)
 
 	go func() {
 		row := action()
 		ch <- row
 	}()
 
-	go func() {
-		time.Sleep(duration)
-		timeout <- true
-	}()
-
 	select {
-	case row := <-ch:
-		return &row, nil
 	case <-timeout:
 		return nil, errors.New(fmt.Sprintf("Timed out after %d seconds", duration.Milliseconds()/1000))
+	case row := <-ch:
+		return &row, nil
 	}
 }
 
