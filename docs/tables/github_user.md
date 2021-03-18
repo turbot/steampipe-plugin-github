@@ -15,17 +15,42 @@ where
   login = 'torvalds';
 ```
 
-
-### List of users which do not have two factor authentication turned on
+### List of users in your organizations
 
 ```sql
 select
-  login,
-  id,
-  name,
-  two_factor_authentication
+  u.login,
+  o.login as organization,
+  u.name,
+  u.company,
+  u.location,
+  u.twitter_username,
+  u.bio
 from
-  github_user
+  github_user as u,
+  github_my_organization as o,
+  jsonb_array_elements_text(o.member_logins) as member_login
 where
-  not two_factor_authentication;
+  u.login = member_login;
+```
+
+
+### List of users that collaborate on a repository that you own
+
+```sql
+select
+  r.full_name as repository,
+  u.login,
+  u.name,
+  u.company,
+  u.location,
+  u.twitter_username,
+  u.bio
+from
+  github_user as u,
+  github_my_repository as r,
+  jsonb_array_elements_text(r.collaborator_logins) as collaborator_login
+where
+  u.login = collaborator_login
+  and r.full_name = 'turbot/steampipe';
 ```
