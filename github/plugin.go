@@ -24,6 +24,7 @@ func Plugin(context.Context) *plugin.Plugin {
 			"github_repository_issue": tableGitHubRepositoryIssue(),
 			"github_team":             tableGitHubTeam(),
 			"github_user":             tableGitHubUser(),
+			"github_connectivity":     tableGitHubConnectivity(),
 		},
 	}
 	return p
