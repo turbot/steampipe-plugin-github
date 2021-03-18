@@ -3,7 +3,6 @@ module github.com/turbot/steampipe-plugin-github
 go 1.15
 
 require (
-	github.com/google/go-github/v32 v32.1.0
 	github.com/google/go-github/v33 v33.0.0
 	github.com/sethvargo/go-retry v0.1.0
 	github.com/turbot/steampipe-plugin-sdk v0.2.4
