@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
@@ -32,24 +30,23 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	client := connect(ctx, d)
 
+	type ListPageResponse struct {
+		issues []*github.Issue
+		resp   *github.Response
+	}
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		issues, resp, err := client.Issues.List(ctx, true, opt)
+		return ListPageResponse{
+			issues: issues,
+			resp:   resp,
+		}, err
+	}
+
 	for {
-		var issues []*github.Issue
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			issues, resp, err = client.Issues.List(ctx, true, opt)
-
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
+		listResponse := listPageResponse.(ListPageResponse)
+		issues := listResponse.issues
+		resp := listResponse.resp
 
 		if err != nil {
 			return nil, err
