@@ -44,13 +44,13 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
-		listResponse := listPageResponse.(ListPageResponse)
-		issues := listResponse.issues
-		resp := listResponse.resp
-
 		if err != nil {
 			return nil, err
 		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		issues := listResponse.issues
+		resp := listResponse.resp
 
 		for _, i := range issues {
 			// Only issues, not PRs (those are in the pull_request table...)
