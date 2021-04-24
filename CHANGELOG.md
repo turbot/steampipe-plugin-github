@@ -1,3 +1,11 @@
+## v0.3.0 [TBD]
+
+_What's new?_
+
+- New tables added
+  - [github_release](https://hub.steampipe.io/plugins/turbot/github/tables/github_release) ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
+
+
 ## v0.2.0 [2021-03-18]
 
 _What's new?_
@@ -18,6 +26,7 @@ _Bug fixes_
 - Fixed: Renamed table `github_repository_issue` to `github_issue` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 - Fixed: Renamed table `github_team` to `github_my_team` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 
+
 ## v0.1.1 [2021-02-25]
 
 _Bug fixes_
@@ -26,11 +35,13 @@ _Bug fixes_
   - Fix error for missing required quals [#40](https://github.com/turbot/steampipe-plugin-sdk/issues/42).
   - Queries fail with error socket: too many open files [#190](https://github.com/turbot/steampipe/issues/190)
 
+
 ## v0.1.0 [2021-02-18]
 
 _What's new?_
 
 - Added support for [connection configuration](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/index.md#connection-configuration). You may specify github `token` for each connection in a configuration file.
+
 
 ## v0.0.5 [2021-01-28]
 
