@@ -32,6 +32,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_release":         tableGitHubRelease(ctx),
 			"github_repository":      tableGitHubRepository(),
 			"github_user":            tableGitHubUser(),
+			"github_workflow":        tableGitHubWorkflow(ctx),
 		},
 	}
 	return p
