@@ -1,6 +1,6 @@
 module github.com/turbot/steampipe-plugin-github
 
-go 1.15
+go 1.16
 
 require (
 	github.com/google/go-github/v33 v33.0.0
