@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/google/go-github/v33/github"
@@ -86,7 +85,6 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 
 	if h.Item != nil {
 		item := h.Item.(*github.License)
-		log.Println("[INFO] item:", item.String())
 		key = *item.Key
 	} else {
 		key = d.KeyColumnQuals["key"].GetStringValue()
