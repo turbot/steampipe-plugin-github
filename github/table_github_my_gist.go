@@ -12,7 +12,7 @@ import (
 func tableGitHubMyGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_gist",
-		Description: "Github Gists owned by you. Github Gist is a simple way to share snippets and pastes with others.",
+		Description: "GitHub Gists owned by you. GitHub Gist is a simple way to share snippets and pastes with others.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyGistList,
 		},

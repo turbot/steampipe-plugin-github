@@ -16,7 +16,7 @@ import (
 func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_workflow",
-		Description: "Github Workflows bundle project files for download by users.",
+		Description: "GitHub Workflows bundle project files for download by users.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubWorkflowList,

@@ -76,7 +76,7 @@ func gitHubRepositoryColumns() []*plugin.Column {
 func tableGitHubRepository() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_repository",
-		Description: "Github Repositories contain all of your project's files and each file's revision history.",
+		Description: "GitHub Repositories contain all of your project's files and each file's revision history.",
 		List: &plugin.ListConfig{
 			Hydrate:    tableGitHubRepositoryList,
 			KeyColumns: plugin.SingleColumn("full_name"),

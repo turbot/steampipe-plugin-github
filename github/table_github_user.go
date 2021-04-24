@@ -15,7 +15,7 @@ import (
 func tableGitHubUser() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_user",
-		Description: "Github Users are user accounts in Github.",
+		Description: "GitHub Users are user accounts in GitHub.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("login"),
 			Hydrate:    tableGitHubUserGet,

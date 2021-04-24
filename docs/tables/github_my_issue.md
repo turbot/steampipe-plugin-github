@@ -1,6 +1,6 @@
 # Table: github_my_issue
 
-Github Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.  The `github_my_issue` table lists issues that are assigned to you, across all repositories.
+GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.  The `github_my_issue` table lists issues that are assigned to you, across all repositories.
 
 To view **all the issues belonging to a repository**, use the `github_issue` table.
 

@@ -16,7 +16,7 @@ import (
 func tableGitHubRelease(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_release",
-		Description: "Github Releases bundle project files for download by users.",
+		Description: "GitHub Releases bundle project files for download by users.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubReleaseList,

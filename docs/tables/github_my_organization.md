@@ -6,7 +6,7 @@ The `github_my_organization` table will list the organization **that you are a m
 
 ## Examples
 
-### Basic info for the Github Organizations to which you belong
+### Basic info for the GitHub Organizations to which you belong
 
 ```sql
 select

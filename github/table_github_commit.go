@@ -16,7 +16,7 @@ import (
 func tableGitHubCommit(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_commit",
-		Description: "Github Commits bundle project files for download by users.",
+		Description: "GitHub Commits bundle project files for download by users.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubCommitList,

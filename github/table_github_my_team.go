@@ -46,7 +46,7 @@ func gitHubTeamColumns() []*plugin.Column {
 func tableGitHubMyTeam() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_team",
-		Description: "Github Teams in your organizations.  Github Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
+		Description: "GitHub Teams in your organizations.  GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyTeamList,
 		},
