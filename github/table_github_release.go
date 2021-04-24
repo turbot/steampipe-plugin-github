@@ -80,7 +80,6 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			releases, resp, err = client.Repositories.ListReleases(ctx, owner, repo, opts)
-			plugin.Logger(ctx).Warn("releaseList", "releases", releases)
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -146,6 +145,5 @@ func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		return nil, err
 	}
 
-	logger.Warn("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id, "detail", detail)
 	return detail, nil
 }
