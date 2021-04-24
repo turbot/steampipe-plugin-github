@@ -19,6 +19,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		TableMap: map[string]*plugin.Table{
 			"github_commit":          tableGitHubCommit(ctx),
 			"github_gist":            tableGitHubGist(),
+			"github_gitignore":       tableGitHubGitignore(),
 			"github_license":         tableGitHubLicense(),
 			"github_issue":           tableGitHubIssue(),
 			"github_my_gist":         tableGitHubMyGist(),
