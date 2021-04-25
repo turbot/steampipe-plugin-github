@@ -25,9 +25,7 @@ select
   forks_count,
   stargazers_count
 from
-  github_my_repository
-where 
-  name like 'steampipe%'
+  github_my_repository;
 ```
 ```
 +-------------------------------+------------+-------------+------------------+
