@@ -17,7 +17,7 @@ from
 where
   repository_full_name = 'turbot/steampipe'
 order by
-  published_at desc
+  published_at desc;
 ```
 
 ### Download statistics per release
@@ -36,5 +36,5 @@ where
   and a ->> 'content_type' in ('application/zip', 'application/gzip')
 order by
   r.published_at desc,
-  asset_name
+  asset_name;
 ```
