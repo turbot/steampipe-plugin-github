@@ -19,7 +19,7 @@ from
 where
   repository_full_name = 'turbot/steampipe'
 order by
-  author_date desc
+  author_date desc;
 ```
 
 ### Commits by a given author
@@ -35,7 +35,7 @@ where
   repository_full_name = 'turbot/steampipe'
   and author_login = 'e-gineer'
 order by
-  author_date desc
+  author_date desc;
 ```
 
 ### Contributions by author
@@ -51,7 +51,7 @@ where
 group by
   author_login
 order by
-  count desc
+  count desc;
 ```
 
 ### Commits that were not verified
@@ -67,5 +67,5 @@ where
   repository_full_name = 'turbot/steampipe'
   and not verified
 order by
-  author_date desc
+  author_date desc;
 ```
