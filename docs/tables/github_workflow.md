@@ -14,5 +14,5 @@ select
 from
   github_workflow
 where
-  repository_full_name = 'turbot/steampipe'
+  repository_full_name = 'turbot/steampipe';
 ```
