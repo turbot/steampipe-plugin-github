@@ -47,7 +47,7 @@ func gitHubIssueColumns() []*plugin.Column {
 func tableGitHubIssue() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_issue",
-		Description: "Github Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.",
+		Description: "GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubRepositoryIssueList,

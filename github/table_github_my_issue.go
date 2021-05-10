@@ -10,7 +10,7 @@ import (
 func tableGitHubMyIssue() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_issue",
-		Description: "Github Issues owned by you. Github Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.",
+		Description: "GitHub Issues owned by you. GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyIssueList,
 		},

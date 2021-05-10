@@ -1,10 +1,10 @@
 # Table: github_issue
 
-Github Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.  
+GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.  
 
 The `github_issue` table can be used to query issues belonging to a repository, and **you must specify which repository** with `where repository_full_name='owner/repository'`.  To list all the issues **assigned to you across all repositories** use the `github_my_issue` table instead.
 
-Note that pull requests are technically also issues in Github, however we do not include them in the `github_issue` table; You should use the `github_pull_request` table to query PRs.  
+Note that pull requests are technically also issues in GitHub, however we do not include them in the `github_issue` table; You should use the `github_pull_request` table to query PRs.  
 
 
 ## Examples

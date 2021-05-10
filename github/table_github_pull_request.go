@@ -65,7 +65,7 @@ func gitHubPullRequestColumns() []*plugin.Column {
 func tableGitHubPullRequest() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_pull_request",
-		Description: "Github Pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.",
+		Description: "GitHub Pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubPullRequestList,

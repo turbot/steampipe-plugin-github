@@ -1,6 +1,6 @@
 # Table: github_pull_request
 
-Github pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.
+GitHub pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.
 
 The `github_pull_request` table can be used to query issues belonging to a repository.  **You must specify which repository**  in a `where` or `join` clause (`where repository_full_name='`, `join github_pull_request on repository_full_name=`).   
 

@@ -13,7 +13,7 @@ import (
 func tableGitHubMyRepository() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_repository",
-		Description: "Github Repositories that you are associated with.  Github Repositories contain all of your project's files and each file's revision history.",
+		Description: "GitHub Repositories that you are associated with.  GitHub Repositories contain all of your project's files and each file's revision history.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyRepositoryList,
 		},

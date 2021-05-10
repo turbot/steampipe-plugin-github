@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/google/go-github/v33/github"
@@ -16,7 +15,7 @@ import (
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_license",
-		Description: "Github Licenses are common software licenses that you can associate with your repository.",
+		Description: "GitHub Licenses are common software licenses that you can associate with your repository.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubLicenseList,
 		},
@@ -35,7 +34,7 @@ func tableGitHubLicense() *plugin.Table {
 			// {Name: "body", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
 			{Name: "conditions", Description: "An array of license conditions (include-copyright,disclose-source, etc).", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
 			{Name: "description", Description: "The license description.", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "featured", Description: "If true, the license is 'featured' in the Github UI.", Type: pb.ColumnType_BOOL, Hydrate: tableGitHubLicenseGetData},
+			{Name: "featured", Description: "If true, the license is 'featured' in the GitHub UI.", Type: pb.ColumnType_BOOL, Hydrate: tableGitHubLicenseGetData},
 			{Name: "implementation", Description: "Implementation instructions for the license.", Type: pb.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
 			{Name: "key", Description: "The unique key of the license.", Type: pb.ColumnType_STRING},
 			{Name: "limitations", Description: "An array of limitations for the license (trademark-use, liability,warranty, etc).", Type: pb.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
@@ -86,7 +85,6 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 
 	if h.Item != nil {
 		item := h.Item.(*github.License)
-		log.Println("[INFO] item:", item.String())
 		key = *item.Key
 	} else {
 		key = d.KeyColumnQuals["key"].GetStringValue()

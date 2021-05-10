@@ -8,7 +8,7 @@ import (
 )
 
 // Plugin returns this plugin
-func Plugin(context.Context) *plugin.Plugin {
+func Plugin(ctx context.Context) *plugin.Plugin {
 	p := &plugin.Plugin{
 		Name: "steampipe-plugin-github",
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
@@ -17,7 +17,9 @@ func Plugin(context.Context) *plugin.Plugin {
 		},
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{
+			"github_commit":          tableGitHubCommit(ctx),
 			"github_gist":            tableGitHubGist(),
+			"github_gitignore":       tableGitHubGitignore(),
 			"github_license":         tableGitHubLicense(),
 			"github_issue":           tableGitHubIssue(),
 			"github_my_gist":         tableGitHubMyGist(),
@@ -27,8 +29,10 @@ func Plugin(context.Context) *plugin.Plugin {
 			"github_my_team":         tableGitHubMyTeam(),
 			"github_organization":    tableGitHubOrganization(),
 			"github_pull_request":    tableGitHubPullRequest(),
+			"github_release":         tableGitHubRelease(ctx),
 			"github_repository":      tableGitHubRepository(),
 			"github_user":            tableGitHubUser(),
+			"github_workflow":        tableGitHubWorkflow(ctx),
 		},
 	}
 	return p

@@ -37,7 +37,7 @@ func gitHubGistColumns() []*plugin.Column {
 func tableGitHubGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_gist",
-		Description: "Github Gist is a simple way to share snippets and pastes with others.",
+		Description: "GitHub Gist is a simple way to share snippets and pastes with others.",
 		List: &plugin.ListConfig{
 			Hydrate:    tableGitHubGistList,
 			KeyColumns: plugin.SingleColumn("id"),

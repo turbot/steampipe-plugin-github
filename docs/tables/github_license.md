@@ -1,6 +1,6 @@
 # Table: github_license
 
-Github allows you to associate a license with your repository.  The `github_license` table lists information about the available licenses.
+GitHub allows you to associate a license with your repository.  The `github_license` table lists information about the available licenses.
 
 ## Examples
 

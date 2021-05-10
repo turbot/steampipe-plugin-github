@@ -13,7 +13,7 @@ import (
 func tableGitHubMyOrganization() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_organization",
-		Description: "Github Organizations that you are a member of. Github Organizations are shared accounts where businesses and open-source projects can collaborate across many projects at once.",
+		Description: "GitHub Organizations that you are a member of. GitHub Organizations are shared accounts where businesses and open-source projects can collaborate across many projects at once.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyOrganizationList,
 		},

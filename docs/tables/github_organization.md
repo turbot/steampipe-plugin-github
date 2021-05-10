@@ -8,7 +8,7 @@ To list organizations **that you are a member of**, use the `github_my_organizat
 
 ## Examples
 
-### Basic info for a Github Organization
+### Basic info for a GitHub Organization
 
 ```sql
 select
