@@ -20,6 +20,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_branch":              tableGitHubBranch(ctx),
 			"github_branch_protection":   tableGitHubBranchProtection(ctx),
 			"github_commit":              tableGitHubCommit(ctx),
+			"github_community_profile":   tableGitHubCommunityProfile(ctx),
 			"github_gist":                tableGitHubGist(),
 			"github_gitignore":           tableGitHubGitignore(),
 			"github_license":             tableGitHubLicense(),
