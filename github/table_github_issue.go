@@ -25,7 +25,7 @@ func gitHubIssueColumns() []*plugin.Column {
 		{Name: "closed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was closed."},
 		{Name: "comments", Type: proto.ColumnType_INT, Description: "The number of comments on the issue."},
 		{Name: "comments_url", Type: proto.ColumnType_STRING, Description: "The API Comments URL."},
-		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "he timestamp when the issue was created."},
+		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was created."},
 		{Name: "events_url", Type: proto.ColumnType_STRING, Description: "The API Events URL."},
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the issue page in GitHub."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the issue."},
