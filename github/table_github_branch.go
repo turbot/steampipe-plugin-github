@@ -27,7 +27,7 @@ func tableGitHubBranch(ctx context.Context) *plugin.Table {
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
 			{Name: "commit_sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("Commit.SHA"), Description: "Commit SHA the branch refers to."},
 			{Name: "commit_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Commit.URL"), Description: "Commit URL the branch refers to."},
-			{Name: "protected", Type: proto.ColumnType_BOOL, Description: "True if the branch is protected.."},
+			{Name: "protected", Type: proto.ColumnType_BOOL, Description: "True if the branch is protected."},
 		},
 	}
 }

@@ -31,7 +31,7 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 			{Name: "restrictions_apps", Type: proto.ColumnType_JSON, Transform: transform.FromField("Restrictions.Apps"), Description: "Applications can push to the branch only if in this list."},
 			{Name: "restrictions_teams", Type: proto.ColumnType_JSON, Transform: transform.FromField("Restrictions.Teams"), Description: "Teams can push to the branch only if in this list."},
 			{Name: "restrictions_users", Type: proto.ColumnType_JSON, Transform: transform.FromField("Restrictions.Users"), Description: "Users can push to the branch only if in this list."},
-			{Name: "enforce_admins_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("EnforceAdmins.Enabled"), Description: "If true, enforce all configured restrictions for administrators.."},
+			{Name: "enforce_admins_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("EnforceAdmins.Enabled"), Description: "If true, enforce all configured restrictions for administrators."},
 			{Name: "allow_deletions_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowDeletions.Enabled"), Description: "If true, allow users with push access to delete matching branches."},
 			{Name: "allow_force_pushes_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowForcePushes.Enabled"), Description: "If true, permit force pushes for all users with push access."},
 			{Name: "required_linear_history_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequireLinearHistory.Enabled"), Description: "If true, prevent merge commits from being pushed to matching branches."},
