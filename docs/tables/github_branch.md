@@ -1,6 +1,6 @@
 # Table: github_branch
 
-Tags mark specific commits in a repository history.
+A branch is essentially is a unique set of code changes with a unique name.
 
 The `github_branch` table can be used to query information about any branch, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
 
