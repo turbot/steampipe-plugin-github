@@ -51,7 +51,6 @@ select
   members_can_create_private_repos,
   members_can_create_public_repos,
   members_can_create_repos,
-  members_can_create_repositories,
   default_repo_permission,
   two_factor_requirement_enabled
 from
