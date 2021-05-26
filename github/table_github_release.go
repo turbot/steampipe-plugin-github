@@ -53,10 +53,6 @@ func tableGitHubRelease(ctx context.Context) *plugin.Table {
 	}
 }
 
-func repositoryFullNameQual(_ context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	return d.KeyColumnQuals["repository_full_name"].GetStringValue(), nil
-}
-
 func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
