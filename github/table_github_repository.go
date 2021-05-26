@@ -19,7 +19,7 @@ func gitHubRepositoryColumns() []*plugin.Column {
 		{Name: "language", Type: proto.ColumnType_STRING, Description: "The repository language (JavaScript, Go, etc)"},
 		{Name: "private", Type: proto.ColumnType_BOOL, Description: "If true, the repo is private, otherwise it is public."},
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the repo."},
-
+		// Other columns
 		{Name: "allow_merge_commit", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows merge commits.", Hydrate: tableGitHubRepositoryGet},
 		{Name: "allow_rebase_merge", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows rebase merges.", Hydrate: tableGitHubRepositoryGet},
 		{Name: "allow_squash_merge", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows squash merges.", Hydrate: tableGitHubRepositoryGet},
@@ -28,8 +28,8 @@ func gitHubRepositoryColumns() []*plugin.Column {
 		{Name: "code_of_conduct_key", Type: proto.ColumnType_STRING, Description: "Unique key for code of conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Key"), Hydrate: tableGitHubRepositoryGet},
 		{Name: "code_of_conduct_name", Type: proto.ColumnType_STRING, Description: "Name of the Code of Conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Name"), Hydrate: tableGitHubRepositoryGet},
 		{Name: "code_of_conduct_url", Type: proto.ColumnType_STRING, Description: "URL of the Code of Conduct for the repository.", Transform: transform.FromField("CodeOfConduct.URL"), Hydrate: tableGitHubRepositoryGet},
-		{Name: "collaborators", Type: proto.ColumnType_JSON, Description: "An array of users who have access to the repository, including their permissions.", Transform: transform.FromValue(), Hydrate: tableGitHubRepositoryCollaboratorsGet},
-		{Name: "collaborator_logins", Type: proto.ColumnType_JSON, Description: "An array of user logins who have access to the repository, including their permissions.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubRepositoryCollaboratorsGet},
+		{Name: "collaborators", Type: proto.ColumnType_JSON, Description: "An array of users (teams and outside collaborators) who have access to the repository, including their permissions.", Transform: transform.FromValue(), Hydrate: tableGitHubRepositoryCollaboratorsGetAll},
+		{Name: "collaborator_logins", Type: proto.ColumnType_JSON, Description: "An array of logins for users (inside and outside collaborators) who have access to the repository.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubRepositoryCollaboratorsGetAll},
 		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the repository was created.", Transform: transform.FromField("CreatedAt").Transform(convertTimestamp)},
 		{Name: "default_branch", Type: proto.ColumnType_STRING, Description: "The name of the deafult branch. The default branch is the base branch for pull requests and code commits."},
 		{Name: "delete_branch_on_merge", Type: proto.ColumnType_BOOL, Description: "If enabled, branches are automatically deleted whe a PR is merged.", Hydrate: tableGitHubRepositoryGet},
@@ -59,6 +59,8 @@ func gitHubRepositoryColumns() []*plugin.Column {
 		{Name: "owner_id", Type: proto.ColumnType_INT, Description: "The user id (number) of the repository owner.", Transform: transform.FromField("Owner.ID")},
 		{Name: "owner_login", Type: proto.ColumnType_STRING, Description: "The user login name of the repository owner.", Transform: transform.FromField("Owner.Login")},
 		{Name: "owner_type", Type: proto.ColumnType_STRING, Description: "The type of the repository owner (User or Organization).", Transform: transform.FromField("Owner.Type")},
+		{Name: "outside_collaborators", Type: proto.ColumnType_JSON, Description: "An array of outside collaborators who have access to the repository, including their permissions.", Transform: transform.FromValue(), Hydrate: tableGitHubRepositoryCollaboratorsGetOutside},
+		{Name: "outside_collaborator_logins", Type: proto.ColumnType_JSON, Description: "An array of logins for outside collaborators who have access to the repository.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubRepositoryCollaboratorsGetOutside},
 		{Name: "pushed_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp of the last push to the repository.", Transform: transform.FromField("PushedAt").Transform(convertTimestamp)},
 		{Name: "size", Type: proto.ColumnType_INT, Description: "The size of the whole repository (including history), in kilobytes."},
 		{Name: "ssh_url", Type: proto.ColumnType_STRING, Description: "The url to clone this repo via ssh."},
@@ -162,7 +164,15 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 	return detail, nil
 }
 
-func tableGitHubRepositoryCollaboratorsGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubRepositoryCollaboratorsGetAll(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return tableGitHubRepositoryCollaboratorsGetVariation("all", ctx, d, h)
+}
+
+func tableGitHubRepositoryCollaboratorsGetOutside(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return tableGitHubRepositoryCollaboratorsGetVariation("outside", ctx, d, h)
+}
+
+func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 
 	repo := h.Item.(*github.Repository)
@@ -173,7 +183,10 @@ func tableGitHubRepositoryCollaboratorsGet(ctx context.Context, d *plugin.QueryD
 
 	var repositoryCollaborators []*github.User
 
-	opt := &github.ListCollaboratorsOptions{ListOptions: github.ListOptions{PerPage: 100}}
+	opt := &github.ListCollaboratorsOptions{
+		Affiliation: variant,
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
 
 	for {
 
