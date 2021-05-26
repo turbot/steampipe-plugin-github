@@ -1,8 +1,11 @@
 # Table: github_community_profile
 
-Community profile measures and information (e.g. README location) for a repository.
+Community profile measures and information (e.g. README location) for a public repository.
 
-The `github_community_profile` table can be used to query information about any tag, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
+Note:
+
+- A `repository_full_name` must be provided in all queries to this table.
+- Community profile data is only available for public GitHub repositories.
 
 ## Examples
 
