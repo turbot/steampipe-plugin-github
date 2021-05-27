@@ -23,7 +23,7 @@ func gitHubRepositoryColumns() []*plugin.Column {
 		{Name: "allow_merge_commit", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows merge commits.", Hydrate: tableGitHubRepositoryGet},
 		{Name: "allow_rebase_merge", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows rebase merges.", Hydrate: tableGitHubRepositoryGet},
 		{Name: "allow_squash_merge", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows squash merges.", Hydrate: tableGitHubRepositoryGet},
-		{Name: "archived", Type: proto.ColumnType_BOOL, Description: "If true, the repository allows rebase merges."},
+		{Name: "archived", Type: proto.ColumnType_BOOL, Description: "If true, the repository is archived and read-only."},
 		{Name: "clone_url", Type: proto.ColumnType_STRING, Description: "URL that can be provided to git clone to clone the repository via HTTPS."},
 		{Name: "code_of_conduct_key", Type: proto.ColumnType_STRING, Description: "Unique key for code of conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Key"), Hydrate: tableGitHubRepositoryGet},
 		{Name: "code_of_conduct_name", Type: proto.ColumnType_STRING, Description: "Name of the Code of Conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Name"), Hydrate: tableGitHubRepositoryGet},
