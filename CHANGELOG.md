@@ -4,8 +4,8 @@ _What's new?_
 
 - Updated plugin license to Apache 2.0 per [turbot/steampipe#488](https://github.com/turbot/steampipe/issues/488)
 - New tables added
-  - [github_branch_protection](https://hub.steampipe.io/plugins/turbot/github/tables/github_branch_protection)
-  - [github_community_profile](https://hub.steampipe.io/plugins/turbot/github/tables/github_community_profile)
+  - [github_branch_protection](https://hub.steampipe.io/plugins/turbot/github/tables/github_branch_protection) ([#37](https://github.com/turbot/steampipe-plugin-github/issues/37))
+  - [github_community_profile](https://hub.steampipe.io/plugins/turbot/github/tables/github_community_profile) ([#40](https://github.com/turbot/steampipe-plugin-github/issues/40))
 
 _Enhancements_
 
