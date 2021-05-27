@@ -1,3 +1,20 @@
+## v0.5.0 [2021-05-27]
+
+_What's new?_
+
+- Updated plugin license to Apache 2.0 per [turbot/steampipe#488](https://github.com/turbot/steampipe/issues/488)
+- New tables added
+  - [github_branch_protection](https://hub.steampipe.io/plugins/turbot/github/tables/github_branch_protection)
+  - [github_community_profile](https://hub.steampipe.io/plugins/turbot/github/tables/github_community_profile)
+
+_Enhancements_
+
+- Updated: Add `outside_collaborators` and `outside_collaborator_logins` columns to `github_repository` and `github_my_repository` tables ([#38](https://github.com/turbot/steampipe-plugin-github/issues/38))
+
+_Bug fixes_
+
+- Fixed: Remove duplicate column `members_can_create_repositories` from `github_organization` and `github_my_organization` tables ([#36](https://github.com/turbot/steampipe-plugin-github/pull/36))
+
 ## v0.4.0 [2021-05-15]
 
 _What's new?_
