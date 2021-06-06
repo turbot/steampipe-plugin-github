@@ -1,3 +1,10 @@
+## v0.5.1 [2021-06-05]
+
+_Bug fixes_
+
+- Fixed: Incorrect reference in documentation.
+
+
 ## v0.5.0 [2021-05-27]
 
 _What's new?_
