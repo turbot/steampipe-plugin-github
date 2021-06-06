@@ -10,7 +10,7 @@ social_about: Use SQL to query repos, orgs and more from GitHub. Open source CLI
 social_preview: "/images/plugins/turbot/github-social-graphic.png"
 ---
 
-# GitHub + Turbot
+# GitHub + Steampipe
 
 [GitHub](https://www.github.com/) is a provider of Internet hosting for software development and version control using Git. It offers the distributed version control and source code management (SCM) functionality of Git, plus its own features.
 
