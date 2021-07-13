@@ -8,8 +8,6 @@ require (
 	github.com/google/go-github/v33 v33.0.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/go-hclog v0.16.0 // indirect
-	github.com/hashicorp/go-plugin v1.4.1 // indirect
-	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.10.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20210316155119-a95892c5f864 // indirect
 	github.com/iancoleman/strcase v0.1.3 // indirect
@@ -22,8 +20,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sethvargo/go-retry v0.1.0
 	github.com/stevenle/topsort v0.2.0 // indirect
-	github.com/turbot/go-kit v0.1.3 // indirect
-	github.com/turbot/steampipe-plugin-sdk v0.2.8
+	github.com/turbot/steampipe-plugin-sdk v1.3.0
 	github.com/zclconf/go-cty v1.8.3 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/net v0.0.0-20210508051633-16afe75a6701 // indirect
