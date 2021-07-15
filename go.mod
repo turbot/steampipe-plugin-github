@@ -20,7 +20,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sethvargo/go-retry v0.1.0
 	github.com/stevenle/topsort v0.2.0 // indirect
-	github.com/turbot/steampipe-plugin-sdk v1.3.0
+	github.com/turbot/steampipe-plugin-sdk v1.3.1
 	github.com/zclconf/go-cty v1.8.3 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/net v0.0.0-20210508051633-16afe75a6701 // indirect
