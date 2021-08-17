@@ -52,8 +52,13 @@ func parseRepoFullName(fullName string) (string, string) {
 
 // transforms
 
-func convertTimestamp(_ context.Context, input *transform.TransformData) (interface{}, error) {
-	return input.Value.(*github.Timestamp).Format(time.RFC3339), nil
+func convertTimestamp(ctx context.Context, input *transform.TransformData) (interface{}, error) {
+	switch t := input.Value.(type) {
+	case *github.Timestamp:
+		return t.Format(time.RFC3339), nil
+	default:
+		return nil, nil
+	}
 }
 
 func filterUserLogins(_ context.Context, input *transform.TransformData) (interface{}, error) {
