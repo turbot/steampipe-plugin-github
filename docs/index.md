@@ -71,7 +71,7 @@ Installing the latest aws plugin will create a config file (`~/.steampipe/config
 ```hcl
 connection "github" {
   plugin = "github"
-  token  = "111222333444555666777888999aaabbbcccddde"
+  token  = "ghp_111222333444555666777888999aaabbbcccddde"
 }
 ```
 - `token` - [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account.
