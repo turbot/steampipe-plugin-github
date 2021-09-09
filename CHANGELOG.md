@@ -1,9 +1,17 @@
+## v0.6.0 [2021-09-09]
+
+_Enhancements_
+
+- Documents are now updated with the latest format of the github personal access token and the correct link to clone the repository ([#49](https://github.com/turbot/steampipe-plugin-github/pull/49))([#47](https://github.com/turbot/steampipe-plugin-github/pull/47))
+- Recompiled plugin with [steampipe-plugin-sdk v1.5.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v150--2021-08-06)
+- Updated: Return nil if the released PublishedAt timestamp is not set
+- `github_my_issue` table now uses `RetryHydrate` function from Steampipe SDK for better error retry logic ([#19](https://github.com/turbot/steampipe-plugin-github/pull/19))
+
 ## v0.5.1 [2021-06-05]
 
 _Bug fixes_
 
 - Fixed: Incorrect reference in documentation.
-
 
 ## v0.5.0 [2021-05-27]
 
