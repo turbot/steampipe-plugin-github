@@ -5,7 +5,7 @@ _Enhancements_
 - Recompiled plugin with [steampipe-plugin-sdk v1.5.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v150--2021-08-06)
 - `PublishedAt` column of `github_release` table will now return `nil` if it does not contain any value
 - `github_my_issue` table now uses `RetryHydrate` function from Steampipe SDK for enhanced retry logic ([#19](https://github.com/turbot/steampipe-plugin-github/pull/19))
-- The document is now updated with the latest format of the Github personal access token ([#47](https://github.com/turbot/steampipe-plugin-github/pull/47))
+- The document is now updated with the latest format of the GitHub personal access token ([#47](https://github.com/turbot/steampipe-plugin-github/pull/47))
 
 ## v0.5.1 [2021-06-05]
 
