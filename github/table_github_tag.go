@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/google/go-github/v33/github"
@@ -36,9 +35,7 @@ func tableGitHubTag(ctx context.Context) *plugin.Table {
 func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	s := strings.Split(fullName, "/")
-	owner := s[0]
-	repo := s[1]
+	owner, repo := parseRepoFullName(fullName)
 	opts := &github.ListOptions{PerPage: 100}
 	for {
 		var tags []*github.RepositoryTag
