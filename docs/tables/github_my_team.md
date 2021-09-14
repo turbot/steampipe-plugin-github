@@ -1,6 +1,6 @@
 # Table: github_my_team
 
-Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.  The `github_my_team` table lists all teams in your organizations,
+Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.  The `github_my_team` table lists all teams in your organizations.
 
 
 ## Examples
