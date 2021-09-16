@@ -66,7 +66,7 @@ steampipe plugin install github
 
 ### Configuration
 
-Installing the latest aws plugin will create a config file (`~/.steampipe/config/github.spc`) with a single connection named `github`:
+Installing the latest github plugin will create a config file (`~/.steampipe/config/github.spc`) with a single connection named `github`:
 
 ```hcl
 connection "github" {
