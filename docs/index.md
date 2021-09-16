@@ -43,7 +43,7 @@ from
 
 ## Documentation
 
-- **[Table definitions & examples →](/plugins/turbot/github/tables)**
+- **[Table definitions & examples →](https://hub.steampipe.io/plugins/turbot/github/tables)**
 
 ## Get started
 
