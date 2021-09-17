@@ -17,11 +17,12 @@ steampipe plugin install github
 Run a query:
 ```sql
 select
-  full_name,
-  private,
-  visibility
+  name,
+  language,
+  forks_count,
+  stargazers_count
 from
-  github_repository;
+  github_my_repository;
 ```
 
 ## Developing

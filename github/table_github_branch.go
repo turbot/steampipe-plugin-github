@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/google/go-github/v33/github"
@@ -35,9 +34,7 @@ func tableGitHubBranch(ctx context.Context) *plugin.Table {
 func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	s := strings.Split(fullName, "/")
-	owner := s[0]
-	repo := s[1]
+	owner, repo := parseRepoFullName(fullName)
 	opts := &github.BranchListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		var branches []*github.Branch
