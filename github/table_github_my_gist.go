@@ -9,6 +9,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubMyGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_gist",
@@ -20,16 +22,22 @@ func tableGitHubMyGist() *plugin.Table {
 	}
 }
 
-//// list ////
-func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+//// LIST FUNCTION
 
+func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
 
 	opt := &github.GistListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.ListOptions.PerPage) {
+			opt.ListOptions.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var repos []*github.Gist
 		var resp *github.Response
 
@@ -56,8 +64,12 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 
 		for _, i := range repos {
-			logger.Error("tableGitHubGistList", "i", i)
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {

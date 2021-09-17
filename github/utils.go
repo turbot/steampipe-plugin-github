@@ -73,7 +73,3 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 	}
 	return user_logins, nil
 }
-
-func repositoryFullNameQual(_ context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	return d.KeyColumnQuals["repository_full_name"].GetStringValue(), nil
-}

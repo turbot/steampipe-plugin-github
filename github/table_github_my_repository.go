@@ -6,9 +6,10 @@ import (
 
 	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
-
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
+
+//// TABLE DEFINITION
 
 func tableGitHubMyRepository() *plugin.Table {
 	return &plugin.Table{
@@ -16,21 +17,37 @@ func tableGitHubMyRepository() *plugin.Table {
 		Description: "GitHub Repositories that you are associated with.  GitHub Repositories contain all of your project's files and each file's revision history.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyRepositoryList,
+			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "visibility",
+					Require: plugin.Optional,
+				},
+			},
 		},
-
 		Columns: gitHubRepositoryColumns(),
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.RepositoryListOptions{Type: "all", ListOptions: github.ListOptions{PerPage: 100}}
 
-	for {
+	// Additional filters
+	if d.KeyColumnQuals["visibility"] != nil {
+		opt.Visibility = d.KeyColumnQuals["visibility"].GetStringValue()
+	}
 
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.ListOptions.PerPage) {
+			opt.ListOptions.PerPage = int(*limit)
+		}
+	}
+
+	for {
 		var repos []*github.Repository
 		var resp *github.Response
 
@@ -54,6 +71,11 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 
 		for _, i := range repos {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {

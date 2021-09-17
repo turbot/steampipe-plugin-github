@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_community_profile",
@@ -22,7 +24,7 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "Full name of the repository that contains the tag."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},
 			{Name: "health_percentage", Type: proto.ColumnType_INT, Description: "Community profile health as a percentage metric."},
 			{Name: "code_of_conduct", Type: proto.ColumnType_JSON, Transform: transform.FromField("Files.CodeOfConduct"), Description: "Code of conduct for the repository."},
 			{Name: "contributing", Type: proto.ColumnType_JSON, Transform: transform.FromField("Files.Contributing"), Description: "Contributing guidelines for the repository."},
@@ -35,10 +37,14 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 	}
 }
 
-func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
+
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
+
 	var result *github.CommunityHealthMetrics
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {

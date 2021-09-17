@@ -81,7 +81,6 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	client := connect(ctx, d)
 
 	var detail *github.User
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -90,7 +89,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Users.Get(ctx, login)
+		detail, _, err = client.Users.Get(ctx, login)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

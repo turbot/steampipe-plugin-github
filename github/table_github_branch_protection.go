@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_branch_protection",
@@ -26,7 +28,7 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 			Hydrate:    tableGitHubRepositoryBranchProtectionGet,
 		},
 		Columns: []*plugin.Column{
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "The full name of the repository (login/repo-name)."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "name", Type: proto.ColumnType_STRING, Hydrate: branchNameQual, Transform: transform.FromValue(), Description: "The branch name."},
 			{Name: "restrictions_apps", Type: proto.ColumnType_JSON, Transform: transform.FromField("Restrictions.Apps"), Description: "Applications can push to the branch only if in this list."},
 			{Name: "restrictions_teams", Type: proto.ColumnType_JSON, Transform: transform.FromField("Restrictions.Teams"), Description: "Teams can push to the branch only if in this list."},
@@ -41,16 +43,14 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 	}
 }
 
-func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var issueNumber int
+//// LIST FUNCTION
 
+func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubRepositoryIssueGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
+	owner, repo := parseRepoFullName(fullName)
 
 	branchName := ""
 
@@ -60,6 +60,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	} else {
 		branchName = quals["name"].GetStringValue()
 	}
+	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
 
 	client := connect(ctx, d)
 

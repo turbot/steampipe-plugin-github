@@ -6,9 +6,10 @@ import (
 
 	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
-
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
+
+//// TABLE DEFINITION
 
 func tableGitHubMyOrganization() *plugin.Table {
 	return &plugin.Table{
@@ -21,15 +22,21 @@ func tableGitHubMyOrganization() *plugin.Table {
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.ListOptions{PerPage: 100}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.PerPage) {
+			opt.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var orgs []*github.Organization
 		var resp *github.Response
 
@@ -53,6 +60,11 @@ func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, _ *
 
 		for _, i := range orgs {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {

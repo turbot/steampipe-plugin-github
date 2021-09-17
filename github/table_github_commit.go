@@ -7,18 +7,39 @@ import (
 	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
 
+	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
+
+//// TABLE DEFINITION
 
 func tableGitHubCommit(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_commit",
 		Description: "GitHub Commits bundle project files for download by users.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubCommitList,
+			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "repository_full_name",
+					Require: plugin.Required,
+				},
+				{
+					Name:    "sha",
+					Require: plugin.Optional,
+				},
+				{
+					Name:    "author_login",
+					Require: plugin.Optional,
+				},
+				{
+					Name:      "author_date",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
+			},
+			Hydrate: tableGitHubCommitList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "sha"}),
@@ -26,7 +47,7 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "Full name of the repository that contains the commit."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the commit."},
 			{Name: "sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("SHA"), Description: "SHA of the commit."},
 			// Other columns
 			{Name: "author_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Author.Login"), Description: "The login name of the author of the commit."},
@@ -47,6 +68,8 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
@@ -55,8 +78,45 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	opts := &github.CommitsListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
-	for {
+	// Additional filters
+	if d.KeyColumnQuals["sha"] != nil {
+		opts.SHA = d.KeyColumnQuals["sha"].GetStringValue()
+	}
 
+	if d.KeyColumnQuals["author_login"] != nil {
+		opts.Author = d.KeyColumnQuals["author_login"].GetStringValue()
+	}
+
+	if d.Quals["author_date"] != nil {
+		for _, q := range d.Quals["author_date"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			beforeTime := givenTime.Add(time.Duration(-1) * time.Second)
+			afterTime := givenTime.Add(time.Second * 1)
+
+			switch q.Operator {
+			case ">":
+				opts.Since = afterTime
+			case ">=":
+				opts.Since = givenTime
+			case "=":
+				opts.Since = givenTime
+				opts.Until = givenTime
+			case "<=":
+				opts.Until = givenTime
+			case "<":
+				opts.Until = beforeTime
+			}
+		}
+	}
+
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opts.ListOptions.PerPage) {
+			opts.ListOptions.PerPage = int(*limit)
+		}
+	}
+
+	for {
 		var commits []*github.RepositoryCommit
 		var resp *github.Response
 
@@ -80,6 +140,11 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 		for _, i := range commits {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {
@@ -91,6 +156,8 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	return nil, nil
 }
+
+//// HYDRATE FUNCTIONS
 
 func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
@@ -105,15 +172,19 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	} else {
 		sha = d.KeyColumnQuals["sha"].GetStringValue()
 	}
-
 	fullName := quals["repository_full_name"].GetStringValue()
+
+	// Return nil, if no input provided
+	if fullName == "" || sha == "" {
+		return nil, nil
+	}
+
 	owner, repo = parseRepoFullName(fullName)
 	logger.Trace("tableGitHubCommitGet", "owner", owner, "repo", repo, "sha", sha)
 
 	client := connect(ctx, d)
 
 	var detail *github.RepositoryCommit
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -122,7 +193,7 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Repositories.GetCommit(ctx, owner, repo, sha)
+		detail, _, err = client.Repositories.GetCommit(ctx, owner, repo, sha)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -134,4 +205,26 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	return detail, nil
+}
+
+func buildGithubCommitListOptions(equalQuals plugin.KeyColumnEqualsQualMap, quals plugin.KeyColumnQualMap) *github.BranchListOptions {
+	request := &github.BranchListOptions{}
+
+	if equalQuals["protected"] != nil {
+		request.Protected = types.Bool(equalQuals["protected"].GetBoolValue())
+	}
+
+	// Non-Equals Qual Map handling
+	if quals["protected"] != nil {
+		for _, q := range quals["protected"].Quals {
+			value := q.Value.GetBoolValue()
+			if q.Operator == "<>" {
+				request.Protected = types.Bool(false)
+				if !value {
+					request.Protected = types.Bool(true)
+				}
+			}
+		}
+	}
+	return request
 }

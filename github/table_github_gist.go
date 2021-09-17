@@ -34,6 +34,8 @@ func gitHubGistColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_gist",
@@ -46,12 +48,12 @@ func tableGitHubGist() *plugin.Table {
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
-	var id string
 
+	var id string
 	if h.Item != nil {
 		gist := h.Item.(*github.Gist)
 		id = *gist.ID
@@ -60,7 +62,6 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	var detail *github.Gist
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -70,7 +71,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Gists.Get(ctx, id)
+		detail, _, err = client.Gists.Get(ctx, id)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

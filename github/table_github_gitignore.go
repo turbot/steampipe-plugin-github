@@ -11,6 +11,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubGitignore() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_gitignore",
@@ -30,17 +32,20 @@ func tableGitHubGitignore() *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
+
 	var items []string
-	var resp *github.Response
+
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
 		return nil, err
 	}
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		items, resp, err = client.Gitignores.List(ctx)
+		items, _, err = client.Gitignores.List(ctx)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -51,9 +56,16 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, _ *plugi
 	}
 	for _, i := range items {
 		d.StreamListItem(ctx, github.Gitignore{Name: github.String(i)})
+
+		// Context can be cancelled due to manual cancellation or the limit has been hit
+		if plugin.IsCancelled(ctx) {
+			return nil, nil
+		}
 	}
 	return nil, nil
 }
+
+//// HYDRATE FUNCTIONS
 
 func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var name string
@@ -63,16 +75,21 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 	} else {
 		name = d.KeyColumnQuals["name"].GetStringValue()
 	}
+
+	// Return nil, if no input provided
+	if name == "" {
+		return nil, nil
+	}
+
 	client := connect(ctx, d)
 	var detail *github.Gitignore
-	var resp *github.Response
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
 		return detail, err
 	}
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Gitignores.Get(ctx, name)
+		detail, _, err = client.Gitignores.Get(ctx, name)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

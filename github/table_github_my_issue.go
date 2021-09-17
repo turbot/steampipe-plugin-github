@@ -13,19 +13,35 @@ func tableGitHubMyIssue() *plugin.Table {
 		Description: "GitHub Issues owned by you. GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyIssueList,
+			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "state",
+					Require: plugin.Optional,
+				},
+			},
 		},
 		Columns: gitHubIssueColumns(),
 	}
 }
 
-//// HYDRATE FUNCTIONS
+//// LIST FUNCTION
 
 func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
-	// TO DO - get state and other filters from the quals
 	opt := &github.IssueListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 		State:       "all",
+	}
+
+	// Additional filters
+	if d.KeyColumnQuals["state"] != nil {
+		opt.State = d.KeyColumnQuals["state"].GetStringValue()
+	}
+
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.ListOptions.PerPage) {
+			opt.ListOptions.PerPage = int(*limit)
+		}
 	}
 
 	client := connect(ctx, d)
@@ -56,6 +72,11 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 			// Only issues, not PRs (those are in the pull_request table...)
 			if !i.IsPullRequest() {
 				d.StreamListItem(ctx, i)
+			}
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
 			}
 		}
 
