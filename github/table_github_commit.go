@@ -7,7 +7,6 @@ import (
 	"github.com/google/go-github/v33/github"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -52,6 +51,7 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 			// Other columns
 			{Name: "author_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Author.Login"), Description: "The login name of the author of the commit."},
 			{Name: "author_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Commit.Author.Date"), Description: "Timestamp when the author made this commit."},
+			{Name: "verified", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Commit.Verification.Verified"), Description: "True if the commit was verified with a signature."},
 			{Name: "comments_url", Type: proto.ColumnType_STRING, Description: "Comments URL of the commit."},
 			{Name: "commit", Type: proto.ColumnType_JSON, Description: "Commit details."},
 			{Name: "committer_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Committer.Login"), Description: "The login name of committer of the commit."},
@@ -63,14 +63,13 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 			{Name: "parents", Type: proto.ColumnType_JSON, Description: "Parent commits of the commit."},
 			{Name: "stats", Type: proto.ColumnType_JSON, Hydrate: tableGitHubCommitGet, Description: "Statistics of the commit."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the commit."},
-			{Name: "verified", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Commit.Verification.Verified"), Description: "True if the commit was verified with a signature."},
 		},
 	}
 }
 
 //// LIST FUNCTION
 
-func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
@@ -205,26 +204,4 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	return detail, nil
-}
-
-func buildGithubCommitListOptions(equalQuals plugin.KeyColumnEqualsQualMap, quals plugin.KeyColumnQualMap) *github.BranchListOptions {
-	request := &github.BranchListOptions{}
-
-	if equalQuals["protected"] != nil {
-		request.Protected = types.Bool(equalQuals["protected"].GetBoolValue())
-	}
-
-	// Non-Equals Qual Map handling
-	if quals["protected"] != nil {
-		for _, q := range quals["protected"].Quals {
-			value := q.Value.GetBoolValue()
-			if q.Operator == "<>" {
-				request.Protected = types.Bool(false)
-				if !value {
-					request.Protected = types.Bool(true)
-				}
-			}
-		}
-	}
-	return request
 }

@@ -114,15 +114,9 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, _ *plugin.
 //// HYDRATE FUNCTIONS
 
 func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var id int64
-	if h.Item != nil {
-		release := h.Item.(*github.RepositoryRelease)
-		id = *release.ID
-	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
-	}
-
+	id := d.KeyColumnQuals["id"].GetInt64Value()
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+
 	owner, repo := parseRepoFullName(fullName)
 	plugin.Logger(ctx).Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
 

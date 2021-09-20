@@ -22,7 +22,6 @@ from
   github_my_organization;
 ```
 
-
 ### Show members of an organization
 
 ```sql
@@ -37,7 +36,6 @@ from
 where
   login = 'turbot';
 ```
-
 
 ### Show Organization security settings
 
@@ -57,7 +55,6 @@ from
   github_my_organization;
 ```
 
-
 ### Show collaborators in your organization's repositories that are not members of the organization
 
 ```sql
@@ -72,5 +69,5 @@ where
   r.owner_login = o.login
   and collaborator_login not in (
     select m from github_my_organization, jsonb_array_elements_text(member_logins) as m
-  ) ;
+  );
 ```

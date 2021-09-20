@@ -12,12 +12,12 @@ import (
 )
 
 func gitHubIssueColumns() []*plugin.Column {
-
 	return []*plugin.Column{
 		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repoNameQual, Transform: transform.FromValue(), Description: "The full name of the repository (login/repo-name)."},
 		{Name: "issue_number", Type: proto.ColumnType_INT, Description: "The issue number.", Transform: transform.FromField("Number")},
 		{Name: "title", Type: proto.ColumnType_STRING, Description: "The issue title."},
 		{Name: "author_login", Type: proto.ColumnType_STRING, Description: "The login name of the user that submitted the PR.", Transform: transform.FromField("User.Login")},
+		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the issue (open, closed)."},
 		{Name: "author_association", Type: proto.ColumnType_STRING, Description: "The association of the issue author to the repository (COLLABORATOR,CONTRIBUTOR, etc)."},
 		{Name: "assignee_logins", Type: proto.ColumnType_JSON, Description: "An array of user login names that are assigned to the issue.", Transform: transform.FromField("Assignees").Transform(filterUserLogins)},
 
@@ -37,7 +37,6 @@ func gitHubIssueColumns() []*plugin.Column {
 		{Name: "milestone_title", Type: proto.ColumnType_STRING, Description: "The title of the milestone this issue is associated with.", Transform: transform.FromField("Milestone.Title")},
 		{Name: "repository_url", Type: proto.ColumnType_STRING, Description: "The API Repository URL."},
 		{Name: "reactions", Type: proto.ColumnType_JSON, Description: "An object containing the count of various reactions on the issue."},
-		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the issue (open, closed)."},
 		{Name: "tags", Type: proto.ColumnType_JSON, Description: "A map of label names associated with this issue, in Steampipe standard format.", Transform: transform.From(getIssueTags)},
 		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was last updated."},
 		{Name: "url", Type: proto.ColumnType_STRING, Description: "The API URL of the issue."},
@@ -77,7 +76,7 @@ func tableGitHubIssue() *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.KeyColumnQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()

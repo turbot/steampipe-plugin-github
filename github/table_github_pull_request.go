@@ -18,6 +18,7 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "issue_number", Type: proto.ColumnType_INT, Description: "The PR issue number.", Transform: transform.FromField("Number")},
 		{Name: "title", Type: proto.ColumnType_STRING, Description: "The PR issue title."},
 		{Name: "author_login", Type: proto.ColumnType_STRING, Description: "The login name of the user that submitted the PR.", Transform: transform.FromField("User.Login")},
+		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the PR (open, closed)."},
 		{Name: "assignee_logins", Type: proto.ColumnType_JSON, Description: "An array of user login names that are assigned to the issue.", Transform: transform.FromField("Assignees").Transform(filterUserLogins)},
 
 		{Name: "additions", Type: proto.ColumnType_INT, Hydrate: tableGitHubPullRequestGet, Description: "The number of additions in this PR."},
@@ -54,13 +55,14 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "review_comments", Type: proto.ColumnType_INT, Hydrate: tableGitHubPullRequestGet, Description: "The number of review comments in this PR."},
 		{Name: "review_comments_url", Type: proto.ColumnType_STRING, Description: "The URL of the Review Comments page in GitHub."},
 		{Name: "review_comment_url", Type: proto.ColumnType_STRING, Description: "The URL of the Review Comment page in GitHub."},
-		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the PR (open, closed)."},
 		{Name: "statuses_url", Type: proto.ColumnType_STRING, Description: "The URL of the Statuses page in GitHub."},
 		{Name: "tags", Type: proto.ColumnType_JSON, Description: "A map of label names associated with this PR, in Steampipe standard format.", Transform: transform.From(getPullRequestTags)},
 		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the PR was last updated."},
 		{Name: "url", Type: proto.ColumnType_STRING, Description: "The API URL of the PR."},
 	}
 }
+
+//// TABLE DEFINITION
 
 func tableGitHubPullRequest() *plugin.Table {
 	return &plugin.Table{
@@ -87,9 +89,9 @@ func tableGitHubPullRequest() *plugin.Table {
 	}
 }
 
-//// HYDRATE FUNCTIONS
+//// LIST FUNCTION
 
-func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
@@ -158,6 +160,8 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
 	var issueNumber int
@@ -168,7 +172,6 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	if h.Item != nil {
 		issue := h.Item.(*github.PullRequest)
 		issueNumber = *issue.Number
-
 	} else {
 		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
 	}

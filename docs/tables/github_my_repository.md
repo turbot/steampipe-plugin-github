@@ -2,7 +2,7 @@
 
 A repository contains all of your project's files and each file's revision history.
 
-You can own repositories individually, or you can share ownership of repositories with other people in an organization.  The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
+You can own repositories individually, or you can share ownership of repositories with other people in an organization. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
 
 To query **ANY** repository, including public repos, use the `github_repository` table.
 
@@ -50,6 +50,7 @@ from
 where
   not private;
 ```
+
 OR
 
 ```sql
@@ -63,7 +64,7 @@ where
   visibility = 'public';
 ```
 
-### List all your repositories and their collaborators 
+### List all your repositories and their collaborators
 
 ```sql
 select
@@ -90,10 +91,10 @@ order by
   c ->> 'login';
 ```
 
-
 ### List collaborators who have "push" or "admin" to a specific repository
 
 In this case, collaborators who have "push" or "admin" to the `turbot/steampipe-plugin-aws repository`:
+
 ```sql
 select
   name,
@@ -111,12 +112,12 @@ where
     (c -> 'permissions' -> 'admin') :: bool
     or (c -> 'permissions' -> 'push') :: bool
   );
-  ```
-
+```
 
 ### List collaborators for organization repositories that are not organization members
 
 In this case, for the `turbot` org:
+
 ```sql
 select
   name,

@@ -34,7 +34,7 @@ func tableGitHubStargazer(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()

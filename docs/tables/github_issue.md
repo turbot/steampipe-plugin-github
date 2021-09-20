@@ -1,15 +1,15 @@
 # Table: github_issue
 
-GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.  
+GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub.
 
-The `github_issue` table can be used to query issues belonging to a repository, and **you must specify which repository** with `where repository_full_name='owner/repository'`.  To list all the issues **assigned to you across all repositories** use the `github_my_issue` table instead.
+The `github_issue` table can be used to query issues belonging to a repository, and **you must specify which repository** with `where repository_full_name='owner/repository'`. To list all the issues **assigned to you across all repositories** use the `github_my_issue` table instead.
 
-Note that pull requests are technically also issues in GitHub, however we do not include them in the `github_issue` table; You should use the `github_pull_request` table to query PRs.  
-
+Note that pull requests are technically also issues in GitHub, however we do not include them in the `github_issue` table; You should use the `github_pull_request` table to query PRs.
 
 ## Examples
 
 ### List the issues in a repository
+
 ```sql
 select
   repository_full_name,
@@ -23,7 +23,6 @@ from
 where
   repository_full_name = 'turbot/steampipe';
 ```
-
 
 ### List the unassigned open issues in a repository
 
@@ -61,7 +60,6 @@ where
   and tags ? 'bug';
 ```
 
-
 ### List the open issues in a repository assigned to a specific user
 
 ```sql
@@ -80,7 +78,6 @@ where
   and state = 'open';
 ```
 
-
 ### Report of the number issues in a repository by author
 
 ```sql
@@ -97,8 +94,8 @@ order by
   num_issues desc;
 ```
 
-
 ### Join with github_my_repository to find open issues in multiple repos that you own or contribute to
+
 ```sql
 select
   i.repository_full_name,
@@ -112,4 +109,3 @@ where
   and i.state = 'open'
   and i.repository_full_name = r.full_name;
 ```
-

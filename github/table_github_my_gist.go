@@ -25,7 +25,6 @@ func tableGitHubMyGist() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
 
 	opt := &github.GistListOptions{ListOptions: github.ListOptions{PerPage: 100}}
@@ -49,10 +48,6 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			repos, resp, err = client.Gists.List(ctx, "", opt)
-			logger.Error("tableGitHubGistList", "resp", resp)
-			logger.Error("tableGitHubGistList", "repos", repos)
-			logger.Error("tableGitHubGistList", "err", err)
-
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}

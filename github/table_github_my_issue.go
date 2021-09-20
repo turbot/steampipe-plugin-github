@@ -7,6 +7,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubMyIssue() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_issue",
@@ -59,7 +61,7 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 		if err != nil {
 			return nil, err
 		}

@@ -91,10 +91,6 @@ func tableGitHubRepository() *plugin.Table {
 	}
 }
 
-type gitHubRepositoryCollaborator struct {
-	Login string
-}
-
 //// LIST FUNCTION
 
 func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -127,7 +123,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
-// hydrate functions ////
+//// HYDRATE FUNCTIONS
 
 func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
@@ -212,10 +208,7 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		if err != nil {
 			return nil, err
 		}
-
-		for _, i := range users {
-			repositoryCollaborators = append(repositoryCollaborators, i)
-		}
+		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {
 			break

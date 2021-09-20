@@ -4,7 +4,7 @@ The `github_user` table does not list all users via the API - there is not curre
 
 ## Examples
 
-### Get information for a user
+### Get information for an user
 
 ```sql
 select
@@ -33,7 +33,6 @@ from
 where
   u.login = member_login;
 ```
-
 
 ### List of users that collaborate on a repository that you own
 

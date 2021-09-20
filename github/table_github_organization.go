@@ -166,10 +166,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		if err != nil {
 			return nil, err
 		}
-
-		for _, i := range users {
-			repositoryCollaborators = append(repositoryCollaborators, i)
-		}
+		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {
 			break

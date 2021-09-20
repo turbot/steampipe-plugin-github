@@ -30,14 +30,18 @@ func tableGitHubMyRepository() *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	opt := &github.RepositoryListOptions{Type: "all", ListOptions: github.ListOptions{PerPage: 100}}
+	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
 	// Additional filters
 	if d.KeyColumnQuals["visibility"] != nil {
 		opt.Visibility = d.KeyColumnQuals["visibility"].GetStringValue()
+	} else {
+		// Will cause a 422 error if 'type' used in the same request as visibility or
+		// affiliation.
+		opt.Type = "all"
 	}
 
 	limit := d.QueryContext.Limit

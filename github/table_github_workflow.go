@@ -105,15 +105,8 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, _ *plugin
 
 //// HYDRATE FUNCTIONS
 
-func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var id int64
-	if h.Item != nil {
-		workflow := h.Item.(*github.Workflow)
-		id = *workflow.ID
-	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
-	}
-
+func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	id := d.KeyColumnQuals["id"].GetInt64Value()
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
