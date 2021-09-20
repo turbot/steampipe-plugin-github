@@ -10,11 +10,13 @@
 ## Quick start
 
 Install the plugin with [Steampipe](https://steampipe.io):
+
 ```shell
 steampipe plugin install github
 ```
 
 Run a query:
+
 ```sql
 select
   name,

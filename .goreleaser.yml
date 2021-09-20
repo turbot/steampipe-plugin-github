@@ -16,7 +16,7 @@ builds:
       - amd64
       - arm64
     ignore:
-      - goos: darwin # docs suggest that darwin arm64 should compile, but doesnt...
+      - goos: darwin # docs suggest that darwin arm64 should compile, but doesn't...
         goarch: arm64
 
     id: "steampipe-github"
