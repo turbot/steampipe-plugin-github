@@ -18,6 +18,7 @@ func gitHubIssueColumns() []*plugin.Column {
 		{Name: "title", Type: proto.ColumnType_STRING, Description: "The issue title."},
 		{Name: "author_login", Type: proto.ColumnType_STRING, Description: "The login name of the user that submitted the PR.", Transform: transform.FromField("User.Login")},
 		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the issue (open, closed)."},
+		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was created."},
 		{Name: "author_association", Type: proto.ColumnType_STRING, Description: "The association of the issue author to the repository (COLLABORATOR,CONTRIBUTOR, etc)."},
 		{Name: "assignee_logins", Type: proto.ColumnType_JSON, Description: "An array of user login names that are assigned to the issue.", Transform: transform.FromField("Assignees").Transform(filterUserLogins)},
 
@@ -25,7 +26,6 @@ func gitHubIssueColumns() []*plugin.Column {
 		{Name: "closed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was closed."},
 		{Name: "comments", Type: proto.ColumnType_INT, Description: "The number of comments on the issue."},
 		{Name: "comments_url", Type: proto.ColumnType_STRING, Description: "The API Comments URL."},
-		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the issue was created."},
 		{Name: "events_url", Type: proto.ColumnType_STRING, Description: "The API Events URL."},
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the issue page in GitHub."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the issue."},
@@ -63,6 +63,11 @@ func tableGitHubIssue() *plugin.Table {
 					Name:    "state",
 					Require: plugin.Optional,
 				},
+				{
+					Name:      "created_at",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">="},
+				},
 			},
 			Hydrate: tableGitHubRepositoryIssueList,
 		},
@@ -95,6 +100,20 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, _ 
 
 	if quals["author_login"] != nil {
 		opt.Creator = quals["author_login"].GetStringValue()
+	}
+
+	if d.Quals["created_at"] != nil {
+		for _, q := range d.Quals["created_at"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			afterTime := givenTime.Add(time.Second * 1)
+
+			switch q.Operator {
+			case ">":
+				opt.Since = afterTime
+			case ">=":
+				opt.Since = givenTime
+			}
+		}
 	}
 
 	client := connect(ctx, d)

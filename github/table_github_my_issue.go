@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -20,6 +21,11 @@ func tableGitHubMyIssue() *plugin.Table {
 					Name:    "state",
 					Require: plugin.Optional,
 				},
+				{
+					Name:      "created_at",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">="},
+				},
 			},
 		},
 		Columns: gitHubIssueColumns(),
@@ -37,6 +43,20 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	// Additional filters
 	if d.KeyColumnQuals["state"] != nil {
 		opt.State = d.KeyColumnQuals["state"].GetStringValue()
+	}
+
+	if d.Quals["created_at"] != nil {
+		for _, q := range d.Quals["created_at"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			afterTime := givenTime.Add(time.Second * 1)
+
+			switch q.Operator {
+			case ">":
+				opt.Since = afterTime
+			case ">=":
+				opt.Since = givenTime
+			}
+		}
 	}
 
 	limit := d.QueryContext.Limit

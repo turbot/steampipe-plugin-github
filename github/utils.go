@@ -19,10 +19,8 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
-	if &githubConfig != nil {
-		if githubConfig.Token != nil {
-			token = *githubConfig.Token
-		}
+	if githubConfig.Token != nil {
+		token = *githubConfig.Token
 	}
 
 	if token == "" {
