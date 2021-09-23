@@ -1,3 +1,15 @@
+## v0.6.1 [2021-09-23]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v1.6.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v161--2021-09-21) ([#63](https://github.com/turbot/steampipe-plugin-github/pull/63))
+- Updated several tables to use the helper function for parsing the `repository_full_name` column ([#55](https://github.com/turbot/steampipe-plugin-github/pull/55))
+
+_Bug fixes_
+
+- Removed all the incorrect references in the documentation (([#58](https://github.com/turbot/steampipe-plugin-github/pull/58))) ([#59](https://github.com/turbot/steampipe-plugin-github/pull/59))
+- Minor cleanup in github_my_team table document
+
 ## v0.6.0 [2021-09-09]
 
 _Enhancements_
