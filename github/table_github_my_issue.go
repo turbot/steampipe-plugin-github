@@ -97,7 +97,7 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if plugin.IsCancelled(ctx) {
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
