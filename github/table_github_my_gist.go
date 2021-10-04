@@ -56,7 +56,6 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 
 		for _, i := range repos {
-			logger.Error("tableGitHubGistList", "i", i)
 			d.StreamListItem(ctx, i)
 		}
 

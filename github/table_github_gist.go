@@ -31,6 +31,7 @@ func gitHubGistColumns() []*plugin.Column {
 		{Name: "owner_login", Type: pb.ColumnType_STRING, Description: "The user login name of the gist owner.", Transform: transform.FromField("Owner.Login")},
 		{Name: "owner_type", Type: pb.ColumnType_STRING, Description: "The type of the gist owner (User or Organization).", Transform: transform.FromField("Owner.Type")},
 		{Name: "updated_at", Type: pb.ColumnType_TIMESTAMP, Description: "The timestamp when the gist was last updated."},
+		{Name: "files", Type: pb.ColumnType_JSON, Transform: transform.FromField("Files").Transform(gistFileMapToArray), Description: "Files in the gist."},
 	}
 }
 
@@ -60,7 +61,6 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	var detail *github.Gist
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -70,7 +70,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Gists.Get(ctx, id)
+		detail, _, err = client.Gists.Get(ctx, id)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -82,4 +82,15 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 	d.StreamListItem(ctx, detail)
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func gistFileMapToArray(ctx context.Context, input *transform.TransformData) (interface{}, error) {
+	var objectList []github.GistFile
+	objectMap := input.Value.(map[github.GistFilename]github.GistFile)
+	for _, v := range objectMap {
+		objectList = append(objectList, v)
+	}
+	return objectList, nil
 }
