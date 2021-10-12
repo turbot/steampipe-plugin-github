@@ -1,3 +1,11 @@
+## v0.7.0 [2021-10-12]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v1.6.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v162--2021-10-08) ([#68](https://github.com/turbot/steampipe-plugin-github/pull/68))
+- Added the column `files` to `github_my_gist` and `github_gist` tables ([#66](https://github.com/turbot/steampipe-plugin-github/pull/66))
+- Reordered the permission scope in the docs/index.md file to match the list in GitHub personal access token page ([#67](https://github.com/turbot/steampipe-plugin-github/pull/67))
+
 ## v0.6.1 [2021-09-23]
 
 _Enhancements_
