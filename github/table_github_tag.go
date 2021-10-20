@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -37,24 +35,30 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	opts := &github.ListOptions{PerPage: 100}
+
+	type ListPageResponse struct {
+		tags []*github.RepositoryTag
+		resp *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		tags, resp, err := client.Repositories.ListTags(ctx, owner, repo, opts)
+		return ListPageResponse{
+			tags: tags,
+			resp: resp,
+		}, err
+	}
+
 	for {
-		var tags []*github.RepositoryTag
-		var resp *github.Response
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 		if err != nil {
 			return nil, err
 		}
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			tags, resp, err = client.Repositories.ListTags(ctx, owner, repo, opts)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		tags := listResponse.tags
+		resp := listResponse.resp
+
 		for _, i := range tags {
 			d.StreamListItem(ctx, i)
 		}

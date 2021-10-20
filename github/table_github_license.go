@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -46,31 +44,32 @@ func tableGitHubLicense() *plugin.Table {
 
 //// list ////
 
-func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	var items []*github.License
-	var resp *github.Response
+	type ListPageResponse struct {
+		licenses []*github.License
+		resp     *github.Response
+	}
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		licenses, resp, err := client.Licenses.List(ctx)
+		return ListPageResponse{
+			licenses: licenses,
+			resp:     resp,
+		}, err
+	}
+
+	listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
+
+	listResponse := listPageResponse.(ListPageResponse)
+	licenses := listResponse.licenses
+
 	if err != nil {
 		return nil, err
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		items, resp, err = client.Licenses.List(ctx)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	for _, i := range items {
+	for _, i := range licenses {
 		d.StreamListItem(ctx, i)
 	}
 
@@ -92,26 +91,27 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.License
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		license *github.License
+		resp    *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		license, resp, err := client.Licenses.Get(ctx, key)
+		return GetResponse{
+			license: license,
+			resp:    resp,
+		}, err
+	}
 
-		detail, resp, err = client.Licenses.Get(ctx, key)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+
+	getResp := getResponse.(GetResponse)
+	license := getResp.license
+
+	return license, nil
 }

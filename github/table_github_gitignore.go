@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -30,26 +28,32 @@ func tableGitHubGitignore() *plugin.Table {
 	}
 }
 
-func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
-	var items []string
-	var resp *github.Response
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+
+	type ListPageResponse struct {
+		gitIgnores []string
+		resp       *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		gitignore, resp, err := client.Gitignores.List(ctx)
+		return ListPageResponse{
+			gitIgnores: gitignore,
+			resp:       resp,
+		}, err
+	}
+
+	listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
+
 	if err != nil {
 		return nil, err
 	}
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		items, resp, err = client.Gitignores.List(ctx)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range items {
+
+	listResponse := listPageResponse.(ListPageResponse)
+	gitIgnores := listResponse.gitIgnores
+
+	for _, i := range gitIgnores {
 		d.StreamListItem(ctx, github.Gitignore{Name: github.String(i)})
 	}
 	return nil, nil
@@ -64,22 +68,28 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 		name = d.KeyColumnQuals["name"].GetStringValue()
 	}
 	client := connect(ctx, d)
-	var detail *github.Gitignore
-	var resp *github.Response
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+
+	type GetResponse struct {
+		gitIgnore *github.Gitignore
+		resp      *github.Response
 	}
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, resp, err = client.Gitignores.Get(ctx, name)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Gitignores.Get(ctx, name)
+		return GetResponse{
+			gitIgnore: detail,
+			resp:      resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
+
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+
+	getResp := getResponse.(GetResponse)
+	gitIgnore := getResp.gitIgnore
+
+	return gitIgnore, nil
 }

@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -35,24 +33,29 @@ func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	opts := &github.TrafficBreakdownOptions{Per: "week"}
-	var result *github.TrafficViews
-	var resp *github.Response
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+
+	type ListResponse struct {
+		trafficViews *github.TrafficViews
+		resp         *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		trafficViews, resp, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
+		return ListResponse{
+			trafficViews: trafficViews,
+			resp:         resp,
+		}, err
+	}
+
+	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		result, resp, err = client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range result.Views {
+
+	result := listResponse.(ListResponse)
+	trafficViews := result.trafficViews
+
+	for _, i := range trafficViews.Views {
 		d.StreamListItem(ctx, i)
 	}
 	return nil, nil

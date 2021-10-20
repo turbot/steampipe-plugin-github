@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -99,28 +97,29 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.Repository
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
 
-		detail, resp, err = client.Repositories.Get(ctx, owner, repoName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	d.StreamListItem(ctx, detail)
+
+	getResp := getResponse.(GetResponse)
+	repo := getResp.repo
+
+	d.StreamListItem(ctx, repo)
 	return nil, nil
 }
 
@@ -140,28 +139,29 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	client := connect(ctx, d)
 
-	var detail *github.Repository
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
 
-		detail, resp, err = client.Repositories.Get(ctx, owner, repoName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+
+	getResp := getResponse.(GetResponse)
+	repo := getResp.repo
+
+	return repo, nil
 }
 
 func tableGitHubRepositoryCollaboratorsGetAll(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -188,29 +188,30 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
+	type ListPageResponse struct {
+		repositoryCollaborators []*github.User
+		resp                    *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		repositoryCollaborators, resp, err := client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
+		return ListPageResponse{
+			repositoryCollaborators: repositoryCollaborators,
+			resp:                    resp,
+		}, err
+	}
+
 	for {
 
-		var users []*github.User
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			users, resp, err = client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
-			logger.Trace("tableGitHubRepositoryCollaboratorsGet", "Users", users)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		users := listResponse.repositoryCollaborators
+		resp := listResponse.resp
 
 		for _, i := range users {
 			repositoryCollaborators = append(repositoryCollaborators, i)

@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -96,30 +94,31 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 
 	client := connect(ctx, d)
 
+	type ListPageResponse struct {
+		pullReqs []*github.PullRequest
+		resp     *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		pullReqs, resp, err := client.PullRequests.List(ctx, owner, repo, opt)
+		return ListPageResponse{
+			pullReqs: pullReqs,
+			resp:     resp,
+		}, err
+	}
+
 	for {
-		var issues []*github.PullRequest
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			issues, resp, err = client.PullRequests.List(ctx, owner, repo, opt)
-
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
 
-		for _, i := range issues {
+		listResponse := listPageResponse.(ListPageResponse)
+		pullReqs := listResponse.pullReqs
+		resp := listResponse.resp
+
+		for _, i := range pullReqs {
 			d.StreamListItem(ctx, i)
 		}
 
@@ -154,28 +153,29 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.PullRequest
-	var resp *github.Response
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		pullReq *github.PullRequest
+		resp    *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.PullRequests.Get(ctx, owner, repo, issueNumber)
+		return GetResponse{
+			pullReq: detail,
+			resp:    resp,
+		}, err
+	}
 
-		detail, resp, err = client.PullRequests.Get(ctx, owner, repo, issueNumber)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+
+	getResp := getResponse.(GetResponse)
+	pullReq := getResp.pullReq
+
+	return pullReq, nil
 }
 
 func RepoNameFromQuals(_ context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
