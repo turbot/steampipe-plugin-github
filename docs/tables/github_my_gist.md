@@ -25,3 +25,19 @@ from
 where
   public;
 ```
+
+### Summarize your gists by language.
+
+```sql
+select
+  file ->> 'language' as language,
+  count(*)
+from
+  github_my_gist g
+cross join
+  jsonb_array_elements(g.files) file
+group by
+  language
+order by
+  count desc
+```

@@ -101,6 +101,10 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	var login string
 	if h.Item != nil {
 		org := h.Item.(*github.Organization)
+		// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
+		if org == nil {
+			return nil, nil
+		}
 		login = *org.Login
 	} else {
 		login = d.KeyColumnQuals["login"].GetStringValue()
@@ -136,6 +140,11 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	logger := plugin.Logger(ctx)
 
 	org := h.Item.(*github.Organization)
+	
+	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
+	if org == nil {
+		return nil, nil
+	}
 	orgName := *org.Login
 
 	client := connect(ctx, d)
