@@ -57,6 +57,8 @@ func convertTimestamp(ctx context.Context, input *transform.TransformData) (inte
 	switch t := input.Value.(type) {
 	case *github.Timestamp:
 		return t.Format(time.RFC3339), nil
+	case github.Timestamp:
+		return t.Format(time.RFC3339), nil
 	default:
 		return nil, nil
 	}
