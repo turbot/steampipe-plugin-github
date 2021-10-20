@@ -8,7 +8,10 @@ _What's new?_
 _Enhancements_
 
 - Recompiled plugin with [steampipe-plugin-sdk v1.7.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v170--2021-10-18) ([#77](https://github.com/turbot/steampipe-plugin-github/pull/77))
-- `github_organization` table will now return `null` instead of an error when `login` column doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
+
+_Bug fixes_
+
+- `github_organization` table will now return `null` instead of an error when `login` value for a GutHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
 
 ## v0.7.0 [2021-10-12]
 
