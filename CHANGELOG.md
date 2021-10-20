@@ -11,7 +11,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- `github_organization` table will now return an empty row instead of an error when `login` value for a GitHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
+- `github_organization` table will now return an empty row instead of error when `login` value for a GitHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
 
 ## v0.7.0 [2021-10-12]
 
