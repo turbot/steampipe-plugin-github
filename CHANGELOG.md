@@ -1,3 +1,18 @@
+## v0.8.0 [2021-10-20]
+
+_What's new?_
+
+- New tables added
+  - [github_rate_limit](https://hub.steampipe.io/plugins/turbot/github/tables/github_rate_limit) ([#74](https://github.com/turbot/steampipe-plugin-github/pull/74))
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v1.7.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v170--2021-10-18) ([#77](https://github.com/turbot/steampipe-plugin-github/pull/77))
+
+_Bug fixes_
+
+- `github_organization` table will now return an empty row instead of error when `login` value for a GitHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
+
 ## v0.7.0 [2021-10-12]
 
 _Enhancements_

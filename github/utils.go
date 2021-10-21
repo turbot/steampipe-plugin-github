@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -56,6 +57,8 @@ func convertTimestamp(ctx context.Context, input *transform.TransformData) (inte
 	switch t := input.Value.(type) {
 	case *github.Timestamp:
 		return t.Format(time.RFC3339), nil
+	case github.Timestamp:
+		return t.Format(time.RFC3339), nil
 	default:
 		return nil, nil
 	}
@@ -66,7 +69,20 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 	if input.Value == nil {
 		return user_logins, nil
 	}
+
+	transformValueType := reflect.TypeOf(input.Value)
+	var userType []*github.User
+
+	// Check type of the transform values otherwise it is throwing error while type casting the interface to []*github.User type
+	if reflect.TypeOf(transformValueType) !=  reflect.TypeOf(userType){
+		return nil, nil
+	}
+
 	users := input.Value.([]*github.User)
+
+	if users == nil {
+		return user_logins, nil
+	}
 
 	for _, u := range users {
 		user_logins = append(user_logins, *u.Login)
