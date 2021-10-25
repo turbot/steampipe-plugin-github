@@ -136,18 +136,16 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
+ 
+    var orgMembers []*github.User = []*github.User{}
 
 	org := h.Item.(*github.Organization)
-	
-	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
-	if org == nil {
-		return nil, nil
+	if (org == nil) {
+		return orgMembers, nil
 	}
 	orgName := *org.Login
 
 	client := connect(ctx, d)
-
-	var repositoryCollaborators []*github.User
 
 	opt := &github.ListMembersOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
@@ -176,7 +174,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		}
 
 		for _, i := range users {
-			repositoryCollaborators = append(repositoryCollaborators, i)
+			orgMembers = append(orgMembers, i)
 		}
 
 		if resp.NextPage == 0 {
@@ -186,7 +184,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		opt.Page = resp.NextPage
 	}
 
-	logger.Trace("OrganizationMembers", repositoryCollaborators)
+	logger.Trace("OrganizationMembers", orgMembers)
 
-	return repositoryCollaborators, nil
+	return orgMembers, nil
 }
