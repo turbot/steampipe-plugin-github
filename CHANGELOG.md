@@ -1,3 +1,9 @@
+## v0.8.1 [2021-10-26]
+
+_Bug fixes_
+
+- Fixed the `member_logins` column of the `github_organization` table to correctly return the user logins that are members of the organization ([#81](https://github.com/turbot/steampipe-plugin-github/pull/81))
+
 ## v0.8.0 [2021-10-20]
 
 _What's new?_
