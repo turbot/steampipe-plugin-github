@@ -171,7 +171,7 @@ func tableGitHubRepositoryCollaboratorsGetOutside(ctx context.Context, d *plugin
 }
 
 func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+	plugin.Logger(ctx).Trace("tableGitHubRepositoryCollaboratorsGetVariation")
 
 	repo := h.Item.(*github.Repository)
 	owner := *repo.Owner.Login
@@ -198,7 +198,6 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			users, resp, err = client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
-			logger.Trace("tableGitHubRepositoryCollaboratorsGet", "Users", users)
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -216,8 +215,6 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 
 		opt.Page = resp.NextPage
 	}
-
-	logger.Trace("RepositoryCollaborators", repositoryCollaborators)
 
 	return repositoryCollaborators, nil
 }
