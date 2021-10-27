@@ -43,10 +43,12 @@ func gitHubTeamColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubMyTeam() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_team",
-		Description: "GitHub Teams in your organizations.  GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
+		Description: "GitHub Teams in your organizations. GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyTeamList,
 		},
@@ -58,15 +60,21 @@ func tableGitHubMyTeam() *plugin.Table {
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
-func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.ListOptions{PerPage: 100}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.PerPage) {
+			opt.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var items []*github.Team
 		var resp *github.Response
 
@@ -90,6 +98,11 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 		for _, i := range items {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {
@@ -102,11 +115,10 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	return nil, nil
 }
 
-//// hydrate functions ////
+//// HYDRATE FUNCTIONS
 
 func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var orgID, teamID int64
-
 	if h.Item != nil {
 		team := h.Item.(*github.Team)
 		orgID = *team.Organization.ID
@@ -119,7 +131,6 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	client := connect(ctx, d)
 
 	var detail *github.Team
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -128,7 +139,7 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Teams.GetTeamByID(ctx, orgID, teamID)
+		detail, _, err = client.Teams.GetTeamByID(ctx, orgID, teamID)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

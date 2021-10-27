@@ -9,6 +9,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubMyGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_gist",
@@ -20,16 +22,21 @@ func tableGitHubMyGist() *plugin.Table {
 	}
 }
 
-//// list ////
-func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+//// LIST FUNCTION
 
+func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.GistListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.ListOptions.PerPage) {
+			opt.ListOptions.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var repos []*github.Gist
 		var resp *github.Response
 
@@ -41,10 +48,6 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			repos, resp, err = client.Gists.List(ctx, "", opt)
-			logger.Error("tableGitHubGistList", "resp", resp)
-			logger.Error("tableGitHubGistList", "repos", repos)
-			logger.Error("tableGitHubGistList", "err", err)
-
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -57,6 +60,11 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 		for _, i := range repos {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {

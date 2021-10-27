@@ -4,7 +4,6 @@ Stargazers are users who have starred the repository.
 
 The `github_stargazer` table can be used to query stargazers belonging to a repository, and **you must specify which repository** with `where repository_full_name='owner/repository'`.
 
-
 ## Examples
 
 ### List the stargazers of a repository

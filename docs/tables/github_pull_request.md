@@ -2,8 +2,7 @@
 
 GitHub pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.
 
-The `github_pull_request` table can be used to query issues belonging to a repository.  **You must specify which repository**  in a `where` or `join` clause (`where repository_full_name='`, `join github_pull_request on repository_full_name=`).   
-
+The `github_pull_request` table can be used to query issues belonging to a repository. **You must specify which repository** in a `where` or `join` clause (`where repository_full_name='`, `join github_pull_request on repository_full_name=`).
 
 ## Examples
 
@@ -61,7 +60,6 @@ where
   and tags ? 'bug';
 ```
 
-
 ### List the open PRs in a repository assigned to a specific user
 
 ```sql
@@ -80,8 +78,8 @@ where
   and state = 'open';
 ```
 
-
 ### Join with github_my_repository to find open PRs in multiple repos
+
 ```sql
 select
   i.repository_full_name,
@@ -95,4 +93,3 @@ where
   and i.state = 'open'
   and i.repository_full_name = r.full_name;
 ```
-

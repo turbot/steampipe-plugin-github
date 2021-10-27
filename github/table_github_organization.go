@@ -69,6 +69,8 @@ func gitHubOrganizationColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubOrganization() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_organization",
@@ -81,7 +83,7 @@ func tableGitHubOrganization() *plugin.Table {
 	}
 }
 
-//// hydrate functions ////
+//// LIST FUNCTION
 
 func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	item, err := getOrganizationDetail(ctx, d, h)
@@ -93,9 +95,10 @@ func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var login string
-
 	if h.Item != nil {
 		org := h.Item.(*github.Organization)
 		// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
@@ -110,7 +113,6 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	client := connect(ctx, d)
 
 	var detail *github.Organization
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -120,7 +122,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Organizations.Get(ctx, login)
+		detail, _, err = client.Organizations.Get(ctx, login)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -135,7 +137,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 }
 
 func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+	plugin.Logger(ctx).Trace("tableGitHubOrganizationMembersGet")
 
 	org := h.Item.(*github.Organization)
 	
@@ -152,7 +154,6 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	opt := &github.ListMembersOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
 	for {
-
 		var users []*github.User
 		var resp *github.Response
 
@@ -164,7 +165,6 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			users, resp, err = client.Organizations.ListMembers(ctx, orgName, opt)
-			logger.Info("Users", users)
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -174,10 +174,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		if err != nil {
 			return nil, err
 		}
-
-		for _, i := range users {
-			repositoryCollaborators = append(repositoryCollaborators, i)
-		}
+		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {
 			break
@@ -185,8 +182,6 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 
 		opt.Page = resp.NextPage
 	}
-
-	logger.Trace("OrganizationMembers", repositoryCollaborators)
 
 	return repositoryCollaborators, nil
 }

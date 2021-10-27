@@ -16,7 +16,7 @@ select
 from
   github_branch
 where
-  repository_full_name = 'turbot/steampipe'
+  repository_full_name = 'turbot/steampipe';
 ```
 
 ### Get commit details for each branch (Not working yet)

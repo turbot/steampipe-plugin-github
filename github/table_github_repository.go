@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func gitHubRepositoryColumns() []*plugin.Column {
 	return []*plugin.Column{
 		// Top columns
@@ -75,6 +77,8 @@ func gitHubRepositoryColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubRepository() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_repository",
@@ -87,11 +91,7 @@ func tableGitHubRepository() *plugin.Table {
 	}
 }
 
-type gitHubRepositoryCollaborator struct {
-	Login string
-}
-
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	repoFullName := d.KeyColumnQuals["full_name"].GetStringValue()
@@ -100,7 +100,6 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	client := connect(ctx, d)
 
 	var detail *github.Repository
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -110,7 +109,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Repositories.Get(ctx, owner, repoName)
+		detail, _, err = client.Repositories.Get(ctx, owner, repoName)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -124,7 +123,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
-// hydrate functions ////
+//// HYDRATE FUNCTIONS
 
 func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
@@ -141,7 +140,6 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 	client := connect(ctx, d)
 
 	var detail *github.Repository
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -151,7 +149,7 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Repositories.Get(ctx, owner, repoName)
+		detail, _, err = client.Repositories.Get(ctx, owner, repoName)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -173,7 +171,7 @@ func tableGitHubRepositoryCollaboratorsGetOutside(ctx context.Context, d *plugin
 }
 
 func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+	plugin.Logger(ctx).Trace("tableGitHubRepositoryCollaboratorsGetVariation")
 
 	repo := h.Item.(*github.Repository)
 	owner := *repo.Owner.Login
@@ -189,7 +187,6 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 	}
 
 	for {
-
 		var users []*github.User
 		var resp *github.Response
 
@@ -201,7 +198,6 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			users, resp, err = client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
-			logger.Trace("tableGitHubRepositoryCollaboratorsGet", "Users", users)
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -211,10 +207,7 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		if err != nil {
 			return nil, err
 		}
-
-		for _, i := range users {
-			repositoryCollaborators = append(repositoryCollaborators, i)
-		}
+		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {
 			break
@@ -222,8 +215,6 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 
 		opt.Page = resp.NextPage
 	}
-
-	logger.Trace("RepositoryCollaborators", repositoryCollaborators)
 
 	return repositoryCollaborators, nil
 }

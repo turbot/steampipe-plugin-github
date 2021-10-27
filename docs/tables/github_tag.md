@@ -15,7 +15,7 @@ select
 from
   github_tag
 where
-  repository_full_name = 'turbot/steampipe'
+  repository_full_name = 'turbot/steampipe';
 ```
 
 ### Order tags by semantic version

@@ -14,7 +14,7 @@ select
 from
   github_branch_protection
 where
-  repository_full_name = 'turbot/steampipe'
+  repository_full_name = 'turbot/steampipe';
 ```
 
 ### Get branch protection for a specific repo
@@ -26,5 +26,5 @@ from
   github_branch_protection
 where
   repository_full_name = 'turbot/steampipe'
-  and name = 'main'
+  and name = 'main';
 ```

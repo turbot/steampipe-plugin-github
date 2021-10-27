@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubStargazer(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_stargazer",
@@ -22,7 +24,7 @@ func tableGitHubStargazer(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "Full name of the repository that contains the stargazer."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the stargazer."},
 			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("StarredAt").Transform(convertTimestamp), Description: "Time when the stargazer was created."},
 			{Name: "user_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("User.Login"), Description: "The login name of the user who starred the repository."},
 			// No extra useful data over login - {Name: "user", Type: proto.ColumnType_JSON, Transform: transform.FromField("User"), Description: "Details of the user who starred the repository."},
@@ -30,11 +32,23 @@ func tableGitHubStargazer(ctx context.Context) *plugin.Table {
 	}
 }
 
-func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
+
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
+
 	opts := &github.ListOptions{PerPage: 100}
+
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opts.PerPage) {
+			opts.PerPage = int(*limit)
+		}
+	}
+
 	for {
 		var stargazers []*github.Stargazer
 		var resp *github.Response
@@ -55,6 +69,11 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}
 		for _, i := range stargazers {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 		if resp.NextPage == 0 {
 			break

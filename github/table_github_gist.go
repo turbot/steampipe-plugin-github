@@ -14,13 +14,11 @@ import (
 
 func gitHubGistColumns() []*plugin.Column {
 	return []*plugin.Column{
-
 		// Top columns
 		{Name: "id", Type: pb.ColumnType_STRING, Description: "The unique id of the gist."},
 		{Name: "description", Type: pb.ColumnType_STRING, Description: "The gist description."},
 		{Name: "public", Type: pb.ColumnType_BOOL, Description: "If true, the gist is public, otherwise it is private."},
 		{Name: "html_url", Type: pb.ColumnType_STRING, Description: "The HTML URL of the gist."},
-
 		{Name: "comments", Type: pb.ColumnType_INT, Description: "The number of comments for the gist."},
 		{Name: "created_at", Type: pb.ColumnType_TIMESTAMP, Description: "The timestamp when the gist was created."},
 		{Name: "git_pull_url", Type: pb.ColumnType_STRING, Description: "The https url to pull or clone the gist."},
@@ -35,6 +33,8 @@ func gitHubGistColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_gist",
@@ -47,12 +47,12 @@ func tableGitHubGist() *plugin.Table {
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
-	var id string
 
+	var id string
 	if h.Item != nil {
 		gist := h.Item.(*github.Gist)
 		id = *gist.ID

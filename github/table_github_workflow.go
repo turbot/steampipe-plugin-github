@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_workflow",
@@ -25,9 +27,8 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 			Hydrate:    tableGitHubWorkflowGet,
 		},
 		Columns: []*plugin.Column{
-
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "Full name of the repository that contains the workflow."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the workflow."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the workflow."},
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the workflow."},
 			{Name: "path", Type: proto.ColumnType_STRING, Description: "Path of the workflow."},
@@ -44,7 +45,9 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 	}
 }
 
-func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
@@ -52,8 +55,14 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	opts := &github.ListOptions{PerPage: 100}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opts.PerPage) {
+			opts.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var result *github.Workflows
 		var resp *github.Response
 
@@ -77,6 +86,11 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 		for _, i := range result.Workflows {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {
@@ -89,28 +103,17 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 	return nil, nil
 }
 
-func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var id int64
+//// HYDRATE FUNCTIONS
 
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
-
-	if h.Item != nil {
-		workflow := h.Item.(*github.Workflow)
-		id = *workflow.ID
-	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
-	}
-
-	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
+func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	id := d.KeyColumnQuals["id"].GetInt64Value()
+	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	owner, repo := parseRepoFullName(fullName)
+	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
 
 	client := connect(ctx, d)
 
 	var detail *github.Workflow
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -119,7 +122,7 @@ func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Actions.GetWorkflowByID(ctx, owner, repo, id)
+		detail, _, err = client.Actions.GetWorkflowByID(ctx, owner, repo, id)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

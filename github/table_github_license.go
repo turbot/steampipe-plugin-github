@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_license",
@@ -44,13 +46,12 @@ func tableGitHubLicense() *plugin.Table {
 	}
 }
 
-//// list ////
+//// LIST FUNCTION
 
 func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	var items []*github.License
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -59,7 +60,7 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, _ *plugin.
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		items, resp, err = client.Licenses.List(ctx)
+		items, _, err = client.Licenses.List(ctx)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -72,17 +73,20 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, _ *plugin.
 
 	for _, i := range items {
 		d.StreamListItem(ctx, i)
+
+		// Context can be cancelled due to manual cancellation or the limit has been hit
+		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			return nil, nil
+		}
 	}
 
 	return nil, nil
 }
 
-//// hydrate functions ////
+//// HYDRATE FUNCTIONS
 
 func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
 	var key string
-
 	if h.Item != nil {
 		item := h.Item.(*github.License)
 		key = *item.Key
@@ -90,10 +94,14 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 		key = d.KeyColumnQuals["key"].GetStringValue()
 	}
 
+	// Return nil, if no input provided
+	if key == "" {
+		return nil, nil
+	}
+
 	client := connect(ctx, d)
 
 	var detail *github.License
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -103,7 +111,7 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.Licenses.Get(ctx, key)
+		detail, _, err = client.Licenses.Get(ctx, key)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

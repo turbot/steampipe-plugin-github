@@ -20,10 +20,8 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
-	if &githubConfig != nil {
-		if githubConfig.Token != nil {
-			token = *githubConfig.Token
-		}
+	if githubConfig.Token != nil {
+		token = *githubConfig.Token
 	}
 
 	if token == "" {
@@ -87,8 +85,4 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 		user_logins = append(user_logins, *u.Login)
 	}
 	return user_logins, nil
-}
-
-func repositoryFullNameQual(_ context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	return d.KeyColumnQuals["repository_full_name"].GetStringValue(), nil
 }

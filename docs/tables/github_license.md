@@ -1,6 +1,6 @@
 # Table: github_license
 
-GitHub allows you to associate a license with your repository.  The `github_license` table lists information about the available licenses.
+GitHub allows you to associate a license with your repository. The `github_license` table lists information about the available licenses.
 
 ## Examples
 
@@ -15,7 +15,6 @@ from
   github_license;
 ```
 
-
 ### View license permissions
 
 ```sql
@@ -25,7 +24,6 @@ select
 from
   github_license;
 ```
-
 
 ### Count your repositories by license
 

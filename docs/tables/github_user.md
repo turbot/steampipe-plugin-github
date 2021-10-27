@@ -34,7 +34,6 @@ where
   u.login = member_login;
 ```
 
-
 ### List of users that collaborate on a repository that you own
 
 ```sql

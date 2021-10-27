@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINTION
+
 func tableGitHubRelease(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_release",
@@ -27,7 +29,7 @@ func tableGitHubRelease(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: repositoryFullNameQual, Transform: transform.FromValue(), Description: "Full name of the repository that contains the release."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the release."},
 
 			// Other columns
 			{Name: "assets", Type: proto.ColumnType_JSON, Description: "List of assets contained in the release."},
@@ -52,15 +54,23 @@ func tableGitHubRelease(ctx context.Context) *plugin.Table {
 	}
 }
 
-func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	opts := &github.ListOptions{PerPage: 100}
 
-	for {
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opts.PerPage) {
+			opts.PerPage = int(*limit)
+		}
+	}
 
+	for {
 		var releases []*github.RepositoryRelease
 		var resp *github.Response
 
@@ -84,6 +94,11 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 		for _, i := range releases {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {
@@ -96,28 +111,18 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var id int64
+	id := d.KeyColumnQuals["id"].GetInt64Value()
+	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
-
-	if h.Item != nil {
-		release := h.Item.(*github.RepositoryRelease)
-		id = *release.ID
-	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
-	}
-
-	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
+	owner, repo := parseRepoFullName(fullName)
+	plugin.Logger(ctx).Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
 
 	client := connect(ctx, d)
 
 	var detail *github.RepositoryRelease
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -126,7 +131,7 @@ func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
-		detail, resp, err = client.Repositories.GetRelease(ctx, owner, repo, id)
+		detail, _, err = client.Repositories.GetRelease(ctx, owner, repo, id)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}

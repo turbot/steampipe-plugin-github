@@ -2,9 +2,9 @@
 
 Organizations are shared accounts where businesses and open-source projects can collaborate across many projects at once. Owners and administrators can manage member access to the organization's data and projects with sophisticated security and administrative features.
 
-You can query details for **ANY** organization with the `github_organization` table, but you must specify the `login` explicitly in the where or join clause  (`where login=`, `join github_organization on login=`).  
+You can query details for **ANY** organization with the `github_organization` table, but you must specify the `login` explicitly in the where or join clause (`where login=`, `join github_organization on login=`).
 
-To list organizations **that you are a member of**, use the `github_my_organization` table.  
+To list organizations **that you are a member of**, use the `github_my_organization` table.
 
 ## Examples
 
@@ -24,7 +24,6 @@ where
   login = 'postgres';
 ```
 
-
 ### List members of an organization
 
 ```sql
@@ -38,4 +37,3 @@ from
 where
   login = 'google';
 ```
-

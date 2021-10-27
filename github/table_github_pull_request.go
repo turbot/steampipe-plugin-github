@@ -14,10 +14,11 @@ import (
 func gitHubPullRequestColumns() []*plugin.Column {
 
 	return []*plugin.Column{
-		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Hydrate: RepoNameFromQuals, Transform: transform.FromValue(), Description: "The full name of the repository (login/repo-name)."},
+		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 		{Name: "issue_number", Type: proto.ColumnType_INT, Description: "The PR issue number.", Transform: transform.FromField("Number")},
 		{Name: "title", Type: proto.ColumnType_STRING, Description: "The PR issue title."},
 		{Name: "author_login", Type: proto.ColumnType_STRING, Description: "The login name of the user that submitted the PR.", Transform: transform.FromField("User.Login")},
+		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the PR (open, closed)."},
 		{Name: "assignee_logins", Type: proto.ColumnType_JSON, Description: "An array of user login names that are assigned to the issue.", Transform: transform.FromField("Assignees").Transform(filterUserLogins)},
 
 		{Name: "additions", Type: proto.ColumnType_INT, Hydrate: tableGitHubPullRequestGet, Description: "The number of additions in this PR."},
@@ -54,7 +55,6 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "review_comments", Type: proto.ColumnType_INT, Hydrate: tableGitHubPullRequestGet, Description: "The number of review comments in this PR."},
 		{Name: "review_comments_url", Type: proto.ColumnType_STRING, Description: "The URL of the Review Comments page in GitHub."},
 		{Name: "review_comment_url", Type: proto.ColumnType_STRING, Description: "The URL of the Review Comment page in GitHub."},
-		{Name: "state", Type: proto.ColumnType_STRING, Description: "The state or the PR (open, closed)."},
 		{Name: "statuses_url", Type: proto.ColumnType_STRING, Description: "The URL of the Statuses page in GitHub."},
 		{Name: "tags", Type: proto.ColumnType_JSON, Description: "A map of label names associated with this PR, in Steampipe standard format.", Transform: transform.From(getPullRequestTags)},
 		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the PR was last updated."},
@@ -62,13 +62,18 @@ func gitHubPullRequestColumns() []*plugin.Column {
 	}
 }
 
+//// TABLE DEFINITION
+
 func tableGitHubPullRequest() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_pull_request",
 		Description: "GitHub Pull requests let you tell others about changes you've pushed to a branch in a repository on GitHub. Once a pull request is opened, you can discuss and review the potential changes with collaborators and add follow-up commits before your changes are merged into the base branch.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubPullRequestList,
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "repository_full_name", Require: plugin.Required},
+				{Name: "state", Require: plugin.Optional},
+			},
+			Hydrate: tableGitHubPullRequestList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
@@ -78,9 +83,9 @@ func tableGitHubPullRequest() *plugin.Table {
 	}
 }
 
-//// HYDRATE FUNCTIONS
+//// LIST FUNCTION
 
-func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
@@ -88,16 +93,27 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 	owner, repo := parseRepoFullName(fullName)
 	logger.Trace("tableGitHubPullRequestList", "owner", owner, "repo", repo)
 
-	// TO DO - get state and other filters from the quals
 	opt := &github.PullRequestListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 		State:       "all",
 	}
 
+	// Additional filters
+	if quals["state"] != nil {
+		opt.State = quals["state"].GetStringValue()
+	}
+
 	client := connect(ctx, d)
 
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opt.ListOptions.PerPage) {
+			opt.ListOptions.PerPage = int(*limit)
+		}
+	}
+
 	for {
-		var issues []*github.PullRequest
+		var pullRequests []*github.PullRequest
 		var resp *github.Response
 
 		b, err := retry.NewFibonacci(100 * time.Millisecond)
@@ -107,7 +123,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
-			issues, resp, err = client.PullRequests.List(ctx, owner, repo, opt)
+			pullRequests, resp, err = client.PullRequests.List(ctx, owner, repo, opt)
 
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
@@ -119,8 +135,13 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 			return nil, err
 		}
 
-		for _, i := range issues {
+		for _, i := range pullRequests {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 		if resp.NextPage == 0 {
@@ -133,6 +154,8 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
 	var issueNumber int
@@ -143,7 +166,6 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	if h.Item != nil {
 		issue := h.Item.(*github.PullRequest)
 		issueNumber = *issue.Number
-
 	} else {
 		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
 	}
@@ -155,7 +177,6 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	client := connect(ctx, d)
 
 	var detail *github.PullRequest
-	var resp *github.Response
 
 	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
@@ -165,7 +186,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 
-		detail, resp, err = client.PullRequests.Get(ctx, owner, repo, issueNumber)
+		detail, _, err = client.PullRequests.Get(ctx, owner, repo, issueNumber)
 		if _, ok := err.(*github.RateLimitError); ok {
 			return retry.RetryableError(err)
 		}
@@ -176,10 +197,6 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 		return nil, err
 	}
 	return detail, nil
-}
-
-func RepoNameFromQuals(_ context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	return d.KeyColumnQuals["repository_full_name"].GetStringValue(), nil
 }
 
 //// TRANSFORM FUNCTIONS

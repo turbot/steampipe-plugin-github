@@ -27,6 +27,7 @@ select
 from
   github_my_repository;
 ```
+
 ```
 +-------------------------------+------------+-------------+------------------+
 | name                          | language   | forks_count | stargazers_count |
@@ -74,9 +75,10 @@ connection "github" {
   token  = "ghp_111222333444555666777888999aaabbbcccddde"
 }
 ```
+
 - `token` - [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account.
 
 ## Get involved
 
-* Open source: https://github.com/turbot/steampipe-plugin-github
-* Community: [Slack Channel](https://join.slack.com/t/steampipe/shared_invite/zt-oij778tv-lYyRTWOTMQYBVAbtPSWs3g)
+- Open source: https://github.com/turbot/steampipe-plugin-github
+- Community: [Slack Channel](https://steampipe.io/community/join)
