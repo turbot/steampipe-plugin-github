@@ -20,23 +20,10 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 		Description: "GitHub Commits bundle project files for download by users.",
 		List: &plugin.ListConfig{
 			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "repository_full_name",
-					Require: plugin.Required,
-				},
-				{
-					Name:    "sha",
-					Require: plugin.Optional,
-				},
-				{
-					Name:    "author_login",
-					Require: plugin.Optional,
-				},
-				{
-					Name:      "author_date",
-					Require:   plugin.Optional,
-					Operators: []string{">", ">=", "=", "<", "<="},
-				},
+				{Name: "repository_full_name", Require: plugin.Required},
+				{Name: "sha", Require: plugin.Optional},
+				{Name: "author_login", Require: plugin.Optional},
+				{Name: "author_date", Require: plugin.Optional, Operators: []string{">", ">=", "=", "<", "<="}},
 			},
 			Hydrate: tableGitHubCommitList,
 		},

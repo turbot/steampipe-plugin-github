@@ -18,10 +18,7 @@ func tableGitHubMyRepository() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyRepositoryList,
 			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "visibility",
-					Require: plugin.Optional,
-				},
+				{Name: "visibility", Require: plugin.Optional},
 			},
 		},
 		Columns: gitHubRepositoryColumns(),

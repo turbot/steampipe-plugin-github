@@ -21,15 +21,8 @@ func tableGitHubBranch(ctx context.Context) *plugin.Table {
 		Description: "Branches in the given repository.",
 		List: &plugin.ListConfig{
 			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "repository_full_name",
-					Require: plugin.Required,
-				},
-				{
-					Name:      "protected",
-					Require:   plugin.Optional,
-					Operators: []string{"<>", "="},
-				},
+				{Name: "repository_full_name", Require: plugin.Required},
+				{Name: "protected", Require: plugin.Optional, Operators: []string{"<>", "="}},
 			},
 			Hydrate: tableGitHubBranchList,
 		},

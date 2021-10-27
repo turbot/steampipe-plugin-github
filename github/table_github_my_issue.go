@@ -17,15 +17,8 @@ func tableGitHubMyIssue() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyIssueList,
 			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "state",
-					Require: plugin.Optional,
-				},
-				{
-					Name:      "created_at",
-					Require:   plugin.Optional,
-					Operators: []string{">", ">="},
-				},
+				{Name: "state", Require: plugin.Optional},
+				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">="}},
 			},
 		},
 		Columns: gitHubIssueColumns(),

@@ -137,7 +137,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 }
 
 func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+	plugin.Logger(ctx).Trace("tableGitHubOrganizationMembersGet")
 
 	org := h.Item.(*github.Organization)
 	
@@ -165,7 +165,6 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 			var err error
 			users, resp, err = client.Organizations.ListMembers(ctx, orgName, opt)
-			logger.Info("Users", users)
 			if _, ok := err.(*github.RateLimitError); ok {
 				return retry.RetryableError(err)
 			}
@@ -183,8 +182,6 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 
 		opt.Page = resp.NextPage
 	}
-
-	logger.Trace("OrganizationMembers", repositoryCollaborators)
 
 	return repositoryCollaborators, nil
 }

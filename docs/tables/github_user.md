@@ -4,7 +4,7 @@ The `github_user` table does not list all users via the API - there is not curre
 
 ## Examples
 
-### Get information for an user
+### Get information for a user
 
 ```sql
 select
