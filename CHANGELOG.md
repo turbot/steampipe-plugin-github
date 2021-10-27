@@ -1,3 +1,9 @@
+## v0.8.1 [2021-10-26]
+
+_Bug fixes_
+
+- Fixed the `member_logins` column of the `github_organization` table to correctly return the user logins that are members of the organization ([#81](https://github.com/turbot/steampipe-plugin-github/pull/81))
+
 ## v0.8.0 [2021-10-20]
 
 _What's new?_
@@ -11,7 +17,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- `github_organization` table will now return `null` instead of an error when `login` value for a GitHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
+- `github_organization` table will now return an empty row instead of error when `login` value for a GitHub Organization doesn't exist ([#75](https://github.com/turbot/steampipe-plugin-github/pull/75))
 
 ## v0.7.0 [2021-10-12]
 

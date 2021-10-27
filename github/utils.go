@@ -68,11 +68,10 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 		return user_logins, nil
 	}
 
-	transformValueType := reflect.TypeOf(input.Value)
 	var userType []*github.User
 
 	// Check type of the transform values otherwise it is throwing error while type casting the interface to []*github.User type
-	if reflect.TypeOf(transformValueType) !=  reflect.TypeOf(userType){
+	if reflect.TypeOf(input.Value) != reflect.TypeOf(userType) {
 		return nil, nil
 	}
 
