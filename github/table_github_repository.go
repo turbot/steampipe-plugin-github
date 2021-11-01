@@ -130,6 +130,9 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 	var owner, repoName string
 	if h.Item != nil {
 		repo := h.Item.(*github.Repository)
+		if repo == nil {
+			return nil, nil
+		}
 		owner = *repo.Owner.Login
 		repoName = *repo.Name
 	} else {
@@ -174,6 +177,9 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryCollaboratorsGetVariation")
 
 	repo := h.Item.(*github.Repository)
+	if repo == nil {
+		return nil, nil
+	}
 	owner := *repo.Owner.Login
 	repoName := *repo.Name
 
