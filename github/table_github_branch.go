@@ -22,7 +22,8 @@ func tableGitHubBranch(ctx context.Context) *plugin.Table {
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "protected", Require: plugin.Optional, Operators: []string{"<>", "="}},
 			},
-			Hydrate: tableGitHubBranchList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubBranchList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

@@ -71,11 +71,13 @@ func tableGitHubPullRequest() *plugin.Table {
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "state", Require: plugin.Optional},
 			},
-			Hydrate: tableGitHubPullRequestList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubPullRequestList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
-			Hydrate:    tableGitHubPullRequestGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubPullRequestGet,
 		},
 		Columns: gitHubPullRequestColumns(),
 	}

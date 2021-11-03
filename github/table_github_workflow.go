@@ -17,11 +17,13 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 		Name:        "github_workflow",
 		Description: "GitHub Workflows bundle project files for download by users.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubWorkflowList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubWorkflowList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:    tableGitHubWorkflowGet,
 		},
 		Columns: []*plugin.Column{

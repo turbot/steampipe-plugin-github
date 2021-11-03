@@ -17,8 +17,9 @@ func tableGitHubTag(ctx context.Context) *plugin.Table {
 		Name:        "github_tag",
 		Description: "Tags for commits in the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubTagList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubTagList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

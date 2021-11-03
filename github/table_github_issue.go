@@ -68,11 +68,13 @@ func tableGitHubIssue() *plugin.Table {
 					Operators: []string{">", ">="},
 				},
 			},
-			Hydrate: tableGitHubRepositoryIssueList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRepositoryIssueList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
-			Hydrate:    tableGitHubRepositoryIssueGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRepositoryIssueGet,
 		},
 		Columns: gitHubIssueColumns(),
 	}

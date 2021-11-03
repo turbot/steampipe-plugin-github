@@ -38,8 +38,9 @@ func tableGitHubGist() *plugin.Table {
 		Name:        "github_gist",
 		Description: "GitHub Gist is a simple way to share snippets and pastes with others.",
 		List: &plugin.ListConfig{
-			Hydrate:    tableGitHubGistList,
-			KeyColumns: plugin.SingleColumn("id"),
+			Hydrate:           tableGitHubGistList,
+			KeyColumns:        plugin.SingleColumn("id"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: gitHubGistColumns(),
 	}
@@ -82,7 +83,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	if gist != nil {
 		d.StreamListItem(ctx, gist)
 	}
-	
+
 	return nil, nil
 }
 

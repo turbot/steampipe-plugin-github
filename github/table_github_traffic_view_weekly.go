@@ -17,8 +17,9 @@ func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
 		Name:        "github_traffic_view_weekly",
 		Description: "Weekly traffic view over the last 14 days for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubTrafficViewWeeklyList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubTrafficViewWeeklyList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

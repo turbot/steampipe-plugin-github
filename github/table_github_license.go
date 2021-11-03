@@ -20,8 +20,9 @@ func tableGitHubLicense() *plugin.Table {
 			Hydrate: tableGitHubLicenseList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("key"),
-			Hydrate:    tableGitHubLicenseGetData,
+			KeyColumns:        plugin.SingleColumn("key"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubLicenseGetData,
 		},
 		Columns: []*plugin.Column{
 

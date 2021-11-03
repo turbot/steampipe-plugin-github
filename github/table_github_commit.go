@@ -18,6 +18,7 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 		Name:        "github_commit",
 		Description: "GitHub Commits bundle project files for download by users.",
 		List: &plugin.ListConfig{
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "sha", Require: plugin.Optional},
@@ -27,8 +28,9 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 			Hydrate: tableGitHubCommitList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "sha"}),
-			Hydrate:    tableGitHubCommitGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "sha"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubCommitGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

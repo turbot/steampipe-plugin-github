@@ -17,8 +17,9 @@ func tableGitHubUser() *plugin.Table {
 		Name:        "github_user",
 		Description: "GitHub Users are user accounts in GitHub.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("login"),
-			Hydrate:    tableGitHubUserGet,
+			KeyColumns:        plugin.SingleColumn("login"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubUserGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

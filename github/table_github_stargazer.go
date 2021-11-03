@@ -17,8 +17,9 @@ func tableGitHubStargazer(ctx context.Context) *plugin.Table {
 		Name:        "github_stargazer",
 		Description: "Stargazers are users who have starred the repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubStargazerList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubStargazerList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
