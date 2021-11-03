@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -91,7 +89,9 @@ func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.
 		return nil, err
 	}
 
-	d.StreamListItem(ctx, item)
+	if item != nil {
+		d.StreamListItem(ctx, item)
+	}
 	return nil, nil
 }
 
@@ -112,35 +112,37 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	client := connect(ctx, d)
 
-	var detail *github.Organization
+	type GetResponse struct {
+		org  *github.Organization
+		resp *github.Response
+	}
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Organizations.Get(ctx, login)
+		return GetResponse{
+			org:  detail,
+			resp: resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
+
 	if err != nil {
+		plugin.Logger(ctx).Error("getOrganizationDetail", err)
 		return nil, err
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getResp := getResponse.(GetResponse)
+	org := getResp.org
 
-		detail, _, err = client.Organizations.Get(ctx, login)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return detail, nil
+	return org, nil
 }
 
 func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("tableGitHubOrganizationMembersGet")
 
 	org := h.Item.(*github.Organization)
-	
+
 	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
 	if org == nil {
 		return nil, nil
@@ -153,27 +155,29 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 
 	opt := &github.ListMembersOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
+	type ListPageResponse struct {
+		users []*github.User
+		resp  *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		users, resp, err := client.Organizations.ListMembers(ctx, orgName, opt)
+		return ListPageResponse{
+			users: users,
+			resp:  resp,
+		}, err
+	}
+
 	for {
-		var users []*github.User
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			users, resp, err = client.Organizations.ListMembers(ctx, orgName, opt)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
+		listResponse := listPageResponse.(ListPageResponse)
+		users := listResponse.users
+		resp := listResponse.resp
+
 		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {

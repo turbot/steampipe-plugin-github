@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -56,13 +55,26 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	opts := &github.CommitsListOptions{ListOptions: github.ListOptions{PerPage: 100}}
+
+	type ListPageResponse struct {
+		commits []*github.RepositoryCommit
+		resp    *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		commits, resp, err := client.Repositories.ListCommits(ctx, owner, repo, opts)
+		return ListPageResponse{
+			commits: commits,
+			resp:    resp,
+		}, err
+	}
 
 	// Additional filters
 	if d.KeyColumnQuals["sha"] != nil {
@@ -103,29 +115,19 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	}
 
 	for {
-		var commits []*github.RepositoryCommit
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 		if err != nil {
 			return nil, err
 		}
 
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			commits, resp, err = client.Repositories.ListCommits(ctx, owner, repo, opts)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
-
-		if err != nil {
-			return nil, err
-		}
+		listResponse := listPageResponse.(ListPageResponse)
+		commits := listResponse.commits
+		resp := listResponse.resp
 
 		for _, i := range commits {
-			d.StreamListItem(ctx, i)
+			if i != nil {
+				d.StreamListItem(ctx, i)
+			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {
@@ -170,25 +172,26 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	client := connect(ctx, d)
 
-	var detail *github.RepositoryCommit
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		commit *github.RepositoryCommit
+		resp   *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, _, err = client.Repositories.GetCommit(ctx, owner, repo, sha)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha)
+		return GetResponse{
+			commit: detail,
+			resp:   resp,
+		}, err
+	}
 
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
 
-	return detail, nil
+	getResp := getResponse.(GetResponse)
+	commit := getResp.commit
+
+	return commit, nil
 }

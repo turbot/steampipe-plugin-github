@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
@@ -27,7 +25,7 @@ func tableGitHubMyRepository() *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
@@ -40,6 +38,10 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, _ *pl
 		// affiliation.
 		opt.Type = "all"
 	}
+	type ListPageResponse struct {
+		repo []*github.Repository
+		resp *github.Response
+	}
 
 	limit := d.QueryContext.Limit
 	if limit != nil {
@@ -48,30 +50,29 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, _ *pl
 		}
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		repos, resp, err := client.Repositories.List(ctx, "", opt)
+		return ListPageResponse{
+			repo: repos,
+			resp: resp,
+		}, err
+	}
+
 	for {
-		var repos []*github.Repository
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			repos, resp, err = client.Repositories.List(ctx, "", opt)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		repos := listResponse.repo
+		resp := listResponse.resp
 
 		for _, i := range repos {
-			d.StreamListItem(ctx, i)
+			if i != nil {
+				d.StreamListItem(ctx, i)
+			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {

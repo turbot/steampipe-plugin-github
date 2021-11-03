@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -60,27 +58,31 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		id = d.KeyColumnQuals["id"].GetStringValue()
 	}
 
-	var detail *github.Gist
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		gist *github.Gist
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		gist, resp, err := client.Gists.Get(ctx, id)
+		return GetResponse{
+			gist: gist,
+			resp: resp,
+		}, err
+	}
 
-		detail, _, err = client.Gists.Get(ctx, id)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
-	d.StreamListItem(ctx, detail)
+
+	getResp := getResponse.(GetResponse)
+	gist := getResp.gist
+
+	if gist != nil {
+		d.StreamListItem(ctx, gist)
+	}
+	
 	return nil, nil
 }
 
