@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 
@@ -18,13 +19,11 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 		Description: "Branch protection defines rules for pushing to and managing a branch.",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
 			ParentHydrate:     tableGitHubBranchList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "name"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
 		},
 		Columns: []*plugin.Column{
@@ -71,6 +70,13 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 
 	get := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		ptotection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
+		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				return nil, nil
+			}
+			return nil, err
+		}
+
 		return GetResponse{
 			protection: ptotection,
 		}, err
@@ -81,6 +87,9 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 		return nil, err
 	}
 
+	if getDetails == nil {
+		return nil, nil
+}
 	getResp := getDetails.(GetResponse)
 	protection := getResp.protection
 
