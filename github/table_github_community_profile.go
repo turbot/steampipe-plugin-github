@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -21,6 +19,7 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubCommunityProfileList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -39,28 +38,34 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
-	var result *github.CommunityHealthMetrics
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	type GetResponse struct {
+		result *github.CommunityHealthMetrics
+		resp   *github.Response
+	}
+
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		details, resp, err := client.Repositories.GetCommunityHealthMetrics(ctx, owner, repo)
+		return GetResponse{
+			result: details,
+			resp:   resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+
 	if err != nil {
 		return nil, err
 	}
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		result, _, err = client.Repositories.GetCommunityHealthMetrics(ctx, owner, repo)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
+
+	getResp := getResponse.(GetResponse)
+	result := getResp.result
+
 	d.StreamListItem(ctx, result)
 	return nil, nil
 }

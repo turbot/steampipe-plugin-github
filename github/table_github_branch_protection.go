@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,13 +17,15 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 		Name:        "github_branch_protection",
 		Description: "Branch protection defines rules for pushing to and managing a branch.",
 		List: &plugin.ListConfig{
-			KeyColumns:    plugin.SingleColumn("repository_full_name"),
-			Hydrate:       tableGitHubRepositoryBranchProtectionGet,
-			ParentHydrate: tableGitHubBranchList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
+			ParentHydrate:     tableGitHubBranchList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "name"}),
-			Hydrate:    tableGitHubRepositoryBranchProtectionGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "name"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
@@ -60,30 +60,33 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	} else {
 		branchName = quals["name"].GetStringValue()
 	}
+
 	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
 
 	client := connect(ctx, d)
 
-	var detail *github.Protection
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		protection *github.Protection
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, _, err = client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	get := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		ptotection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
+		return GetResponse{
+			protection: ptotection,
+		}, err
+	}
 
+	getDetails, err := plugin.RetryHydrate(ctx, d, h, get, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
-	d.StreamLeafListItem(ctx, detail)
+
+	getResp := getDetails.(GetResponse)
+	protection := getResp.protection
+
+	if protection != nil {
+		d.StreamLeafListItem(ctx, protection)
+	}
 	return nil, nil
 }
 
