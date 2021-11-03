@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,8 +17,9 @@ func tableGitHubTag(ctx context.Context) *plugin.Table {
 		Name:        "github_tag",
 		Description: "Tags for commits in the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubTagList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubTagList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -36,7 +35,7 @@ func tableGitHubTag(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
@@ -51,26 +50,34 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		}
 	}
 
+	type ListPageResponse struct {
+		tags []*github.RepositoryTag
+		resp *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		tags, resp, err := client.Repositories.ListTags(ctx, owner, repo, opts)
+		return ListPageResponse{
+			tags: tags,
+			resp: resp,
+		}, err
+	}
+
 	for {
-		var tags []*github.RepositoryTag
-		var resp *github.Response
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
+
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 		if err != nil {
 			return nil, err
 		}
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			tags, resp, err = client.Repositories.ListTags(ctx, owner, repo, opts)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		tags := listResponse.tags
+		resp := listResponse.resp
+
 		for _, i := range tags {
-			d.StreamListItem(ctx, i)
+			if i != nil {
+				d.StreamListItem(ctx, i)
+			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {

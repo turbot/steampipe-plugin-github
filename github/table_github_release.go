@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,12 +17,14 @@ func tableGitHubRelease(ctx context.Context) *plugin.Table {
 		Name:        "github_release",
 		Description: "GitHub Releases bundle project files for download by users.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubReleaseList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubReleaseList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
-			Hydrate:    tableGitHubReleaseGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubReleaseGet,
 		},
 		Columns: []*plugin.Column{
 
@@ -56,7 +56,7 @@ func tableGitHubRelease(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
@@ -70,30 +70,35 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, _ *plugin.
 		}
 	}
 
+	type ListPageResponse struct {
+		releases []*github.RepositoryRelease
+		resp     *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		releases, resp, err := client.Repositories.ListReleases(ctx, owner, repo, opts)
+		return ListPageResponse{
+			releases: releases,
+			resp:     resp,
+		}, err
+	}
+
 	for {
-		var releases []*github.RepositoryRelease
-		var resp *github.Response
 
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			releases, resp, err = client.Repositories.ListReleases(ctx, owner, repo, opts)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		releases := listResponse.releases
+		resp := listResponse.resp
 
 		for _, i := range releases {
-			d.StreamListItem(ctx, i)
+			if i != nil {
+				d.StreamListItem(ctx, i)
+			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {
@@ -122,25 +127,26 @@ func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	client := connect(ctx, d)
 
-	var detail *github.RepositoryRelease
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		release *github.RepositoryRelease
+		resp    *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, _, err = client.Repositories.GetRelease(ctx, owner, repo, id)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.GetRelease(ctx, owner, repo, id)
+		return GetResponse{
+			release: detail,
+			resp:    resp,
+		}, err
+	}
 
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
 
-	return detail, nil
+	getResp := getResponse.(GetResponse)
+	release := getResp.release
+
+	return release, nil
 }

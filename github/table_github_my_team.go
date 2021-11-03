@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -53,8 +51,9 @@ func tableGitHubMyTeam() *plugin.Table {
 			Hydrate: tableGitHubMyTeamList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"organization_id", "id"}),
-			Hydrate:    tableGitHubTeamGet,
+			KeyColumns:        plugin.AllColumns([]string{"organization_id", "id"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubTeamGet,
 		},
 		Columns: gitHubTeamColumns(),
 	}
@@ -62,7 +61,7 @@ func tableGitHubMyTeam() *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	opt := &github.ListOptions{PerPage: 100}
@@ -74,30 +73,34 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		}
 	}
 
+	type ListPageResponse struct {
+		teams []*github.Team
+		resp  *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		teams, resp, err := client.Teams.ListUserTeams(ctx, opt)
+		return ListPageResponse{
+			teams: teams,
+			resp:  resp,
+		}, err
+	}
+
 	for {
-		var items []*github.Team
-		var resp *github.Response
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
 		if err != nil {
 			return nil, err
 		}
 
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			items, resp, err = client.Teams.ListUserTeams(ctx, opt)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
+		listResponse := listPageResponse.(ListPageResponse)
+		teams := listResponse.teams
+		resp := listResponse.resp
+
+		for _, i := range teams {
+			if i != nil {
+				d.StreamListItem(ctx, i)
 			}
-			return nil
-		})
-
-		if err != nil {
-			return nil, err
-		}
-
-		for _, i := range items {
-			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {
@@ -130,24 +133,26 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	client := connect(ctx, d)
 
-	var detail *github.Team
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		team *github.Team
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		detail, _, err = client.Teams.GetTeamByID(ctx, orgID, teamID)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Teams.GetTeamByID(ctx, orgID, teamID)
+		return GetResponse{
+			team: detail,
+			resp: resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+	getResp := getResponse.(GetResponse)
+	team := getResp.team
+
+	return team, nil
 }

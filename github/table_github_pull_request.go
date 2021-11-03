@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -73,11 +71,13 @@ func tableGitHubPullRequest() *plugin.Table {
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "state", Require: plugin.Optional},
 			},
-			Hydrate: tableGitHubPullRequestList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubPullRequestList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
-			Hydrate:    tableGitHubPullRequestGet,
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "issue_number"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubPullRequestGet,
 		},
 		Columns: gitHubPullRequestColumns(),
 	}
@@ -85,7 +85,7 @@ func tableGitHubPullRequest() *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
@@ -105,6 +105,11 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, _ *plu
 
 	client := connect(ctx, d)
 
+	type ListPageResponse struct {
+		pullReqs []*github.PullRequest
+		resp     *github.Response
+	}
+
 	limit := d.QueryContext.Limit
 	if limit != nil {
 		if *limit < int64(opt.ListOptions.PerPage) {
@@ -112,29 +117,23 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, _ *plu
 		}
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		pullReqs, resp, err := client.PullRequests.List(ctx, owner, repo, opt)
+		return ListPageResponse{
+			pullReqs: pullReqs,
+			resp:     resp,
+		}, err
+	}
+
 	for {
-		var pullRequests []*github.PullRequest
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			pullRequests, resp, err = client.PullRequests.List(ctx, owner, repo, opt)
-
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
-
+		listResponse := listPageResponse.(ListPageResponse)
+		pullRequests := listResponse.pullReqs
+		resp := listResponse.resp
 		for _, i := range pullRequests {
 			d.StreamListItem(ctx, i)
 
@@ -176,27 +175,29 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.PullRequest
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		pullReq *github.PullRequest
+		resp    *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.PullRequests.Get(ctx, owner, repo, issueNumber)
+		return GetResponse{
+			pullReq: detail,
+			resp:    resp,
+		}, err
+	}
 
-		detail, _, err = client.PullRequests.Get(ctx, owner, repo, issueNumber)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+
+	getResp := getResponse.(GetResponse)
+	pullReq := getResp.pullReq
+
+	return pullReq, nil
 }
 
 //// TRANSFORM FUNCTIONS

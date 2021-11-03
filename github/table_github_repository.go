@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -84,8 +82,9 @@ func tableGitHubRepository() *plugin.Table {
 		Name:        "github_repository",
 		Description: "GitHub Repositories contain all of your project's files and each file's revision history.",
 		List: &plugin.ListConfig{
-			Hydrate:    tableGitHubRepositoryList,
-			KeyColumns: plugin.SingleColumn("full_name"),
+			Hydrate:           tableGitHubRepositoryList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			KeyColumns:        plugin.SingleColumn("full_name"),
 		},
 		Columns: gitHubRepositoryColumns(),
 	}
@@ -99,27 +98,29 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	var detail *github.Repository
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-
-		detail, _, err = client.Repositories.Get(ctx, owner, repoName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
-
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 	if err != nil {
 		return nil, err
 	}
-	d.StreamListItem(ctx, detail)
+
+	getResp := getResponse.(GetResponse)
+	repo := getResp.repo
+
+	if repo != nil {
+		d.StreamListItem(ctx, repo)
+	}
 	return nil, nil
 }
 
@@ -139,27 +140,32 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	client := connect(ctx, d)
 
-	var detail *github.Repository
-
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return detail, err
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
 
-		detail, _, err = client.Repositories.Get(ctx, owner, repoName)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
-		}
-		return nil
-	})
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
 		return nil, err
 	}
-	return detail, nil
+	getResp := getResponse.(GetResponse)
+	repo := getResp.repo
+
+	if repo == nil {
+		return nil, nil
+	}
+
+	return repo, nil
 }
 
 func tableGitHubRepositoryCollaboratorsGetAll(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -178,35 +184,37 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 	repoName := *repo.Name
 
 	client := connect(ctx, d)
-
 	var repositoryCollaborators []*github.User
+
+	type ListPageResponse struct {
+		repositoryCollaborators []*github.User
+		resp                    *github.Response
+	}
 
 	opt := &github.ListCollaboratorsOptions{
 		Affiliation: variant,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		repositoryCollaborators, resp, err := client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
+		return ListPageResponse{
+			repositoryCollaborators: repositoryCollaborators,
+			resp:                    resp,
+		}, err
+	}
+
 	for {
-		var users []*github.User
-		var resp *github.Response
-
-		b, err := retry.NewFibonacci(100 * time.Millisecond)
-		if err != nil {
-			return nil, err
-		}
-
-		err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-			var err error
-			users, resp, err = client.Repositories.ListCollaborators(ctx, owner, repoName, opt)
-			if _, ok := err.(*github.RateLimitError); ok {
-				return retry.RetryableError(err)
-			}
-			return nil
-		})
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 		if err != nil {
 			return nil, err
 		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		users := listResponse.repositoryCollaborators
+		resp := listResponse.resp
+
 		repositoryCollaborators = append(repositoryCollaborators, users...)
 
 		if resp.NextPage == 0 {

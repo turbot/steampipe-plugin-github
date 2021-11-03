@@ -2,10 +2,8 @@ package github
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,8 +17,9 @@ func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
 		Name:        "github_traffic_view_weekly",
 		Description: "Weekly traffic view over the last 14 days for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubTrafficViewWeeklyList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubTrafficViewWeeklyList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -34,32 +33,39 @@ func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	opts := &github.TrafficBreakdownOptions{Per: "week"}
-	var result *github.TrafficViews
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	type ListResponse struct {
+		trafficViews *github.TrafficViews
+		resp         *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		trafficViews, resp, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
+		return ListResponse{
+			trafficViews: trafficViews,
+			resp:         resp,
+		}, err
+	}
+	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+
 	if err != nil {
 		return nil, err
 	}
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
-		var err error
-		result, _, err = client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
-		if _, ok := err.(*github.RateLimitError); ok {
-			return retry.RetryableError(err)
+
+	result := listResponse.(ListResponse)
+	trafficViews := result.trafficViews
+
+	for _, i := range trafficViews.Views {
+		if i != nil {
+			d.StreamListItem(ctx, i)
 		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range result.Views {
-		d.StreamListItem(ctx, i)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
 		if d.QueryStatus.RowsRemaining(ctx) == 0 {
