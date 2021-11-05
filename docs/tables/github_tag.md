@@ -29,7 +29,7 @@ from
 where
   repository_full_name = 'turbot/steampipe'
 order by
-  string_to_array(regexp_replace(name, '[^0-9\.]', '', 'g'), '.')::int[],
+  string_to_array(regexp_replace(name, '[^0-9\.]', '', 'g'), '.'),
   name;
 ```
 
