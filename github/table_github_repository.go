@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 
@@ -156,6 +157,9 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
+		if strings.Contains(err.Error(), "404") {
+			return nil, nil
+		}
 		return nil, err
 	}
 	getResp := getResponse.(GetResponse)
@@ -208,6 +212,9 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				return nil, nil
+			}
 			return nil, err
 		}
 
