@@ -20,6 +20,7 @@ func tableGitHubMyStar() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromField("Repository.FullName")},
 			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("StarredAt").Transform(convertTimestamp), Description: "The timestamp when the repository was starred."},
 		},
 	}
