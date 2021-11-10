@@ -14,7 +14,7 @@ import (
 func tableGitHubMyStar() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_star",
-		Description: "GitHub Repositories that you are associated with. GitHub Repositories contain all of your project's files and each file's revision history.",
+		Description: "GitHub stars owned by you. GitHub stars are repositories.",
 		List: &plugin.ListConfig{
 			Hydrate:           tableGitHubMyStarredRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
