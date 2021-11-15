@@ -16,9 +16,11 @@ func tableGitHubMyRepository() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           tableGitHubMyRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			KeyColumns: []*plugin.KeyColumn{
-				{Name: "visibility", Require: plugin.Optional},
-			},
+			// https://github.com/turbot/steampipe-mod-github-sherlock/issues/14
+			// https://github.com/turbot/steampipe-postgres-fdw/issues/117
+			// KeyColumns: []*plugin.KeyColumn{
+			// 	{Name: "visibility", Require: plugin.Optional},
+			// },
 		},
 		Columns: gitHubRepositoryColumns(),
 	}
