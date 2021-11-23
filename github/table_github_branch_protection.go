@@ -71,9 +71,9 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	get := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		protection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
 		if err != nil {
-			// For private and archived repositories, user who do not have owner/admin access will get the below error
+			// For private and archived repositories, users who do not have owner/admin access will get the below error
 			// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
-			// For repositories owners the api will return nil if it is private and archived
+			// For repository owners the API will return nil if the repository is private and archived
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") {
 				return nil, nil
 			}
