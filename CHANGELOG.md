@@ -32,7 +32,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- `github_repository` table will now return an empty row instead of not found error when the repository collaborator details are not available ([#89](https://github.com/turbot/steampipe-plugin-github/pull/89))
+- `github_repository` table will now return an empty row instead of `not found` error when the repository collaborator details are not available ([#89](https://github.com/turbot/steampipe-plugin-github/pull/89))
 
 
 ## v0.8.1 [2021-10-26]
