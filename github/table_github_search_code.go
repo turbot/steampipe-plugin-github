@@ -14,7 +14,7 @@ import (
 func tableGitHubSearchCode(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_code",
-		Description: "Branch protection defines rules for pushing to and managing a branch.",
+		Description: "Searches for query terms inside of a file.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchCodeList,
