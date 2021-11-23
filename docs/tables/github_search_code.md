@@ -13,10 +13,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -30,10 +27,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -47,10 +41,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -64,10 +55,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -81,10 +69,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -98,10 +83,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -115,10 +97,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -132,10 +111,7 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
@@ -149,12 +125,41 @@ select
   name,
   query,
   html_url,
-  sha,
-  path,
-  jsonb_pretty(repository) as repository,
-  jsonb_pretty(text_matches) as text_matches
+  sha
 from
   github_search_code
 where
   query = 'Stargazers org:turbot in:file,path extension:go';
+```
+
+### List text match details
+
+```sql
+select
+  name,
+  jsonb_pretty(match -> 'matches') as matches,
+  match ->> 'fragment' as fragment,
+  match ->> 'property' as property,
+  match ->> 'object_url' as object_url,
+  match ->> 'object_type' as object_type
+from
+  github_search_code,
+  jsonb_array_elements(text_matches) as match
+where
+  query = 'filename:table_github_my_organization RowsRemaining';
+```
+
+### List repository details
+
+```sql
+select
+  name,
+  repository -> 'id' as repo_id,
+  repository ->> 'name' as repo_name,
+  repository ->> 'url' as repo_url,
+  jsonb_pretty(repository -> 'owner') as repo_owner
+from
+  github_search_code
+where
+  query = 'filename:table_github_my_organization RowsRemaining';
 ```
