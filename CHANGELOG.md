@@ -10,25 +10,25 @@ _Enhancements_
 - Recompiled plugin with [steampipe-plugin-sdk v1.8.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v182--2021-11-22) ([#95](https://github.com/turbot/steampipe-plugin-github/pull/95))
 - Update all the tables which uses custom retry logic to use RetryHydrate function from Steampipe plugin SDK ([#86](https://github.com/turbot/steampipe-plugin-github/pull/86))
 - Add additional optional key quals, filter support, and context cancellation handling across the following tables ([#61](https://github.com/turbot/steampipe-plugin-github/pull/61))
-  - github_branch
-  - github_commit
-  - github_issue
-  - github_my_gist
-  - github_my_issue
-  - github_my_organization
-  - github_my_repository
-  - github_my_team
-  - github_pull_request
-  - github_release
-  - github_stargazers
-  - github_tag
-  - github_workflow
-  - github_branch
-  - github_commit
-  - github_issue
-  - github_my_issue
-  - github_my_repository
-  - github_pull_request
+  - `github_branch`
+  - `github_commit`
+  - `github_issue`
+  - `github_my_gist`
+  - `github_my_issue`
+  - `github_my_organization`
+  - `github_my_repository`
+  - `github_my_team`
+  - `github_pull_request`
+  - `github_release`
+  - `github_stargazers`
+  - `github_tag`
+  - `github_workflow`
+  - `github_branch`
+  - `github_commit`
+  - `github_issue`
+  - `github_my_issue`
+  - `github_my_repository`
+  - `github_pull_request`
 
 _Bug fixes_
 
