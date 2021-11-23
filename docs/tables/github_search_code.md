@@ -1,4 +1,4 @@
-# Table: github_branch_protection
+# Table: github_search_code
 
 The `github_search_code` table helps to search for the specific item you want to find inside of a file. You can search globally across all of GitHub, or scope your search to a particular repository or organization.
 
