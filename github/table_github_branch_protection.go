@@ -18,13 +18,13 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 		Name:        "github_branch_protection",
 		Description: "Branch protection defines rules for pushing to and managing a branch.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
-			ParentHydrate:     tableGitHubBranchList,
+			KeyColumns:    plugin.SingleColumn("repository_full_name"),
+			Hydrate:       tableGitHubRepositoryBranchProtectionGet,
+			ParentHydrate: tableGitHubBranchList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "name"}),
-			Hydrate:           tableGitHubRepositoryBranchProtectionGet,
+			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "name"}),
+			Hydrate:    tableGitHubRepositoryBranchProtectionGet,
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
@@ -69,16 +69,19 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	}
 
 	get := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		ptotection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
+		protection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
 		if err != nil {
-			if strings.Contains(err.Error(), "404") {
+			// For private and archived repositories, users who do not have owner/admin access will get the below error
+			// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
+			// For repository owners the API will return nil if the repository is private and archived
+			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") {
 				return nil, nil
 			}
 			return nil, err
 		}
 
 		return GetResponse{
-			protection: ptotection,
+			protection: protection,
 		}, err
 	}
 
@@ -89,7 +92,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 
 	if getDetails == nil {
 		return nil, nil
-}
+	}
 	getResp := getDetails.(GetResponse)
 	protection := getResp.protection
 

@@ -4,6 +4,8 @@ Branch protection is a set of rules protecting the branch from inappropriate cha
 
 The `github_branch_protection` table can be used to query information about any branch, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
 
+GitHub users with admin permissions to a repository can manage branch protection rules.
+
 ## Examples
 
 ### List branches and their protection for a repository
