@@ -24,6 +24,7 @@ func tableGitHubSearchIssue(ctx context.Context) *plugin.Table {
 			{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromField("ID"), Description: "The ID of the issue."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the issue."},
 			{Name: "state", Type: proto.ColumnType_STRING, Description: "The state of the issue."},
+			{Name: "active_lock_reason", Type: proto.ColumnType_STRING, Description: "The active lock reason of the issue."},
 			{Name: "author_association", Type: proto.ColumnType_STRING, Description: "The author association of the issue."},
 			{Name: "body", Type: proto.ColumnType_STRING, Description: "The body of the issue."},
 			{Name: "closed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp the issue closed at."},
@@ -46,6 +47,7 @@ func tableGitHubSearchIssue(ctx context.Context) *plugin.Table {
 			{Name: "milestone", Type: proto.ColumnType_JSON, Description: "The milestone details."},
 			{Name: "reactions", Type: proto.ColumnType_JSON, Description: "The reaction details."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details."},
+			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 			{Name: "user", Type: proto.ColumnType_JSON, Description: "The user details."},
 		},
 	}
