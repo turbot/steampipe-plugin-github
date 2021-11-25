@@ -31,7 +31,7 @@ select
 from
   github_search_user
 where
-  query = 'turbotio in:login type:org;
+  query = 'turbotio in:login type:org';
 ```
 
 ### Get user with specific username
