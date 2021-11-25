@@ -24,6 +24,7 @@ func tableGitHubSearchPullRequest(ctx context.Context) *plugin.Table {
 			{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromField("ID"), Description: "The ID of the pull request."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the pull request."},
 			{Name: "state", Type: proto.ColumnType_STRING, Description: "The state of the pull request."},
+			{Name: "active_lock_reason", Type: proto.ColumnType_STRING, Description: "The active lock reason of the pull request."},
 			{Name: "author_association", Type: proto.ColumnType_STRING, Description: "The author association of the pull request."},
 			{Name: "body", Type: proto.ColumnType_STRING, Description: "The body of the pull request."},
 			{Name: "closed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp the pull request closed at."},
@@ -47,6 +48,7 @@ func tableGitHubSearchPullRequest(ctx context.Context) *plugin.Table {
 			{Name: "pull_request_links", Type: proto.ColumnType_JSON, Description: "The pull request link details."},
 			{Name: "reactions", Type: proto.ColumnType_JSON, Description: "The reaction details."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details."},
+			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 			{Name: "user", Type: proto.ColumnType_JSON, Description: "The user details."},
 		},
 	}
