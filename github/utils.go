@@ -86,3 +86,7 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 	}
 	return user_logins, nil
 }
+
+func gitHubSearchRepositoryColumns(columns []*plugin.Column) []*plugin.Column {
+	return append(gitHubRepositoryColumns(), columns...)
+}

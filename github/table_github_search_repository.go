@@ -11,10 +11,6 @@ import (
 
 //// TABLE DEFINITION
 
-func gitHubSearchRepositoryColumns(columns []*plugin.Column) []*plugin.Column {
-	return append(gitHubRepositoryColumns(), columns...)
-}
-
 func tableGitHubSearchRepository(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_repository",
