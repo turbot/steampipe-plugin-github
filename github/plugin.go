@@ -38,6 +38,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_repository":          tableGitHubRepository(),
 			"github_search_code":         tableGitHubSearchCode(ctx),
 			"github_search_commit":       tableGitHubSearchCommit(ctx),
+			"github_search_label":        tableGitHubSearchLable(ctx),
 			"github_search_pull_request": tableGitHubSearchPullRequest(ctx),
 			"github_search_topic":        tableGitHubSearchTopic(ctx),
 			"github_stargazer":           tableGitHubStargazer(ctx),
