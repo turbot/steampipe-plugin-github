@@ -1,3 +1,17 @@
+## v0.10.0 [2021-12-08]
+
+_What's new?_
+
+- New tables added
+  - [github_search_code](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_code) ([#107](https://github.com/turbot/steampipe-plugin-github/pull/107))
+  - [github_search_commit](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_commit) ([#108](https://github.com/turbot/steampipe-plugin-github/pull/108))
+  - [github_search_issue](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_issue) ([#109](https://github.com/turbot/steampipe-plugin-github/pull/109))
+  - [github_search_label](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_label) ([#115](https://github.com/turbot/steampipe-plugin-github/pull/115))
+  - [github_search_pull_request](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_pull_request) ([#111](https://github.com/turbot/steampipe-plugin-github/pull/111))
+  - [github_search_repository](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_repository) ([#114](https://github.com/turbot/steampipe-plugin-github/pull/114))
+  - [github_search_topic](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_topic) ([#112](https://github.com/turbot/steampipe-plugin-github/pull/112))
+  - [github_search_user](https://hub.steampipe.io/plugins/turbot/github/tables/github_search_user) ([#113](https://github.com/turbot/steampipe-plugin-github/pull/113))
+
 ## v0.9.0 [2021-11-23]
 
 _What's new?_
