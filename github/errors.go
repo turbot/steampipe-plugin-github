@@ -3,6 +3,7 @@ package github
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -10,9 +11,11 @@ import (
 
 func shouldRetryError(err error) bool {
 	if _, ok := err.(*github.RateLimitError); ok {
-		log.Printf("[WARN] Received Rate Limit Error")
+		log.Printf(`rate limit %+v`, err)
+		time.Sleep(1 * time.Minute)
 		return true
 	}
+	log.Printf(`error %+v`, err)
 	return false
 }
 

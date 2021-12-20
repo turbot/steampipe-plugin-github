@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/go-github/v33/github"
 
@@ -70,13 +71,17 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	var login string
 
+	logger.Warn("tableGitHubUserGet", "h.Item", fmt.Sprintf(`%+v`, h.Item))
+	logger.Warn("tableGitHubUserGet", "d.KeyColumnQuals", fmt.Sprintf(`%+v`, d.KeyColumnQuals))
+
 	if h.Item != nil {
 		item := h.Item.(*github.User)
-		logger.Trace("tableGitHubUserGet", item.String())
 		login = *item.Login
 	} else {
 		login = d.KeyColumnQuals["login"].GetStringValue()
 	}
+
+	logger.Warn("tableGitHubUserGet", "login", login)
 
 	client := connect(ctx, d)
 
@@ -86,7 +91,9 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		logger.Warn("tableGitHubUserGet", "getDetails", login)
 		detail, resp, err := client.Users.Get(ctx, login)
+		logger.Warn("tableGitHubUserGet", "getDetails", fmt.Sprintf(`%+v, %+v, %+v`, detail, resp, err))
 		return GetResponse{
 			user: detail,
 			resp: resp,
@@ -95,6 +102,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
+		logger.Warn("tableGitHubUserGet", "getDetails", fmt.Sprintf(`error %+v`, err))
 		return nil, err
 	}
 
@@ -102,6 +110,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	user := getResp.user
 
 	if user != nil {
+		logger.Warn("tableGitHubUserGet", "StreamListItem", user)
 		d.StreamListItem(ctx, user)
 	}
 
