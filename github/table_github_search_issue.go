@@ -46,7 +46,7 @@ func tableGitHubSearchIssue(ctx context.Context) *plugin.Table {
 			{Name: "labels", Type: proto.ColumnType_JSON, Description: "The label details."},
 			{Name: "milestone", Type: proto.ColumnType_JSON, Description: "The milestone details."},
 			{Name: "reactions", Type: proto.ColumnType_JSON, Description: "The reaction details."},
-			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details."},
+			{Name: "repository", Type: proto.ColumnType_JSON, Transform: transform.FromValue(), Description: "The repository details."},
 			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 			{Name: "user", Type: proto.ColumnType_JSON, Description: "The user details."},
 		},
