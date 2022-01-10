@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/google/go-github/v33/github"
@@ -140,10 +139,8 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 
 func extractRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	issue := d.HydrateItem.(*github.Issue)
-	if issue.URL != nil {
-		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta("repos/") + `(.*?)` + regexp.QuoteMeta("/issues"))
-		replacer := strings.NewReplacer("repos/", "", "/issues", "")
-		return replacer.Replace(rx.FindString(*issue.URL)), nil
+	if issue.RepositoryURL != nil {
+		return strings.Replace(*issue.RepositoryURL, "https://api.github.com/repos/", "", -1), nil
 	}
 	return "", nil
 }
