@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -25,6 +27,7 @@ func tableGitHubSearchCode(ctx context.Context) *plugin.Table {
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The complete URL of the file where the match has been found."},
 			{Name: "sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("SHA"), Description: "The SHA of the file where the match has been found."},
 			{Name: "path", Type: proto.ColumnType_STRING, Description: "The path of the file where the match has been found."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchCodeRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details of the file where the match has been found."},
 			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 		},
@@ -66,7 +69,7 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		result, resp, err := client.Search.Code(ctx, query, opt)
-		
+
 		if err != nil {
 			logger.Error("tableGitHubSearchCodeList", "error_Search.Code", err)
 			return nil, err
@@ -107,4 +110,16 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func extractSearchCodeRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	code := d.HydrateItem.(*github.CodeResult)
+	if code.HTMLURL != nil {
+		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta("github.com/") + `(.*?)` + regexp.QuoteMeta("/blob"))
+		replacer := strings.NewReplacer("github.com/", "", "/blob", "")
+		return replacer.Replace(rx.FindString(*code.HTMLURL)), nil
+	}
+	return "", nil
 }

@@ -14,6 +14,7 @@ select
   id,
   state,
   created_at,
+  repository_full_name,
   html_url
 from
   github_search_pull_request

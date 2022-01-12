@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -38,6 +39,7 @@ func tableGitHubSearchPullRequest(ctx context.Context) *plugin.Table {
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the pull request."},
 			{Name: "number", Type: proto.ColumnType_INT, Description: "The number of the pull request."},
 			{Name: "repository_url", Type: proto.ColumnType_STRING, Description: "The API URL of the repository for the pull request."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchPullReqRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp the pull request updated at."},
 			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("URL"), Description: "The API URL of the pull request."},
 			{Name: "assignee", Type: proto.ColumnType_JSON, Description: "The assignee details."},
@@ -132,4 +134,14 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func extractSearchPullReqRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	pr := d.HydrateItem.(*github.Issue)
+	if pr.RepositoryURL != nil {
+		return strings.Replace(*pr.RepositoryURL, "https://api.github.com/repos/", "", -1), nil
+	}
+	return "", nil
 }

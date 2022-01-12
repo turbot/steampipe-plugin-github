@@ -13,6 +13,7 @@ select
   name,
   query,
   html_url,
+  repository_full_name,
   sha
 from
   github_search_code
