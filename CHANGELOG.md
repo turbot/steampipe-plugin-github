@@ -6,7 +6,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- Fixed the `github_search_commit` table document ([#128](https://github.com/turbot/steampipe-plugin-github/pull/128))
+- Fixed the document of `github_search_commit` table ([#128](https://github.com/turbot/steampipe-plugin-github/pull/128))
 
 ## v0.10.1 [2022-01-05]
 
