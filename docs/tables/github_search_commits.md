@@ -13,6 +13,7 @@ select
   sha,
   query,
   html_url,
+  repository_full_name,
   score
 from
   github_search_commit
