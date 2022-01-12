@@ -1,3 +1,13 @@
+## v0.11.0 [2022-01-12]
+
+_Enhancements_
+
+- Added `repository_full_name` column to `github_search_issue`, `github_search_code`, `github_search_commit`, `github_search_label` and `github_search_pull_request` tables ([#125](https://github.com/turbot/steampipe-plugin-github/pull/125)) ([#130](https://github.com/turbot/steampipe-plugin-github/pull/130))
+
+_Bug fixes_
+
+- Fixed the `github_search_commit` table document ([#128](https://github.com/turbot/steampipe-plugin-github/pull/128))
+
 ## v0.10.1 [2022-01-05]
 
 _Enhancements_
