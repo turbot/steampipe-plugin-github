@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -26,6 +28,7 @@ func tableGitHubSearchCommit(ctx context.Context) *plugin.Table {
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The Github URL of the commit."},
 			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("URL"), Description: "The API URL of the commit."},
 			{Name: "score", Type: proto.ColumnType_DOUBLE, Description: "The score of the commit."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchCommitRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "author", Type: proto.ColumnType_JSON, Description: "The author details."},
 			{Name: "commit", Type: proto.ColumnType_JSON, Description: "The commit details."},
 			{Name: "committer", Type: proto.ColumnType_JSON, Description: "The committer details."},
@@ -111,4 +114,16 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func extractSearchCommitRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	commit := d.HydrateItem.(*github.CommitResult)
+	if commit.URL != nil {
+		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta("repos/") + `(.*?)` + regexp.QuoteMeta("/commits"))
+		replacer := strings.NewReplacer("repos/", "", "/commits", "")
+		return replacer.Replace(rx.FindString(*commit.URL)), nil
+	}
+	return "", nil
 }

@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -23,6 +25,7 @@ func tableGitHubSearchLable(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "id", Transform: transform.FromField("ID"), Type: proto.ColumnType_INT, Description: "The ID of the label."},
 			{Name: "repository_id", Type: proto.ColumnType_INT, Transform: transform.FromQual("repository_id"), Description: "The ID of the repository."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchLabelRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the label."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the label."},
 			{Name: "color", Type: proto.ColumnType_STRING, Description: "The color assigned to the label."},
@@ -111,4 +114,16 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func extractSearchLabelRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	label := d.HydrateItem.(*github.LabelResult)
+	if label.URL != nil {
+		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta("repos/") + `(.*?)` + regexp.QuoteMeta("/labels"))
+		replacer := strings.NewReplacer("repos/", "", "/labels", "")
+		return replacer.Replace(rx.FindString(*label.URL)), nil
+	}
+	return "", nil
 }
