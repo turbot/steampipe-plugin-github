@@ -13,6 +13,7 @@ select
   id,
   repository_id,
   name,
+  repository_full_name,
   description
 from
   github_search_label
