@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -37,6 +38,7 @@ func tableGitHubSearchIssue(ctx context.Context) *plugin.Table {
 			{Name: "locked", Type: proto.ColumnType_BOOL, Default: false, Description: "Whether the issue is locked."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the issue."},
 			{Name: "number", Type: proto.ColumnType_INT, Description: "The number of the issue."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "repository_url", Type: proto.ColumnType_STRING, Description: "The API URL of the repository for the issue."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp the issue updated at."},
 			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("URL"), Description: "The API URL of the issue."},
@@ -131,4 +133,14 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func extractRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	issue := d.HydrateItem.(*github.Issue)
+	if issue.RepositoryURL != nil {
+		return strings.Replace(*issue.RepositoryURL, "https://api.github.com/repos/", "", -1), nil
+	}
+	return "", nil
 }
