@@ -29,5 +29,5 @@ select
 from
   github_action_artifact
 where
-  repository_full_name = 'turbot/steampipe';
+  repository_full_name = 'turbot/steampipe' and not expired;
 ```
