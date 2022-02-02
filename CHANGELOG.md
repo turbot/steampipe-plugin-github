@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the `github_release` table to set `published_at` column to `nil` for repositories which have draft releases ([#135](https://github.com/turbot/steampipe-plugin-github/pull/135))
+- Fixed the `github_release` table to set `published_at` column to `nil` for draft releases ([#135](https://github.com/turbot/steampipe-plugin-github/pull/135))
 
 ## v0.11.0 [2022-01-12]
 
