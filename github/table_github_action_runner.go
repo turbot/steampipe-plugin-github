@@ -1,0 +1,137 @@
+package github
+
+import (
+	"context"
+
+	"github.com/google/go-github/v33/github"
+
+	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+)
+
+//// TABLE DEFINITION
+
+func tableGitHubActionRunner(ctx context.Context) *plugin.Table {
+	return &plugin.Table{
+		Name:        "github_action_runner",
+		Description: "The runner is the application that runs a job from a GitHub Actions workflow",
+		List: &plugin.ListConfig{
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRunnerList,
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:           tableGitHubRunnerGet,
+		},
+		Columns: []*plugin.Column{
+			// Top columns
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the runners."},
+			{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromGo(), Description: "The unique identifier of the runner."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the runner."},
+			{Name: "os", Type: proto.ColumnType_STRING, Transform: transform.FromField("OS"), Description: "The operating system of the runner."},
+			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the runner."},
+			{Name: "busy", Type: proto.ColumnType_BOOL, Description: "Indicates wheather the runner is currently in use or not."},
+			{Name: "labels", Type: proto.ColumnType_JSON, Description: "Labels represents a collection of labels attached to each runner."},
+		},
+	}
+}
+
+//// LIST FUNCTION
+
+func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client := connect(ctx, d)
+
+	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	owner, repo := parseRepoFullName(orgName)
+
+	type ListPageResponse struct {
+		runners *github.Runners
+		resp    *github.Response
+	}
+
+	opts := &github.ListOptions{PerPage: 100}
+
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(opts.PerPage) {
+			opts.PerPage = int(*limit)
+		}
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		runners, resp, err := client.Actions.ListRunners(ctx, owner, repo, opts)
+		return ListPageResponse{
+			runners: runners,
+			resp:    resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+
+		if err != nil {
+			return nil, err
+		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		runners := listResponse.runners
+		resp := listResponse.resp
+
+		plugin.Logger(ctx).Info("Result Length =======>>>>>", len(runners.Runners))
+		for _, i := range runners.Runners {
+			if i != nil {
+				d.StreamListItem(ctx, i)
+			}
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return nil, nil
+}
+
+//// HYDRATE FUNCTIONS
+
+func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	runnerId := d.KeyColumnQuals["id"].GetInt64Value()
+	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	owner, repo := parseRepoFullName(orgName)
+	plugin.Logger(ctx).Trace("tableGitHubRunnerGet", "owner", owner, "repo", repo, "runnerId", runnerId)
+
+	client := connect(ctx, d)
+
+	type GetResponse struct {
+		runner *github.Runner
+		resp   *github.Response
+	}
+
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Actions.GetRunner(ctx, owner, repo, runnerId)
+		return GetResponse{
+			runner: detail,
+			resp:   resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	if err != nil {
+		return nil, err
+	}
+
+	getResp := getResponse.(GetResponse)
+	artifact := getResp.runner
+
+	return artifact, nil
+}
