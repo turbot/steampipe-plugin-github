@@ -35,7 +35,7 @@ func tableGitHubActionRepositorySecret(ctx context.Context) *plugin.Table {
 
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the secret was created."},
-			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ExpiresAt").Transform(convertTimestamp), Description: "Time when the secret was updated."},
+			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the secret was updated."},
 		},
 	}
 }
