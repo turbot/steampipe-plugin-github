@@ -30,7 +30,7 @@ func tableGitHubActionRepositorySecret(ctx context.Context) *plugin.Table {
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the secrets."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
-			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the secret"},
+			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the secret."},
 			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"),Description: "The GitHub URL of the repository."},
 
 			// Other columns
