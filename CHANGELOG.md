@@ -1,3 +1,9 @@
+## v0.11.1 [2022-02-02]
+
+_Bug fixes_
+
+- Fixed the `github_release` table to set `published_at` column to `nil` for repositories which have a release that has not been published yet ([#135](https://github.com/turbot/steampipe-plugin-github/pull/135))
+
 ## v0.11.0 [2022-01-12]
 
 _Enhancements_
