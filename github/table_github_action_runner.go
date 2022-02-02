@@ -80,7 +80,6 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		runners := listResponse.runners
 		resp := listResponse.resp
 
-		plugin.Logger(ctx).Info("Result Length =======>>>>>", len(runners.Runners))
 		for _, i := range runners.Runners {
 			if i != nil {
 				d.StreamListItem(ctx, i)
