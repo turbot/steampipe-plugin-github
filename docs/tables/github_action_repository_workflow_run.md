@@ -1,8 +1,8 @@
-# Table: github_action_repository_workflow_run
+# Table: github_actions_repository_workflow_run
 
 WorkflowRun represents a repository action workflow run.
 
-The `github_action_repository_workflow_run` table can be used to query information about any organization secret, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
+The `github_actions_repository_workflow_run` table can be used to query information about any organization secret, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
 
 ## Examples
 
@@ -12,7 +12,7 @@ The `github_action_repository_workflow_run` table can be used to query informati
 select
   *
 from
-  github_action_repository_workflow_run
+  github_actions_repository_workflow_run
 where
   repository_full_name = 'turbot/steampipe';
 ```
@@ -31,7 +31,7 @@ select
   head_commit,
   head_branch
 from
-    github_action_repository_workflow_run
+    github_actions_repository_workflow_run
 where
   repository_full_name = 'turbot/steampipe' and conclusion = 'failure';
 ```
@@ -50,7 +50,7 @@ select
   head_commit,
   head_branch
 from
-    github_action_repository_workflow_run
+    github_actions_repository_workflow_run
 where
   repository_full_name = 'turbot/steampipe' and event = 'workflow_dispatch';
 ```

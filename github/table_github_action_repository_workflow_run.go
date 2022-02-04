@@ -12,9 +12,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubActionRepositoryWorkflowRun(ctx context.Context) *plugin.Table {
+func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "github_action_repository_workflow_run",
+		Name:        "github_actions_repository_workflow_run",
 		Description: "WorkflowRun represents a repository action workflow run",
 		List: &plugin.ListConfig{
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
