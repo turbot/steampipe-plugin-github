@@ -133,7 +133,6 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 		listResponse := listPageResponse.(ListPageResponse)
 		workflowRuns := listResponse.workflowRuns
 		resp := listResponse.resp
-		plugin.Logger(ctx).Info("Result Length ====>>>>", len(workflowRuns.WorkflowRuns))
 		for _, i := range workflowRuns.WorkflowRuns {
 			if i != nil {
 				d.StreamListItem(ctx, i)
