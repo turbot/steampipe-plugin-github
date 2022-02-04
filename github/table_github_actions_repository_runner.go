@@ -130,7 +130,6 @@ func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	getResp := getResponse.(GetResponse)
-	artifact := getResp.runner
 
-	return artifact, nil
+	return getResp.runner, nil
 }
