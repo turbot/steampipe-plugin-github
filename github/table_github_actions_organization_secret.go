@@ -12,9 +12,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubOrganozationSecret(ctx context.Context) *plugin.Table {
+func tableGitHubActionsOrganozationSecret(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "github_action_organization_secret",
+		Name:        "github_actions_organization_secret",
 		Description: "Secrets are encrypted environment variables that you create in an organization",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("organization_name"),
@@ -22,16 +22,16 @@ func tableGitHubOrganozationSecret(ctx context.Context) *plugin.Table {
 			Hydrate:           tableGitHubOrgSecretList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"organization_name", "name"}),
+			KeyColumns:        plugin.AllColumns([]string{"organization_name", "name"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:    tableGitHubOrgSecretGet,
+			Hydrate:           tableGitHubOrgSecretGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("organization_name"), Description: "Full name of the orgainazation that contains the secrets."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The vicibility of the secret"},
-			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"),Description: "Size of the artifact in bytes."},
+			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"), Description: "Size of the artifact in bytes."},
 
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the secret was created."},
@@ -49,7 +49,7 @@ func tableGitHubOrgSecretList(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	type ListPageResponse struct {
 		orgSecrets *github.Secrets
-		resp      *github.Response
+		resp       *github.Response
 	}
 
 	opts := &github.ListOptions{PerPage: 100}
@@ -65,7 +65,7 @@ func tableGitHubOrgSecretList(ctx context.Context, d *plugin.QueryData, h *plugi
 		orgSecrets, resp, err := client.Actions.ListOrgSecrets(ctx, orgName, opts)
 		return ListPageResponse{
 			orgSecrets: orgSecrets,
-			resp:      resp,
+			resp:       resp,
 		}, err
 	}
 
@@ -112,14 +112,14 @@ func tableGitHubOrgSecretGet(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	type GetResponse struct {
 		orgSecret *github.Secret
-		resp     *github.Response
+		resp      *github.Response
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		detail, resp, err := client.Actions.GetOrgSecret(ctx, orgName, name)
 		return GetResponse{
 			orgSecret: detail,
-			resp:     resp,
+			resp:      resp,
 		}, err
 	}
 
