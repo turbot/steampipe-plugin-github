@@ -22,9 +22,9 @@ func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
 			Hydrate:           tableGitHubArtifactList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:    tableGitHubArtifactGet,
+			Hydrate:           tableGitHubArtifactGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
