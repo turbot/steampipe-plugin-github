@@ -12,9 +12,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubActionRunner(ctx context.Context) *plugin.Table {
+func tableGitHubActionsRepositoryRunner(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "github_action_runner",
+		Name:        "github_actions_repository_runner",
 		Description: "The runner is the application that runs a job from a GitHub Actions workflow",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),

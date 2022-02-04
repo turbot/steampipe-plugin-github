@@ -1,8 +1,8 @@
-# Table: github_action_runner
+# Table: github_actions_repository_runner
 
 A runner is a server that runs your workflows when they're triggered. Each runner can run a single job at a time. Self-hosted runners offer more control of hardware, operating system, and software tools than GitHub-hosted runners provide.
 
-The `github_action_runner` table can be used to query information about any self-hosted runner, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
+The `github_actions_repository_runner` table can be used to query information about any self-hosted runner, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
 
 ## Examples
 
@@ -12,7 +12,7 @@ The `github_action_runner` table can be used to query information about any self
 select
   *
 from
-  github_action_runner
+  github_actions_repository_runner
 where
   repository_full_name = 'turbot/steampipe';
 ```
@@ -26,7 +26,7 @@ select
   name,
   os
 from
-  github_action_runner
+  github_actions_repository_runner
 where
   repository_full_name = 'turbot/steampipe' and os = 'macos';
 ```
@@ -41,7 +41,7 @@ select
   os,
   busy
 from
-  github_action_runner
+  github_actions_repository_runner
 where
   repository_full_name = 'turbot/steampipe' and busy;
 ```
