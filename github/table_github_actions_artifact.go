@@ -12,9 +12,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubArtifact(ctx context.Context) *plugin.Table {
+func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "github_action_artifact",
+		Name:        "github_actions_artifact",
 		Description: "Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed.",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),
