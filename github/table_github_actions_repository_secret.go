@@ -72,7 +72,6 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
 		if err != nil {
 			return nil, err
 		}
@@ -107,6 +106,11 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 func tableGitHubRepoSecretGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	name := d.KeyColumnQuals["name"].GetStringValue()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	
+	// Empty check for the parameters
+	if name == "" || orgName == "" {
+		return nil, nil
+	}
 	owner, repo := parseRepoFullName(orgName)
 	plugin.Logger(ctx).Trace("tableGitHubRepoSecretGet", "owner", owner, "repo", repo, "name", name)
 
