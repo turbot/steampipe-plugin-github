@@ -71,7 +71,6 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
 		if err != nil {
 			return nil, err
 		}
@@ -106,6 +105,12 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runnerId := d.KeyColumnQuals["id"].GetInt64Value()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+
+	// Empty check for the parameter
+	if runnerId == 0 || orgName == "" {
+		return nil, nil
+	}
+
 	owner, repo := parseRepoFullName(orgName)
 	plugin.Logger(ctx).Trace("tableGitHubRunnerGet", "owner", owner, "repo", repo, "runnerId", runnerId)
 
