@@ -75,7 +75,6 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
 		if err != nil {
 			return nil, err
 		}
@@ -110,6 +109,12 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	id := d.KeyColumnQuals["id"].GetInt64Value()
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+
+	// Empty check for the parameters
+	if id == 0 || fullName == "" {
+		return nil, nil
+	}
+
 	owner, repo := parseRepoFullName(fullName)
 	plugin.Logger(ctx).Trace("tableGitHubArtifactGet", "owner", owner, "repo", repo, "id", id)
 
