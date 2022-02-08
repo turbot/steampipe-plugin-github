@@ -52,7 +52,7 @@ func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table 
 			{Name: "logs_url", Type: proto.ColumnType_STRING, Description: "The address for the workflow logs GitHub web page."},
 			{Name: "rerun_url", Type: proto.ColumnType_STRING, Description: "The address for workflow rerun GitHub web page."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The address for the workflow run GitHub web page.", Transform: transform.FromField("URL")},
-			{Name: "workflow_url", Type: proto.ColumnType_STRING, Description: "The address for workflow run GitHub web page."},
+			{Name: "workflow_url", Type: proto.ColumnType_STRING, Description: "The address for workflow GitHub web page."},
 
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the workflow run was created."},
@@ -125,7 +125,6 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
 		if err != nil {
 			return nil, err
 		}
@@ -159,6 +158,12 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runId := d.KeyColumnQuals["id"].GetInt64Value()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	
+	// Empty check for the parameters
+	if runId == 0 || orgName == "" {
+		return nil, nil
+	}
+
 	owner, repo := parseRepoFullName(orgName)
 	plugin.Logger(ctx).Trace("tableGitHubRepoWorkflowRunGet", "owner", owner, "repo", repo, "runId", runId)
 
