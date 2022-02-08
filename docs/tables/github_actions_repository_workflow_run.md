@@ -1,6 +1,6 @@
 # Table: github_actions_repository_workflow_run
 
-When a workflow is configured to run on the workflow_dispatch event, you can run the workflow using the Actions tab on GitHub, GitHub CLI, or the REST API.
+GitHub Actions lets you run workflows when other events happen in your repository. For example, you can run a workflow to automatically add the appropriate labels whenever someone creates a new issue in your repository.
 
 The `github_actions_repository_workflow_run` table can be used to query information about any organization secret, and **you must specify which repository** in the where or join clause using the `repository_full_name` column.
 
