@@ -1,3 +1,13 @@
+## v0.12.0 [2022-02-09]
+
+_What's new?_
+
+- New tables added
+  - [github_actions_artifact](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_artifact) ([#137](https://github.com/turbot/steampipe-plugin-github/pull/137))
+  - [github_actions_repository_runner](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_runner) ([#141](https://github.com/turbot/steampipe-plugin-github/pull/141))
+  - [github_actions_repository_secret](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_secret) ([#143](https://github.com/turbot/steampipe-plugin-github/pull/143))
+  - [github_actions_repository_workflow_run](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_workflow_run) ([#146](https://github.com/turbot/steampipe-plugin-github/pull/146))
+
 ## v0.11.1 [2022-02-02]
 
 _Bug fixes_
