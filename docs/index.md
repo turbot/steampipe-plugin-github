@@ -6,8 +6,8 @@ brand_color: "#191717"
 display_name: "GitHub"
 name: "github"
 description: "Steampipe plugin for querying GitHub Repositories, Organizations, and other resources."
-social_about: Use SQL to query repos, orgs and more from GitHub. Open source CLI. No DB required. 
-social_preview: "/images/plugins/turbot/github-social-graphic.png"
+og_description: Use SQL to query repos, orgs and more from GitHub. Open source CLI. No DB required. 
+og_image: "/images/plugins/turbot/github-social-graphic.png"
 ---
 
 # GitHub + Steampipe
