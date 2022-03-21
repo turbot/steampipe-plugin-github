@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/go-github/v33/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v2/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
 )
 
 //// TABLE DEFINITION

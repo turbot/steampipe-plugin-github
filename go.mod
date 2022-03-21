@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/google/go-github/v33 v33.0.0
 	github.com/turbot/go-kit v0.3.0
-	github.com/turbot/steampipe-plugin-sdk v1.8.3
+	github.com/turbot/steampipe-plugin-sdk/v2 v2.1.1
 	golang.org/x/oauth2 v0.0.0-20210810183815-faf39c7919d5
 )
 
