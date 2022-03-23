@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
 )
 
 //// TABLE DEFINITION
