@@ -10,8 +10,8 @@ import (
 	"github.com/google/go-github/v33/github"
 	"golang.org/x/oauth2"
 
-	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v2/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
 )
 
 // create service client
