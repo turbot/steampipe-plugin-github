@@ -12,49 +12,47 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
+func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "github_workflow",
-		Description: "GitHub Workflows bundle project files for download by users.",
+		Name:        "github_actions_artifact",
+		Description: "Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed.",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubWorkflowList,
+			Hydrate:           tableGitHubArtifactList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:    tableGitHubWorkflowGet,
+			Hydrate:           tableGitHubArtifactGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the workflow."},
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the workflow."},
-			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the workflow."},
-			{Name: "path", Type: proto.ColumnType_STRING, Description: "Path of the workflow."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the artifact."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the artifact."},
+			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the artifact."},
+			{Name: "size_in_bytes", Type: proto.ColumnType_INT, Description: "Size of the artifact in bytes."},
 
 			// Other columns
-			{Name: "badge_url", Type: proto.ColumnType_STRING, Description: "Badge URL for the workflow."},
-			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the workflow was created."},
-			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "HTML URL for the workflow."},
+			{Name: "archive_download_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("ArchiveDownloadURL"), Description: "Archive download URL for the artifact."},
+			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the artifact was created."},
+			{Name: "expired", Type: proto.ColumnType_BOOL, Description: "It defines wheather the artifact is expires or not."},
+			{Name: "expires_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ExpiresAt").Transform(convertTimestamp), Description: "Time when the artifact expires."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "Node where GitHub stores this data internally."},
-			{Name: "state", Type: proto.ColumnType_STRING, Description: "State of the workflow."},
-			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow was updated."},
-			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the workflow."},
 		},
 	}
 }
 
 //// LIST FUNCTION
 
-func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	type ListPageResponse struct {
-		workflows *github.Workflows
+		artifacts *github.ArtifactList
 		resp      *github.Response
 	}
 
@@ -68,25 +66,24 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		workflows, resp, err := client.Actions.ListWorkflows(ctx, owner, repo, opts)
+		artifacts, resp, err := client.Actions.ListArtifacts(ctx, owner, repo, opts)
 		return ListPageResponse{
-			workflows: workflows,
+			artifacts: artifacts,
 			resp:      resp,
 		}, err
 	}
 
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
 		if err != nil {
 			return nil, err
 		}
 
 		listResponse := listPageResponse.(ListPageResponse)
-		workflows := listResponse.workflows
+		artifacts := listResponse.artifacts
 		resp := listResponse.resp
 
-		for _, i := range workflows.Workflows {
+		for _, i := range artifacts.Artifacts {
 			if i != nil {
 				d.StreamListItem(ctx, i)
 			}
@@ -109,23 +106,29 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 //// HYDRATE FUNCTIONS
 
-func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	id := d.KeyColumnQuals["id"].GetInt64Value()
 	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+
+	// Empty check for the parameters
+	if id == 0 || fullName == "" {
+		return nil, nil
+	}
+
 	owner, repo := parseRepoFullName(fullName)
-	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
+	plugin.Logger(ctx).Trace("tableGitHubArtifactGet", "owner", owner, "repo", repo, "id", id)
 
 	client := connect(ctx, d)
 
 	type GetResponse struct {
-		workflow *github.Workflow
+		artifact *github.Artifact
 		resp     *github.Response
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetWorkflowByID(ctx, owner, repo, id)
+		detail, resp, err := client.Actions.GetArtifact(ctx, owner, repo, id)
 		return GetResponse{
-			workflow: detail,
+			artifact: detail,
 			resp:     resp,
 		}, err
 	}
@@ -136,7 +139,7 @@ func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 	}
 
 	getResp := getResponse.(GetResponse)
-	workflow := getResp.workflow
+	artifact := getResp.artifact
 
-	return workflow, nil
+	return artifact, nil
 }

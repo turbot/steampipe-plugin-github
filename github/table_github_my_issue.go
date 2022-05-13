@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v33/github"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
 )
 
 //// TABLE DEFINITION

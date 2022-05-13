@@ -1,3 +1,38 @@
+## v0.14.1 [2022-05-12]
+
+_Enhancements_
+
+- Updated `config/github.spc` and index doc with `token` argument environment variable information. ([#161](https://github.com/turbot/steampipe-plugin-github/pull/161))
+
+## v0.14.0 [2022-04-28]
+
+_Enhancements_
+
+- Added support for native Linux ARM and Mac M1 builds. ([#157](https://github.com/turbot/steampipe-plugin-github/pull/157))
+- Recompiled plugin with [steampipe-plugin-sdk v3.1.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v310--2022-03-30) and Go version `1.18`. ([#156](https://github.com/turbot/steampipe-plugin-github/pull/156))
+
+## v0.13.0 [2022-03-23]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v2.1.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v211--2022-03-10) ([#151](https://github.com/turbot/steampipe-plugin-github/pull/151))
+
+## v0.12.0 [2022-02-09]
+
+_What's new?_
+
+- New tables added
+  - [github_actions_artifact](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_artifact) ([#137](https://github.com/turbot/steampipe-plugin-github/pull/137))
+  - [github_actions_repository_runner](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_runner) ([#141](https://github.com/turbot/steampipe-plugin-github/pull/141))
+  - [github_actions_repository_secret](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_secret) ([#143](https://github.com/turbot/steampipe-plugin-github/pull/143))
+  - [github_actions_repository_workflow_run](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_workflow_run) ([#146](https://github.com/turbot/steampipe-plugin-github/pull/146))
+
+## v0.11.1 [2022-02-02]
+
+_Bug fixes_
+
+- Fixed the `github_release` table to set `published_at` column to `nil` for draft releases ([#135](https://github.com/turbot/steampipe-plugin-github/pull/135))
+
 ## v0.11.0 [2022-01-12]
 
 _Enhancements_
