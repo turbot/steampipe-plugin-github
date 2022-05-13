@@ -18,6 +18,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{
 			"github_actions_artifact":                tableGitHubActionsArtifact(ctx),
+			"github_actions_organization_secret":     tableGitHubActionsOrganozationSecret(ctx),
 			"github_actions_repository_runner":       tableGitHubActionsRepositoryRunner(ctx),
 			"github_actions_repository_secret":       tableGitHubActionsRepositorySecret(ctx),
 			"github_actions_repository_workflow_run": tableGitHubActionsRepositoryWorkflowRun(ctx),
