@@ -2,7 +2,7 @@
 
 The `github_search_code` table helps to search for the specific item you want to find inside of a file. You can search globally across all of GitHub, or scope your search to a particular repository or organization.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. The `query` contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. The `query` contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. See [Searching code](https://docs.github.com/en/search-github/searching-on-github/searching-code) for details.
 
 ## Examples
 
