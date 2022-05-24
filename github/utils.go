@@ -51,7 +51,6 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	// If the base URL was provided then set it on the client. Used for
 	// enterprise installs.
 	if baseURL != "" {
-
 		uv3, err := url.Parse(baseURL)
 		if err != nil {
 			panic(fmt.Sprintf("github.base_url is invalid: %s", baseURL))
