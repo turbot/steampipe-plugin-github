@@ -1,3 +1,9 @@
+## v0.14.1 [2022-05-12]
+
+_Enhancements_
+
+- Updated `config/github.spc` and index doc with `token` argument environment variable information. ([#161](https://github.com/turbot/steampipe-plugin-github/pull/161))
+
 ## v0.14.0 [2022-04-28]
 
 _Enhancements_

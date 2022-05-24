@@ -1,5 +1,5 @@
 connection "github" {
-  plugin    = "github"
+  plugin = "github"
 
   # The GitHub plugin uses a personal access token to authenticate
   # to the GitHub APIs  (it looks like `ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8`).
