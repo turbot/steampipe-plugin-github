@@ -1,3 +1,9 @@
+## v0.15.0 [2022-05-25]
+
+_What's new?_
+
+- Added experimental GitHub Enterprise connection support. To get started, please set the `base_url` config argument in your GitHub connection. For more information, please see [GitHub plugin configuration](https://hub.steampipe.io/plugins/turbot/github#configuration). ([#160](https://github.com/turbot/steampipe-plugin-github/pull/160))
+
 ## v0.14.1 [2022-05-12]
 
 _Enhancements_
