@@ -77,11 +77,15 @@ connection "github" {
   # Please see https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token for more information.
   # Can also be set with the GITHUB_TOKEN environment variable.
   # token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
+
+  # GitHub Enterprise requires a base_url to be configured to your installation location.
+  # Can also be set with the GITHUB_BASE_URL environment variable.
+  # base_url = "https://github.example.com"
 }
 ```
 
 - `token` - [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account. This can also be set via the `GITHUB_TOKEN` environment variable.
-- `base_url` - GitHub Enterprise users have a custom URL location (e.g. `https://github.example.com`). Not required for GitHub cloud.
+- `base_url` - GitHub Enterprise users have a custom URL location (e.g. `https://github.example.com`). Not required for GitHub cloud. This can also be via the `GITHUB_BASE_URL` environment variable.
 
 ## Get involved
 

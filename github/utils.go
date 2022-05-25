@@ -38,8 +38,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	}
 
 	if token == "" {
-		panic("token must be configured")
-		//return nil, errors.New("token must be configured")
+		panic("'token' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
 	}
 
 	ts := oauth2.StaticTokenSource(
@@ -60,6 +59,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			uv3.Path = uv3.Path + "api/v3/"
 		}
 
+		// The upload URL is not set as it's not currently required
 		conn, err = github.NewEnterpriseClient(uv3.String(), "", tc)
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
