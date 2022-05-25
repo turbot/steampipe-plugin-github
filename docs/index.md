@@ -81,6 +81,7 @@ connection "github" {
 ```
 
 - `token` - [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account. This can also be set via the `GITHUB_TOKEN` environment variable.
+- `base_url` - GitHub Enterprise users have a custom URL location (e.g. `https://github.example.com`). Not required for GitHub cloud.
 
 ## Get involved
 

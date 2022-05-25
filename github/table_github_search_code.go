@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"regexp"
-	"strings"
 
 	"github.com/google/go-github/v33/github"
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
@@ -117,9 +116,8 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 func extractSearchCodeRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	code := d.HydrateItem.(*github.CodeResult)
 	if code.HTMLURL != nil {
-		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta("github.com/") + `(.*?)` + regexp.QuoteMeta("/blob"))
-		replacer := strings.NewReplacer("github.com/", "", "/blob", "")
-		return replacer.Replace(rx.FindString(*code.HTMLURL)), nil
+		rx := regexp.MustCompile(`https?://.+?/(.+?)/blob`)
+		return rx.FindStringSubmatch(*code.HTMLURL)[1], nil
 	}
 	return "", nil
 }
