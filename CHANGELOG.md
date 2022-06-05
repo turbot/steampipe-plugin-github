@@ -1,3 +1,11 @@
+## v0.16.0 [2022-06-05]
+
+_What's new?_
+
+- Added `github_team` table
+- Added `github_team_member` table
+- Added `github_team_repository` table
+
 ## v0.15.0 [2022-05-25]
 
 _What's new?_
@@ -105,7 +113,6 @@ _Bug fixes_
 
 - `github_repository` table will now return an empty row instead of `not found` error when the repository collaborator details are not available ([#89](https://github.com/turbot/steampipe-plugin-github/pull/89))
 
-
 ## v0.8.1 [2021-10-26]
 
 _Bug fixes_
@@ -190,7 +197,6 @@ _What's new?_
   - [github_traffic_view_daily](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_view_daily) ([#32](https://github.com/turbot/steampipe-plugin-github/pull/32))
   - [github_traffic_view_weekly](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_view_weekly) ([#33](https://github.com/turbot/steampipe-plugin-github/pull/33))
 
-
 ## v0.3.0 [2021-04-30]
 
 _What's new?_
@@ -209,7 +215,6 @@ _Bug fixes_
 
 - Cleanup unnecessary logging in github_license ([#24](https://github.com/turbot/steampipe-plugin-github/pull/24))
 - Github (lower h) references should be GitHub (capital H) throughout the docs etc ([#26](https://github.com/turbot/steampipe-plugin-github/pull/26))
-
 
 ## v0.2.0 [2021-03-18]
 
@@ -231,7 +236,6 @@ _Bug fixes_
 - Fixed: Renamed table `github_repository_issue` to `github_issue` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 - Fixed: Renamed table `github_team` to `github_my_team` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 
-
 ## v0.1.1 [2021-02-25]
 
 _Bug fixes_
@@ -240,13 +244,11 @@ _Bug fixes_
   - Fix error for missing required quals [#40](https://github.com/turbot/steampipe-plugin-sdk/issues/42).
   - Queries fail with error socket: too many open files [#190](https://github.com/turbot/steampipe/issues/190)
 
-
 ## v0.1.0 [2021-02-18]
 
 _What's new?_
 
 - Added support for [connection configuration](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/index.md#connection-configuration). You may specify github `token` for each connection in a configuration file.
-
 
 ## v0.0.5 [2021-01-28]
 
