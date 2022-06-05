@@ -49,8 +49,8 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 	slug := d.KeyColumnQuals["slug"].GetStringValue()
 
 	type ListPageResponse struct {
-		repo []*github.Repository
-		resp *github.Response
+		repos []*github.Repository
+		resp  *github.Response
 	}
 
 	limit := d.QueryContext.Limit
@@ -63,8 +63,8 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		repos, resp, err := client.Teams.ListTeamReposBySlug(ctx, org, slug, opt)
 		return ListPageResponse{
-			repo: repos,
-			resp: resp,
+			repos: repos,
+			resp:  resp,
 		}, err
 	}
 
@@ -76,7 +76,7 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 		}
 
 		listResponse := listPageResponse.(ListPageResponse)
-		repos := listResponse.repo
+		repos := listResponse.repos
 		resp := listResponse.resp
 
 		for _, i := range repos {
