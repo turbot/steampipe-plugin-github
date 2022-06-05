@@ -10,6 +10,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func gitHubTeamColumns() []*plugin.Column {
 	return []*plugin.Column{
 
@@ -48,8 +50,6 @@ func gitHubOrgTeamColumns() []*plugin.Column {
 
 	return append(teamColumns, orgColumns...)
 }
-
-//// TABLE DEFINITION
 
 func tableGitHubTeam() *plugin.Table {
 	return &plugin.Table{
