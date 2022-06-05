@@ -1,6 +1,6 @@
 # Table: github_team
 
-The `github_team` table can be used to fetch team information for a given organization. **You must specify the organization** in the where or join clause (`where organization=`, `join github_repository on organization=`).
+The `github_team` table can be used to fetch team information for a given organization. **You must specify the organization** in the where or join clause (`where organization=`, `join github_team on organization=`).
 
 ## Examples
 
@@ -24,7 +24,9 @@ select
   o.login,
   t.name,
   t.slug
-from github.github_my_organization as o
-inner join github.github_team as t
-  on t.organization = o.login
+from
+  github.github_my_organization as o,
+  github.github_team as t
+where
+  t.organization = o.login
 ```
