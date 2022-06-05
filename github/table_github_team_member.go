@@ -11,8 +11,8 @@ import (
 )
 
 func gitHubTeamMemberColumns() []*plugin.Column {
-	var repoColumns = gitHubUserColumns()
-	var teamColumns = []*plugin.Column{
+	repoColumns := gitHubUserColumns()
+	teamColumns := []*plugin.Column{
 		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
 		{Name: "slug", Type: pb.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
 		{Name: "role", Type: pb.ColumnType_STRING, Description: "The team member's role", Hydrate: tableGitHubTeamMemberGet},
