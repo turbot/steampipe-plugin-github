@@ -8,13 +8,14 @@ The `github_team` table can be used to fetch team information for a given organi
 
 ```sql
 select
-  t.id
-  t.name
-  t.privacy
-  t.description
+  id
+  name
+  privacy
+  description
 from
-    github.github_team
-where organization = 'my_org'
+  github.github_team
+where
+  organization = 'my_org'
 ```
 
 ## Get all teams in your organizations
