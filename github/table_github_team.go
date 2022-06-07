@@ -61,7 +61,12 @@ func tableGitHubTeam() *plugin.Table {
 			Hydrate:           tableGitHubTeamList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"organization", "slug"}),
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "organization", Require: plugin.Optional},
+				{Name: "organization_id", Require: plugin.Optional},
+				{Name: "slug", Require: plugin.Optional},
+				{Name: "id", Require: plugin.Optional},
+			},
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamGet,
 		},
@@ -134,10 +139,13 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 //// HYDRATE FUNCTIONS
 
 func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var org, slug string
+	var org string
+	var orgId int64
+	var teamId interface{}
 	if h.Item != nil {
 		team := h.Item.(*github.Team)
-		slug = *team.Slug
+		orgId = *team.Organization.ID
+		teamId = *team.Slug
 
 		// Present for the authenticated user repos.
 		if team.Organization != nil {
@@ -146,8 +154,14 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 			org = d.KeyColumnQuals["organization"].GetStringValue()
 		}
 	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
+		if d.KeyColumnQuals["slug"] != nil {
+			org = d.KeyColumnQuals["organization"].GetStringValue()
+			teamId = d.KeyColumnQuals["slug"].GetStringValue()
+		} else {
+			// For backwards compatibility we allow querying by org id and team id.
+			orgId = d.KeyColumnQuals["organization_id"].GetInt64Value()
+			teamId = d.KeyColumnQuals["id"].GetInt64Value()
+		}
 	}
 
 	client := connect(ctx, d)
@@ -158,11 +172,25 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.GetTeamBySlug(ctx, org, slug)
-		return GetResponse{
-			team: detail,
-			resp: resp,
-		}, err
+		switch t := teamId.(type) {
+
+		case string:
+			detail, resp, err := client.Teams.GetTeamBySlug(ctx, org, t)
+			return GetResponse{
+				team: detail,
+				resp: resp,
+			}, err
+
+		case int64:
+			detail, resp, err := client.Teams.GetTeamByID(ctx, orgId, t)
+			return GetResponse{
+				team: detail,
+				resp: resp,
+			}, err
+
+		default:
+			return nil, nil
+		}
 	}
 
 	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
