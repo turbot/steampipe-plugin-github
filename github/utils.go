@@ -92,11 +92,7 @@ func parseRepoFullName(fullName string) (string, string) {
 func convertTimestamp(ctx context.Context, input *transform.TransformData) (interface{}, error) {
 	switch t := input.Value.(type) {
 	case *github.Timestamp:
-		if t == nil {
-			return nil, nil
-		} else {
-			return t.Format(time.RFC3339), nil
-		}
+		return t.Format(time.RFC3339), nil
 	case github.Timestamp:
 		return t.Format(time.RFC3339), nil
 	default:
