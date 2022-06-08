@@ -13,15 +13,32 @@ import (
 //// TABLE DEFINITION
 
 func gitHubTeamMemberColumns() []*plugin.Column {
-	repoColumns := gitHubUserColumns()
-	teamColumns := []*plugin.Column{
+	return []*plugin.Column{
 		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
 		{Name: "slug", Type: pb.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
+		{Name: "login", Type: pb.ColumnType_STRING, Description: "The login name of the user."},
+		{Name: "id", Type: pb.ColumnType_INT, Description: "The ID of the user."},
+
+		{Name: "avatar_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's avatar."},
+		{Name: "events_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's events."},
+		{Name: "followers_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's followers."},
+		{Name: "following_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's following."},
+		{Name: "gists_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's gists."},
+		{Name: "gravatar_id", Type: pb.ColumnType_STRING, Description: "The user's gravatar ID."},
+		{Name: "html_url", Type: pb.ColumnType_STRING, Description: "The GitHub page for the user."},
+		{Name: "node_id", Type: pb.ColumnType_STRING, Description: "The node ID of the user."},
+		{Name: "organizations_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's organizations."},
+		{Name: "received_events_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's received events."},
+		{Name: "repos_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's repos."},
+		{Name: "site_admin", Type: pb.ColumnType_BOOL, Description: "If true, user is an administrator."},
+		{Name: "starred_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's stars."},
+		{Name: "subscriptions_url", Type: pb.ColumnType_STRING, Description: "The URL of the user's subscriptions."},
+		{Name: "type", Type: pb.ColumnType_STRING, Description: "The type of account."},
+		{Name: "url", Type: pb.ColumnType_STRING, Description: "The URL of the user."},
+
 		{Name: "role", Type: pb.ColumnType_STRING, Description: "The team member's role", Hydrate: tableGitHubTeamMemberGet},
 		{Name: "state", Type: pb.ColumnType_STRING, Description: "The membership state", Hydrate: tableGitHubTeamMemberGet},
 	}
-
-	return append(repoColumns, teamColumns...)
 }
 
 func tableGitHubTeamMember() *plugin.Table {
