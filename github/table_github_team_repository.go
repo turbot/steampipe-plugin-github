@@ -17,6 +17,7 @@ func gitHubTeamRepositoryColumns() []*plugin.Column {
 	teamColumns := []*plugin.Column{
 		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
 		{Name: "slug", Type: pb.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
+		{Name: "permissions", Type: pb.ColumnType_JSON, Description: "The team's permissions for a repository.", Transform: transform.From(perissionsFromMap)},
 	}
 
 	return append(repoColumns, teamColumns...)
@@ -32,6 +33,15 @@ func tableGitHubTeamRepository() *plugin.Table {
 				{Name: "slug", Require: plugin.Required},
 			},
 			Hydrate:           tableGitHubTeamRepositoryList,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "organization", Require: plugin.Required},
+				{Name: "slug", Require: plugin.Required},
+				{Name: "full_name", Require: plugin.Required},
+			},
+			Hydrate:           tableGitHubTeamRepositoryGet,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: gitHubTeamRepositoryColumns(),
@@ -98,4 +108,64 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 	}
 
 	return nil, nil
+}
+
+//// HYDRATE FUNCTIONS
+
+func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	var org, slug, owner, repoName string
+	if h.Item != nil {
+		repo := h.Item.(*github.Repository)
+		org = *repo.Organization.Login
+		owner = *repo.Owner.Login
+		repoName = *repo.Name
+		slug = *h.Item.(*github.Team).Slug
+	} else {
+		org = d.KeyColumnQuals["organization"].GetStringValue()
+		slug = d.KeyColumnQuals["slug"].GetStringValue()
+		fullName := d.KeyColumnQuals["full_name"].GetStringValue()
+		owner, repoName = parseRepoFullName(fullName)
+	}
+
+	client := connect(ctx, d)
+
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
+	}
+
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Teams.IsTeamRepoBySlug(ctx, org, slug, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+
+	if err != nil {
+		return nil, err
+	}
+
+	repo := getResponse.(GetResponse).repo
+
+	if repo != nil {
+		return repo, nil
+	}
+
+	return nil, nil
+}
+
+func perissionsFromMap(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	permissions := d.HydrateItem.(*github.Repository).Permissions
+
+	var arr []string
+	for key, value := range *permissions {
+		if value {
+			arr = append(arr, key)
+		}
+	}
+
+	return arr, nil
 }
