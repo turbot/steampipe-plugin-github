@@ -36,8 +36,8 @@ func gitHubTeamMemberColumns() []*plugin.Column {
 		{Name: "type", Type: pb.ColumnType_STRING, Description: "The type of account."},
 		{Name: "url", Type: pb.ColumnType_STRING, Description: "The URL of the user."},
 
-		{Name: "role", Type: pb.ColumnType_STRING, Description: "The team member's role", Hydrate: tableGitHubTeamMemberGet},
-		{Name: "state", Type: pb.ColumnType_STRING, Description: "The membership state", Hydrate: tableGitHubTeamMemberGet},
+		{Name: "role", Type: pb.ColumnType_STRING, Description: "The team member's role.", Hydrate: tableGitHubTeamMemberGet},
+		{Name: "state", Type: pb.ColumnType_STRING, Description: "The membership state.", Hydrate: tableGitHubTeamMemberGet},
 	}
 }
 
