@@ -16,7 +16,7 @@ select
   action,
   data
 from
-    github.github_audit_log
+    github_audit_log
 where
     organization = 'my_org'
 ```
@@ -31,7 +31,7 @@ select
   action,
   data
 from
-    github.github_audit_log
+    github_audit_log
 where
     organization = 'my_org'
     and phrase = "action:repo.create action:repo.destroy"
