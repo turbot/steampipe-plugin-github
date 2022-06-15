@@ -2,8 +2,9 @@ package github
 
 import (
 	"context"
+	"strings"
 
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v45/github"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -16,6 +17,7 @@ func gitHubTeamColumns() []*plugin.Column {
 	return []*plugin.Column{
 
 		// Top columns
+		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromField("Organization.Login"), Hydrate: tableGitHubTeamGet},
 		{Name: "slug", Type: pb.ColumnType_STRING, Description: "The team slug name."},
 		{Name: "name", Type: pb.ColumnType_STRING, Description: "The name of the team."},
 		{Name: "members_count", Type: pb.ColumnType_INT, Description: "The number of members.", Hydrate: tableGitHubTeamGet},
@@ -42,21 +44,12 @@ func gitHubTeamColumns() []*plugin.Column {
 	}
 }
 
-func gitHubOrgTeamColumns() []*plugin.Column {
-	teamColumns := gitHubTeamColumns()
-	orgColumns := []*plugin.Column{
-		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
-	}
-
-	return append(teamColumns, orgColumns...)
-}
-
 func tableGitHubTeam() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_team",
 		Description: "GitHub Teams in a given organization. GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("organization"),
+			ParentHydrate:     tableGitHubMyOrganizationList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamList,
 		},
@@ -65,7 +58,7 @@ func tableGitHubTeam() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamGet,
 		},
-		Columns: gitHubOrgTeamColumns(),
+		Columns: gitHubTeamColumns(),
 	}
 }
 
@@ -74,10 +67,9 @@ func tableGitHubTeam() *plugin.Table {
 func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	opt := &github.ListOptions{PerPage: 100}
+	org := h.Item.(*github.Organization)
 
-	quals := d.KeyColumnQuals
-	org := quals["organization"].GetStringValue()
+	opt := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
 	if limit != nil {
@@ -92,7 +84,7 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		teams, resp, err := client.Teams.ListTeams(ctx, org, opt)
+		teams, resp, err := client.Teams.ListTeams(ctx, *org.Login, opt)
 		return ListPageResponse{
 			teams: teams,
 			resp:  resp,
@@ -139,11 +131,16 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		team := h.Item.(*github.Team)
 		slug = *team.Slug
 
-		// Present for the authenticated user repos.
-		if team.Organization != nil {
-			org = *team.Organization.Login
-		} else { // Not present listing org repos.
+		// Organization login will be available from different sources based on how
+		// this function is called
+		if d.KeyColumnQuals["organization"].GetStringValue() != "" { // If called with quals from the github_team table, use the qual value
 			org = d.KeyColumnQuals["organization"].GetStringValue()
+		} else if team.Organization != nil { // If called with quals from github_my_team table, use the Organization value
+			org = *team.Organization.Login
+		} else { // If called without quals from the github_team table, extract it from the team's HTML URL
+			htmlUrl := *team.HTMLURL
+			// Split a URL like "https://github.com/orgs/github/teams/justice-league"
+			org = strings.Split(htmlUrl, "/")[4]
 		}
 	} else {
 		org = d.KeyColumnQuals["organization"].GetStringValue()

@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v45/github"
 
 	pb "github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -161,7 +161,7 @@ func perissionsFromMap(ctx context.Context, d *transform.TransformData) (interfa
 	permissions := d.HydrateItem.(*github.Repository).Permissions
 
 	var arr []string
-	for key, value := range *permissions {
+	for key, value := range permissions {
 		if value {
 			arr = append(arr, key)
 		}

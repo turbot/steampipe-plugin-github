@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v45/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -174,13 +174,17 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	client := connect(ctx, d)
 
+	opts := &github.ListOptions{
+		PerPage: 100,
+	}
+
 	type GetResponse struct {
 		commit *github.RepositoryCommit
 		resp   *github.Response
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha)
+		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha, opts)
 		return GetResponse{
 			commit: detail,
 			resp:   resp,

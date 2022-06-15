@@ -3,24 +3,12 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v45/github"
 
-	pb "github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
 )
 
 //// TABLE DEFINITION
-
-func gitHubMyTeamColumns() []*plugin.Column {
-	teamColumns := gitHubTeamColumns()
-	myTeamColumns := []*plugin.Column{
-		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromField("Organization.Login")},
-	}
-
-	return append(teamColumns, myTeamColumns...)
-}
-
 func tableGitHubMyTeam() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_team",
@@ -33,7 +21,7 @@ func tableGitHubMyTeam() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamGet,
 		},
-		Columns: gitHubMyTeamColumns(),
+		Columns: gitHubTeamColumns(),
 	}
 }
 
@@ -95,5 +83,3 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 	return nil, nil
 }
-
-//// HYDRATE FUNCTIONS
