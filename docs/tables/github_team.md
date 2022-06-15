@@ -1,33 +1,33 @@
 # Table: github_team
 
-The `github_team` table can be used to fetch team information for a given organization. **You must specify the organization** in the where or join clause (`where organization=`, `join github_team on organization=`).
+Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions. The `github_team` table lists all teams you have visibility to across your organizations.
+
+To list the teams that you're a member of across your organizations, use the `github_my_team` table.
 
 ## Examples
 
-## Get all teams in an organization
+## List all visible teams
 
 ```sql
 select
-  id
-  name
-  privacy
+  id,
+  name,
+  privacy,
   description
 from
-  github.github_team
-where
-  organization = 'my_org'
+  github_team;
 ```
 
-## Get all teams in your organizations
+## List all visible teams in an organization
 
 ```sql
 select
-  o.login,
-  t.name,
-  t.slug
+  id,
+  name,
+  privacy,
+  description
 from
-  github.github_my_organization as o,
-  github.github_team as t
+  github_team
 where
-  t.organization = o.login
+  organization = 'my_org';
 ```
