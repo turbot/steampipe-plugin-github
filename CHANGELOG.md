@@ -7,6 +7,10 @@ _What's new?_
   - [github_team_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_member) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
   - [github_team_repository](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_repository) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
 
+_Enhancements_
+
+- Recompiled plugin with [go-github v45.1.0](https://github.com/google/go-github/releases/tag/v45.1.0). ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+
 ## v0.15.0 [2022-05-25]
 
 _What's new?_
