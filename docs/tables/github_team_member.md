@@ -17,20 +17,20 @@ where
   and slug = 'my-team';
 ```
 
-### To get members for all teams
+### To get members for all teams and all organizations
 
 ```sql
 select
+  t.organization,
   t.name,
   t.privacy,
   t.description,
   tm.login,
   tm.role
 from
-  github.github_team as t,
-  github.github_team_member as tm
+  github_team as t,
+  github_team_member as tm
 where
-  tm.organization = 'my_org'
-  and t.organization = tm.organization
+  t.organization = tm.organization
   and t.slug = tm.slug
 ```

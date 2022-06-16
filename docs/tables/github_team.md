@@ -31,3 +31,14 @@ from
 where
   organization = 'my_org';
 ```
+
+## List the number of members for a single team
+
+```sql
+select
+  members_count
+from
+  github_team
+where
+  slug = 'team';
+```

@@ -41,8 +41,8 @@ select
   tr.archived   as repo_is_archived,
   tr.language   as repo_primary_language
 from
-  github.github_team as t,
-  github.github_team_repository AS tr
+  github_team as t,
+  github_team_repository AS tr
 where
   t.organization = 'my_org'
   and t.organization = tr.organization
