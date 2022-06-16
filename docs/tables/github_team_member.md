@@ -4,12 +4,15 @@ The `github_team_member` table can be used to query information about members of
 
 ## Examples
 
-### Get information about a specific organization's team members
+### List team members for a specific team
 
 ```sql
 select
+  organization,
+  slug as team_slug,
   login,
-  role
+  role,
+  state
 from
   github_team_member
 where
@@ -17,20 +20,58 @@ where
   and slug = 'my-team';
 ```
 
-### To get members for all teams and all organizations
+### List active team members with maintainer role for a specific team
 
 ```sql
 select
-  t.organization,
-  t.name,
-  t.privacy,
-  t.description,
-  tm.login,
-  tm.role
+  organization,
+  slug as team_slug,
+  login,
+  role,
+  state
+from
+  github_team_member
+where
+  organization = 'my_org'
+  and slug = 'my-team'
+  and role = 'maintainer'
+  and state = 'active';
+```
+
+### List pending team members for a specific team
+
+```sql
+select
+  organization,
+  slug as team_slug,
+  login,
+  role,
+  state
+from
+  github_team_member
+where
+  organization = 'my_org'
+  and slug = 'my-team'
+  and state = 'pending';
+```
+
+### List team members with maintainer role for visible teams
+
+```sql
+select
+  t.organization as organization,
+  t.name as team_name,
+  t.slug as team_slug,
+  t.privacy as team_privacy,
+  t.description as team_description,
+  tm.login as member_login,
+  tm.role as member_role,
+  tm.state as member_state
 from
   github_team as t,
   github_team_member as tm
 where
   t.organization = tm.organization
   and t.slug = tm.slug
+  and tm.role = 'maintainer';
 ```

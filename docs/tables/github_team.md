@@ -10,8 +10,8 @@ To list the teams that you're a member of across your organizations, use the `gi
 
 ```sql
 select
-  id,
   name,
+  slug,
   privacy,
   description
 from
@@ -22,8 +22,8 @@ from
 
 ```sql
 select
-  id,
   name,
+  slug,
   privacy,
   description
 from
@@ -32,13 +32,15 @@ where
   organization = 'my_org';
 ```
 
-## List the number of members for a single team
+## Get the number of members for a single team
 
 ```sql
 select
+  name,
+  slug,
   members_count
 from
   github_team
 where
-  slug = 'team';
+  slug = 'my_team';
 ```
