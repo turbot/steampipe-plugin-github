@@ -1,10 +1,11 @@
-## v0.16.0 [2022-06-05]
+## v0.16.0 [2022-06-16]
 
 _What's new?_
 
-- Added `github_team` table
-- Added `github_team_member` table
-- Added `github_team_repository` table
+- New tables added
+  - [github_team](https://hub.steampipe.io/plugins/turbot/github/tables/github_team) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+  - [github_team_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_member) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+  - [github_team_repository](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_repository) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
 
 ## v0.15.0 [2022-05-25]
 
