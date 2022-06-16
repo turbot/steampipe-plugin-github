@@ -16,9 +16,9 @@ select
   action,
   data
 from
-    github_audit_log
+  github_audit_log
 where
-    organization = 'my_org'
+  organization = 'my_org';
 ```
 
 ### Get specific audit events
@@ -31,9 +31,9 @@ select
   action,
   data
 from
-    github_audit_log
+  github_audit_log
 where
-    organization = 'my_org'
-    and phrase = "action:repo.create action:repo.destroy"
-    and created_at >= '2022-01-01'
+  organization = 'my_org'
+  and phrase = "action:repo.create action:repo.destroy"
+  and created_at >= '2022-01-01';
 ```
