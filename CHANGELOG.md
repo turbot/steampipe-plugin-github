@@ -2,7 +2,7 @@
 
 _What's new?_
 
-- New tables added
+- New tables added (Thanks to [@japborst](https://github.com/japborst) for adding the tables below!)
   - [github_team](https://hub.steampipe.io/plugins/turbot/github/tables/github_team) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
   - [github_team_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_member) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
   - [github_team_repository](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_repository) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
