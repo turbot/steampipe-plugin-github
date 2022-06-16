@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-github/v45/github"
 
-	pb "github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
 )
@@ -15,9 +15,9 @@ import (
 func gitHubTeamRepositoryColumns() []*plugin.Column {
 	repoColumns := gitHubRepositoryColumns()
 	teamColumns := []*plugin.Column{
-		{Name: "organization", Type: pb.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "slug", Type: pb.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
-		{Name: "permissions", Type: pb.ColumnType_JSON, Description: "The team's permissions for a repository.", Transform: transform.From(perissionsFromMap)},
+		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
+		{Name: "slug", Type: proto.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
+		{Name: "permissions", Type: proto.ColumnType_JSON, Description: "The team's permissions for a repository.", Transform: transform.From(perissionsFromMap)},
 	}
 
 	return append(repoColumns, teamColumns...)
