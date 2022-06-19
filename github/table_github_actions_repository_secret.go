@@ -31,7 +31,7 @@ func tableGitHubActionsRepositorySecret(ctx context.Context) *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the secrets."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the secret."},
-			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"),Description: "The GitHub URL of the repository."},
+			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"), Description: "The GitHub URL of the repository."},
 
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the secret was created."},
@@ -104,37 +104,21 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepoSecretGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	name := d.KeyColumnQuals["name"].GetStringValue()
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	
-	// Empty check for the parameters
-	if name == "" || orgName == "" {
-		return nil, nil
-	}
-	owner, repo := parseRepoFullName(orgName)
-	plugin.Logger(ctx).Trace("tableGitHubRepoSecretGet", "owner", owner, "repo", repo, "name", name)
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		name := d.KeyColumnQuals["name"].GetStringValue()
+		fullname := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 
-	client := connect(ctx, d)
+		// Empty check for the parameters
+		if name == "" || fullname == "" {
+			return nil, nil
+		}
+		owner, repo := parseRepoFullName(fullname)
+		plugin.Logger(ctx).Trace("tableGitHubRepoSecretGet", "owner", owner, "repo", repo, "name", name)
 
-	type GetResponse struct {
-		secret *github.Secret
-		resp   *github.Response
-	}
+		detail, _, err := client.Actions.GetRepoSecret(ctx, owner, repo, name)
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetRepoSecret(ctx, owner, repo, name)
-		return GetResponse{
-			secret: detail,
-			resp:   resp,
-		}, err
+		return detail, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-
-	return getResp.secret, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

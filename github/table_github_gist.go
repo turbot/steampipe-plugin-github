@@ -49,42 +49,21 @@ func tableGitHubGist() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	getList := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var id string
+		if h.Item != nil {
+			gist := h.Item.(*github.Gist)
+			id = *gist.ID
+		} else {
+			id = d.KeyColumnQuals["id"].GetStringValue()
+		}
 
-	var id string
-	if h.Item != nil {
-		gist := h.Item.(*github.Gist)
-		id = *gist.ID
-	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		list, _, err := client.Gists.Get(ctx, id)
+
+		return list, err
 	}
 
-	type GetResponse struct {
-		gist *github.Gist
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		gist, resp, err := client.Gists.Get(ctx, id)
-		return GetResponse{
-			gist: gist,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	gist := getResp.gist
-
-	if gist != nil {
-		d.StreamListItem(ctx, gist)
-	}
-
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getList)
 }
 
 //// TRANSFORM FUNCTIONS

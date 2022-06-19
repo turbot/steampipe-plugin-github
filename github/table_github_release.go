@@ -119,34 +119,17 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 //// HYDRATE FUNCTIONS
 
 func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	id := d.KeyColumnQuals["id"].GetInt64Value()
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		id := d.KeyColumnQuals["id"].GetInt64Value()
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 
-	owner, repo := parseRepoFullName(fullName)
-	plugin.Logger(ctx).Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
+		owner, repo := parseRepoFullName(fullName)
+		plugin.Logger(ctx).Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
 
-	client := connect(ctx, d)
+		detail, _, err := client.Repositories.GetRelease(ctx, owner, repo, id)
 
-	type GetResponse struct {
-		release *github.RepositoryRelease
-		resp    *github.Response
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.GetRelease(ctx, owner, repo, id)
-		return GetResponse{
-			release: detail,
-			resp:    resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	release := getResp.release
-
-	return release, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

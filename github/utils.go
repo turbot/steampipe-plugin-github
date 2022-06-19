@@ -74,6 +74,56 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	return conn
 }
 
+type GetGitHubDataFunc func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error)
+
+func getGitHubItem(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, getDetailsFunc GetGitHubDataFunc) (interface{}, error) {
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		client := connect(ctx, d)
+
+		return getDetailsFunc(ctx, d, h, client)
+	}
+
+	data, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func streamGitHubListOrItem(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, getDetailsFunc GetGitHubDataFunc) (interface{}, error) {
+	data, err := getGitHubItem(ctx, d, h, getDetailsFunc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if data != nil {
+		switch t := data.(type) {
+		case []interface{}:
+			streamList(ctx, d, t)
+		case interface{}:
+			d.StreamListItem(ctx, t)
+		}
+	}
+
+	return nil, nil
+}
+
+func streamList(ctx context.Context, d *plugin.QueryData, item []interface{}) {
+	for _, item := range item {
+		if item != "" {
+			d.StreamListItem(ctx, item)
+		}
+
+		// Context can be cancelled due to manual cancellation or the limit has been hit
+		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			break
+		}
+	}
+}
+
 //// HELPER FUNCTIONS
 
 func parseRepoFullName(fullName string) (string, string) {

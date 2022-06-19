@@ -17,8 +17,8 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 		Name:        "github_community_profile",
 		Description: "Community profile information for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubCommunityProfileList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			Hydrate:           tableGitHubCommunityProfileList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
@@ -39,33 +39,14 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	getList := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+		owner, repo := parseRepoFullName(fullName)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	owner, repo := parseRepoFullName(fullName)
+		list, _, err := client.Repositories.GetCommunityHealthMetrics(ctx, owner, repo)
 
-	type GetResponse struct {
-		result *github.CommunityHealthMetrics
-		resp   *github.Response
+		return list, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		details, resp, err := client.Repositories.GetCommunityHealthMetrics(ctx, owner, repo)
-		return GetResponse{
-			result: details,
-			resp:   resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	result := getResp.result
-
-	d.StreamListItem(ctx, result)
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getList)
 }

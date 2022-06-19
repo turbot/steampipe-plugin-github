@@ -107,39 +107,22 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 //// HYDRATE FUNCTIONS
 
 func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	id := d.KeyColumnQuals["id"].GetInt64Value()
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		id := d.KeyColumnQuals["id"].GetInt64Value()
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
 
-	// Empty check for the parameters
-	if id == 0 || fullName == "" {
-		return nil, nil
+		// Empty check for the parameters
+		if id == 0 || fullName == "" {
+			return nil, nil
+		}
+
+		owner, repo := parseRepoFullName(fullName)
+
+		plugin.Logger(ctx).Trace("tableGitHubArtifactGet", "owner", owner, "repo", repo, "id", id)
+		detail, _, err := client.Actions.GetArtifact(ctx, owner, repo, id)
+
+		return detail, err
 	}
 
-	owner, repo := parseRepoFullName(fullName)
-	plugin.Logger(ctx).Trace("tableGitHubArtifactGet", "owner", owner, "repo", repo, "id", id)
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		artifact *github.Artifact
-		resp     *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetArtifact(ctx, owner, repo, id)
-		return GetResponse{
-			artifact: detail,
-			resp:     resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	artifact := getResp.artifact
-
-	return artifact, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

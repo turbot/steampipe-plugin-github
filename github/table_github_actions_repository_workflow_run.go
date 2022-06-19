@@ -156,38 +156,22 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	runId := d.KeyColumnQuals["id"].GetInt64Value()
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	
-	// Empty check for the parameters
-	if runId == 0 || orgName == "" {
-		return nil, nil
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		runId := d.KeyColumnQuals["id"].GetInt64Value()
+		fullname := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+
+		// Empty check for the parameters
+		if runId == 0 || fullname == "" {
+			return nil, nil
+		}
+
+		owner, repo := parseRepoFullName(fullname)
+		plugin.Logger(ctx).Trace("tableGitHubRepoWorkflowRunGet", "owner", owner, "repo", repo, "runId", runId)
+
+		detail, _, err := client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
+
+		return detail, err
 	}
 
-	owner, repo := parseRepoFullName(orgName)
-	plugin.Logger(ctx).Trace("tableGitHubRepoWorkflowRunGet", "owner", owner, "repo", repo, "runId", runId)
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		workflowRun *github.WorkflowRun
-		resp        *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
-		return GetResponse{
-			workflowRun: detail,
-			resp:        resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-
-	return getResp.workflowRun, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

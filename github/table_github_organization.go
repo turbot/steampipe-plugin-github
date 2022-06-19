@@ -99,44 +99,25 @@ func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.
 //// HYDRATE FUNCTIONS
 
 func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var login string
-	if h.Item != nil {
-		org := h.Item.(*github.Organization)
-		// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
-		if org == nil {
-			return nil, nil
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var login string
+		if h.Item != nil {
+			org := h.Item.(*github.Organization)
+			// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
+			if org == nil {
+				return nil, nil
+			}
+			login = *org.Login
+		} else {
+			login = d.KeyColumnQuals["login"].GetStringValue()
 		}
-		login = *org.Login
-	} else {
-		login = d.KeyColumnQuals["login"].GetStringValue()
+
+		detail, _, err := client.Organizations.Get(ctx, login)
+
+		return detail, err
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		org  *github.Organization
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Organizations.Get(ctx, login)
-		return GetResponse{
-			org:  detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		plugin.Logger(ctx).Error("getOrganizationDetail", err)
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	org := getResp.org
-
-	return org, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
 
 func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

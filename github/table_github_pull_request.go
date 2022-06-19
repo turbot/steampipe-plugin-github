@@ -156,48 +156,28 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 //// HYDRATE FUNCTIONS
 
 func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var issueNumber int
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var owner, repo string
+		var issueNumber int
 
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+		quals := d.KeyColumnQuals
 
-	if h.Item != nil {
-		issue := h.Item.(*github.PullRequest)
-		issueNumber = *issue.Number
-	} else {
-		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		if h.Item != nil {
+			issue := h.Item.(*github.PullRequest)
+			issueNumber = *issue.Number
+		} else {
+			issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		}
+
+		fullName := quals["repository_full_name"].GetStringValue()
+		owner, repo = parseRepoFullName(fullName)
+		plugin.Logger(ctx).Trace("tableGitHubPullRequestGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
+
+		detail, _, err := client.PullRequests.Get(ctx, owner, repo, issueNumber)
+		return detail, err
 	}
 
-	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubPullRequestGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		pullReq *github.PullRequest
-		resp    *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.PullRequests.Get(ctx, owner, repo, issueNumber)
-		return GetResponse{
-			pullReq: detail,
-			resp:    resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	pullReq := getResp.pullReq
-
-	return pullReq, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
 
 //// TRANSFORM FUNCTIONS

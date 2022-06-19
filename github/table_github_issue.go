@@ -174,47 +174,28 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var issueNumber int
 
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var owner, repo string
+		var issueNumber int
 
-	if h.Item != nil {
-		issue := h.Item.(*github.Issue)
-		issueNumber = *issue.Number
-	} else {
-		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		if h.Item != nil {
+			issue := h.Item.(*github.Issue)
+			issueNumber = *issue.Number
+		} else {
+			issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		}
+
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+		owner, repo = parseRepoFullName(fullName)
+
+		plugin.Logger(ctx).Trace("tableGitHubRepositoryIssueGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
+		detail, _, err := client.Issues.Get(ctx, owner, repo, issueNumber)
+
+		return detail, err
 	}
 
-	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubRepositoryIssueGet", "owner", owner, "repo", repo, "issueNumber", issueNumber)
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		issue *github.Issue
-		resp  *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Issues.Get(ctx, owner, repo, issueNumber)
-		return GetResponse{
-			issue: detail,
-			resp:  resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	issue := getResp.issue
-
-	return issue, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
 
 func repoNameQual(_ context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

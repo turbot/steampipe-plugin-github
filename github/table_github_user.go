@@ -66,44 +66,23 @@ func tableGitHubUser() *plugin.Table {
 //     	Note: Pagination is powered exclusively by the since parameter. Use the Link header to get
 //		the URL for the next page of users.
 func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
+	getList := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		logger := plugin.Logger(ctx)
 
-	var login string
+		var login string
 
-	if h.Item != nil {
-		item := h.Item.(*github.User)
-		logger.Trace("tableGitHubUserGet", item.String())
-		login = *item.Login
-	} else {
-		login = d.KeyColumnQuals["login"].GetStringValue()
+		if h.Item != nil {
+			item := h.Item.(*github.User)
+			logger.Trace("tableGitHubUserGet", item.String())
+			login = *item.Login
+		} else {
+			login = d.KeyColumnQuals["login"].GetStringValue()
+		}
+
+		list, _, err := client.Users.Get(ctx, login)
+
+		return list, err
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		user *github.User
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Users.Get(ctx, login)
-		return GetResponse{
-			user: detail,
-			resp: resp,
-		}, err
-	}
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	user := getResp.user
-
-	if user != nil {
-		d.StreamListItem(ctx, user)
-	}
-
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getList)
 }

@@ -94,82 +94,39 @@ func tableGitHubRepository() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	repoFullName := d.KeyColumnQuals["full_name"].GetStringValue()
-	owner, repoName := parseRepoFullName(repoFullName)
 
-	client := connect(ctx, d)
+	getList := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		repoFullName := d.KeyColumnQuals["full_name"].GetStringValue()
+		owner, repoName := parseRepoFullName(repoFullName)
 
-	type GetResponse struct {
-		repo *github.Repository
-		resp *github.Response
+		detail, _, err := client.Repositories.Get(ctx, owner, repoName)
+
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
-		return GetResponse{
-			repo: detail,
-			resp: resp,
-		}, err
-	}
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	repo := getResp.repo
-
-	if repo != nil {
-		d.StreamListItem(ctx, repo)
-	}
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getList)
 }
 
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
-	var owner, repoName string
-	if h.Item != nil {
-		repo := h.Item.(*github.Repository)
-		owner = *repo.Owner.Login
-		repoName = *repo.Name
-	} else {
-		owner = d.KeyColumnQuals["owner_login"].GetStringValue()
-		repoName = d.KeyColumnQuals["name"].GetStringValue()
-	}
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		repo *github.Repository
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
-		return GetResponse{
-			repo: detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		if strings.Contains(err.Error(), "404") {
-			return nil, nil
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var owner, repoName string
+		if h.Item != nil {
+			repo := h.Item.(*github.Repository)
+			owner = *repo.Owner.Login
+			repoName = *repo.Name
+		} else {
+			owner = d.KeyColumnQuals["owner_login"].GetStringValue()
+			repoName = d.KeyColumnQuals["name"].GetStringValue()
 		}
-		return nil, err
-	}
-	getResp := getResponse.(GetResponse)
-	repo := getResp.repo
 
-	if repo == nil {
-		return nil, nil
+		detail, _, err := client.Repositories.Get(ctx, owner, repoName)
+
+		return detail, err
 	}
 
-	return repo, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
 
 func tableGitHubRepositoryCollaboratorsGetAll(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

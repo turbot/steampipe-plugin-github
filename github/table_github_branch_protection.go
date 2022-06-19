@@ -45,31 +45,22 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+		owner, repo := parseRepoFullName(fullName)
 
-	fullName := quals["repository_full_name"].GetStringValue()
-	owner, repo := parseRepoFullName(fullName)
+		branchName := ""
 
-	branchName := ""
+		if h.Item != nil {
+			b := h.Item.(*github.Branch)
+			branchName = *b.Name
+		} else {
+			branchName = d.KeyColumnQuals["name"].GetStringValue()
+		}
 
-	if h.Item != nil {
-		b := h.Item.(*github.Branch)
-		branchName = *b.Name
-	} else {
-		branchName = quals["name"].GetStringValue()
-	}
+		plugin.Logger(ctx).Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
+		detail, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
 
-	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		protection *github.Protection
-	}
-
-	get := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		protection, _, err := client.Repositories.GetBranchProtection(ctx, owner, repo, branchName)
 		if err != nil {
 			// For private and archived repositories, users who do not have owner/admin access will get the below error
 			// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
@@ -77,28 +68,19 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") || strings.Contains(err.Error(), "branch is not protected") {
 				return nil, nil
 			}
+
 			return nil, err
 		}
 
-		return GetResponse{
-			protection: protection,
-		}, err
+		return detail, err
 	}
 
-	getDetails, err := plugin.RetryHydrate(ctx, d, h, get, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	if getDetails == nil {
-		return nil, nil
-	}
-	getResp := getDetails.(GetResponse)
-	protection := getResp.protection
+	protection, _ := getGitHubItem(ctx, d, h, getDetails)
 
 	if protection != nil {
 		d.StreamLeafListItem(ctx, protection)
 	}
+
 	return nil, nil
 }
 

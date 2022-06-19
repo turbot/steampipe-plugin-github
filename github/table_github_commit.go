@@ -150,54 +150,36 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 //// HYDRATE FUNCTIONS
 
 func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var owner, repo string
-	var sha string
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var owner, repo string
+		var sha string
 
-	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+		logger := plugin.Logger(ctx)
+		quals := d.KeyColumnQuals
 
-	if h.Item != nil {
-		commit := h.Item.(*github.RepositoryCommit)
-		sha = *commit.SHA
-	} else {
-		sha = d.KeyColumnQuals["sha"].GetStringValue()
-	}
-	fullName := quals["repository_full_name"].GetStringValue()
+		if h.Item != nil {
+			commit := h.Item.(*github.RepositoryCommit)
+			sha = *commit.SHA
+		} else {
+			sha = d.KeyColumnQuals["sha"].GetStringValue()
+		}
+		fullName := quals["repository_full_name"].GetStringValue()
 
-	// Return nil, if no input provided
-	if fullName == "" || sha == "" {
-		return nil, nil
-	}
+		// Return nil, if no input provided
+		if fullName == "" || sha == "" {
+			return nil, nil
+		}
 
-	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubCommitGet", "owner", owner, "repo", repo, "sha", sha)
+		opts := &github.ListOptions{
+			PerPage: 100,
+		}
 
-	client := connect(ctx, d)
+		owner, repo = parseRepoFullName(fullName)
+		logger.Trace("tableGitHubCommitGet", "owner", owner, "repo", repo, "sha", sha)
+		detail, _, err := client.Repositories.GetCommit(ctx, owner, repo, sha, opts)
 
-	opts := &github.ListOptions{
-		PerPage: 100,
-	}
-
-	type GetResponse struct {
-		commit *github.RepositoryCommit
-		resp   *github.Response
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha, opts)
-		return GetResponse{
-			commit: detail,
-			resp:   resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	commit := getResp.commit
-
-	return commit, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

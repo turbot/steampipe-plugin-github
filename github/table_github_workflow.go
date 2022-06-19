@@ -22,9 +22,9 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 			Hydrate:           tableGitHubWorkflowList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:    tableGitHubWorkflowGet,
+			Hydrate:           tableGitHubWorkflowGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -110,33 +110,16 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 //// HYDRATE FUNCTIONS
 
 func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	id := d.KeyColumnQuals["id"].GetInt64Value()
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	owner, repo := parseRepoFullName(fullName)
-	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		id := d.KeyColumnQuals["id"].GetInt64Value()
+		fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+		owner, repo := parseRepoFullName(fullName)
 
-	client := connect(ctx, d)
+		plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
+		detail, _, err := client.Actions.GetWorkflowByID(ctx, owner, repo, id)
 
-	type GetResponse struct {
-		workflow *github.Workflow
-		resp     *github.Response
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetWorkflowByID(ctx, owner, repo, id)
-		return GetResponse{
-			workflow: detail,
-			resp:     resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	workflow := getResp.workflow
-
-	return workflow, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
