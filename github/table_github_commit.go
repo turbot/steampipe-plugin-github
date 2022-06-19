@@ -154,7 +154,6 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		var owner, repo string
 		var sha string
 
-		logger := plugin.Logger(ctx)
 		quals := d.KeyColumnQuals
 
 		if h.Item != nil {
@@ -175,7 +174,7 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		}
 
 		owner, repo = parseRepoFullName(fullName)
-		logger.Trace("tableGitHubCommitGet", "owner", owner, "repo", repo, "sha", sha)
+		plugin.Logger(ctx).Trace("tableGitHubCommitGet", "owner", owner, "repo", repo, "sha", sha)
 		detail, _, err := client.Repositories.GetCommit(ctx, owner, repo, sha, opts)
 
 		return detail, err

@@ -80,6 +80,7 @@ func getGitHubItem(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		client := connect(ctx, d)
 
+		plugin.Logger(ctx).Trace("Hydrating", "table", d.Table.Name, "quals", d.KeyColumnQuals, "fetchType", d.FetchType)
 		return getDetailsFunc(ctx, d, h, client)
 	}
 

@@ -86,12 +86,11 @@ func tableGitHubPullRequest() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-	logger.Trace("tableGitHubPullRequestList", "owner", owner, "repo", repo)
+	plugin.Logger(ctx).Trace("tableGitHubPullRequestList", "owner", owner, "repo", repo)
 
 	opt := &github.PullRequestListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
