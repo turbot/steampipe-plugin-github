@@ -84,8 +84,8 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	type ListPageResponse struct {
-		result []*github.AuditEntry
-		resp   *github.Response
+		entries []*github.AuditEntry
+		resp    *github.Response
 	}
 
 	client := connect(ctx, d)
@@ -99,15 +99,15 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		result, resp, err := client.Organizations.GetAuditLog(ctx, org, opts)
+		entries, resp, err := client.Organizations.GetAuditLog(ctx, org, opts)
 
 		if err != nil {
 			return nil, err
 		}
 
 		return ListPageResponse{
-			result: result,
-			resp:   resp,
+			entries: entries,
+			resp:    resp,
 		}, nil
 	}
 
@@ -119,7 +119,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 
 		listResponse := listPageResponse.(ListPageResponse)
-		auditResults := listResponse.result
+		auditResults := listResponse.entries
 		resp := listResponse.resp
 
 		for _, i := range auditResults {
@@ -131,11 +131,11 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if resp.After == "" {
 			break
 		}
 
-		opts.ListCursorOptions.Page = resp.NextPageToken
+		opts.After = resp.After
 	}
 
 	return nil, nil
