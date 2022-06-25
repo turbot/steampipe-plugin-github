@@ -31,11 +31,11 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 			{Name: "include", Type: pb.ColumnType_STRING, Transform: transform.FromQual("include"), Description: "The event types to include: web, git, all."},
 
 			// Top columns.
-			{Name: "id", Type: pb.ColumnType_STRING, Description: "The id of the audit event.", Transform: transform.FromField("_document_id")},
-			{Name: "created_at", Type: pb.ColumnType_TIMESTAMP, Description: "The timestamp of the audit event.", Transform: transform.FromField("created_at").Transform(convertTimestamp)},
+			{Name: "id", Type: pb.ColumnType_STRING, Description: "The id of the audit event.", Transform: transform.FromField("DocumentID")},
+			{Name: "created_at", Type: pb.ColumnType_TIMESTAMP, Description: "The timestamp of the audit event.", Transform: transform.FromField("CreatedAt").Transform(convertTimestamp)},
 			{Name: "action", Type: pb.ColumnType_STRING, Description: "The action performed."},
 			{Name: "actor", Type: pb.ColumnType_STRING, Description: "The GitHub user who performed the action."},
-			{Name: "actor_location_country_code", Type: pb.ColumnType_STRING, Description: "The country location of the actor at the moment of the action.", Transform: transform.FromField("actor_location.country_code")},
+			{Name: "actor_location_country_code", Type: pb.ColumnType_STRING, Description: "The country location of the actor at the moment of the action.", Transform: transform.FromField("ActorLocation.CountryCode")},
 
 			// Optional columns, depending on the audit event.
 			{Name: "team", Type: pb.ColumnType_STRING, Description: "The GitHub team, when the action relates to a team."},
