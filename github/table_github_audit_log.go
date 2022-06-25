@@ -62,24 +62,15 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	if quals["created_at"] != nil {
 		for _, q := range d.Quals["created_at"].Quals {
-			input := q.Value.GetTimestampValue().AsTime()
-			givenTime := input.Format("2006-01-02")
-			beforeTime := input.Add(-24 * time.Hour).Format("2006-01-02")
-			afterTime := input.Add(24 * time.Hour).Format("2006-01-02")
+			givenTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
 
-			switch q.Operator {
-			case ">":
-				opts.After = afterTime
-			case ">=":
-				opts.After = givenTime
-			case "<":
-				opts.Before = beforeTime
-			case "<=":
-				opts.Before = givenTime
-			case "=":
-				phrase += " created: " + givenTime
-				opts.Phrase = &phrase
+			op := q.Operator
+			if op == "=" {
+				op = ""
 			}
+
+			phrase += " created:" + op + givenTime
+			opts.Phrase = &phrase
 		}
 	}
 
