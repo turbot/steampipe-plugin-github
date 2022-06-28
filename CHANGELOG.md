@@ -1,3 +1,9 @@
+## v0.17.1 [2022-06-28]
+
+_Bug fixes_
+
+- Fixed `github_branch_protection` table returning an error when querying unprotected branches.
+
 ## v0.17.0 [2022-06-24]
 
 _Enhancements_
