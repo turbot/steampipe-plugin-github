@@ -62,7 +62,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	// TODO: Support quals["action"] to filter using the phrase parameter
 
-	if quals["created_at"] != nil {
+	if d.Quals["created_at"] != nil {
 		for _, q := range d.Quals["created_at"].Quals {
 			givenTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
 
@@ -71,8 +71,6 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 				op = ""
 			}
 
-			// TODO: Handle BETWEEN clause
-			// TODO: Handle from/to to use created:<fromt>...<to> instead
 			phrase += " created:" + op + givenTime
 			opts.Phrase = &phrase
 		}
@@ -94,6 +92,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		plugin.Logger(ctx).Debug("tableGitHubAuditLogs", "org", org, "include", include, "phrase", *opts.Phrase)
 		entries, resp, err := client.Organizations.GetAuditLog(ctx, org, opts)
 
 		if err != nil {
