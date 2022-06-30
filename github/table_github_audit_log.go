@@ -21,6 +21,7 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 				{Name: "organization", Require: plugin.Required},
 				{Name: "phrase", Require: plugin.Optional},
 				{Name: "include", Require: plugin.Optional},
+				{Name: "action", Require: plugin.Optional},
 				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
 			},
 			Hydrate: tableGitHubAuditLogList,
@@ -60,8 +61,6 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 		ListCursorOptions: github.ListCursorOptions{PerPage: 100},
 	}
 
-	// TODO: Support quals["action"] to filter using the phrase parameter
-
 	if d.Quals["created_at"] != nil {
 		for _, q := range d.Quals["created_at"].Quals {
 			givenTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
@@ -74,6 +73,11 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 			phrase += " created:" + op + givenTime
 			opts.Phrase = &phrase
 		}
+	}
+
+	if quals["action"] != nil {
+		phrase += " action:" + quals["action"].GetStringValue()
+		opts.Phrase = &phrase
 	}
 
 	type ListPageResponse struct {
