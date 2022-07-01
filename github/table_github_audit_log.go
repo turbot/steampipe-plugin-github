@@ -22,6 +22,7 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 				{Name: "phrase", Require: plugin.Optional},
 				{Name: "include", Require: plugin.Optional},
 				{Name: "action", Require: plugin.Optional},
+				{Name: "actor", Require: plugin.Optional},
 				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
 			},
 			Hydrate: tableGitHubAuditLogList,
@@ -77,6 +78,11 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	if quals["action"] != nil {
 		phrase += " action:" + quals["action"].GetStringValue()
+		opts.Phrase = &phrase
+	}
+
+	if quals["actor"] != nil {
+		phrase += " actor:" + quals["actor"].GetStringValue()
 		opts.Phrase = &phrase
 	}
 
