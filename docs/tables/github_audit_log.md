@@ -1,6 +1,6 @@
 # Table: github_audit_log
 
-The `github_audit_log` table helps to find all audit events for an organization.
+The `github_audit_log` table helps to find all audit events for an organization. Note: this only works for organizations on an **GitHub Enterprise plan**.
 
 **You must always specify the organization** in the where or join clause using the `organization` column. Additionally, you can filter the logs by using a search phrase (`phrase`), event types (`include`), and before/after a timestamp (`created_at`).
 
@@ -19,6 +19,7 @@ from
   github_audit_log
 where
   organization = 'my_org'
+order by created_at
 limit 10;
 ```
 
