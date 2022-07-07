@@ -1,3 +1,8 @@
+## v0.18.0 [2022-07-07]
+
+- New tables added (Thanks to [@japborst](https://github.com/japborst) for adding the table and [@ngowraj](https://github.com/ngowraj) for extensively testing it!)
+  - [github_audit_log](https://hub.steampipe.io/plugins/turbot/github/tables/github_audit_log) ([#166](https://github.com/turbot/steampipe-plugin-github/pull/166))
+
 ## v0.17.1 [2022-06-28]
 
 _Bug fixes_
