@@ -32,14 +32,14 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 			{Name: "phrase", Type: proto.ColumnType_STRING, Transform: transform.FromQual("phrase"), Description: "The search phrase for your audit events."},
 			{Name: "include", Type: proto.ColumnType_STRING, Transform: transform.FromQual("include"), Description: "The event types to include: web, git, all."},
 
-			// Top columns.
+			// Top columns
 			{Name: "id", Type: proto.ColumnType_STRING, Description: "The id of the audit event.", Transform: transform.FromField("DocumentID")},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp of the audit event.", Transform: transform.FromField("CreatedAt").Transform(convertTimestamp)},
 			{Name: "action", Type: proto.ColumnType_STRING, Description: "The action performed."},
 			{Name: "actor", Type: proto.ColumnType_STRING, Description: "The GitHub user who performed the action."},
 			{Name: "actor_location", Type: proto.ColumnType_JSON, Description: "The actor's location at the moment of the action."},
 
-			// Optional columns, depending on the audit event.
+			// Optional columns, depending on the audit event
 			{Name: "team", Type: proto.ColumnType_STRING, Description: "The GitHub team, when the action relates to a team."},
 			{Name: "user", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user."},
 			{Name: "repo", Type: proto.ColumnType_STRING, Description: "The GitHub repository, when the action relates to a repository."},
