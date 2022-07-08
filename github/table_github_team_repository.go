@@ -113,48 +113,26 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 //// HYDRATE FUNCTIONS
 
 func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var org, slug, owner, repoName string
-	if h.Item != nil {
-		repo := h.Item.(*github.Repository)
-		org = *repo.Organization.Login
-		owner = *repo.Owner.Login
-		repoName = *repo.Name
-		slug = *h.Item.(*github.Team).Slug
-	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
-		fullName := d.KeyColumnQuals["full_name"].GetStringValue()
-		owner, repoName = parseRepoFullName(fullName)
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var org, slug, owner, repoName string
+		if h.Item != nil {
+			repo := h.Item.(*github.Repository)
+			org = *repo.Organization.Login
+			owner = *repo.Owner.Login
+			repoName = *repo.Name
+			slug = *h.Item.(*github.Team).Slug
+		} else {
+			org = d.KeyColumnQuals["organization"].GetStringValue()
+			slug = d.KeyColumnQuals["slug"].GetStringValue()
+			fullName := d.KeyColumnQuals["full_name"].GetStringValue()
+			owner, repoName = parseRepoFullName(fullName)
+		}
+
+		detail, _, err := client.Teams.IsTeamRepoBySlug(ctx, org, slug, owner, repoName)
+		return detail, err
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		repo *github.Repository
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.IsTeamRepoBySlug(ctx, org, slug, owner, repoName)
-		return GetResponse{
-			repo: detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-
-	repo := getResponse.(GetResponse).repo
-
-	if repo != nil {
-		return repo, nil
-	}
-
-	return nil, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }
 
 func perissionsFromMap(ctx context.Context, d *transform.TransformData) (interface{}, error) {

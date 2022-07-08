@@ -174,7 +174,6 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
 		var owner, repo string
 		var issueNumber int

@@ -126,50 +126,31 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 //// HYDRATE FUNCTIONS
 
 func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	var org, slug string
-	if h.Item != nil {
-		team := h.Item.(*github.Team)
-		slug = *team.Slug
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var org, slug string
+		if h.Item != nil {
+			team := h.Item.(*github.Team)
+			slug = *team.Slug
 
-		// Organization login will be available from different sources based on how
-		// this function is called
-		if team.Organization != nil { // If called from github_my_team table, use the team's organization login
-			org = *team.Organization.Login
-		} else if h.ParentItem != nil { // If called from github_team table through parent hydrate, use the parent organization's login
-			parentOrg := h.ParentItem.(*github.Organization)
-			org = *parentOrg.Login
-		} else { // Unknown caller
-			logger.Error("tableGitHubTeam.tableGitHubTeamGet", "unknown_caller_error")
-			return nil, fmt.Errorf("unknown caller for tableGitHubTeamGet function")
+			// Organization login will be available from different sources based on how
+			// this function is called
+			if team.Organization != nil { // If called from github_my_team table, use the team's organization login
+				org = *team.Organization.Login
+			} else if h.ParentItem != nil { // If called from github_team table through parent hydrate, use the parent organization's login
+				parentOrg := h.ParentItem.(*github.Organization)
+				org = *parentOrg.Login
+			} else { // Unknown caller
+				plugin.Logger(ctx).Error("tableGitHubTeam.tableGitHubTeamGet", "unknown_caller_error")
+				return nil, fmt.Errorf("unknown caller for tableGitHubTeamGet function")
+			}
+		} else {
+			org = d.KeyColumnQuals["organization"].GetStringValue()
+			slug = d.KeyColumnQuals["slug"].GetStringValue()
 		}
-	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
+
+		detail, _, err := client.Teams.GetTeamBySlug(ctx, org, slug)
+		return detail, err
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		team *github.Team
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.GetTeamBySlug(ctx, org, slug)
-		return GetResponse{
-			team: detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-	getResp := getResponse.(GetResponse)
-	team := getResp.team
-
-	return team, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

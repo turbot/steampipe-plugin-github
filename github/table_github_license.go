@@ -87,41 +87,23 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 //// HYDRATE FUNCTIONS
 
 func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var key string
-	if h.Item != nil {
-		item := h.Item.(*github.License)
-		key = *item.Key
-	} else {
-		key = d.KeyColumnQuals["key"].GetStringValue()
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		var key string
+		if h.Item != nil {
+			item := h.Item.(*github.License)
+			key = *item.Key
+		} else {
+			key = d.KeyColumnQuals["key"].GetStringValue()
+		}
+
+		// Return nil, if no input provided
+		if key == "" {
+			return nil, nil
+		}
+
+		detail, _, err := client.Licenses.Get(ctx, key)
+		return detail, err
 	}
 
-	// Return nil, if no input provided
-	if key == "" {
-		return nil, nil
-	}
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		license *github.License
-		resp    *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		license, resp, err := client.Licenses.Get(ctx, key)
-		return GetResponse{
-			license: license,
-			resp:    resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-	getResp := getResponse.(GetResponse)
-	license := getResp.license
-
-	return license, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

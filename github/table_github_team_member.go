@@ -130,34 +130,16 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func tableGitHubTeamMemberGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	org := d.KeyColumnQuals["organization"].GetStringValue()
-	slug := d.KeyColumnQuals["slug"].GetStringValue()
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		org := d.KeyColumnQuals["organization"].GetStringValue()
+		slug := d.KeyColumnQuals["slug"].GetStringValue()
 
-	user := h.Item.(*github.User)
-	username := *user.Login
+		user := h.Item.(*github.User)
+		username := *user.Login
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		membership *github.Membership
-		resp       *github.Response
+		detail, _, err := client.Teams.GetTeamMembershipBySlug(ctx, org, slug, username)
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.GetTeamMembershipBySlug(ctx, org, slug, username)
-		return GetResponse{
-			membership: detail,
-			resp:       resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-
-	if err != nil {
-		return nil, err
-	}
-	getResp := getResponse.(GetResponse)
-	membership := getResp.membership
-
-	return membership, nil
+	return getGitHubItem(ctx, d, h, getDetails)
 }

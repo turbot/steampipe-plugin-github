@@ -30,32 +30,10 @@ func tableGitHubRateLimit(ctx context.Context) *plugin.Table {
 }
 
 func listGitHubRateLimit(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		rateLimit *github.RateLimits
-		resp      *github.Response
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client) (interface{}, error) {
+		detail, _, err := client.RateLimits(ctx)
+		return detail, err
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.RateLimits(ctx)
-		return GetResponse{
-			rateLimit: detail,
-			resp:      resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-	if err != nil {
-		return nil, err
-	}
-
-	getResp := getResponse.(GetResponse)
-	rateLimits := getResp.rateLimit
-
-	if rateLimits != nil {
-		d.StreamListItem(ctx, rateLimits)
-	}
-
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getDetails)
 }
