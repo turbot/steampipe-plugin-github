@@ -75,13 +75,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 		return detail, err
 	}
 
-	protection, _ := getGitHubItem(ctx, d, h, getDetails)
-
-	if protection != nil {
-		d.StreamLeafListItem(ctx, protection)
-	}
-
-	return nil, nil
+	return streamGitHubListOrItem(ctx, d, h, getDetails)
 }
 
 func branchNameQual(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
