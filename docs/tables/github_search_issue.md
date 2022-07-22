@@ -2,7 +2,7 @@
 
 The `github_search_issue` table helps to find issues by state and keyword. You can search for issues globally across all of GitHub, or search for issues within a particular organization.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination. See [Searching issues and pull requests](https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests) for details.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination. See [Searching issues and pull requests](https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests) for details on the GitHub query syntax.
 
 ## Examples
 
