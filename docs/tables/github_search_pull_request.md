@@ -2,7 +2,7 @@
 
 The `github_search_pull_request` table helps to find pull requests by state and keyword. You can search for pull requests globally across all of GitHub, or search for pull requests within a particular organization.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination. See [Searching issues and pull requests](https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests) for details on the GitHub query syntax.
 
 ## Examples
 

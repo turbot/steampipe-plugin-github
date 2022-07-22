@@ -2,7 +2,7 @@
 
 The `github_search_commit` table helps to find commits via various criteria on the default branch (usually master). You can search for commits globally across all of GitHub, or search for commits within a particular repository or organization.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these commit search qualifiers in any combination.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can narrow the results using these commit search qualifiers in any combination. See [Searching commits](https://docs.github.com/search-github/searching-on-github/searching-commits) for details on the GitHub query syntax.
 
 ## Examples
 
