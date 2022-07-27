@@ -15,7 +15,7 @@ select
 from
   github_organization_member
 where
-  organization = 'new-testing-org';
+  organization = 'my_org';
 ```
 
 ### List active organization members who are admin
@@ -29,7 +29,7 @@ select
 from
   github_organization_member
 where
-  organization = 'new-testing-org'
+  organization = 'my_org'
   and role = 'admin'
   and state = 'active';
 ```
@@ -45,6 +45,6 @@ select
 from
   github_organization_member
 where
-  organization = 'new-testing-org'
+  organization = 'my_org'
   and state = 'pending';
 ```
