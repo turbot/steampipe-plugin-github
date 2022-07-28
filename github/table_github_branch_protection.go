@@ -39,7 +39,7 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 			{Name: "required_linear_history_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequireLinearHistory.Enabled"), Description: "If true, prevent merge commits from being pushed to matching branches."},
 			{Name: "required_status_checks", Type: proto.ColumnType_JSON, Description: "Status checks that must pass before a branch can be merged into branches matching this rule."},
 			{Name: "required_pull_request_reviews", Type: proto.ColumnType_JSON, Description: "Pull request reviews required before merging."},
-			{Name: "signatures_protected_branch", Type: proto.ColumnType_BOOL, Description: "Pull request reviews required before merging.", Hydrate: repositorySignaturesProtectedBranchGet, Transform: transform.FromValue()},
+			{Name: "signatures_protected_branch", Type: proto.ColumnType_BOOL, Description: "Commits pushed to matching branches must have verified signatures.", Hydrate: repositorySignaturesProtectedBranchGet, Transform: transform.FromValue()},
 		},
 	}
 }
