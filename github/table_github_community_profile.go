@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v45/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -17,8 +17,8 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 		Name:        "github_community_profile",
 		Description: "Community profile information for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns: plugin.SingleColumn("repository_full_name"),
-			Hydrate:    tableGitHubCommunityProfileList,
+			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			Hydrate:           tableGitHubCommunityProfileList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{

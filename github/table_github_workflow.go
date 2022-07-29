@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v45/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -22,9 +22,9 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 			Hydrate:           tableGitHubWorkflowList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"repository_full_name", "id"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:    tableGitHubWorkflowGet,
+			Hydrate:           tableGitHubWorkflowGet,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
