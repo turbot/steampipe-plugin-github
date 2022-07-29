@@ -19,3 +19,15 @@ from
 where
   repository_full_name = 'turbot/steampipe';
 ```
+
+### List repositories having the security file
+
+```sql
+select 
+  repository_full_name, 
+  jsonb_pretty(security) as security 
+from
+  github_community_profile c 
+  join github_my_repository r on r.full_name = c.repository_full_name
+  where security is not null;
+```
