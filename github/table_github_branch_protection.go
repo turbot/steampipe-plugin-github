@@ -35,9 +35,11 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 			{Name: "enforce_admins_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("EnforceAdmins.Enabled"), Description: "If true, enforce all configured restrictions for administrators."},
 			{Name: "allow_deletions_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowDeletions.Enabled"), Description: "If true, allow users with push access to delete matching branches."},
 			{Name: "allow_force_pushes_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowForcePushes.Enabled"), Description: "If true, permit force pushes for all users with push access."},
+			{Name: "required_conversation_resolution_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequiredConversationResolution.Enabled"), Description: "If enabled, requires all comments on the pull request to be resolved before it can be merged to a protected branch."},
 			{Name: "required_linear_history_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequireLinearHistory.Enabled"), Description: "If true, prevent merge commits from being pushed to matching branches."},
 			{Name: "required_status_checks", Type: proto.ColumnType_JSON, Description: "Status checks that must pass before a branch can be merged into branches matching this rule."},
 			{Name: "required_pull_request_reviews", Type: proto.ColumnType_JSON, Description: "Pull request reviews required before merging."},
+			{Name: "signatures_protected_branch_enabled", Type: proto.ColumnType_BOOL, Description: "Commits pushed to matching branches must have verified signatures.", Hydrate: repositorySignaturesProtectedBranchGet, Transform: transform.FromValue()},
 		},
 	}
 }
@@ -98,6 +100,35 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 
 	if protection != nil {
 		d.StreamLeafListItem(ctx, protection)
+	}
+	return nil, nil
+}
+
+func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
+	quals := d.KeyColumnQuals
+	fullName := quals["repository_full_name"].GetStringValue()
+	owner, repo := parseRepoFullName(fullName)
+	branchName := ""
+	b := h.ParentItem.(*github.Branch)
+	branchName = *b.Name
+
+	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
+	client := connect(ctx, d)
+
+	protectedBranch, _, err := client.Repositories.GetSignaturesProtectedBranch(ctx, owner, repo, branchName)
+	if err != nil {
+
+		// For private and archived repositories, users who do not have owner/admin access will get the below error
+		// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
+		// For repository owners the API will return nil if the repository is private and archived
+		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") || strings.Contains(err.Error(), "branch is not protected") {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if protectedBranch != nil {
+		return protectedBranch.Enabled, nil
 	}
 	return nil, nil
 }

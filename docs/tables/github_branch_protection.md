@@ -30,3 +30,29 @@ where
   repository_full_name = 'turbot/steampipe'
   and name = 'main';
 ```
+
+## Get repositories where coversation resolution is required for merging
+
+```sql
+select 
+  repository_full_name,
+  b.name as branch_name,
+  signatures_protected_branch
+from 
+  github_branch_protection b 
+  join github_my_repository r on r.full_name = b.repository_full_name 
+  where required_conversation_resolution = true;
+```
+
+## Get repositories that require signed commits for merging
+
+```sql
+select 
+  repository_full_name,
+  b.name as branch_name,
+  required_conversation_resolution
+from 
+  github_branch_protection b 
+  join github_my_repository r on r.full_name = b.repository_full_name 
+  where signatures_protected_branch = true;
+```
