@@ -35,11 +35,11 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 			{Name: "enforce_admins_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("EnforceAdmins.Enabled"), Description: "If true, enforce all configured restrictions for administrators."},
 			{Name: "allow_deletions_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowDeletions.Enabled"), Description: "If true, allow users with push access to delete matching branches."},
 			{Name: "allow_force_pushes_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AllowForcePushes.Enabled"), Description: "If true, permit force pushes for all users with push access."},
-			{Name: "required_conversation_resolution", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequiredConversationResolution.Enabled"), Description: "If enabled, requires all comments on the pull request to be resolved before it can be merged to a protected branch."},
+			{Name: "required_conversation_resolution_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequiredConversationResolution.Enabled"), Description: "If enabled, requires all comments on the pull request to be resolved before it can be merged to a protected branch."},
 			{Name: "required_linear_history_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequireLinearHistory.Enabled"), Description: "If true, prevent merge commits from being pushed to matching branches."},
 			{Name: "required_status_checks", Type: proto.ColumnType_JSON, Description: "Status checks that must pass before a branch can be merged into branches matching this rule."},
 			{Name: "required_pull_request_reviews", Type: proto.ColumnType_JSON, Description: "Pull request reviews required before merging."},
-			{Name: "signatures_protected_branch", Type: proto.ColumnType_BOOL, Description: "Commits pushed to matching branches must have verified signatures.", Hydrate: repositorySignaturesProtectedBranchGet, Transform: transform.FromValue()},
+			{Name: "signatures_protected_branch_enabled", Type: proto.ColumnType_BOOL, Description: "Commits pushed to matching branches must have verified signatures.", Hydrate: repositorySignaturesProtectedBranchGet, Transform: transform.FromValue()},
 		},
 	}
 }
