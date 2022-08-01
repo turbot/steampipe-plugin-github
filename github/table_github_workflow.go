@@ -2,7 +2,12 @@ package github
 
 import (
 	"context"
+	"encoding/base64"
+	"log"
 
+	pipelineConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
+	pipelineHandler "github.com/argonsecurity/pipeline-parser/pkg/handler"
+	pipelineModels "github.com/argonsecurity/pipeline-parser/pkg/models"
 	"github.com/google/go-github/v45/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
@@ -41,6 +46,8 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 			{Name: "state", Type: proto.ColumnType_STRING, Description: "State of the workflow."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow was updated."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the workflow."},
+			{Name: "workflow_file_content", Type: proto.ColumnType_STRING, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64), Description: "Content of github workflow file in text format."},
+			{Name: "pipeline", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(decodeFileContentToPipeline), Description: "Content of github workflow file in generic pipeline entity format to be used across platforms."},
 		},
 	}
 }
@@ -139,4 +146,78 @@ func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 	workflow := getResp.workflow
 
 	return workflow, nil
+}
+
+func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	workflow := h.Item.(*github.Workflow)
+	if workflow.Path == nil {
+		return nil, nil
+	}
+
+	id := d.KeyColumnQuals["id"].GetInt64Value()
+	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	owner, repo := parseRepoFullName(fullName)
+	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
+
+	client := connect(ctx, d)
+
+	type GetFileContentResponse struct {
+		content *github.RepositoryContent
+		resp    *github.Response
+	}
+
+	branch := "main" // TODO What should be the value main or master
+	getFileContent := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		content, _, resp, err := client.Repositories.GetContents(ctx, owner, repo, *workflow.Path, &github.RepositoryContentGetOptions{Ref: branch})
+		return GetFileContentResponse{
+			content: content,
+			resp:    resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	if err != nil {
+		return nil, err
+	}
+
+	getResp := getResponse.(GetFileContentResponse)
+	content := getResp.content
+
+	return content, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	repContent, ok := d.Value.(*github.RepositoryContent)
+	if !ok {
+		return nil, nil
+	}
+
+	decodedText, err := base64.StdEncoding.DecodeString(*repContent.Content)
+	if err != nil {
+		log.Fatalf("error in decoding file content %v", err)
+		return nil, err
+	}
+
+	return string(decodedText), nil
+}
+
+func toPipeline(buf []byte) (*pipelineModels.Pipeline, error) {
+	return pipelineHandler.Handle(buf, pipelineConsts.GitHubPlatform)
+}
+
+func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	repContent, ok := d.Value.(string)
+	if !ok {
+		return nil, nil
+	}
+
+	pipeline, err := toPipeline([]byte(repContent))
+	if err != nil {
+		log.Fatalf("error converting code to pipeline %v", err)
+		return nil, err
+	}
+
+	return pipeline, nil
 }
