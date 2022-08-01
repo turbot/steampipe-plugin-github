@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v45/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -31,7 +31,7 @@ func tableGitHubActionsRepositorySecret(ctx context.Context) *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the secrets."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the secret."},
-			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"),Description: "The GitHub URL of the repository."},
+			{Name: "selected_repositories_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("SelectedRepositoriesURL"), Description: "The GitHub URL of the repository."},
 
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the secret was created."},
@@ -106,7 +106,7 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 func tableGitHubRepoSecretGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	name := d.KeyColumnQuals["name"].GetStringValue()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	
+
 	// Empty check for the parameters
 	if name == "" || orgName == "" {
 		return nil, nil

@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v45/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -158,7 +158,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runId := d.KeyColumnQuals["id"].GetInt64Value()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	
+
 	// Empty check for the parameters
 	if runId == 0 || orgName == "" {
 		return nil, nil
