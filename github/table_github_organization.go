@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v45/github"
 
@@ -33,6 +34,7 @@ func gitHubOrganizationColumns() []*plugin.Column {
 		{Name: "following", Type: proto.ColumnType_INT, Description: "The number of users followed by the organization.", Hydrate: getOrganizationDetail},
 		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: getOrganizationDetail},
 		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: getOrganizationDetail},
+		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: organizationHooksGet, Transform: transform.FromValue()},
 		{Name: "hooks_url", Type: proto.ColumnType_STRING, Description: "The API Hooks URL."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the organization."},
 		{Name: "is_verified", Type: proto.ColumnType_BOOL, Description: "If true, the organization has been verified with domain verification.", Hydrate: getOrganizationDetail},
@@ -97,6 +99,11 @@ func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 //// HYDRATE FUNCTIONS
+
+type ListPageResponse struct {
+	hooks []*github.Hook
+	resp  *github.Response
+}
 
 func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var login string
@@ -189,4 +196,44 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	}
 
 	return repositoryCollaborators, nil
+}
+
+func organizationHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org := h.Item.(*github.Organization)
+
+	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
+	if org == nil {
+		return nil, nil
+	}
+	orgName := *org.Login
+	client := connect(ctx, d)
+
+	var orgHooks []*github.Hook
+	opt := &github.ListOptions{PerPage: 100}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		hooks, resp, err := client.Organizations.ListHooks(ctx, orgName, opt)
+		return ListPageResponse{
+			hooks: hooks,
+			resp:  resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		if err != nil && strings.Contains(err.Error(), "Not Found") {
+			return nil, nil
+		} else if err != nil {
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListPageResponse)
+		hooks := listResponse.hooks
+		resp := listResponse.resp
+		orgHooks = append(orgHooks, hooks...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	return orgHooks, nil
 }
