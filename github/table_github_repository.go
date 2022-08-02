@@ -45,7 +45,6 @@ func gitHubRepositoryColumns() []*plugin.Column {
 		{Name: "has_projects", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Projects feature is enabled on the repository."},
 		{Name: "has_wiki", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Wiki feature is enabled on the repository."},
 		{Name: "homepage", Type: proto.ColumnType_STRING, Description: "The URL of a page describing the project."},
-		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: repositoryHooksGet, Transform: transform.FromValue()},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the repository."},
 		{Name: "is_template", Type: proto.ColumnType_BOOL, Hydrate: tableGitHubRepositoryGet, Description: "If true, the repository is a template repository."},
 		{Name: "license_key", Type: proto.ColumnType_STRING, Description: "The key of the license associated with the repository.", Transform: transform.FromField("License.Key")},
@@ -233,41 +232,4 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 	}
 
 	return repositoryCollaborators, nil
-}
-
-func repositoryHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	repo := h.Item.(*github.Repository)
-	owner := *repo.Owner.Login
-	repoName := *repo.Name
-
-	client := connect(ctx, d)
-
-	var repositoryHooks []*github.Hook
-	opt := &github.ListOptions{PerPage: 100}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		hooks, resp, err := client.Repositories.ListHooks(ctx, owner, repoName, opt)
-		return ListPageResponse{
-			hooks: hooks,
-			resp:  resp,
-		}, err
-	}
-
-	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
-		if err != nil && strings.Contains(err.Error(), "Not Found") {
-			return nil, nil
-		} else if err != nil {
-			return nil, err
-		}
-		listResponse := listPageResponse.(ListPageResponse)
-		hooks := listResponse.hooks
-		resp := listResponse.resp
-		repositoryHooks = append(repositoryHooks, hooks...)
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
-	}
-	return repositoryHooks, nil
 }
