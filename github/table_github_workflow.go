@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"log"
+	"strings"
 
 	pipelineConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	pipelineHandler "github.com/argonsecurity/pipeline-parser/pkg/handler"
@@ -166,9 +167,16 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 		resp    *github.Response
 	}
 
-	branch := "main" // TODO What should be the value main or master
+	// Get the name of the default branch for the repository
+	workflowUrlParts := strings.Split(*workflow.HTMLURL, "/")
+	defaultBranch := "main"
+	if len(workflowUrlParts) > 6 {
+		defaultBranch = workflowUrlParts[6]
+	}
+
+	// Get workflow file content
 	getFileContent := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		content, _, resp, err := client.Repositories.GetContents(ctx, owner, repo, *workflow.Path, &github.RepositoryContentGetOptions{Ref: branch})
+		content, _, resp, err := client.Repositories.GetContents(ctx, owner, repo, *workflow.Path, &github.RepositoryContentGetOptions{Ref: defaultBranch})
 		return GetFileContentResponse{
 			content: content,
 			resp:    resp,
@@ -177,6 +185,10 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 
 	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 	if err != nil {
+		// the workflow object exists, but the file is deleted
+		if strings.Contains(err.Error(), "404 Not Found") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
