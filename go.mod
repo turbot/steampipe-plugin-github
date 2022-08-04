@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/argonsecurity/pipeline-parser v0.1.15
+	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v45 v45.1.0
 	github.com/turbot/go-kit v0.4.0
 	github.com/turbot/steampipe-plugin-sdk/v4 v4.0.0-rc.1
@@ -27,7 +28,6 @@ require (
 	github.com/eko/gocache/v3 v3.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/gertd/go-pluralize v0.2.1 // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
