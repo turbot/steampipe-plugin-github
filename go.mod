@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/google/go-github/v45 v45.1.0
 	github.com/turbot/go-kit v0.4.0
-	github.com/turbot/steampipe-plugin-sdk/v4 v4.0.0-rc.1
+	github.com/turbot/steampipe-plugin-sdk/v4 v4.0.0
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 
