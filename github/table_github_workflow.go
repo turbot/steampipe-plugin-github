@@ -9,8 +9,10 @@ import (
 	pipelineConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	pipelineHandler "github.com/argonsecurity/pipeline-parser/pkg/handler"
 	pipelineModels "github.com/argonsecurity/pipeline-parser/pkg/models"
+	"github.com/ghodss/yaml"
 	"github.com/google/go-github/v45/github"
 
+	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
@@ -48,6 +50,7 @@ func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow was updated."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the workflow."},
 			{Name: "workflow_file_content", Type: proto.ColumnType_STRING, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64), Description: "Content of github workflow file in text format."},
+			{Name: "workflow_file_content_json", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(unmarshalYAML), Description: "Content of github workflow file in text format."},
 			{Name: "pipeline", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(decodeFileContentToPipeline), Description: "Content of github workflow file in generic pipeline entity format to be used across platforms."},
 		},
 	}
@@ -232,4 +235,26 @@ func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData
 	}
 
 	return pipeline, nil
+}
+
+// UnmarshalYAML parse the yaml-encoded data and return the result
+func unmarshalYAML(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	if d.Value == nil {
+		return nil, nil
+	}
+	inputStr := types.SafeString(d.Value)
+	var result interface{}
+	if inputStr != "" {
+		// decoded, err := url.QueryUnescape(inputStr)
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		err := yaml.Unmarshal([]byte(inputStr), &result)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
 }
