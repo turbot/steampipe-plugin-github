@@ -110,8 +110,13 @@ func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.Query
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	branchName := ""
-	b := h.ParentItem.(*github.Branch)
-	branchName = *b.Name
+
+	if h.ParentItem != nil {
+		b := h.ParentItem.(*github.Branch)
+		branchName = *b.Name
+	} else {
+		branchName = quals["name"].GetStringValue()
+	}
 
 	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
 	client := connect(ctx, d)
