@@ -40,7 +40,9 @@ select
   signatures_protected_branch
 from 
   github_branch_protection b 
-  join github_my_repository r on r.full_name = b.repository_full_name 
+  join 
+    github_my_repository r 
+    on r.full_name = b.repository_full_name 
   where required_conversation_resolution = true;
 ```
 
@@ -53,6 +55,8 @@ select
   required_conversation_resolution
 from 
   github_branch_protection b 
-  join github_my_repository r on r.full_name = b.repository_full_name 
+  join 
+    github_my_repository r 
+    on r.full_name = b.repository_full_name 
   where signatures_protected_branch = true;
 ```
