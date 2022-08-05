@@ -14,7 +14,7 @@ import (
 
 func gitHubOrganizationMemberColumns() []*plugin.Column {
 	return []*plugin.Column{
-		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the organization is associated with.", Transform: transform.FromQual("organization")},
+		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the member is associated with.", Transform: transform.FromQual("organization")},
 		{Name: "login", Type: proto.ColumnType_STRING, Description: "The login name of the user."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The ID of the user."},
 
