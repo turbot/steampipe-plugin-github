@@ -80,8 +80,15 @@ func securityFileGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	optionalSecurityMDNames := []string{"SECURITY.md", "security.md", "Security.md"}
 
-	for _, optionalName := range optionalSecurityMDNames {
-		fileContent, _, _, err := client.Repositories.GetContents(ctx, owner, repo, optionalName, &github.RepositoryContentGetOptions{})
+	for _, filePath := range optionalSecurityMDNames {
+		fileContent, _, _, err := client.Repositories.GetContents(ctx, owner, repo, filePath, &github.RepositoryContentGetOptions{})
+
+		if err != nil {
+			// Gets this error of repository is not initialized
+			if strings.Contains(err.Error(), "404 This repository is empty.") {
+				return nil, nil
+			}
+		}
 
 		if fileContent != nil {
 			return fileContent, nil
