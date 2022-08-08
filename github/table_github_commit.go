@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v45/github"
@@ -119,7 +120,10 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 		if err != nil {
-			return nil, err
+			// Gets this error if repository is not initialized
+			if strings.Contains(err.Error(), "409 Git Repository is empty.") {
+				return nil, nil
+			}
 		}
 
 		listResponse := listPageResponse.(ListPageResponse)
