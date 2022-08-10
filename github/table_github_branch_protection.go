@@ -121,17 +121,34 @@ func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.Query
 	logger.Trace("tableGitHubRepositoryBranchProtectionGet", "owner", owner, "repo", repo, "branchName", branchName)
 	client := connect(ctx, d)
 
-	protectedBranch, _, err := client.Repositories.GetSignaturesProtectedBranch(ctx, owner, repo, branchName)
-	if err != nil {
+	type GetResponse struct {
+		protectedBranch *github.SignaturesProtectedBranch
+	}
 
-		// For private and archived repositories, users who do not have owner/admin access will get the below error
-		// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
-		// For repository owners the API will return nil if the repository is private and archived
-		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") || strings.Contains(err.Error(), "branch is not protected") {
-			return nil, nil
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		protectedBranch, _, err := client.Repositories.GetSignaturesProtectedBranch(ctx, owner, repo, branchName)
+		if err != nil {
+			// For private and archived repositories, users who do not have owner/admin access will get the below error
+			// 403 Upgrade to GitHub Pro or make this repository public to enable this feature.
+			// For repository owners the API will return nil if the repository is private and archived
+			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Upgrade to GitHub Pro") || strings.Contains(err.Error(), "branch is not protected") {
+				return nil, nil
+			}
+			return nil, err
 		}
+
+		return GetResponse{
+			protectedBranch: protectedBranch,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	if err != nil {
 		return nil, err
 	}
+	getResp := getResponse.(GetResponse)
+	protectedBranch := getResp.protectedBranch
+
 	if protectedBranch != nil {
 		return protectedBranch.Enabled, nil
 	}
