@@ -202,6 +202,7 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 
 //// TRANSFORM FUNCTIONS
 
+// decodeFileContentBase64:: Decode the workflow file content from Base64 encoded string to simple text
 func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	repContent, ok := d.Value.(*github.RepositoryContent)
 	if !ok {
@@ -217,10 +218,12 @@ func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (i
 	return string(decodedText), nil
 }
 
+// toPipeline:: Converts the github workflow buffer to generic CI pipeline format
 func toPipeline(buf []byte) (*pipelineModels.Pipeline, error) {
 	return pipelineHandler.Handle(buf, pipelineConsts.GitHubPlatform)
 }
 
+// decodeFileContentToPipeline:: Converts the workflow decoded text to generic CI pipeline.
 func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	repContent, ok := d.Value.(string)
 	if !ok {
