@@ -38,5 +38,5 @@ from
   pipelines as p,
   jsonb_array_elements(pipeline -> 'jobs') as j
 where
-  (j -> 'metadata' -> 'build')::bool
+  (j -> 'metadata' -> 'build')::bool;
 ```

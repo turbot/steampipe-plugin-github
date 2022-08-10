@@ -31,7 +31,7 @@ where
   and name = 'main';
 ```
 
-## Get repositories where coversation resolution is required for merging
+## Get repositories where conversation resolution is required for merging
 
 ```sql
 select 
