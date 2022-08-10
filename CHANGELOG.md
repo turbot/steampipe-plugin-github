@@ -15,7 +15,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- Fixed the `github_commit` table to return an empty row instead of an error when there are no commits or if the repository is empty. ([#191](https://github.com/turbot/steampipe-plugin-github/pull/191))
+- Fixed the `github_commit` table to return an empty row instead of an error when trying to query for commits in an empty repository. ([#191](https://github.com/turbot/steampipe-plugin-github/pull/191))
 
 _Dependencies_
 
