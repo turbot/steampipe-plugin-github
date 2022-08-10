@@ -1,3 +1,26 @@
+## v0.19.0 [2022-08-11]
+
+_What's new?_
+
+- New tables added
+  - [github_organization_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_organization_member) ([#177](https://github.com/turbot/steampipe-plugin-github/pull/177))
+
+_Enhancements_
+
+- Added columns `required_conversation_resolution` and `signatures_protected_branch` to `github_branch_protection` table. ([#178](https://github.com/turbot/steampipe-plugin-github/pull/178))
+- Added column `security` to `github_community_profile` table. ([#180](https://github.com/turbot/steampipe-plugin-github/pull/180))
+- Added column `hooks` to `github_my_organization` and `github_my_repository` tables. ([#185](https://github.com/turbot/steampipe-plugin-github/pull/185))
+- Added columns `pipeline`, `workflow_file_content` and `workflow_file_content_json` to `github_workflow` table. ([#189](https://github.com/turbot/steampipe-plugin-github/pull/189))
+- Added links to GitHub search docs in `github_search_*` table documents. ([#173](https://github.com/turbot/steampipe-plugin-github/pull/173))
+
+_Bug fixes_
+
+- Fixed the `github_commit` table to return an empty row instead of an error when there are no commits or if the repository is empty. ([#191](https://github.com/turbot/steampipe-plugin-github/pull/191))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.3.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v332--2022-07-11) which includes several caching fixes. ([#192](https://github.com/turbot/steampipe-plugin-github/pull/192))
+
 ## v0.18.0 [2022-07-07]
 
 - New tables added (Thanks to [@japborst](https://github.com/japborst) for adding the table and [@ngowraj](https://github.com/ngowraj) for extensively testing it!)
