@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v45 v45.1.0
 	github.com/turbot/go-kit v0.4.0
-	github.com/turbot/steampipe-plugin-sdk/v3 v3.3.0
+	github.com/turbot/steampipe-plugin-sdk/v3 v3.3.2
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 
