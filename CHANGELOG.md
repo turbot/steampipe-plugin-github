@@ -7,9 +7,9 @@ _What's new?_
 
 _Enhancements_
 
-- Added columns `required_conversation_resolution` and `signatures_protected_branch` to `github_branch_protection` table. ([#178](https://github.com/turbot/steampipe-plugin-github/pull/178))
 - Added column `security` to `github_community_profile` table. ([#180](https://github.com/turbot/steampipe-plugin-github/pull/180))
 - Added column `hooks` to `github_my_organization` and `github_my_repository` tables. ([#185](https://github.com/turbot/steampipe-plugin-github/pull/185))
+- Added columns `required_conversation_resolution` and `signatures_protected_branch` to `github_branch_protection` table. ([#178](https://github.com/turbot/steampipe-plugin-github/pull/178))
 - Added columns `pipeline`, `workflow_file_content` and `workflow_file_content_json` to `github_workflow` table. ([#189](https://github.com/turbot/steampipe-plugin-github/pull/189))
 - Added links to GitHub search docs in `github_search_*` table documents. ([#173](https://github.com/turbot/steampipe-plugin-github/pull/173))
 
