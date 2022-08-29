@@ -16,11 +16,9 @@ func tableGitHubMyRepository() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           tableGitHubMyRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			// https://github.com/turbot/steampipe-mod-github-sherlock/issues/14
-			// https://github.com/turbot/steampipe-postgres-fdw/issues/117
-			// KeyColumns: []*plugin.KeyColumn{
-			// 	{Name: "visibility", Require: plugin.Optional},
-			// },
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "visibility", Require: plugin.Optional},
+			},
 		},
 		Columns: gitHubRepositoryColumns(),
 	}
@@ -34,13 +32,13 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
 	// Additional filters
-	// if d.KeyColumnQuals["visibility"] != nil {
-	// 	opt.Visibility = d.KeyColumnQuals["visibility"].GetStringValue()
-	// } else {
-	// Will cause a 422 error if 'type' used in the same request as visibility or
-	// affiliation.
-	opt.Type = "all"
-	//}
+	if d.KeyColumnQuals["visibility"] != nil {
+		opt.Visibility = d.KeyColumnQuals["visibility"].GetStringValue()
+	} else {
+		// Will cause a 422 error if 'type' used in the same request as visibility or
+		// affiliation.
+		opt.Type = "all"
+	}
 	type ListPageResponse struct {
 		repo []*github.Repository
 		resp *github.Response
