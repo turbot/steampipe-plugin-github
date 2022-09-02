@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v47/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -158,7 +158,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runId := d.KeyColumnQuals["id"].GetInt64Value()
 	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
-	
+
 	// Empty check for the parameters
 	if runId == 0 || orgName == "" {
 		return nil, nil

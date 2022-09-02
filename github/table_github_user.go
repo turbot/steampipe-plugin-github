@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v47/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -61,10 +61,11 @@ func tableGitHubUser() *plugin.Table {
 
 // Listing all users is not terribly useful, so we require a 'login' qual and essentially always
 // do a 'get':  from GitHub API docs: https://developer.github.com/v3/users/#list-users:
-//     	Lists all users, in the order that they signed up on GitHub. This list includes personal user
-//		accounts and organization accounts.
-//     	Note: Pagination is powered exclusively by the since parameter. Use the Link header to get
-//		the URL for the next page of users.
+//
+//	    	Lists all users, in the order that they signed up on GitHub. This list includes personal user
+//			accounts and organization accounts.
+//	    	Note: Pagination is powered exclusively by the since parameter. Use the Link header to get
+//			the URL for the next page of users.
 func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 

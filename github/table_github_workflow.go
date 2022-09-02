@@ -10,7 +10,7 @@ import (
 	pipelineModels "github.com/argonsecurity/pipeline-parser/pkg/models"
 
 	"github.com/ghodss/yaml"
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v47/github"
 	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"

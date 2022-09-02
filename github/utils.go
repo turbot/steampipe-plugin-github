@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v47/github"
 	"golang.org/x/oauth2"
 
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
