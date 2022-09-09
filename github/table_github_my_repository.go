@@ -2,8 +2,10 @@ package github
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/go-github/v47/github"
+	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
 )
 
@@ -60,7 +62,7 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			return nil, err
@@ -89,4 +91,35 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 	}
 
 	return nil, nil
+}
+
+func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.HydrateData, hydrateFunc plugin.HydrateFunc) (interface{}, error) {
+
+	// Retry configs
+	maxRetries := 10
+	interval := time.Duration(500)
+
+	// Create the backoff based on the given mode
+	backoff, err := retry.NewFibonacci(interval * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure the maximum value is 2.5s. In this scenario, the sleep values would be
+	// 0.5s, 0.5s, 1s, 1.5s, 2.5s, 2.5s, 2.5s...
+	backoff = retry.WithCappedDuration(2500*time.Millisecond, backoff)
+
+	var hydrateResult interface{}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(uint64(maxRetries), backoff), func(ctx context.Context) error {
+		hydrateResult, err = hydrateFunc(ctx, d, hydrateData)
+		if err != nil {
+			if shouldRetryError(err) {
+				err = retry.RetryableError(err)
+			}
+		}
+		return err
+	})
+
+	return hydrateResult, err
 }

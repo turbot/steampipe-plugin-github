@@ -13,6 +13,9 @@ func shouldRetryError(err error) bool {
 		log.Printf("[WARN] Received Rate Limit Error")
 		return true
 	}
+	if strings.Contains(err.Error(), "secondary rate limit") {
+		return true
+	}
 	return false
 }
 
