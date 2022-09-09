@@ -2,7 +2,7 @@
 
 _Enhancements_
 
-- Added `visibility` column as the optional key qual filter in `github_my_repository` table. ([#121](https://github.com/turbot/steampipe-plugin-github/pull/121))
+- Added `visibility` column as an optional list key column in `github_my_repository` table. ([#121](https://github.com/turbot/steampipe-plugin-github/pull/121))
 
 _Dependencies_
 
