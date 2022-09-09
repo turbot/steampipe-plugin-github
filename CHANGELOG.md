@@ -1,3 +1,14 @@
+## v0.20.0 [2022-09-09]
+
+_Enhancements_
+
+- Added `visibility` column as the optional key qual filter in `github_my_repository` table. ([#121](https://github.com/turbot/steampipe-plugin-github/pull/121))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.6](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v416-2022-09-02) which includes several caching and memory management improvements. ([#195](https://github.com/turbot/steampipe-plugin-github/pull/195))
+- Recompiled plugin with Go version `1.19`. ([#195](https://github.com/turbot/steampipe-plugin-github/pull/195))
+
 ## v0.19.0 [2022-08-11]
 
 _What's new?_
