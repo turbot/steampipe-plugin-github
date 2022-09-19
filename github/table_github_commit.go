@@ -2,13 +2,14 @@ package github
 
 import (
 	"context"
+	"strings"
 	"time"
 
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v45/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -119,7 +120,10 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	for {
 		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 		if err != nil {
-			return nil, err
+			// Gets this error if repository is not initialized
+			if strings.Contains(err.Error(), "409 Git Repository is empty.") {
+				return nil, nil
+			}
 		}
 
 		listResponse := listPageResponse.(ListPageResponse)
@@ -174,13 +178,17 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	client := connect(ctx, d)
 
+	opts := &github.ListOptions{
+		PerPage: 100,
+	}
+
 	type GetResponse struct {
 		commit *github.RepositoryCommit
 		resp   *github.Response
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha)
+		detail, resp, err := client.Repositories.GetCommit(ctx, owner, repo, sha, opts)
 		return GetResponse{
 			commit: detail,
 			resp:   resp,

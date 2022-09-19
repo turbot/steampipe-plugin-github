@@ -2,7 +2,8 @@
 
 The `github_search_repository` table helps to find repositories via various criteria. You can search for repositories on GitHub and narrow the results using these repository search qualifiers in any combination.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can search for repositories globally across all of GitHub.com, or search for repositories within a particular organization.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. You can search for repositories globally across all of GitHub.com, or search for repositories within a particular organization. See [Searching for repositories](https://docs.github.com/search-github/searching-on-github/searching-for-repositories) for details on the GitHub query syntax.
+
 
 ## Examples
 

@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/google/go-github/v33/github"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/google/go-github/v45/github"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
 func shouldRetryError(err error) bool {

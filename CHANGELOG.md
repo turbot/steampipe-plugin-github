@@ -1,3 +1,108 @@
+## v0.20.0 [2022-09-09]
+
+_Enhancements_
+
+- Added `visibility` column as an optional list key column in `github_my_repository` table. ([#121](https://github.com/turbot/steampipe-plugin-github/pull/121))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.7](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v417-2022-09-08) which includes several caching and memory management improvements. ([#197](https://github.com/turbot/steampipe-plugin-github/pull/197))
+- Recompiled plugin with Go version `1.19`. ([#195](https://github.com/turbot/steampipe-plugin-github/pull/195))
+
+## v0.19.0 [2022-08-11]
+
+_What's new?_
+
+- New tables added
+  - [github_organization_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_organization_member) ([#177](https://github.com/turbot/steampipe-plugin-github/pull/177))
+
+_Enhancements_
+
+- Added column `security` to `github_community_profile` table. ([#180](https://github.com/turbot/steampipe-plugin-github/pull/180))
+- Added column `hooks` to `github_my_organization` and `github_my_repository` tables. ([#185](https://github.com/turbot/steampipe-plugin-github/pull/185))
+- Added columns `required_conversation_resolution` and `signatures_protected_branch` to `github_branch_protection` table. ([#178](https://github.com/turbot/steampipe-plugin-github/pull/178))
+- Added columns `pipeline`, `workflow_file_content` and `workflow_file_content_json` to `github_workflow` table. ([#189](https://github.com/turbot/steampipe-plugin-github/pull/189))
+- Added links to GitHub search docs in `github_search_*` table documents. ([#173](https://github.com/turbot/steampipe-plugin-github/pull/173))
+
+_Bug fixes_
+
+- Fixed the `github_commit` table to return an empty row instead of an error when trying to query for commits in an empty repository. ([#191](https://github.com/turbot/steampipe-plugin-github/pull/191))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.3.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v332--2022-07-11) which includes several caching fixes. ([#192](https://github.com/turbot/steampipe-plugin-github/pull/192))
+
+## v0.18.0 [2022-07-07]
+
+- New tables added (Thanks to [@japborst](https://github.com/japborst) for adding the table and [@ngowraj](https://github.com/ngowraj) for extensively testing it!)
+  - [github_audit_log](https://hub.steampipe.io/plugins/turbot/github/tables/github_audit_log) ([#166](https://github.com/turbot/steampipe-plugin-github/pull/166))
+
+## v0.17.1 [2022-06-28]
+
+_Bug fixes_
+
+- Fixed `github_branch_protection` table returning an error when querying unprotected branches.
+
+## v0.17.0 [2022-06-24]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.3.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v330--2022-6-22). ([#168](https://github.com/turbot/steampipe-plugin-github/pull/168))
+
+## v0.16.0 [2022-06-16]
+
+_What's new?_
+
+- New tables added (Thanks to [@japborst](https://github.com/japborst) for adding the tables below!)
+  - [github_team](https://hub.steampipe.io/plugins/turbot/github/tables/github_team) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+  - [github_team_member](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_member) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+  - [github_team_repository](https://hub.steampipe.io/plugins/turbot/github/tables/github_team_repository) ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+
+_Enhancements_
+
+- Recompiled plugin with [go-github v45.1.0](https://github.com/google/go-github/releases/tag/v45.1.0). ([#165](https://github.com/turbot/steampipe-plugin-github/pull/165))
+
+## v0.15.0 [2022-05-25]
+
+_What's new?_
+
+- Added experimental GitHub Enterprise connection support. To get started, please set the `base_url` config argument in your GitHub connection. For more information, please see [GitHub plugin configuration](https://hub.steampipe.io/plugins/turbot/github#configuration). ([#160](https://github.com/turbot/steampipe-plugin-github/pull/160))
+
+## v0.14.1 [2022-05-12]
+
+_Enhancements_
+
+- Updated `config/github.spc` and index doc with `token` argument environment variable information. ([#161](https://github.com/turbot/steampipe-plugin-github/pull/161))
+
+## v0.14.0 [2022-04-28]
+
+_Enhancements_
+
+- Added support for native Linux ARM and Mac M1 builds. ([#157](https://github.com/turbot/steampipe-plugin-github/pull/157))
+- Recompiled plugin with [steampipe-plugin-sdk v3.1.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v310--2022-03-30) and Go version `1.18`. ([#156](https://github.com/turbot/steampipe-plugin-github/pull/156))
+
+## v0.13.0 [2022-03-23]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v2.1.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v211--2022-03-10) ([#151](https://github.com/turbot/steampipe-plugin-github/pull/151))
+
+## v0.12.0 [2022-02-09]
+
+_What's new?_
+
+- New tables added
+  - [github_actions_artifact](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_artifact) ([#137](https://github.com/turbot/steampipe-plugin-github/pull/137))
+  - [github_actions_repository_runner](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_runner) ([#141](https://github.com/turbot/steampipe-plugin-github/pull/141))
+  - [github_actions_repository_secret](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_secret) ([#143](https://github.com/turbot/steampipe-plugin-github/pull/143))
+  - [github_actions_repository_workflow_run](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_workflow_run) ([#146](https://github.com/turbot/steampipe-plugin-github/pull/146))
+
+## v0.11.1 [2022-02-02]
+
+_Bug fixes_
+
+- Fixed the `github_release` table to set `published_at` column to `nil` for draft releases ([#135](https://github.com/turbot/steampipe-plugin-github/pull/135))
+
 ## v0.11.0 [2022-01-12]
 
 _Enhancements_
@@ -63,7 +168,6 @@ _Enhancements_
 _Bug fixes_
 
 - `github_repository` table will now return an empty row instead of `not found` error when the repository collaborator details are not available ([#89](https://github.com/turbot/steampipe-plugin-github/pull/89))
-
 
 ## v0.8.1 [2021-10-26]
 
@@ -149,7 +253,6 @@ _What's new?_
   - [github_traffic_view_daily](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_view_daily) ([#32](https://github.com/turbot/steampipe-plugin-github/pull/32))
   - [github_traffic_view_weekly](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_view_weekly) ([#33](https://github.com/turbot/steampipe-plugin-github/pull/33))
 
-
 ## v0.3.0 [2021-04-30]
 
 _What's new?_
@@ -168,7 +271,6 @@ _Bug fixes_
 
 - Cleanup unnecessary logging in github_license ([#24](https://github.com/turbot/steampipe-plugin-github/pull/24))
 - Github (lower h) references should be GitHub (capital H) throughout the docs etc ([#26](https://github.com/turbot/steampipe-plugin-github/pull/26))
-
 
 ## v0.2.0 [2021-03-18]
 
@@ -190,7 +292,6 @@ _Bug fixes_
 - Fixed: Renamed table `github_repository_issue` to `github_issue` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 - Fixed: Renamed table `github_team` to `github_my_team` ([#16](https://github.com/turbot/steampipe-plugin-github/pull/16))
 
-
 ## v0.1.1 [2021-02-25]
 
 _Bug fixes_
@@ -199,13 +300,11 @@ _Bug fixes_
   - Fix error for missing required quals [#40](https://github.com/turbot/steampipe-plugin-sdk/issues/42).
   - Queries fail with error socket: too many open files [#190](https://github.com/turbot/steampipe/issues/190)
 
-
 ## v0.1.0 [2021-02-18]
 
 _What's new?_
 
 - Added support for [connection configuration](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/index.md#connection-configuration). You may specify github `token` for each connection in a configuration file.
-
 
 ## v0.0.5 [2021-01-28]
 

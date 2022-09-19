@@ -2,7 +2,7 @@
 
 The `github_search_user` table helps to find users and organizations via various criteria. You can filter your search to the personal user or organization account name with `user` or `org` qualifiers.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. See [Searching users](https://docs.github.com/search-github/searching-on-github/searching-users) for details on the GitHub query syntax.
 
 ## Examples
 

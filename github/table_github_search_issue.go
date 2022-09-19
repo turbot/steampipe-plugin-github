@@ -2,12 +2,12 @@ package github
 
 import (
 	"context"
-	"strings"
+	"regexp"
 
-	"github.com/google/go-github/v33/github"
-	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+	"github.com/google/go-github/v45/github"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -140,7 +140,8 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 func extractRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	issue := d.HydrateItem.(*github.Issue)
 	if issue.RepositoryURL != nil {
-		return strings.Replace(*issue.RepositoryURL, "https://api.github.com/repos/", "", -1), nil
+		rx := regexp.MustCompile(`(https?://.+?/repos/)`)
+		return rx.ReplaceAllString(*issue.RepositoryURL, ""), nil
 	}
 	return "", nil
 }

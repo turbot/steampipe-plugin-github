@@ -2,7 +2,7 @@
 
 The `github_search_topic` table helps to find topics via various criteria. You can search for topics on GitHub, explore related topics, and see how many repositories are associated with a certain topic.
 
- **You must always include at least one search term when searching source code** in the where or join clause using the `query` column.
+ **You must always include at least one search term when searching source code** in the where or join clause using the `query` column. See [Searching topics](https://docs.github.com/search-github/searching-on-github/searching-topics) for details on the GitHub query syntax.
 
 ## Examples
 
