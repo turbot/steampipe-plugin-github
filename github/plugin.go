@@ -57,6 +57,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_team":                            tableGitHubTeam(),
 			"github_traffic_view_daily":              tableGitHubTrafficViewDaily(ctx),
 			"github_traffic_view_weekly":             tableGitHubTrafficViewWeekly(ctx),
+			"github_tree":                            tableGitHubTree(ctx),
 			"github_user":                            tableGitHubUser(),
 			"github_workflow":                        tableGitHubWorkflow(ctx),
 		},
