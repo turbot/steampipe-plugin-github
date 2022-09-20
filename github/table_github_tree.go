@@ -15,9 +15,9 @@ import (
 func tableGitHubTree(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_tree",
-		Description: "Tree in the given repository, lists files in the git tree",
+		Description: "Lists directories and files in the given repository's git tree.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubTreeGet,
+			Hydrate:           tableGitHubTreeList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
@@ -29,30 +29,36 @@ func tableGitHubTree(ctx context.Context) *plugin.Table {
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tree."},
 			{Name: "tree_sha", Type: proto.ColumnType_STRING, Transform: transform.FromQual("tree_sha"), Description: "SHA1 of the tree."},
-			// TODO: How to handle recursive and truncated columns when splitting items?
-			{Name: "recursive", Type: proto.ColumnType_BOOL, Transform: transform.FromQual("recursive"), Description: "If set to true, return objects or subtrees referenced by the tree. Defaults to false."},
-			{Name: "truncated", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Truncated"), Description: "True if the entires were truncated because the number of items in the tree exceeded Github's maximum limit."},
-			{Name: "mode", Type: proto.ColumnType_STRING, Description: "File mode, valid values are 100644 (file, blob), 100755 (executable, blob), 040000 (subdirectory, tree), 160000 (submodule, commit), 120000 (blob that specifies path of a symlink)."},
-			{Name: "path", Type: proto.ColumnType_STRING, Description: "The file referenced in the tree."},
-			{Name: "sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("SHA"), Description: "SHA1 checksum ID of the object in the tree."},
-			{Name: "size", Type: proto.ColumnType_STRING, Description: "Path."},
-			{Name: "type", Type: proto.ColumnType_STRING, Description: "Type of the entry, valid values are blob, tree, or commit."},
-			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("URL"), Description: "URL to the file referenced in the tree."},
+			// Other columns
+			{Name: "recursive", Type: proto.ColumnType_BOOL, Description: "If set to true, return objects or subtrees referenced by the tree. Defaults to false."},
+			{Name: "truncated", Type: proto.ColumnType_BOOL, Description: "True if the entires were truncated because the number of items in the tree exceeded Github's maximum limit."},
+			{Name: "mode", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Mode"), Description: "File mode. Valid values are 100644 (blob file), 100755 (blob executable), 040000 (tree subdirectory), 160000 (commit submodule), 120000 (blob that specifies path of a symlink)."},
+			{Name: "path", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Path"), Description: "The file referenced in the tree."},
+			{Name: "sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.SHA"), Description: "SHA1 checksum ID of the object in the tree."},
+			{Name: "size", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Size"), Description: "Size of the blob."},
+			{Name: "type", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Type"), Description: "Either blob, tree, or commit."},
+			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.URL"), Description: "URL to the file referenced in the tree."},
 		},
 	}
 }
 
+type treeEntry struct {
+	TreeEntry *github.TreeEntry
+	Recursive bool
+	Truncated *bool
+}
+
 //// GET FUNCTION
 
-func tableGitHubTreeGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
 
 	quals := d.KeyColumnQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	sha := quals["tree_sha"].GetStringValue()
-
 	recursive := quals["recursive"].GetBoolValue()
+
 	owner, repo := parseRepoFullName(fullName)
 
 	type GetResponse struct {
@@ -70,7 +76,7 @@ func tableGitHubTreeGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	getResponse, err := plugin.RetryHydrate(ctx, d, h, getTree, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
 
 	if err != nil {
-		logger.Error("github_tree.tableGitHubTreeGet", "api_error", err)
+		logger.Error("github_tree.tableGitHubTreeList", "api_error", err)
 		return nil, err
 	}
 
@@ -79,7 +85,12 @@ func tableGitHubTreeGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	entries := tree.Entries
 
 	for _, entry := range entries {
-		d.StreamListItem(ctx, entry)
+		entryRow := treeEntry{
+			TreeEntry: entry,
+			Recursive: recursive,
+			Truncated: tree.Truncated,
+		}
+		d.StreamListItem(ctx, entryRow)
 	}
 
 	return nil, nil
