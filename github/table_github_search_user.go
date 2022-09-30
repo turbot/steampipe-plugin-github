@@ -116,7 +116,7 @@ func tableGitHubSearchUserList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			logger.Error("tableGitHubSearchUserList", "error_RetryHydrate", err)

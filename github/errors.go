@@ -1,16 +1,26 @@
 package github
 
 import (
-	"log"
+	"context"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v45/github"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
-func shouldRetryError(err error) bool {
+func shouldRetryError(ctx context.Context, err error) bool {
 	if _, ok := err.(*github.RateLimitError); ok {
-		log.Printf("[WARN] Received Rate Limit Error")
+		plugin.Logger(ctx).Debug("errors.shouldRetryError", "rate_limit_error", err, "rate", err.(*github.RateLimitError).Rate)
+		return false
+	}
+
+	if _, ok := err.(*github.AbuseRateLimitError); ok {
+		var retryAfter *time.Duration
+		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
+			retryAfter = err.(*github.AbuseRateLimitError).RetryAfter
+		}
+		plugin.Logger(ctx).Debug("errors.shouldRetryError", "abuse_rate_limit_error", err, "retryAfter", retryAfter)
 		return true
 	}
 	return false

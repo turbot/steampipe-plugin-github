@@ -133,7 +133,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 
 	if err != nil {
 		plugin.Logger(ctx).Error("getOrganizationDetail", err)
@@ -177,7 +177,7 @@ func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData,
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			return nil, err
@@ -220,7 +220,7 @@ func organizationHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil && strings.Contains(err.Error(), "Not Found") {
 			return nil, nil
 		} else if err != nil {

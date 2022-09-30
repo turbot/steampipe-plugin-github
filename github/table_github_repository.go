@@ -112,7 +112,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 			resp: resp,
 		}, err
 	}
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
@@ -210,7 +210,7 @@ func tableGitHubRepositoryCollaboratorsGetVariation(variant string, ctx context.
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			if strings.Contains(err.Error(), "404") {
@@ -254,7 +254,7 @@ func repositoryHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil && strings.Contains(err.Error(), "Not Found") {
 			return nil, nil
 		} else if err != nil {
