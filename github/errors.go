@@ -13,6 +13,11 @@ func shouldRetryError(err error) bool {
 		log.Printf("[WARN] Received Rate Limit Error")
 		return true
 	}
+
+	if _, ok := err.(*github.AbuseRateLimitError); ok {
+		log.Printf("[WARN] Received Secondary Rate Limit Error")
+		return true
+	}
 	return false
 }
 
