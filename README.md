@@ -15,6 +15,18 @@ Install the plugin with [Steampipe](https://steampipe.io):
 steampipe plugin install github
 ```
 
+Set your GitHub API key:
+
+```shell
+export GITHUB_TOKEN=YOURTOKENHERE
+```
+
+Launch the Steampipe REPL:
+
+```shell
+steampipe query
+```
+
 Run a query:
 
 ```sql
