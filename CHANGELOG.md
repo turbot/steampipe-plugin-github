@@ -1,3 +1,17 @@
+## v0.21.0 [2022-09-30]
+
+_What's new?_
+
+- New tables added
+  - [github_tree](https://hub.steampipe.io/plugins/turbot/github/tables/github_tree) ([#198](https://github.com/turbot/steampipe-plugin-github/pull/198)) (Thanks to [@asfaltboy](https://github.com/asfaltboy) for adding the table!)
+
+_Enhancements_
+
+- Updated error retry logic to retry on secondary rate limit errors.
+- Improved general error retry logic to wait longer between requests, which should result in larger result sets returning more consistently.
+- Queries will no retry on rate limit errors since the rate limit reset period is often more than 30 minutes.
+- Improved `Quick start` instructions in README.md. ([#204](https://github.com/turbot/steampipe-plugin-github/pull/204)) (Thanks to [@breck7](https://github.com/breck7) for the contribution!)
+
 ## v0.20.0 [2022-09-09]
 
 _Enhancements_
