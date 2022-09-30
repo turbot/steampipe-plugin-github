@@ -9,19 +9,25 @@
 
 ## Quick start
 
-Install the plugin with [Steampipe](https://steampipe.io):
+Install the plugin with [Steampipe](https://steampipe.io/downloads):
 
 ```shell
 steampipe plugin install github
 ```
 
-Set your GitHub API key:
+[Configure the plugin](https://hub.steampipe.io/plugins/turbot/github#configuration) using the configuration file:
 
 ```shell
-export GITHUB_TOKEN=YOURTOKENHERE
+vi ~/.steampipe/github.spc
 ```
 
-Launch the Steampipe REPL:
+Or environment variables:
+
+```shell
+export GITHUB_TOKEN=ghp_YOURTOKENHERE
+```
+
+Start Steampipe:
 
 ```shell
 steampipe query
