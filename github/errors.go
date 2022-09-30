@@ -10,11 +10,6 @@ import (
 )
 
 func shouldRetryError(ctx context.Context, err error) bool {
-	if _, ok := err.(*github.RateLimitError); ok {
-		plugin.Logger(ctx).Debug("errors.shouldRetryError", "rate_limit_error", err, "rate", err.(*github.RateLimitError).Rate)
-		return false
-	}
-
 	if _, ok := err.(*github.AbuseRateLimitError); ok {
 		var retryAfter *time.Duration
 		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
@@ -24,10 +19,6 @@ func shouldRetryError(ctx context.Context, err error) bool {
 		return true
 	}
 
-	if _, ok := err.(*github.AbuseRateLimitError); ok {
-		log.Printf("[WARN] Received Secondary Rate Limit Error")
-		return true
-	}
 	return false
 }
 
