@@ -54,7 +54,7 @@ func tableGitHubTrafficViewDailyList(ctx context.Context, d *plugin.QueryData, h
 		}, err
 	}
 
-	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	listResponse, err := retryHydrate(ctx, d, h, listPage)
 	if err != nil {
 		return nil, err
 	}

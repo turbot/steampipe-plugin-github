@@ -65,7 +65,7 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	for {
 
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil {
 			return nil, err
 		}

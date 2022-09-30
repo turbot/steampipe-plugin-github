@@ -86,7 +86,7 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			return nil, err
@@ -140,7 +140,7 @@ func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getFileContent)
 	if err != nil {
 		// the workflow object exists, but the file is deleted
 		if strings.Contains(err.Error(), "404 Not Found") {

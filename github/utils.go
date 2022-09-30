@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v45/github"
+	"github.com/sethvargo/go-retry"
 	"golang.org/x/oauth2"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
@@ -127,4 +128,36 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 
 func gitHubSearchRepositoryColumns(columns []*plugin.Column) []*plugin.Column {
 	return append(gitHubRepositoryColumns(), columns...)
+}
+
+func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.HydrateData, hydrateFunc plugin.HydrateFunc) (interface{}, error) {
+
+	// Retry configs
+	maxRetries := 10
+	interval := time.Duration(1)
+
+	// Create the backoff based on the given mode
+	// Use exponential instead of fibnacci due to GitHub's aggressive throttling
+	backoff, err := retry.NewExponential(interval * time.Second)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure the maximum value is 10s. In this scenario, the sleep values would be
+	// 1s, 2s, 4s, 8s, 10s, 10s...
+	backoff = retry.WithCappedDuration(10*time.Second, backoff)
+
+	var hydrateResult interface{}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(uint64(maxRetries), backoff), func(ctx context.Context) error {
+		hydrateResult, err = hydrateFunc(ctx, d, hydrateData)
+		if err != nil {
+			if shouldRetryError(ctx, err) {
+				err = retry.RetryableError(err)
+			}
+		}
+		return err
+	})
+
+	return hydrateResult, err
 }

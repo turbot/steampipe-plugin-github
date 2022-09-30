@@ -62,7 +62,7 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil {
 			return nil, err
 		}

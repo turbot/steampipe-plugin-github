@@ -83,7 +83,7 @@ func tableGitHubSearchTopicList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			logger.Error("tableGitHubSearchTopicList", "error_RetryHydrate", err)

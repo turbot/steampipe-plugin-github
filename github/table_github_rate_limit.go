@@ -45,7 +45,7 @@ func listGitHubRateLimit(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 	if err != nil {
 		return nil, err
 	}

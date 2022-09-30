@@ -86,7 +86,7 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 
 		if err != nil {
 			logger.Error("tableGitHubSearchCommitList", "error_RetryHydrate", err)

@@ -70,7 +70,7 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	}
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil {
 			return nil, err
 		}
@@ -129,7 +129,7 @@ func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 	if err != nil {
 		return nil, err
 	}

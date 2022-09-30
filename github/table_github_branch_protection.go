@@ -87,7 +87,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 		}, err
 	}
 
-	getDetails, err := plugin.RetryHydrate(ctx, d, h, get, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getDetails, err := retryHydrate(ctx, d, h, get)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.Query
 		}, err
 	}
 
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, &plugin.RetryConfig{ShouldRetryError: shouldRetryError})
+	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 	if err != nil {
 		return nil, err
 	}
