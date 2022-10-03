@@ -2,10 +2,10 @@ package github
 
 import (
 	"context"
-	"fmt"
+	"strings"
+
 	"github.com/google/go-github/v45/github"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
-	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
@@ -66,35 +66,39 @@ func tableGitHubCodeOwnerList(ctx context.Context, d *plugin.QueryData, h *plugi
 		PreComments        []string
 		LineComment        string
 	}
+
 	getCodeOwners := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 		var fileContent *github.RepositoryContent
 		var err error
 
 		client := connect(ctx, d)
 		opt := &github.RepositoryContentGetOptions{}
-		// stop on the first found CODEOWNERS file.
-		// NOTE : a repository can have multiple CODEOWNERS files, even if it's invalid
-		// In that case, GitHub uses precedence over these files in the following order : .github/CODEOWNERS, CODEOWNERS, docs/CODEOWNERS
+		// If a repository has multiple CODEOWNERS files, GitHub uses the following
+		// precedence: .github/CODEOWNERS, CODEOWNERS, docs/CODEOWNERS
 		var paths = []string{".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS"}
 		for _, path := range paths {
 			fileContent, _, _, err = client.Repositories.GetContents(ctx, owner, repoName, path, opt)
+			// Stop on the first CODEOWNERS file found
 			if err == nil {
 				break
 			}
-			// HTTP 404 is the only tolerated HTTP error code (if it's different, it means something is wrong with your rights or your repository)
+			// HTTP 404 is the only tolerated HTTP error code, if it's different, it
+			// means something is wrong with your rights or repository
 			if err.(*github.ErrorResponse).Response.StatusCode != 404 {
-				return nil, fmt.Errorf("Downloading file \"%s\" : %s", path, err.(*github.ErrorResponse).Response.Status)
+				plugin.Logger(ctx).Error("github_code_owner.tableGitHubCodeOwnerList", "api_error", err, "path", path)
+				return nil, err
 			}
 		}
 
-		// no CODEOWNERS file
-		if err != nil {
-			return []CodeOwnerRuleResponse{}, err
+		// No CODEOWNERS file
+		if fileContent == nil {
+			return []*CodeOwnerRule{}, nil
 		}
 
 		decodedContent, err := fileContent.GetContent()
 		if err != nil {
-			return []CodeOwnerRuleResponse{}, err
+			plugin.Logger(ctx).Error("github_code_owner.tableGitHubCodeOwnerList", "decode_error", err)
+			return []*CodeOwnerRule{}, err
 		}
 
 		return decodeCodeOwnerFileContent(decodedContent), err
@@ -102,6 +106,7 @@ func tableGitHubCodeOwnerList(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	codeOwnersElements, err := retryHydrate(ctx, d, h, getCodeOwners)
 	if err != nil {
+		plugin.Logger(ctx).Error("github_code_owner.tableGitHubCodeOwnerList", "retry_hydrate_error", err)
 		return nil, err
 	}
 
