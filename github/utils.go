@@ -137,7 +137,7 @@ func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.
 	interval := time.Duration(1)
 
 	// Create the backoff based on the given mode
-	// Use exponential instead of fibnacci due to GitHub's aggressive throttling
+	// Use exponential instead of fibonacci due to GitHub's aggressive throttling
 	backoff, err := retry.NewExponential(interval * time.Second)
 	if err != nil {
 		return nil, err
