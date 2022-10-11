@@ -137,15 +137,15 @@ func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.
 	interval := time.Duration(1)
 
 	// Create the backoff based on the given mode
-	// Use exponential instead of fibnacci due to GitHub's aggressive throttling
+	// Use exponential instead of fibonacci due to GitHub's aggressive throttling
 	backoff, err := retry.NewExponential(interval * time.Second)
 	if err != nil {
 		return nil, err
 	}
 
-	// Ensure the maximum value is 10s. In this scenario, the sleep values would be
-	// 1s, 2s, 4s, 8s, 10s, 10s...
-	backoff = retry.WithCappedDuration(10*time.Second, backoff)
+	// Ensure the maximum value is 30s. In this scenario, the sleep values would be
+	// 1s, 2s, 4s, 16s, 30s, 30s...
+	backoff = retry.WithCappedDuration(30*time.Second, backoff)
 
 	var hydrateResult interface{}
 
