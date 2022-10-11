@@ -1,3 +1,14 @@
+## v0.22.0 [2022-10-11]
+
+_What's new?_
+
+- New tables added
+  - [github_code_owner](https://hub.steampipe.io/plugins/turbot/github/tables/github_code_owner) ([#200](https://github.com/turbot/steampipe-plugin-github/pull/200)) (Thanks to [@aminvielledebatAtBedrock](https://github.com/aminvielledebatAtBedrock) for adding the table!)
+
+_Enhancements_
+
+- Added retries for `RateLimitError` errors with a reset time of 60 seconds or less. ([#209](https://github.com/turbot/steampipe-plugin-github/pull/209))
+
 ## v0.21.0 [2022-09-30]
 
 _What's new?_
