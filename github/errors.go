@@ -15,12 +15,12 @@ func shouldRetryError(ctx context.Context, err error) bool {
 		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
 			retryAfter = err.(*github.AbuseRateLimitError).RetryAfter
 		}
-		plugin.Logger(ctx).Debug("errors.shouldRetryError", "abuse_rate_limit_error", err, "retryAfter", retryAfter)
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "abuse_rate_limit_error", err, "retryAfter", retryAfter)
 		return true
 	}
 
 	if _, ok := err.(*github.RateLimitError); ok {
-		// Get the timestamp after which the limit will get reset
+		// Get the limit reset timestamp if returned
 		var resetAfter time.Time
 		if err.(*github.RateLimitError).Rate.String() != "" {
 			resetAfter = err.(*github.RateLimitError).Rate.Reset.Time
@@ -29,12 +29,11 @@ func shouldRetryError(ctx context.Context, err error) bool {
 		// Get the remaining time
 		t1 := time.Now()
 		diff := resetAfter.Sub(t1).Seconds()
-		plugin.Logger(ctx).Debug("errors.shouldRetryError", "rate_limit_error", err, "resetAfter", diff)
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "rate_limit_error", err, "resetAfter", diff)
 
-		// Treat the error as non-fatal if the remaining time for limit reset is less than 60s
-		if diff <= 60 {
-			return true
-		}
+		// Treat the error as non-fatal if the remaining time for limit reset is
+		// less than 60s
+		return diff <= 60
 	}
 
 	return false
