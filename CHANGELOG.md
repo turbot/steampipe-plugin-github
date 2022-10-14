@@ -1,3 +1,9 @@
+## v0.22.1 [2022-10-14]
+
+_Bug fixes_
+
+- Fixed formatting in `github_code_owner` table doc to prevent breaking the Hub site builds.
+
 ## v0.22.0 [2022-10-11]
 
 _What's new?_
