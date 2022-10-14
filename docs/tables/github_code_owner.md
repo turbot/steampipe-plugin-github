@@ -6,26 +6,9 @@ The `github_code_owner` table can be used to query information about **ANY** rep
 
 ## Examples
 
-### Get All your CodeOwners rules about a specific repository
+### List code owners from rules
 
-```sql
-select
-  line,
-  repository_full_name,
-  pattern,
-  users,
-  teams,
-  pre_comments,
-  line_comment 
-from
-  github_code_owner 
-where
-  repository_full_name = 'github/docs' 
-order by
-  line asc
-```
-
-**CODEOWNERS file content**
+For instance, for a given [CODEOWNERS](https://github.com/github/docs/blob/main/.github/CODEOWNERS) file from the [GitHub Docs](https://github.com/github/docs) repository:
 
 ```
 # Order is important. The LAST matching pattern has the MOST precedence.
@@ -64,27 +47,48 @@ package.json @github/docs-engineering
 content/actions/deployment/security-hardening-your-deployments/** @github/oidc
 ```
 
-**ResultSet**
+You can query all of the rules with the following query:
 
-| line | repository\_full\_name | pattern                                                             | users             | teams                               | pre\_comments                                                                      | line\_comment |
-| ---- | ---------------------- | ------------------------------------------------------------------- | ----------------- | ----------------------------------- | ---------------------------------------------------------------------------------- | ------------- |
-| 7    | github/docs            | \*.js                                                               | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 8    | github/docs            | \*.ts                                                               | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 9    | github/docs            | \*.tsx                                                              | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 10   | github/docs            | /.github/                                                           | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 11   | github/docs            | /script/                                                            | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 12   | github/docs            | /includes/                                                          | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 13   | github/docs            | /lib/search/popular-pages.json                                      | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 14   | github/docs            | Dockerfile                                                          | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 15   | github/docs            | package-lock.json                                                   | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 16   | github/docs            | package.json                                                        | <null>            | \["@github/docs-engineering"\]      | \["# Engineering"\]                                                                |               |
-| 19   | github/docs            | /.github/actions-scripts/msft-create-translation-batch-pr.js        | <null>            | \["@github/docs-engineering"\]      | \["# Localization"\]                                                               |               |
-| 20   | github/docs            | /.github/workflows/msft-create-translation-batch-pr.yml             | <null>            | \["@github/docs-engineering"\]      | \["# Localization"\]                                                               |               |
-| 21   | github/docs            | /translations/                                                      | \["@Octomerger"\] | <null>                              | \["# Localization"\]                                                               |               |
-| 24   | github/docs            | /content/site-policy/                                               | <null>            | \["@github/site-policy-admins"\]    | \["# Site Policy"\]                                                                |               |
-| 27   | github/docs            | /contributing/content-markup-reference.md                           | <null>            | \["@github/docs-content-strategy"\] | \["# Content strategy"\]                                                           |               |
-| 28   | github/docs            | /contributing/content-style-guide.md                                | <null>            | \["@github/docs-content-strategy"\] | \["# Content strategy"\]                                                           |               |
-| 29   | github/docs            | /contributing/content-model.md                                      | <null>            | \["@github/docs-content-strategy"\] | \["# Content strategy"\]                                                           |               |
-| 30   | github/docs            | /contributing/content-style-guide.md                                | <null>            | \["@github/docs-content-strategy"\] | \["# Content strategy"\]                                                           |               |
-| 31   | github/docs            | /contributing/content-templates.md                                  | <null>            | \["@github/docs-content-strategy"\] | \["# Content strategy"\]                                                           |               |
-| 34   | github/docs            | content/actions/deployment/security-hardening-your-deployments/\*\* | <null>            | \["@github/oidc"\]                  | \["# Requires review of #actions-oidc-integration, docs-engineering/issues/1506"\] |
+```sql
+select
+  line,
+  pattern,
+  users,
+  teams,
+  pre_comments,
+  line_comment,
+  repository_full_name
+from
+  github_code_owner
+where
+  repository_full_name = 'github/docs'
+order by
+  line asc;
+```
+
+```
++------+-------------------------------------------------------------------+-----------------+-----------------------------------+----------------------------------------------------------------------------------+--------------+----------------------+
+| line | pattern                                                           | users           | teams                             | pre_comments                                                                     | line_comment | repository_full_name |
++------+-------------------------------------------------------------------+-----------------+-----------------------------------+----------------------------------------------------------------------------------+--------------+----------------------+
+| 7    | *.js                                                              | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 8    | *.ts                                                              | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 9    | *.tsx                                                             | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 10   | /.github/                                                         | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 11   | /script/                                                          | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 12   | /includes/                                                        | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 13   | /lib/search/popular-pages.json                                    | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 14   | Dockerfile                                                        | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 15   | package-lock.json                                                 | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 16   | package.json                                                      | <null>          | ["@github/docs-engineering"]      | ["# Engineering"]                                                                |              | github/docs          |
+| 19   | /.github/actions-scripts/msft-create-translation-batch-pr.js      | <null>          | ["@github/docs-engineering"]      | ["# Localization"]                                                               |              | github/docs          |
+| 20   | /.github/workflows/msft-create-translation-batch-pr.yml           | <null>          | ["@github/docs-engineering"]      | ["# Localization"]                                                               |              | github/docs          |
+| 21   | /translations/                                                    | ["@Octomerger"] | <null>                            | ["# Localization"]                                                               |              | github/docs          |
+| 24   | /content/site-policy/                                             | <null>          | ["@github/site-policy-admins"]    | ["# Site Policy"]                                                                |              | github/docs          |
+| 27   | /contributing/content-markup-reference.md                         | <null>          | ["@github/docs-content-strategy"] | ["# Content strategy"]                                                           |              | github/docs          |
+| 28   | /contributing/content-style-guide.md                              | <null>          | ["@github/docs-content-strategy"] | ["# Content strategy"]                                                           |              | github/docs          |
+| 29   | /contributing/content-model.md                                    | <null>          | ["@github/docs-content-strategy"] | ["# Content strategy"]                                                           |              | github/docs          |
+| 30   | /contributing/content-style-guide.md                              | <null>          | ["@github/docs-content-strategy"] | ["# Content strategy"]                                                           |              | github/docs          |
+| 31   | /contributing/content-templates.md                                | <null>          | ["@github/docs-content-strategy"] | ["# Content strategy"]                                                           |              | github/docs          |
+| 34   | content/actions/deployment/security-hardening-your-deployments/** | <null>          | ["@github/oidc"]                  | ["# Requires review of #actions-oidc-integration, docs-engineering/issues/1506"] |              | github/docs          |
++------+-------------------------------------------------------------------+-----------------+-----------------------------------+----------------------------------------------------------------------------------+--------------+----------------------+
+```
