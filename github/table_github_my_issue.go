@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v48/github"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
