@@ -46,6 +46,7 @@ func gitHubOrganizationColumns() []*plugin.Column {
 		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: getOrganizationDetail},
 		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: getOrganizationDetail},
 		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: getOrganizationDetail},
+		{Name: "members_can_fork_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can fork private organization repositories.", Hydrate: getOrganizationDetail},
 		{Name: "members", Type: proto.ColumnType_JSON, Description: "An array of users that are members of the organization.", Transform: transform.FromValue(), Hydrate: tableGitHubOrganizationMembersGet},
 		{Name: "member_logins", Type: proto.ColumnType_JSON, Description: "An array of user logins that are members of the organization.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubOrganizationMembersGet},
 		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "The API Members URL."},
