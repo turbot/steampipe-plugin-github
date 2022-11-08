@@ -6,8 +6,9 @@ require (
 	github.com/argonsecurity/pipeline-parser v0.1.16
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v45 v45.1.0
+	github.com/sethvargo/go-retry v0.1.0
 	github.com/turbot/go-kit v0.4.0
-	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.7
+	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.8
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 
@@ -57,7 +58,6 @@ require (
 	github.com/prometheus/common v0.33.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/sethvargo/go-retry v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/stevenle/topsort v0.0.0-20130922064739-8130c1d7596b // indirect
