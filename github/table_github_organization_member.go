@@ -228,7 +228,7 @@ func tableGitHubOrganizationMember2FAList(ctx context.Context, d *plugin.QueryDa
 	for {
 		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil {
-			plugin.Logger(ctx).Error("tableGitHubOrganizationMemberMFAList", "api-err", err)
+			plugin.Logger(ctx).Error("tableGitHubOrganizationMember2FAList", "api-err", err)
 			return nil, err
 		}
 		listResponse := listPageResponse.(ListPageResponse)
@@ -274,7 +274,7 @@ func tableGitHubOrganizationMemberNo2FAList(ctx context.Context, d *plugin.Query
 	for {
 		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
 		if err != nil {
-			plugin.Logger(ctx).Error("tableGitHubOrganizationMemberNoMFAList", "api-err", err)
+			plugin.Logger(ctx).Error("tableGitHubOrganizationMemberNo2FAList", "api-err", err)
 			return nil, err
 		}
 		listResponse := listPageResponse.(ListPageResponse)
