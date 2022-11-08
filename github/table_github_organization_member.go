@@ -2,9 +2,12 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v45/github"
 
+	"github.com/turbot/go-kit/helpers"
+	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
@@ -37,6 +40,7 @@ func gitHubOrganizationMemberColumns() []*plugin.Column {
 
 		{Name: "role", Type: proto.ColumnType_STRING, Description: "The organization member's role.", Hydrate: tableGitHubOrganizationMemberGet},
 		{Name: "state", Type: proto.ColumnType_STRING, Description: "The membership state.", Hydrate: tableGitHubOrganizationMemberGet},
+		{Name: "two_factor_authentication", Type: proto.ColumnType_BOOL, Description: "If true, two-factor authentication is enabled."},
 	}
 }
 
@@ -56,6 +60,11 @@ func tableGitHubOrganizationMember() *plugin.Table {
 	}
 }
 
+type GithubListMembers struct {
+	github.User
+	TwoFactorAuthentication *bool
+}
+
 //// LIST FUNCTION
 
 func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -71,10 +80,7 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 	if quals["role"] != nil {
 		opt.Role = quals["role"].GetStringValue()
 	}
-	type ListPageResponse struct {
-		members []*github.User
-		resp    *github.Response
-	}
+
 	limit := d.QueryContext.Limit
 	if limit != nil {
 		if *limit < int64(opt.PerPage) {
@@ -82,45 +88,30 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		members, resp, err := client.Organizations.ListMembers(ctx, org, opt)
-		return ListPageResponse{
-			members: members,
-			resp:    resp,
-		}, err
+	disabledMember, err := tableGitHubOrganizationMember2FADisabledGet(ctx, d, h)
+	if err != nil && !strings.Contains(err.Error(), "Only owners can use this filter") {
+		return nil, err
 	}
 
-	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+	if err != nil && strings.Contains(err.Error(), "Only owners can use this filter") {
+		_, err := tableGitHubOrganizationMemberNo2FAList(ctx, d, h, client, org, opt)
 		if err != nil {
 			return nil, err
 		}
-		listResponse := listPageResponse.(ListPageResponse)
-		members := listResponse.members
-		resp := listResponse.resp
-
-		for _, i := range members {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
-
-			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
-				return nil, nil
-			}
+	} else {
+		_, err = tableGitHubOrganizationMember2FAList(ctx, d, h, client, org, opt, disabledMember)
+		if err != nil {
+			return nil, err
 		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
 	}
+
 	return nil, nil
 }
 
 func tableGitHubOrganizationMemberGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	org := d.KeyColumnQuals["organization"].GetStringValue()
 
-	user := h.Item.(*github.User)
+	user := h.Item.(GithubListMembers)
 	username := *user.Login
 
 	client := connect(ctx, d)
@@ -141,10 +132,169 @@ func tableGitHubOrganizationMemberGet(ctx context.Context, d *plugin.QueryData, 
 	getResponse, err := retryHydrate(ctx, d, h, getDetails)
 
 	if err != nil {
+		plugin.Logger(ctx).Error("tableGitHubOrganizationMemberGet", "api-err", err)
 		return nil, err
 	}
+
 	getResp := getResponse.(GetResponse)
 	membership := getResp.membership
 
 	return membership, nil
+}
+
+func tableGitHubOrganizationMember2FADisabledGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	quals := d.KeyColumnQuals
+	org := quals["organization"].GetStringValue()
+
+	// Cache 2FA Disabled member list
+	cacheKey := org + "2FADisabled"
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+		return cachedData.([]string), nil
+	}
+
+	client := connect(ctx, d)
+
+	opt := &github.ListMembersOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
+		Role:        "all",
+		Filter:      "2fa_disabled",
+	}
+
+	// Additional filters
+	if quals["role"] != nil {
+		opt.Role = quals["role"].GetStringValue()
+	}
+
+	type ListPageResponse struct {
+		members []*github.User
+		resp    *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		members, resp, err := client.Organizations.ListMembers(ctx, org, opt)
+		return ListPageResponse{
+			members: members,
+			resp:    resp,
+		}, err
+	}
+	disabledMember := []string{}
+
+	for {
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		if err != nil {
+			plugin.Logger(ctx).Error("tableGitHubOrganizationMember2FADisabledGet", "api-err", err)
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListPageResponse)
+		members := listResponse.members
+		resp := listResponse.resp
+
+		for _, i := range members {
+			if i != nil {
+				disabledMember = append(disabledMember, *i.Login)
+			}
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
+	// set cache
+	d.ConnectionManager.Cache.Set(cacheKey, disabledMember)
+
+	return disabledMember, nil
+}
+
+func tableGitHubOrganizationMember2FAList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client, org string, opt *github.ListMembersOptions, disabledMember interface{}) (interface{}, error) {
+	type ListPageResponse struct {
+		members []*github.User
+		resp    *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		members, resp, err := client.Organizations.ListMembers(ctx, org, opt)
+		return ListPageResponse{
+			members: members,
+			resp:    resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		if err != nil {
+			plugin.Logger(ctx).Error("tableGitHubOrganizationMemberMFAList", "api-err", err)
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListPageResponse)
+		members := listResponse.members
+		resp := listResponse.resp
+
+		for _, i := range members {
+			if i != nil {
+				if !helpers.StringSliceContains(disabledMember.([]string), *i.Login) {
+					d.StreamListItem(ctx, GithubListMembers{*i, types.Bool(true)})
+				} else {
+					d.StreamListItem(ctx, GithubListMembers{*i, types.Bool(false)})
+				}
+			}
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	return nil, nil
+}
+
+func tableGitHubOrganizationMemberNo2FAList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *github.Client, org string, opt *github.ListMembersOptions) (interface{}, error) {
+	type ListPageResponse struct {
+		members []*github.User
+		resp    *github.Response
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		members, resp, err := client.Organizations.ListMembers(ctx, org, opt)
+		return ListPageResponse{
+			members: members,
+			resp:    resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		if err != nil {
+			plugin.Logger(ctx).Error("tableGitHubOrganizationMemberNoMFAList", "api-err", err)
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListPageResponse)
+		members := listResponse.members
+		resp := listResponse.resp
+
+		for _, i := range members {
+			if i != nil {
+				d.StreamListItem(ctx, GithubListMembers{*i, nil})
+			}
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	return nil, nil
 }
