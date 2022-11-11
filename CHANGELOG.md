@@ -1,3 +1,9 @@
+## v0.23.0 [2022-11-10]
+
+_Enhancements_
+
+- Added `members_can_fork_private_repos` column to `github_my_organization` and `github_organization` tables. ([#214](https://github.com/turbot/steampipe-plugin-github/pull/214))
+
 ## v0.22.1 [2022-10-14]
 
 _Bug fixes_
