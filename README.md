@@ -12,7 +12,7 @@
 Install the plugin with [Steampipe](https://steampipe.io/downloads):
 
 ```shell
-steampipe plugin install github
+steampipe plugin install turbot/github
 ```
 
 [Configure the plugin](https://hub.steampipe.io/plugins/turbot/github#configuration) using the configuration file:
