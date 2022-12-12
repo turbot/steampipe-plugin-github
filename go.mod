@@ -7,8 +7,9 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v48 v48.0.0
 	github.com/sethvargo/go-retry v0.1.0
+	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7
 	github.com/turbot/go-kit v0.4.0
-	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.7
+	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.8
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 
@@ -58,7 +59,6 @@ require (
 	github.com/prometheus/common v0.33.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7 // indirect
 	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
