@@ -3,12 +3,12 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v48/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
-//// TABLE DEFINITION
+// // TABLE DEFINITION
 func tableGitHubMyTeam() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_my_team",

@@ -5,8 +5,9 @@ go 1.19
 require (
 	github.com/argonsecurity/pipeline-parser v0.1.16
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/go-github/v45 v45.1.0
+	github.com/google/go-github/v48 v48.0.0
 	github.com/sethvargo/go-retry v0.1.0
+	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7
 	github.com/turbot/go-kit v0.4.0
 	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.8
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
@@ -58,6 +59,7 @@ require (
 	github.com/prometheus/common v0.33.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/stevenle/topsort v0.0.0-20130922064739-8130c1d7596b // indirect
@@ -76,10 +78,10 @@ require (
 	go.opentelemetry.io/proto/otlp v0.16.0 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
+	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220407144326-9054f6ed7bac // indirect
 	google.golang.org/grpc v1.48.0 // indirect

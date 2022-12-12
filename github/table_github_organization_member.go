@@ -2,8 +2,9 @@ package github
 
 import (
 	"context"
+	"strings"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/shurcooL/githubv4"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
@@ -15,29 +16,31 @@ import (
 func gitHubOrganizationMemberColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the member is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "login", Type: proto.ColumnType_STRING, Description: "The login name of the user."},
-		{Name: "id", Type: proto.ColumnType_INT, Description: "The ID of the user."},
-
-		{Name: "avatar_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's avatar."},
-		{Name: "events_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's events."},
-		{Name: "followers_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's followers."},
-		{Name: "following_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's following."},
-		{Name: "gists_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's gists."},
-		{Name: "gravatar_id", Type: proto.ColumnType_STRING, Description: "The user's gravatar ID."},
-		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The GitHub page for the user."},
-		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the user."},
-		{Name: "organizations_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's organizations."},
-		{Name: "received_events_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's received events."},
-		{Name: "repos_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's repos."},
-		{Name: "site_admin", Type: proto.ColumnType_BOOL, Description: "If true, user is an administrator."},
-		{Name: "starred_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's stars."},
-		{Name: "subscriptions_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's subscriptions."},
-		{Name: "type", Type: proto.ColumnType_STRING, Description: "The type of account."},
-		{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the user."},
-
-		{Name: "role", Type: proto.ColumnType_STRING, Description: "The organization member's role.", Hydrate: tableGitHubOrganizationMemberGet},
-		{Name: "state", Type: proto.ColumnType_STRING, Description: "The membership state.", Hydrate: tableGitHubOrganizationMemberGet},
+		{Name: "login", Type: proto.ColumnType_STRING, Description: "The username used to login.", Transform: transform.FromField("Node.Login")},
+		{Name: "role", Type: proto.ColumnType_STRING, Description: "The role this user has in the organization. Returns null if information is not available to viewer."},
+		{Name: "has_two_factor_enabled", Type: proto.ColumnType_BOOL, Description: "Whether the organization member has two factor enabled or not. Returns null if information is not available to viewer."},
 	}
+}
+
+type memberWithRole struct {
+	HasTwoFactorEnabled *bool
+	Role                *string
+	Node                struct {
+		Login string
+	}
+}
+
+var query struct {
+	Organization struct {
+		Login           string
+		MembersWithRole struct {
+			Edges    []memberWithRole
+			PageInfo struct {
+				EndCursor   githubv4.String
+				HasNextPage bool
+			}
+		} `graphql:"membersWithRole(first: $membersWithRolePageSize, after: $membersWithRoleCursor)"`
+	} `graphql:"organization(login: $login)"`
 }
 
 func tableGitHubOrganizationMember() *plugin.Table {
@@ -47,10 +50,8 @@ func tableGitHubOrganizationMember() *plugin.Table {
 		List: &plugin.ListConfig{
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "organization", Require: plugin.Required},
-				{Name: "role", Require: plugin.Optional},
 			},
-			Hydrate:           tableGitHubOrganizationMemberList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate: tableGitHubOrganizationMemberList,
 		},
 		Columns: gitHubOrganizationMemberColumns(),
 	}
@@ -59,92 +60,50 @@ func tableGitHubOrganizationMember() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
-	opt := &github.ListMembersOptions{
-		ListOptions: github.ListOptions{PerPage: 100},
-		Role:        "all",
-	}
+	client := connectV4(ctx, d)
+
 	quals := d.KeyColumnQuals
 	org := quals["organization"].GetStringValue()
 
-	// Additional filters
-	if quals["role"] != nil {
-		opt.Role = quals["role"].GetStringValue()
-	}
-	type ListPageResponse struct {
-		members []*github.User
-		resp    *github.Response
-	}
+	pageSize := 100
+
 	limit := d.QueryContext.Limit
 	if limit != nil {
-		if *limit < int64(opt.PerPage) {
-			opt.PerPage = int(*limit)
+		if *limit < int64(pageSize) {
+			pageSize = int(*limit)
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		members, resp, err := client.Organizations.ListMembers(ctx, org, opt)
-		return ListPageResponse{
-			members: members,
-			resp:    resp,
-		}, err
+	variables := map[string]interface{}{
+		"login":                   githubv4.String(org),
+		"membersWithRolePageSize": githubv4.Int(pageSize),
+		"membersWithRoleCursor":   (*githubv4.String)(nil), // Null after argument to get first page.
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		err := client.Query(ctx, &query, variables)
 		if err != nil {
+			plugin.Logger(ctx).Error("github_organization_member", "api_error", err)
+			if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+				return nil, nil
+			}
 			return nil, err
 		}
-		listResponse := listPageResponse.(ListPageResponse)
-		members := listResponse.members
-		resp := listResponse.resp
 
-		for _, i := range members {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, member := range query.Organization.MembersWithRole.Edges {
+			d.StreamListItem(ctx, member)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.QueryStatus.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
-		if resp.NextPage == 0 {
+
+		if !query.Organization.MembersWithRole.PageInfo.HasNextPage {
 			break
 		}
-		opt.Page = resp.NextPage
+		variables["membersWithRoleCursor"] = githubv4.NewString(query.Organization.MembersWithRole.PageInfo.EndCursor)
 	}
+
 	return nil, nil
-}
-
-func tableGitHubOrganizationMemberGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	org := d.KeyColumnQuals["organization"].GetStringValue()
-
-	user := h.Item.(*github.User)
-	username := *user.Login
-
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		membership *github.Membership
-		resp       *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Organizations.GetOrgMembership(ctx, username, org)
-		return GetResponse{
-			membership: detail,
-			resp:       resp,
-		}, err
-	}
-
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
-
-	if err != nil {
-		return nil, err
-	}
-	getResp := getResponse.(GetResponse)
-	membership := getResp.membership
-
-	return membership, nil
 }

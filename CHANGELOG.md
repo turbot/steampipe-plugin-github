@@ -1,3 +1,19 @@
+## v0.24.0 [2022-11-11]
+
+_Breaking changes_
+
+- Updated `github_organization_member` table to use GitHub GraphQL API. Based on the available fields, the table has been updated to include the following columns: ([#220](https://github.com/turbot/steampipe-plugin-github/pull/220))
+  - `has_two_factor_enabled`
+  - `login`
+  - `organization`
+  - `role`
+
+## v0.23.0 [2022-11-10]
+
+_Enhancements_
+
+- Added `members_can_fork_private_repos` column to `github_my_organization` and `github_organization` tables. ([#214](https://github.com/turbot/steampipe-plugin-github/pull/214))
+
 ## v0.22.1 [2022-10-14]
 
 _Bug fixes_
