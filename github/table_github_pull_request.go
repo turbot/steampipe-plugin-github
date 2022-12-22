@@ -36,7 +36,6 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "head_ref", Type: proto.ColumnType_STRING, Description: "The head branch of the PR in GitHub.", Transform: transform.FromField("Head.Ref")},
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the PR page in GitHub."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the PR issue."},
-		{Name: "link_issue", Type: proto.ColumnType_STRING, Description: "The URL of the issue that is linked to the PR.", Transform: transform.FromField("Links.Issue.HRef")},
 		{Name: "issue_url", Type: proto.ColumnType_STRING, Description: "The URL of the Issue page in GitHub."},
 		{Name: "labels", Type: proto.ColumnType_JSON, Description: "An array of labels associated with this PR."},
 		{Name: "locked", Type: proto.ColumnType_BOOL, Description: "If true, the PR is locked."},
