@@ -32,6 +32,8 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "deletions", Type: proto.ColumnType_INT, Hydrate: tableGitHubPullRequestGet, Description: "The number of deletions in this PR."},
 		{Name: "diff_url", Type: proto.ColumnType_STRING, Description: "The URL of the Diff page in GitHub."},
 		{Name: "draft", Type: proto.ColumnType_BOOL, Description: "If true, the PR is in draft."},
+		{Name: "base_ref", Type: proto.ColumnType_STRING, Description: "The base branch of the PR in GitHub.", Transform: transform.FromField("Base.Ref")},
+		{Name: "head_ref", Type: proto.ColumnType_STRING, Description: "The head branch of the PR in GitHub.", Transform: transform.FromField("Head.Ref")},
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the PR page in GitHub."},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the PR issue."},
 		{Name: "issue_url", Type: proto.ColumnType_STRING, Description: "The URL of the Issue page in GitHub."},
