@@ -14,7 +14,7 @@ import (
 func gitHubDependabotAlertColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{
-			Name:        "dependabot_number",
+			Name:        "alert_number",
 			Type:        proto.ColumnType_INT,
 			Description: "The security alert number.",
 			Transform:   transform.FromField("Number"),

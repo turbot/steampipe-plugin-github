@@ -46,7 +46,7 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 			Hydrate:           tableGitHubRepositoryDependabotAlertList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "dependabot_number"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "alert_number"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertGet,
 		},
@@ -157,7 +157,7 @@ func tableGitHubRepositoryDependabotAlertGet(ctx context.Context, d *plugin.Quer
 	logger := plugin.Logger(ctx)
 	quals := d.KeyColumnQuals
 
-	alertNumber = int(d.KeyColumnQuals["dependabot_number"].GetInt64Value())
+	alertNumber = int(d.KeyColumnQuals["alert_number"].GetInt64Value())
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo = parseRepoFullName(fullName)
 	logger.Trace("tableGitHubDependabotAlertGet", "owner", owner, "repo", repo, "alertNumber", alertNumber)
