@@ -10,10 +10,6 @@ _Enhancements_
 
 - Added columns `base_ref` and `head_ref` to `github_pull_request` table. ([#223](https://github.com/turbot/steampipe-plugin-github/pull/223))
 
-_Bug fixes_
-
-- Fixed: Formatting in github_code_owner table doc to prevent breaking Hub site builds
-
 _Dependencies_
 
 - Recompiled plugin with [steampipe-plugin-sdk v4.1.8](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v418-2022-09-08) which increases the default open file limit. ([#219](https://github.com/turbot/steampipe-plugin-github/pull/219))
