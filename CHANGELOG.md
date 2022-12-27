@@ -1,3 +1,19 @@
+## v0.25.0 [2022-12-27]
+
+_What's new?_
+
+- New tables added
+  - [github_organization_dependabot_alert](https://hub.steampipe.io/plugins/turbot/github/tables/github_organization_dependabot_alert) ([#215](https://github.com/turbot/steampipe-plugin-github/pull/215)) (Thanks [@francois2metz](https://github.com/francois2metz) for the contribution!)
+  - [github_repository_dependabot_alert](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_dependabot_alert) ([#215](https://github.com/turbot/steampipe-plugin-github/pull/215)) (Thanks [@francois2metz](https://github.com/francois2metz) for the contribution!)
+
+_Enhancements_
+
+- Added columns `base_ref` and `head_ref` to `github_pull_request` table. ([#223](https://github.com/turbot/steampipe-plugin-github/pull/223))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.8](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v418-2022-09-08) which increases the default open file limit. ([#219](https://github.com/turbot/steampipe-plugin-github/pull/219))
+
 ## v0.24.0 [2022-11-11]
 
 _Breaking changes_
