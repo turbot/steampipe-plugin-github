@@ -34,6 +34,7 @@ func gitHubTeamColumns() []*plugin.Column {
 		{Name: "organization_id", Type: proto.ColumnType_INT, Description: "The user id (number) of the organization.", Transform: transform.FromField("Organization.ID"), Hydrate: tableGitHubTeamGet},
 		{Name: "organization_login", Type: proto.ColumnType_STRING, Description: "The login name of the organization.", Transform: transform.FromField("Organization.Login"), Hydrate: tableGitHubTeamGet},
 		{Name: "organization_type", Type: proto.ColumnType_STRING, Description: "The type of the organization).", Transform: transform.FromField("Organization.Type"), Hydrate: tableGitHubTeamGet},
+		{Name: "parent", Type: proto.ColumnType_JSON, Description: "The parent team of the team."},
 		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions of the team."},
 		{Name: "privacy", Type: proto.ColumnType_STRING, Description: "The privacy setting of the team (closed or secret)."},
 		{Name: "repos_count", Type: proto.ColumnType_INT, Description: "The number of repositories for the team.", Hydrate: tableGitHubTeamGet},

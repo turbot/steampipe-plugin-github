@@ -30,3 +30,17 @@ select
 from
   github_my_team;
 ```
+
+### Get parent team details for teams
+
+```sql
+select
+  slug,
+  organization,
+  parent ->> 'id' as parent_team_id,
+  parent ->> 'slug' as parent_team_slug
+from
+  github_my_team
+where
+  parent is not null;
+```
