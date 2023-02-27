@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
@@ -43,7 +44,7 @@ func gitHubRepositoryGraphqlColumns() []*plugin.Column {
 		{Name: "code_of_conduct_key", Type: proto.ColumnType_STRING, Description: "Unique key for code of conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Key")},
 		{Name: "code_of_conduct_name", Type: proto.ColumnType_STRING, Description: "Name of the Code of Conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Name")},
 		{Name: "code_of_conduct_url", Type: proto.ColumnType_STRING, Description: "URL of the Code of Conduct for the repository.", Transform: transform.FromField("CodeOfConduct.Url")},
-		{Name: "collaborators", Type: proto.ColumnType_JSON, Description: "An array of users (teams and outside collaborators) who have access to the repository, including their permissions.", Hydrate: getRepositoryCollaborators},
+		{Name: "collaborators", Type: proto.ColumnType_JSON, Description: "An array of users (teams and outside collaborators) who have access to the repository, including their permissions.", Hydrate: getRepositoryCollaborators, Transform: transform.FromValue()},
 		// {Name: "collaborator_logins", Type: proto.ColumnType_JSON, Description: "An array of logins for users (inside and outside collaborators) who have access to the repository.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubRepositoryCollaboratorsGetAll},
 		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the repository was created.", Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp)},
 		{Name: "default_branch", Type: proto.ColumnType_STRING, Description: "The name of the deafult branch. The default branch is the base branch for pull requests and code commits.", Transform: transform.FromField("DefaultBranchRef.Name")},
@@ -243,20 +244,16 @@ type Node struct {
 	}
 }
 
-// var Collaborators struct {
-// 	Edges    []collaborators
-// 	PageInfo struct {
-// 		EndCursor   githubv4.String
-// 		HasNextPage bool
-// 	}
-// } `graphql:"collaborators(affiliation: ALL)"`
-
 var MyRepositoryCollaboratorsQuery struct {
 	Repository struct {
 		Collaborators struct {
 			TotalCount githubv4.Int
 			Edges      []collaborators
-		} `graphql:"collaborators(affiliation: ALL)"`
+			PageInfo   struct {
+				EndCursor   githubv4.String
+				HasNextPage bool
+			}
+		} `graphql:"collaborators(first: $collaboratorsPageSize, after: $collaboratorsCursor, affiliation: ALL)"`
 	} `graphql:"repository(name: $repositoryName, owner: $repositoryOwner)"`
 }
 
@@ -268,12 +265,7 @@ type collaborators struct {
 		AvatarUrl   githubv4.String `graphql:"avatarUrl(size: 10)"`
 		IsSiteAdmin bool
 	}
-	Permission        githubv4.String
-	PermissionSources struct {
-		Permission githubv4.String
-		Source     githubv4.String
-		// __typename githubv4.String
-	}
+	Permission githubv4.String
 }
 
 func tableGitHubMyRepositoryGraphqlList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -291,9 +283,8 @@ func tableGitHubMyRepositoryGraphqlList(ctx context.Context, d *plugin.QueryData
 	variables := map[string]interface{}{
 		"repositoriesPageSize": githubv4.Int(pageSize),
 		"repositoriesCursor":   (*githubv4.String)(nil), // Null after argument to get first page.
-		"ownerAffiliations":    []githubv4.RepositoryAffiliation{githubv4.RepositoryAffiliationOrganizationMember},
-		"affiliations":         []githubv4.RepositoryAffiliation{githubv4.RepositoryAffiliationOrganizationMember},
-		// "collaboratorsPageSize": githubv4.Int(pageSize),
+		"ownerAffiliations":    []githubv4.RepositoryAffiliation{githubv4.RepositoryAffiliationOrganizationMember, githubv4.RepositoryAffiliationOwner, githubv4.RepositoryAffiliationCollaborator},
+		"affiliations":         []githubv4.RepositoryAffiliation{githubv4.RepositoryAffiliationOrganizationMember, githubv4.RepositoryAffiliationOwner, githubv4.RepositoryAffiliationCollaborator},
 	}
 
 	for {
@@ -330,17 +321,30 @@ func getRepositoryCollaborators(ctx context.Context, d *plugin.QueryData, h *plu
 
 	plugin.Logger(ctx).Trace("------------------------>>>>>>>>>>>>>>>>>>>", repo.Name, repo.Owner.Login)
 	variables := map[string]interface{}{
-		"repositoryName":  *githubv4.NewString(repo.Name),
-		"repositoryOwner": *githubv4.NewString(repo.Owner.Login),
+		"repositoryName":        *githubv4.NewString(repo.Name),
+		"repositoryOwner":       *githubv4.NewString(repo.Owner.Login),
+		"collaboratorsPageSize": githubv4.Int(100),
+		"collaboratorsCursor":   (*githubv4.String)(nil), // Null after argument to get first page.
 	}
 
-	err := client.Query(ctx, &MyRepositoryCollaboratorsQuery, variables)
-	if err != nil {
-		plugin.Logger(ctx).Error("github_organization_member", "api_error", err)
-		// if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
-		// 	return nil, nil
-		// }
-		return nil, err
+	collabArr := []collaborators{}
+
+	for {
+		err := client.Query(ctx, &MyRepositoryCollaboratorsQuery, variables)
+		if err != nil {
+			plugin.Logger(ctx).Error("github_organization_member", "api_error", err)
+			if strings.Contains(err.Error(), "You do not have permission to view repository collaborators") {
+				return nil, nil
+			}
+			return nil, err
+		}
+
+		collabArr = append(collabArr, MyRepositoryCollaboratorsQuery.Repository.Collaborators.Edges...)
+
+		if !MyRepositoryCollaboratorsQuery.Repository.Collaborators.PageInfo.HasNextPage {
+			break
+		}
+		variables["collaboratorsCursor"] = githubv4.NewString(MyRepositoryCollaboratorsQuery.Repository.Collaborators.PageInfo.EndCursor)
 	}
-	return MyRepositoryCollaboratorsQuery.Repository.Collaborators.Edges, nil
+	return collabArr, nil
 }
