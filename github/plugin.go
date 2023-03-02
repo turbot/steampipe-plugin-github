@@ -45,6 +45,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_release":                         tableGitHubRelease(ctx),
 			"github_repository":                      tableGitHubRepository(),
 			"github_repository_dependabot_alert":     tableGitHubRepositoryDependabotAlert(),
+			"github_repository_event":                tableGitHubRepositoryEvent(ctx),
 			"github_search_code":                     tableGitHubSearchCode(ctx),
 			"github_search_commit":                   tableGitHubSearchCommit(ctx),
 			"github_search_issue":                    tableGitHubSearchIssue(ctx),
