@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/go-github/v48/github"
+	"github.com/shurcooL/githubv4"
 
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
@@ -53,11 +54,60 @@ func tableGitHubUser() *plugin.Table {
 			{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators."},
 			{Name: "two_factor_authentication", Type: proto.ColumnType_BOOL, Description: "If true, two-factor authentication is enabled."},
 			{Name: "ldap_dn", Type: proto.ColumnType_STRING, Description: "The LDAP distinguished name of the user."},
+
+			{Name: "starred_repositories_count", Type: proto.ColumnType_INT, Description: "Total repositories the user has starred.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("StarredRepositories.TotalCount")},
+			{Name: "repositories_contributed_to_count", Type: proto.ColumnType_INT, Description: "Total repositories that the user recently contributed to.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("RepositoriesContributedTo.TotalCount")},
+			{Name: "contributions_collection", Type: proto.ColumnType_JSON, Description: "The collection of contributions this user has made to different repositories.", Hydrate: getGitHubUserContributions},
+			{Name: "sponsoring", Type: proto.ColumnType_INT, Description: "Total users and organizations this entity is sponsoring.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("Sponsoring.TotalCount")},
+			{Name: "sponsors", Type: proto.ColumnType_INT, Description: "Total sponsors for this user or organization.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("Sponsors.TotalCount")},
+			{Name: "top_repositories", Type: proto.ColumnType_JSON, Description: "Repositories the user has contributed to, ordered by contribution rank, plus repositories the user has created.", Hydrate: getGitHubUserContributions},
 		},
 	}
 }
 
 //// HYDRATE FUNCTRIONS
+
+var userQuery struct {
+	User struct {
+		Login               string
+		StarredRepositories struct {
+			TotalCount githubv4.Int
+		}
+		RepositoriesContributedTo struct {
+			TotalCount githubv4.Int
+		}
+		ContributionsCollection struct {
+			TotalIssueContributions                      githubv4.Int
+			TotalCommitContributions                     githubv4.Int
+			TotalPullRequestContributions                githubv4.Int
+			TotalPullRequestReviewContributions          githubv4.Int
+			TotalRepositoriesWithContributedCommits      githubv4.Int
+			TotalRepositoriesWithContributedIssues       githubv4.Int
+			TotalRepositoriesWithContributedPullRequests githubv4.Int
+			TotalRepositoryContributions                 githubv4.Int
+			RestrictedContributionsCount                 githubv4.Int
+		}
+		Sponsoring struct {
+			TotalCount githubv4.Int
+		}
+		Sponsors struct {
+			TotalCount githubv4.Int
+		}
+		TopRepositories struct {
+			Edges      []repository
+			TotalCount githubv4.Int
+		} `graphql:"topRepositories(orderBy: {field: CREATED_AT, direction: ASC}, first: 100)"`
+	} `graphql:"user(login: $login)"`
+}
+
+type repository struct {
+	Node struct {
+		NameWithOwner   string
+		PrimaryLanguage struct {
+			Name string
+		}
+	}
+}
 
 // Listing all users is not terribly useful, so we require a 'login' qual and essentially always
 // do a 'get':  from GitHub API docs: https://developer.github.com/v3/users/#list-users:
@@ -107,4 +157,32 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 
 	return nil, nil
+}
+
+func getGitHubUserContributions(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client := connectV4(ctx, d)
+
+	var login string
+
+	if h.Item != nil {
+		item := h.Item.(*github.User)
+		login = *item.Login
+	} else {
+		login = d.KeyColumnQuals["login"].GetStringValue()
+	}
+
+	variables := map[string]interface{}{
+		"login": githubv4.String(login),
+	}
+
+	err := client.Query(ctx, &userQuery, variables)
+	if err != nil {
+		plugin.Logger(ctx).Error("github_user", "api_error", err)
+		// if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+		// 	return nil, nil
+		// }
+		return nil, err
+	}
+
+	return userQuery.User, nil
 }
