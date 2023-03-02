@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/go-github/v48/github"
 
@@ -25,6 +26,7 @@ func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table 
 				{Name: "head_branch", Require: plugin.Optional},
 				{Name: "status", Require: plugin.Optional},
 				{Name: "conclusion", Require: plugin.Optional},
+				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
 			},
 		},
 		Get: &plugin.GetConfig{
@@ -81,21 +83,39 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 	opts := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
+
 	equalQuals := d.KeyColumnQuals
 	if equalQuals["event"] != nil {
 		if equalQuals["event"].GetStringValue() != "" {
 			opts.Event = equalQuals["event"].GetStringValue()
 		}
 	}
+
 	if equalQuals["head_branch"] != nil {
 		if equalQuals["head_branch"].GetStringValue() != "" {
 			opts.Branch = equalQuals["head_branch"].GetStringValue()
 		}
 	}
+
 	if equalQuals["status"] != nil {
 		if equalQuals["status"].GetStringValue() != "" {
 			opts.Status = equalQuals["status"].GetStringValue()
 		}
+	}
+
+	phrase := ""
+	if d.Quals["created_at"] != nil {
+		for _, q := range d.Quals["created_at"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
+
+			op := q.Operator
+			if op == "=" {
+				op = ""
+			}
+
+			phrase += " created:" + op + givenTime
+		}
+		opts.Created = phrase
 	}
 
 	// Status param can take the value from both status and conclusion column
