@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
@@ -60,7 +61,8 @@ func tableGitHubUser() *plugin.Table {
 			{Name: "contributions_collection", Type: proto.ColumnType_JSON, Description: "The collection of contributions this user has made to different repositories.", Hydrate: getGitHubUserContributions},
 			{Name: "sponsoring", Type: proto.ColumnType_INT, Description: "Total users and organizations this entity is sponsoring.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("Sponsoring.TotalCount")},
 			{Name: "sponsors", Type: proto.ColumnType_INT, Description: "Total sponsors for this user or organization.", Hydrate: getGitHubUserContributions, Transform: transform.FromField("Sponsors.TotalCount")},
-			{Name: "top_repositories", Type: proto.ColumnType_JSON, Description: "Repositories the user has contributed to, ordered by contribution rank, plus repositories the user has created.", Hydrate: getGitHubUserContributions},
+			{Name: "keys", Type: proto.ColumnType_JSON, Description: "The verified public keys for a user.", Transform: transform.FromValue(), Hydrate: getGitHubUserKeys},
+			{Name: "gpg_keys", Type: proto.ColumnType_JSON, Description: "Repositories the user has contributed to, ordered by contribution rank, plus repositories the user has created.", Transform: transform.FromValue(), Hydrate: getGitHubUserGPGKeys},
 		},
 	}
 }
@@ -93,20 +95,7 @@ var userQuery struct {
 		Sponsors struct {
 			TotalCount githubv4.Int
 		}
-		TopRepositories struct {
-			Edges      []repository
-			TotalCount githubv4.Int
-		} `graphql:"topRepositories(orderBy: {field: CREATED_AT, direction: ASC}, first: 100)"`
 	} `graphql:"user(login: $login)"`
-}
-
-type repository struct {
-	Node struct {
-		NameWithOwner   string
-		PrimaryLanguage struct {
-			Name string
-		}
-	}
 }
 
 // Listing all users is not terribly useful, so we require a 'login' qual and essentially always
@@ -185,4 +174,114 @@ func getGitHubUserContributions(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	return userQuery.User, nil
+}
+
+func getGitHubUserGPGKeys(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	var login string
+
+	if h.Item != nil {
+		item := h.Item.(*github.User)
+		login = *item.Login
+	} else {
+		login = d.KeyColumnQuals["login"].GetStringValue()
+	}
+
+	opts := github.ListOptions{PerPage: 100}
+
+	type ListPageResponse struct {
+		keys []*github.GPGKey
+		resp *github.Response
+	}
+
+	client := connect(ctx, d)
+
+	var keyList []*github.GPGKey
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		keys, resp, err := client.Users.ListGPGKeys(ctx, login, &opts)
+		return ListPageResponse{
+			keys: keys,
+			resp: resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+
+		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				return nil, nil
+			}
+			return nil, err
+		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		keys := listResponse.keys
+		resp := listResponse.resp
+
+		keyList = append(keyList, keys...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return keyList, nil
+}
+
+func getGitHubUserKeys(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	var login string
+
+	if h.Item != nil {
+		item := h.Item.(*github.User)
+		login = *item.Login
+	} else {
+		login = d.KeyColumnQuals["login"].GetStringValue()
+	}
+
+	opts := github.ListOptions{PerPage: 100}
+
+	type ListPageResponse struct {
+		keys []*github.Key
+		resp *github.Response
+	}
+
+	client := connect(ctx, d)
+
+	var keyList []*github.Key
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		keys, resp, err := client.Users.ListKeys(ctx, login, &opts)
+		return ListPageResponse{
+			keys: keys,
+			resp: resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+
+		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				return nil, nil
+			}
+			return nil, err
+		}
+
+		listResponse := listPageResponse.(ListPageResponse)
+		keys := listResponse.keys
+		resp := listResponse.resp
+
+		keyList = append(keyList, keys...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return keyList, nil
 }
