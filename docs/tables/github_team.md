@@ -45,7 +45,7 @@ where
   slug = 'my_team';
 ```
 
-### Get parent team details for teams
+### Get parent team details for child teams
 
 ```sql
 select
