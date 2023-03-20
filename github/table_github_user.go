@@ -76,7 +76,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		logger.Trace("tableGitHubUserGet", item.String())
 		login = *item.Login
 	} else {
-		login = d.KeyColumnQuals["login"].GetStringValue()
+		login = d.EqualsQuals["login"].GetStringValue()
 	}
 
 	client := connect(ctx, d)

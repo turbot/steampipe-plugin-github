@@ -36,7 +36,7 @@ func tableGitHubTrafficViewDaily(ctx context.Context) *plugin.Table {
 func tableGitHubTrafficViewDailyList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	opts := &github.TrafficBreakdownOptions{Per: "day"}
@@ -68,7 +68,7 @@ func tableGitHubTrafficViewDailyList(ctx context.Context, d *plugin.QueryData, h
 		}
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}

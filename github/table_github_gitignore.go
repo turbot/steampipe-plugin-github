@@ -64,7 +64,7 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}
@@ -79,7 +79,7 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 		item := h.Item.(github.Gitignore)
 		name = *item.Name
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	// Return nil, if no input provided

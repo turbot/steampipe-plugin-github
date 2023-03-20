@@ -51,7 +51,7 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 	phrase := quals["phrase"].GetStringValue()
 	include := quals["include"].GetStringValue()
@@ -130,7 +130,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

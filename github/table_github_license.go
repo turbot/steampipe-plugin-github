@@ -76,7 +76,7 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		d.StreamListItem(ctx, i)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}
@@ -92,7 +92,7 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 		item := h.Item.(*github.License)
 		key = *item.Key
 	} else {
-		key = d.KeyColumnQuals["key"].GetStringValue()
+		key = d.EqualsQuals["key"].GetStringValue()
 	}
 
 	// Return nil, if no input provided

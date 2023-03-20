@@ -54,7 +54,7 @@ func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	sha := quals["tree_sha"].GetStringValue()
 	recursive := quals["recursive"].GetBoolValue()

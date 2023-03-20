@@ -43,7 +43,7 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	type GetResponse struct {
@@ -75,7 +75,7 @@ func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h
 func securityFileGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	optionalSecurityMDNames := []string{"SECURITY.md", "security.md", "Security.md"}

@@ -70,7 +70,7 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

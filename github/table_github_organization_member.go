@@ -62,7 +62,7 @@ func tableGitHubOrganizationMember() *plugin.Table {
 func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 
 	pageSize := 100
@@ -94,7 +94,7 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 			d.StreamListItem(ctx, member)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

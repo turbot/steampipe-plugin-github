@@ -109,7 +109,7 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -145,8 +145,8 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 			return nil, fmt.Errorf("unknown caller for tableGitHubTeamGet function")
 		}
 	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
+		org = d.EqualsQuals["organization"].GetStringValue()
+		slug = d.EqualsQuals["slug"].GetStringValue()
 	}
 
 	client := connect(ctx, d)

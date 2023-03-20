@@ -54,7 +54,7 @@ type CodeOwnerRule struct {
 
 func tableGitHubCodeOwnerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("tableGitHubCodeOwnerList")
-	repoFullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	repoFullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repoName := parseRepoFullName(repoFullName)
 
 	type CodeOwnerRuleResponse struct {

@@ -56,7 +56,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		gist := h.Item.(*github.Gist)
 		id = *gist.ID
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.EqualsQuals["id"].GetStringValue()
 	}
 
 	type GetResponse struct {

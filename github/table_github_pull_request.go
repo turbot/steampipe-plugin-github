@@ -89,7 +89,7 @@ func tableGitHubPullRequest() *plugin.Table {
 
 func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -140,7 +140,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -162,13 +162,13 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	var issueNumber int
 
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	if h.Item != nil {
 		issue := h.Item.(*github.PullRequest)
 		issueNumber = *issue.Number
 	} else {
-		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		issueNumber = int(d.EqualsQuals["issue_number"].GetInt64Value())
 	}
 
 	fullName := quals["repository_full_name"].GetStringValue()

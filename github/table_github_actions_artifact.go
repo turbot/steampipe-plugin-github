@@ -48,7 +48,7 @@ func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
 func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	type ListPageResponse struct {
@@ -89,7 +89,7 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -107,8 +107,8 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 //// HYDRATE FUNCTIONS
 
 func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	id := d.KeyColumnQuals["id"].GetInt64Value()
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	id := d.EqualsQuals["id"].GetInt64Value()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 
 	// Empty check for the parameters
 	if id == 0 || fullName == "" {

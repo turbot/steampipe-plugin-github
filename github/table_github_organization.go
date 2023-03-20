@@ -116,7 +116,7 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 		login = *org.Login
 	} else {
-		login = d.KeyColumnQuals["login"].GetStringValue()
+		login = d.EqualsQuals["login"].GetStringValue()
 	}
 
 	client := connect(ctx, d)

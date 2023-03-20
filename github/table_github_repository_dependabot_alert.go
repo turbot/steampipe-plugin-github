@@ -67,7 +67,7 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -133,7 +133,7 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -155,9 +155,9 @@ func tableGitHubRepositoryDependabotAlertGet(ctx context.Context, d *plugin.Quer
 	var alertNumber int
 
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
-	alertNumber = int(d.KeyColumnQuals["alert_number"].GetInt64Value())
+	alertNumber = int(d.EqualsQuals["alert_number"].GetInt64Value())
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo = parseRepoFullName(fullName)
 	logger.Trace("tableGitHubDependabotAlertGet", "owner", owner, "repo", repo, "alertNumber", alertNumber)

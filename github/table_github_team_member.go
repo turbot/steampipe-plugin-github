@@ -68,7 +68,7 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 		Role:        "all",
 	}
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 	slug := quals["slug"].GetStringValue()
 
@@ -114,7 +114,7 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -130,8 +130,8 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func tableGitHubTeamMemberGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	org := d.KeyColumnQuals["organization"].GetStringValue()
-	slug := d.KeyColumnQuals["slug"].GetStringValue()
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
 
 	user := h.Item.(*github.User)
 	username := *user.Login

@@ -83,7 +83,7 @@ func tableGitHubIssue() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -156,7 +156,7 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -178,13 +178,13 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 	var issueNumber int
 
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	if h.Item != nil {
 		issue := h.Item.(*github.Issue)
 		issueNumber = *issue.Number
 	} else {
-		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		issueNumber = int(d.EqualsQuals["issue_number"].GetInt64Value())
 	}
 
 	fullName := quals["repository_full_name"].GetStringValue()
@@ -223,7 +223,7 @@ func repoNameQual(_ context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return item.Repository.FullName, nil
 	}
 
-	return d.KeyColumnQuals["repository_full_name"].GetStringValue(), nil
+	return d.EqualsQuals["repository_full_name"].GetStringValue(), nil
 }
 
 //// TRANSFORM FUNCTIONS

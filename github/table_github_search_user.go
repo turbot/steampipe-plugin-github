@@ -74,7 +74,7 @@ func tableGitHubSearchUserList(ctx context.Context, d *plugin.QueryData, h *plug
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchUserList")
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	query := quals["query"].GetStringValue()
 
 	if query == "" {
@@ -131,7 +131,7 @@ func tableGitHubSearchUserList(ctx context.Context, d *plugin.QueryData, h *plug
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
