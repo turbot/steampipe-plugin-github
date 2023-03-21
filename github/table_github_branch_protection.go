@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -48,7 +48,7 @@ func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
 
 func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -106,7 +106,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 
 func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	branchName := ""
@@ -156,7 +156,7 @@ func repositorySignaturesProtectedBranchGet(ctx context.Context, d *plugin.Query
 }
 
 func branchNameQual(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	if quals["name"] != nil {
 		return quals["name"].GetStringValue(), nil
 	}

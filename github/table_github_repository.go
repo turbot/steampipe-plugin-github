@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -95,7 +95,7 @@ func tableGitHubRepository() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	repoFullName := d.KeyColumnQuals["full_name"].GetStringValue()
+	repoFullName := d.EqualsQuals["full_name"].GetStringValue()
 	owner, repoName := parseRepoFullName(repoFullName)
 
 	client := connect(ctx, d)
@@ -136,8 +136,8 @@ func tableGitHubRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugi
 		owner = *repo.Owner.Login
 		repoName = *repo.Name
 	} else {
-		owner = d.KeyColumnQuals["owner_login"].GetStringValue()
-		repoName = d.KeyColumnQuals["name"].GetStringValue()
+		owner = d.EqualsQuals["owner_login"].GetStringValue()
+		repoName = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	client := connect(ctx, d)

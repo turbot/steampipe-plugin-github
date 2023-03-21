@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -43,7 +43,7 @@ func tableGitHubCommunityProfile(ctx context.Context) *plugin.Table {
 func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	type GetResponse struct {
@@ -75,7 +75,7 @@ func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h
 func securityFileGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	optionalSecurityMDNames := []string{"SECURITY.md", "security.md", "Security.md"}

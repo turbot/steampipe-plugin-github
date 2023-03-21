@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -55,8 +55,8 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 
 	opt := &github.ListOptions{PerPage: 100}
 
-	org := d.KeyColumnQuals["organization"].GetStringValue()
-	slug := d.KeyColumnQuals["slug"].GetStringValue()
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
 
 	type ListPageResponse struct {
 		repos []*github.Repository
@@ -95,7 +95,7 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -121,9 +121,9 @@ func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *p
 		repoName = *repo.Name
 		slug = *h.Item.(*github.Team).Slug
 	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
-		fullName := d.KeyColumnQuals["full_name"].GetStringValue()
+		org = d.EqualsQuals["organization"].GetStringValue()
+		slug = d.EqualsQuals["slug"].GetStringValue()
+		fullName := d.EqualsQuals["full_name"].GetStringValue()
 		owner, repoName = parseRepoFullName(fullName)
 	}
 

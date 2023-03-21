@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 func gitHubPullRequestColumns() []*plugin.Column {
@@ -89,7 +89,7 @@ func tableGitHubPullRequest() *plugin.Table {
 
 func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -140,7 +140,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -162,13 +162,13 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	var issueNumber int
 
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	if h.Item != nil {
 		issue := h.Item.(*github.PullRequest)
 		issueNumber = *issue.Number
 	} else {
-		issueNumber = int(d.KeyColumnQuals["issue_number"].GetInt64Value())
+		issueNumber = int(d.EqualsQuals["issue_number"].GetInt64Value())
 	}
 
 	fullName := quals["repository_full_name"].GetStringValue()

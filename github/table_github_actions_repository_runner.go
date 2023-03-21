@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -44,7 +44,7 @@ func tableGitHubActionsRepositoryRunner(ctx context.Context) *plugin.Table {
 func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(orgName)
 
 	type ListPageResponse struct {
@@ -85,7 +85,7 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -103,8 +103,8 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	runnerId := d.KeyColumnQuals["id"].GetInt64Value()
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	runnerId := d.EqualsQuals["id"].GetInt64Value()
+	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 
 	// Empty check for the parameter
 	if runnerId == 0 || orgName == "" {

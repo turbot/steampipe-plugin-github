@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -32,8 +32,8 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
 
 	// Additional filters
-	if d.KeyColumnQuals["visibility"] != nil {
-		opt.Visibility = d.KeyColumnQuals["visibility"].GetStringValue()
+	if d.EqualsQuals["visibility"] != nil {
+		opt.Visibility = d.EqualsQuals["visibility"].GetStringValue()
 	} else {
 		// Will cause a 422 error if 'type' used in the same request as visibility or
 		// affiliation.
@@ -76,7 +76,7 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

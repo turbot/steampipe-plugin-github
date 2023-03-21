@@ -5,9 +5,9 @@ import (
 	"regexp"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -61,7 +61,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchIssueList")
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	query := quals["query"].GetStringValue()
 
 	if query == "" {
@@ -120,7 +120,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

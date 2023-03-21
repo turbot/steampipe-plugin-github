@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 func shouldRetryError(ctx context.Context, err error) bool {

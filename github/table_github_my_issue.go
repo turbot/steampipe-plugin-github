@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -34,8 +34,8 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	}
 
 	// Additional filters
-	if d.KeyColumnQuals["state"] != nil {
-		opt.State = d.KeyColumnQuals["state"].GetStringValue()
+	if d.EqualsQuals["state"] != nil {
+		opt.State = d.EqualsQuals["state"].GetStringValue()
 	}
 
 	if d.Quals["created_at"] != nil {
@@ -90,7 +90,7 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

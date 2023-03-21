@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -54,7 +54,7 @@ type CodeOwnerRule struct {
 
 func tableGitHubCodeOwnerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("tableGitHubCodeOwnerList")
-	repoFullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	repoFullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repoName := parseRepoFullName(repoFullName)
 
 	type CodeOwnerRuleResponse struct {

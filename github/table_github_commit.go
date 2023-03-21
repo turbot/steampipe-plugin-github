@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -61,7 +61,7 @@ func tableGitHubCommit(ctx context.Context) *plugin.Table {
 func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	opts := &github.CommitsListOptions{ListOptions: github.ListOptions{PerPage: 100}}
@@ -80,12 +80,12 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	}
 
 	// Additional filters
-	if d.KeyColumnQuals["sha"] != nil {
-		opts.SHA = d.KeyColumnQuals["sha"].GetStringValue()
+	if d.EqualsQuals["sha"] != nil {
+		opts.SHA = d.EqualsQuals["sha"].GetStringValue()
 	}
 
-	if d.KeyColumnQuals["author_login"] != nil {
-		opts.Author = d.KeyColumnQuals["author_login"].GetStringValue()
+	if d.EqualsQuals["author_login"] != nil {
+		opts.Author = d.EqualsQuals["author_login"].GetStringValue()
 	}
 
 	if d.Quals["author_date"] != nil {
@@ -136,7 +136,7 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -158,13 +158,13 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	var sha string
 
 	logger := plugin.Logger(ctx)
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 
 	if h.Item != nil {
 		commit := h.Item.(*github.RepositoryCommit)
 		sha = *commit.SHA
 	} else {
-		sha = d.KeyColumnQuals["sha"].GetStringValue()
+		sha = d.EqualsQuals["sha"].GetStringValue()
 	}
 	fullName := quals["repository_full_name"].GetStringValue()
 
