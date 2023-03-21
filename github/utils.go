@@ -14,8 +14,8 @@ import (
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 // Create Rest API (v3) client
@@ -191,10 +191,8 @@ func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.
 
 	// Create the backoff based on the given mode
 	// Use exponential instead of fibonacci due to GitHub's aggressive throttling
-	backoff, err := retry.NewExponential(interval * time.Second)
-	if err != nil {
-		return nil, err
-	}
+	backoff := retry.NewExponential(interval * time.Second)
+
 
 	// Ensure the maximum value is 30s. In this scenario, the sleep values would be
 	// 1s, 2s, 4s, 16s, 30s, 30s...
@@ -202,7 +200,8 @@ func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.
 
 	var hydrateResult interface{}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(uint64(maxRetries), backoff), func(ctx context.Context) error {
+	err := retry.Do(ctx, retry.WithMaxRetries(uint64(maxRetries), backoff), func(ctx context.Context) error {
+		var err error
 		hydrateResult, err = hydrateFunc(ctx, d, hydrateData)
 		if err != nil {
 			if shouldRetryError(ctx, err) {
