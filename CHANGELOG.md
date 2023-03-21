@@ -1,3 +1,13 @@
+## v0.26.0 [2023-03-22]
+
+_Enhancements_
+
+- Added column `parent` to `github_team` and `github_my_team` tables. ([#232](https://github.com/turbot/steampipe-plugin-github/pull/232))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.3.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v530-2023-03-16) which includes fixes for query cache pending item mechanism and aggregator connections not working for dynamic tables. ([#233](https://github.com/turbot/steampipe-plugin-github/pull/233))
+
 ## v0.25.1 [2023-02-10]
 
 _Dependencies_
