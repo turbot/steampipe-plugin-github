@@ -9,7 +9,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-// // TABLE DEFINITION
+//// TABLE DEFINITION
 
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
@@ -74,7 +74,7 @@ var getLicenseQuery struct {
 	License license `graphql:"license(key: $key)"`
 }
 
-// // LIST FUNCTION
+//// LIST FUNCTION
 
 func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
@@ -97,7 +97,7 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
-// // GET FUNCTION
+//// GET FUNCTION
 
 func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	key := d.EqualsQuals["key"].GetStringValue()
