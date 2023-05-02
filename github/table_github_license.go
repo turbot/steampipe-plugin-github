@@ -2,12 +2,11 @@ package github
 
 import (
 	"context"
-
-	"github.com/google/go-github/v48/github"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -27,53 +26,67 @@ func tableGitHubLicense() *plugin.Table {
 		Columns: []*plugin.Column{
 
 			// Top columns
-			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("SPDXID")},
+			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("SpdxId")},
 			{Name: "name", Description: "The name of the license.", Type: proto.ColumnType_STRING},
-			{Name: "html_url", Description: "The HTML URL of the license.", Type: proto.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
+			{Name: "html_url", Description: "The HTML URL of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url")},
 
 			// The body is huge and of limited value, exclude it for now
 			// {Name: "body", Type: proto.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "conditions", Description: "An array of license conditions (include-copyright,disclose-source, etc).", Type: proto.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "description", Description: "The license description.", Type: proto.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
-			{Name: "featured", Description: "If true, the license is 'featured' in the GitHub UI.", Type: proto.ColumnType_BOOL, Hydrate: tableGitHubLicenseGetData},
-			{Name: "implementation", Description: "Implementation instructions for the license.", Type: proto.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
+			{Name: "conditions", Description: "An array of license conditions (include-copyright,disclose-source, etc).", Type: proto.ColumnType_JSON},
+			{Name: "description", Description: "The license description.", Type: proto.ColumnType_STRING},
+			{Name: "featured", Description: "If true, the license is 'featured' in the GitHub UI.", Type: proto.ColumnType_BOOL},
+			{Name: "implementation", Description: "Implementation instructions for the license.", Type: proto.ColumnType_STRING},
 			{Name: "key", Description: "The unique key of the license.", Type: proto.ColumnType_STRING},
-			{Name: "limitations", Description: "An array of limitations for the license (trademark-use, liability,warranty, etc).", Type: proto.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "permissions", Description: "An array of permissions for the license (private-use, commercial-use,modifications, etc).", Type: proto.ColumnType_JSON, Hydrate: tableGitHubLicenseGetData},
-			{Name: "url", Description: "The API url of the license.", Type: proto.ColumnType_STRING},
+			{Name: "limitations", Description: "An array of limitations for the license (trademark-use, liability,warranty, etc).", Type: proto.ColumnType_JSON},
+			{Name: "permissions", Description: "An array of permissions for the license (private-use, commercial-use,modifications, etc).", Type: proto.ColumnType_JSON},
+			{Name: "nickname", Description: "The customary short name of the license.", Type: proto.ColumnType_STRING},
+			{Name: "pseudo_license", Description: "Indicates if the license is a pseudo-license placeholder (e.g. other, no-license).", Type: proto.ColumnType_BOOL},
 		},
 	}
+}
+
+type licenseRule struct {
+	Key         string
+	Label       string
+	Description string
+}
+
+type license struct {
+	SpdxId         string
+	Name           string
+	Key            string
+	Conditions     []licenseRule
+	Description    string
+	Featured       bool
+	Implementation string
+	Limitations    []licenseRule
+	Permissions    []licenseRule
+	Url            string
+	Nickname       string
+	PseudoLicense  bool
+}
+
+var listLicensesQuery struct {
+	Licenses []license `graphql:"licenses"`
+}
+
+var getLicenseQuery struct {
+	License license `graphql:"license(key: $key)"`
 }
 
 //// LIST FUNCTION
 
 func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	client := connectV4(ctx, d)
 
-	type ListPageResponse struct {
-		licenses []*github.License
-		resp     *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		licenses, resp, err := client.Licenses.List(ctx)
-		return ListPageResponse{
-			licenses: licenses,
-			resp:     resp,
-		}, err
-	}
-
-	listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
-	listResponse := listPageResponse.(ListPageResponse)
-	licenses := listResponse.licenses
-
+	err := client.Query(ctx, &listLicensesQuery, nil)
 	if err != nil {
+		plugin.Logger(ctx).Error("github_license", "api_error", err)
 		return nil, err
 	}
 
-	for _, i := range licenses {
-		d.StreamListItem(ctx, i)
+	for _, license := range listLicensesQuery.Licenses {
+		d.StreamListItem(ctx, license)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
 		if d.RowsRemaining(ctx) == 0 {
@@ -84,44 +97,27 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
+//// GET FUNCTION
 
 func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var key string
-	if h.Item != nil {
-		item := h.Item.(*github.License)
-		key = *item.Key
-	} else {
-		key = d.EqualsQuals["key"].GetStringValue()
-	}
+	key := d.EqualsQuals["key"].GetStringValue()
 
 	// Return nil, if no input provided
 	if key == "" {
 		return nil, nil
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		license *github.License
-		resp    *github.Response
+	variables := map[string]interface{}{
+		"key": githubv4.String(key),
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		license, resp, err := client.Licenses.Get(ctx, key)
-		return GetResponse{
-			license: license,
-			resp:    resp,
-		}, err
-	}
+	client := connectV4(ctx, d)
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
-
+	err := client.Query(ctx, &getLicenseQuery, variables)
 	if err != nil {
+		plugin.Logger(ctx).Error("github_license", "api_error", err)
 		return nil, err
 	}
-	getResp := getResponse.(GetResponse)
-	license := getResp.license
 
-	return license, nil
+	return getLicenseQuery.License, nil
 }

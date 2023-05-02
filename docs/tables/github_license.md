@@ -39,3 +39,48 @@ group by
 order by
   num_repos desc;
 ```
+
+### View conditions for a specific license
+
+```sql
+select
+  name,
+  key,
+  c ->> 'Key' as condition,
+  c ->> 'Description' as condition_desc
+from
+  github_license,
+  jsonb_array_elements(conditions) as c
+where
+  key = 'gpl-3.0';
+```
+
+### View limitations for a specific license
+
+```sql
+select
+  name,
+  key,
+  l ->> 'Key' as limitation,
+  l ->> 'Description' as limitation_desc
+from
+  github_license,
+  jsonb_array_elements(limitations) as l
+where
+  key = 'gpl-3.0';
+```
+
+### View permissions for a specific license
+
+```sql
+select
+  name,
+  key,
+  p ->> 'Key' as permission,
+  p ->> 'Description' as permission_desc
+from
+  github_license,
+  jsonb_array_elements(permissions) as p
+where
+  key = 'gpl-3.0';
+```
