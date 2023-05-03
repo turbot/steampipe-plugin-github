@@ -42,6 +42,8 @@ select
 from
   github_team
 where
+  organization = 'my_org'
+and
   slug = 'my_team';
 ```
 
@@ -51,10 +53,25 @@ where
 select
   slug,
   organization,
-  parent ->> 'id' as parent_team_id,
-  parent ->> 'slug' as parent_team_slug
+  parent ->> 'DatabaseId' as parent_team_id,
+  parent ->> 'Slug' as parent_team_slug
 from
   github_team
 where
   parent is not null;
+```
+
+### Get the number of repositories for a single team
+
+```sql
+select
+  name,
+  slug,
+  repos_count
+from
+  github_team
+where
+  organization = 'my_org'
+and
+  slug = 'my_team';
 ```
