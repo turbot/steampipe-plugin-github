@@ -28,7 +28,7 @@ func gitHubTeamColumns() []*plugin.Column {
 		{Name: "organization_login", Type: proto.ColumnType_STRING, Description: "The login name of the organization.", Transform: transform.FromField("Organization.Login")},
 		{Name: "members_count", Type: proto.ColumnType_INT, Description: "The number of members.", Transform: transform.FromField("Members.TotalCount")},
 		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "The API Members URL.", Transform: transform.FromField("MembersUrl")},
-		{Name: "parent", Type: proto.ColumnType_JSON, Description: "The parent team of the team.", Transform: transform.FromField("ParentTeam")},
+		{Name: "parent", Type: proto.ColumnType_JSON, Description: "The parent team of the team.", Transform: transform.FromField("ParentTeam").NullIfZero()},
 		{Name: "privacy", Type: proto.ColumnType_STRING, Description: "The privacy setting of the team (VISIBLE or SECRET)."},
 		{Name: "repos_count", Type: proto.ColumnType_INT, Description: "The number of repositories for the team.", Transform: transform.FromField("Repositories.TotalCount")},
 		{Name: "repositories_url", Type: proto.ColumnType_STRING, Description: "The API Repositories URL.", Transform: transform.FromField("RepositoriesUrl")},
