@@ -35,13 +35,9 @@ order by
 
 ### Get commit details for each tag
 
-Note: May return null for tags which aren't directly associated with a commit.
-
 ```sql
 select
   name,
-  date,
-  tagger_name,
   commit_sha,
   commit_short_sha,
   commit_date,
