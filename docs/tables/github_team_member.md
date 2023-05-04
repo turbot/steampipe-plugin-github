@@ -12,7 +12,7 @@ select
   slug as team_slug,
   login,
   role,
-  state
+  status_message
 from
   github_team_member
 where
@@ -28,31 +28,13 @@ select
   slug as team_slug,
   login,
   role,
-  state
+  status_message
 from
   github_team_member
 where
   organization = 'my_org'
   and slug = 'my-team'
-  and role = 'maintainer'
-  and state = 'active';
-```
-
-### List pending team members for a specific team
-
-```sql
-select
-  organization,
-  slug as team_slug,
-  login,
-  role,
-  state
-from
-  github_team_member
-where
-  organization = 'my_org'
-  and slug = 'my-team'
-  and state = 'pending';
+  and role = 'MAINTAINER';
 ```
 
 ### List team members with maintainer role for visible teams
@@ -65,8 +47,7 @@ select
   t.privacy as team_privacy,
   t.description as team_description,
   tm.login as member_login,
-  tm.role as member_role,
-  tm.state as member_state
+  tm.role as member_role
 from
   github_team as t,
   github_team_member as tm
