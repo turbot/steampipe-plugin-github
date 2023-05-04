@@ -21,7 +21,7 @@ func gitHubTeamMemberColumns() []*plugin.Column {
 		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The GitHub page for the user.", Transform: transform.FromField("Node.Url")},
 		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the user.", Transform: transform.FromField("Node.Id")},
 		{Name: "site_admin", Type: proto.ColumnType_BOOL, Description: "If true, user is an administrator.", Transform: transform.FromField("Node.IsSiteAdmin")},
-		{Name: "role", Type: proto.ColumnType_STRING, Description: "The team member's role."},
+		{Name: "role", Type: proto.ColumnType_STRING, Description: "The team member's role.", Transform: transform.FromField("Role").Transform(transform.ToLower)},
 		{Name: "status_message", Type: proto.ColumnType_STRING, Description: "The global status message of the team member.", Transform: transform.FromField("Node.Status.Message")},
 
 		// Optional Columns

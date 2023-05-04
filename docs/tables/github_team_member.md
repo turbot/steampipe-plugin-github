@@ -34,7 +34,7 @@ from
 where
   organization = 'my_org'
   and slug = 'my-team'
-  and role = 'MAINTAINER';
+  and role = 'maintainer';
 ```
 
 ### List team members with maintainer role for visible teams
