@@ -141,6 +141,13 @@ func parseRepoFullName(fullName string) (string, string) {
 	return owner, repo
 }
 
+func adjustPageSize(pageSize int, limit *int64) int {
+	if limit != nil && *limit < int64(pageSize) {
+		return int(*limit)
+	}
+	return pageSize
+}
+
 // transforms
 
 func convertTimestamp(ctx context.Context, input *transform.TransformData) (interface{}, error) {
@@ -192,7 +199,6 @@ func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.
 	// Create the backoff based on the given mode
 	// Use exponential instead of fibonacci due to GitHub's aggressive throttling
 	backoff := retry.NewExponential(interval * time.Second)
-
 
 	// Ensure the maximum value is 30s. In this scenario, the sleep values would be
 	// 1s, 2s, 4s, 16s, 30s, 30s...
