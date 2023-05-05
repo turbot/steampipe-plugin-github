@@ -11,8 +11,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func gitHubOrganizationMemberColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the member is associated with.", Transform: transform.FromQual("organization")},
@@ -57,22 +55,13 @@ func tableGitHubOrganizationMember() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
 	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 
-	pageSize := 100
-
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(pageSize) {
-			pageSize = int(*limit)
-		}
-	}
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
 	variables := map[string]interface{}{
 		"login":                   githubv4.String(org),
