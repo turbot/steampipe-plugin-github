@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"net/url"
 	"os"
 	"reflect"
@@ -146,6 +147,10 @@ func adjustPageSize(pageSize int, limit *int64) int {
 		return int(*limit)
 	}
 	return pageSize
+}
+
+func rateLimitLogString(table string, rateLimits *models.RateLimit) string {
+	return fmt.Sprintf("Query for table %s - rate limit cost: %d (used: %d/%d), resets at: %s", table, rateLimits.Cost, rateLimits.Used, rateLimits.Limit, rateLimits.ResetAt.String())
 }
 
 // transforms
