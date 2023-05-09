@@ -33,25 +33,18 @@ order by
   name;
 ```
 
-### Get commit details for each tag (Not working yet)
-
-Note: This example is intended to join tags with commit information to return the
-full details of each item. Currently joins with multiple columns are not
-working pending a solution to [#47](https://github.com/turbot/steampipe-postgres-fdw/issues/47).
+### Get commit details for each tag
 
 ```sql
 select
-  t.name,
-  t.commit_sha,
-  c.author_date,
-  c.message
+  name,
+  commit_sha,
+  commit_short_sha,
+  commit_date,
+  commit_author,
+  commit_message
 from
-  github_tag as t,
-  github_commit as c
+  github_tag
 where
-  t.repository_full_name = 'turbot/steampipe'
-  and t.repository_full_name = c.repository_full_name
-  and t.commit_sha = c.sha
-order by
-  c.author_date desc;
+  t.repository_full_name = 'turbot/steampipe';
 ```

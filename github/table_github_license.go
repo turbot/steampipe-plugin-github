@@ -3,13 +3,12 @@ package github
 import (
 	"context"
 	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubLicense() *plugin.Table {
 	return &plugin.Table{
@@ -24,11 +23,9 @@ func tableGitHubLicense() *plugin.Table {
 			Hydrate:           tableGitHubLicenseGetData,
 		},
 		Columns: []*plugin.Column{
-
-			// Top columns
 			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("SpdxId")},
 			{Name: "name", Description: "The name of the license.", Type: proto.ColumnType_STRING},
-			{Name: "html_url", Description: "The HTML URL of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url")},
+			{Name: "url", Description: "The HTML URL of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url")},
 
 			// The body is huge and of limited value, exclude it for now
 			// {Name: "body", Type: proto.ColumnType_STRING, Hydrate: tableGitHubLicenseGetData},
@@ -45,47 +42,22 @@ func tableGitHubLicense() *plugin.Table {
 	}
 }
 
-type licenseRule struct {
-	Key         string
-	Label       string
-	Description string
-}
-
-type license struct {
-	SpdxId         string
-	Name           string
-	Key            string
-	Conditions     []licenseRule
-	Description    string
-	Featured       bool
-	Implementation string
-	Limitations    []licenseRule
-	Permissions    []licenseRule
-	Url            string
-	Nickname       string
-	PseudoLicense  bool
-}
-
-var listLicensesQuery struct {
-	Licenses []license `graphql:"licenses"`
-}
-
-var getLicenseQuery struct {
-	License license `graphql:"license(key: $key)"`
-}
-
-//// LIST FUNCTION
-
 func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	err := client.Query(ctx, &listLicensesQuery, nil)
+	var query struct {
+		RateLimit models.RateLimit
+		Licenses  []models.License `graphql:"licenses"`
+	}
+
+	err := client.Query(ctx, &query, nil)
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_license", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_license", "api_error", err)
 		return nil, err
 	}
 
-	for _, license := range listLicensesQuery.Licenses {
+	for _, license := range query.Licenses {
 		d.StreamListItem(ctx, license)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
@@ -97,12 +69,8 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
-//// GET FUNCTION
-
 func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	key := d.EqualsQuals["key"].GetStringValue()
-
-	// Return nil, if no input provided
 	if key == "" {
 		return nil, nil
 	}
@@ -113,11 +81,17 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connectV4(ctx, d)
 
-	err := client.Query(ctx, &getLicenseQuery, variables)
+	var query struct {
+		RateLimit models.RateLimit
+		License   models.License `graphql:"license(key: $key)"`
+	}
+
+	err := client.Query(ctx, &query, variables)
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_license", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_license", "api_error", err)
 		return nil, err
 	}
 
-	return getLicenseQuery.License, nil
+	return query.License, nil
 }
