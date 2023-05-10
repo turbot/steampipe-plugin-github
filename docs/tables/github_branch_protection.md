@@ -8,7 +8,7 @@ GitHub users with admin permissions to a repository can manage branch protection
 
 ## Examples
 
-### List branches and their protection for a repository
+### List all branch protection rules for a repository
 
 ```sql
 select
@@ -19,7 +19,7 @@ where
   repository_full_name = 'turbot/steampipe';
 ```
 
-### Get branch protection for a specific repo
+### List branch protection rules which are not currently utilised
 
 ```sql
 select
@@ -28,35 +28,21 @@ from
   github_branch_protection
 where
   repository_full_name = 'turbot/steampipe'
-  and name = 'main';
+and 
+  matching_branches = 0;
 ```
 
-## Get repositories where conversation resolution is required for merging
+### Get repositories that require signed commits for merging
 
 ```sql
 select 
   repository_full_name,
-  b.name as branch_name,
-  signatures_protected_branch
+  pattern,
+  matching_branches
 from 
-  github_branch_protection b 
-  join 
-    github_my_repository r 
-    on r.full_name = b.repository_full_name 
-  where required_conversation_resolution = true;
-```
-
-## Get repositories that require signed commits for merging
-
-```sql
-select 
-  repository_full_name,
-  b.name as branch_name,
-  required_conversation_resolution
-from 
-  github_branch_protection b 
-  join 
-    github_my_repository r 
-    on r.full_name = b.repository_full_name 
-  where signatures_protected_branch = true;
+  github_branch_protection
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  requires_commit_signatures = true;
 ```

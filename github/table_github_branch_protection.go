@@ -89,7 +89,37 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 		for _, rule := range query.Repository.BranchProtectionRules.Nodes {
 			row := mapBranchProtectionRule(&rule)
 
-			// TODO: page the push allowances if required [Note: how to target a single branch protection rule, else how do we ensure we get back correct data?]
+			if rule.PushAllowances.PageInfo.HasNextPage {
+				// We need to pull individual row as Node with second page of PushAllowances onwards
+				var subQuery struct {
+					RateLimit models.RateLimit
+					Node      struct {
+						BranchProtectionRule models.BranchProtectionRule `graphql:"... on BranchProtectionRule"`
+					} `graphql:"node(id: $nodeId)"`
+				}
+
+				vars := map[string]interface{}{
+					"nodeId":                githubv4.String(rule.NodeId),
+					"pushAllowancePageSize": githubv4.Int(100),
+					"pushAllowanceCursor":   githubv4.NewString(rule.PushAllowances.PageInfo.EndCursor),
+				}
+
+				for {
+					err := client.Query(ctx, &subQuery, vars)
+					plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &subQuery.RateLimit))
+					if err != nil {
+						plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+						return nil, err
+					}
+
+					parsePushAllowances(&row, &subQuery.Node.BranchProtectionRule.PushAllowances)
+
+					if !subQuery.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
+						break
+					}
+					vars["pushAllowanceCursor"] = githubv4.NewString(subQuery.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
+				}
+			}
 
 			d.StreamListItem(ctx, row)
 
