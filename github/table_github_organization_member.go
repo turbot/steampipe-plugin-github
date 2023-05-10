@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
 
 	"github.com/shurcooL/githubv4"
@@ -28,19 +29,6 @@ type memberWithRole struct {
 	}
 }
 
-var query struct {
-	Organization struct {
-		Login           string
-		MembersWithRole struct {
-			Edges    []memberWithRole
-			PageInfo struct {
-				EndCursor   githubv4.String
-				HasNextPage bool
-			}
-		} `graphql:"membersWithRole(first: $membersWithRolePageSize, after: $membersWithRoleCursor)"`
-	} `graphql:"organization(login: $login)"`
-}
-
 func tableGitHubOrganizationMember() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_organization_member",
@@ -63,14 +51,29 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Login           string
+			MembersWithRole struct {
+				Edges    []memberWithRole
+				PageInfo struct {
+					EndCursor   githubv4.String
+					HasNextPage bool
+				}
+			} `graphql:"membersWithRole(first: $pageSize, after: $cursor)"`
+		} `graphql:"organization(login: $login)"`
+	}
+
 	variables := map[string]interface{}{
-		"login":                   githubv4.String(org),
-		"membersWithRolePageSize": githubv4.Int(pageSize),
-		"membersWithRoleCursor":   (*githubv4.String)(nil), // Null after argument to get first page.
+		"login":    githubv4.String(org),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil), // Null after argument to get first page.
 	}
 
 	for {
 		err := client.Query(ctx, &query, variables)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_organization_member", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_organization_member", "api_error", err)
 			if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
@@ -91,7 +94,7 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 		if !query.Organization.MembersWithRole.PageInfo.HasNextPage {
 			break
 		}
-		variables["membersWithRoleCursor"] = githubv4.NewString(query.Organization.MembersWithRole.PageInfo.EndCursor)
+		variables["cursor"] = githubv4.NewString(query.Organization.MembersWithRole.PageInfo.EndCursor)
 	}
 
 	return nil, nil
