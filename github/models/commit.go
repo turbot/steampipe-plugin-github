@@ -6,12 +6,14 @@ import (
 
 // BasicCommit returns the core fields of a Commit.
 type BasicCommit struct {
-	Sha          string `graphql:"sha: oid"`
-	ShortSha     string `graphql:"shortSha: abbreviatedOid"`
-	AuthoredDate time.Time
-	Message      string
-	Author       GitActor
-	Url          string
+	Sha           string `graphql:"sha: oid"`
+	ShortSha      string `graphql:"shortSha: abbreviatedOid"`
+	AuthoredDate  time.Time
+	Author        GitActor
+	CommittedDate time.Time
+	Committer     GitActor
+	Message       string
+	Url           string
 }
 
 // Commit returns the full detail of a Commit
@@ -20,9 +22,7 @@ type Commit struct {
 	Additions           int
 	AuthoredByCommitter bool
 	ChangedFiles        int `graphql:"changedFiles: changedFilesIfAvailable"`
-	CommittedDate       time.Time
 	CommittedViaWeb     bool
-	Committer           GitActor
 	CommitUrl           string
 	Deletions           int
 	Signature           Signature
@@ -31,15 +31,20 @@ type Commit struct {
 	CanSubscribe        bool   `graphql:"canSubscribe: viewerCanSubscribe"`
 	Subscription        string `graphql:"subscription: viewerSubscription"`
 	ZipballUrl          string
-	// AssociatedPullRequests
-	// Authors
-	// Blame
-	// CheckSuites
-	// Comments
-	// Deployments
-	// File
-	// History
+	MessageHeadline     string
+	Status              CommitStatus
+	// AssociatedPullRequests [Pageable]
+	// Authors [Pageable]
+	// Blame [n-level nesting for an array, requires a path, etc]
+	// CheckSuites [Pageable]
+	// Comments [Pageable]
+	// Deployments [Pageable]
+	// File [Requires Path]
+	// History [Pageable]
 	// OnBehalfOf Organization
-	// Parents
-	// Status
+	// Parents [Pageable]
+}
+
+type CommitStatus struct {
+	State string
 }

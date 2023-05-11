@@ -64,7 +64,7 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 			BranchProtectionRules struct {
 				TotalCount int
 				PageInfo   models.PageInfo
-				Nodes      []models.BranchProtectionRule
+				Nodes      []models.BranchProtectionRuleWithPushAllowances
 			} `graphql:"branchProtectionRules(first: $pageSize, after: $cursor)"`
 		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
@@ -94,7 +94,7 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 				var subQuery struct {
 					RateLimit models.RateLimit
 					Node      struct {
-						BranchProtectionRule models.BranchProtectionRule `graphql:"... on BranchProtectionRule"`
+						BranchProtectionRule models.BranchProtectionRuleWithPushAllowances `graphql:"... on BranchProtectionRule"`
 					} `graphql:"node(id: $nodeId)"`
 				}
 
@@ -138,7 +138,7 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 	return nil, nil
 }
 
-func mapBranchProtectionRule(rule *models.BranchProtectionRule) branchProtectionRow {
+func mapBranchProtectionRule(rule *models.BranchProtectionRuleWithPushAllowances) branchProtectionRow {
 	row := branchProtectionRow{
 		ID:                             rule.Id,
 		NodeID:                         rule.NodeId,

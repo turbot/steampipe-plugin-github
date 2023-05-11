@@ -1,11 +1,9 @@
 package models
 
-// Branch returns the Name and BranchProtectionRule by default.
-// Pass includeCommits [bool] GraphQL variable to toggle inclusion of BasicCommit information.
 type Branch struct {
 	Name   string
 	Target struct {
-		Commit BasicCommit `graphql:"... on Commit @include(if: $includeCommits)"`
+		Commit Commit `graphql:"... on Commit"`
 	}
 	BranchProtectionRule BranchProtectionRule
 }
@@ -38,13 +36,17 @@ type BranchProtectionRule struct {
 	MatchingBranches               struct {
 		TotalCount int
 	} `graphql:"matchingBranches: matchingRefs"`
-	PushAllowances PushAllowances `graphql:"pushAllowances(first: $pushAllowancePageSize, after: $pushAllowanceCursor)"`
 	// BranchProtectionRuleConflicts
 	// BypassForcePushAllowances
 	// BypassPullRequestAllowances
 	// Repository
 	// RestrictsReviewDismissals      bool
 	// ReviewDismissalAllowances
+}
+
+type BranchProtectionRuleWithPushAllowances struct {
+	BranchProtectionRule
+	PushAllowances PushAllowances `graphql:"pushAllowances(first: $pushAllowancePageSize, after: $pushAllowanceCursor)"`
 }
 
 type PushAllowances struct {
