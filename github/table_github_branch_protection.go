@@ -9,13 +9,17 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-func tableGitHubBranchProtection(ctx context.Context) *plugin.Table {
+func tableGitHubBranchProtection() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_branch_protection",
 		Description: "Branch protection defines rules for pushing to and managing a branch.",
 		List: &plugin.ListConfig{
 			KeyColumns: plugin.SingleColumn("repository_full_name"),
 			Hydrate:    tableGitHubRepositoryBranchProtectionList,
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns: plugin.SingleColumn("node_id"),
+			Hydrate:    tableGitHubRepositoryBranchProtectionGet,
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
@@ -99,7 +103,7 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 				}
 
 				vars := map[string]interface{}{
-					"nodeId":                githubv4.String(rule.NodeId),
+					"nodeId":                githubv4.ID(rule.NodeId),
 					"pushAllowancePageSize": githubv4.Int(100),
 					"pushAllowanceCursor":   githubv4.NewString(rule.PushAllowances.PageInfo.EndCursor),
 				}
@@ -136,6 +140,51 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 	}
 
 	return nil, nil
+}
+
+func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client := connectV4(ctx, d)
+
+	nodeId := d.EqualsQuals["node_id"].GetStringValue()
+
+	var query struct {
+		RateLimit models.RateLimit
+		Node      struct {
+			BranchProtectionRule models.BranchProtectionRuleWithPushAllowances `graphql:"... on BranchProtectionRule"`
+		} `graphql:"node(id: $nodeId)"`
+	}
+
+	variables := map[string]interface{}{
+		"nodeId":                githubv4.ID(nodeId),
+		"pushAllowancePageSize": githubv4.Int(100),
+		"pushAllowanceCursor":   (*githubv4.String)(nil),
+	}
+
+	firstRun := true
+	var row = new(branchProtectionRow)
+
+	for {
+		err := client.Query(ctx, &query, variables)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+		if err != nil {
+			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+			return nil, err
+		}
+
+		if firstRun {
+			*row = mapBranchProtectionRule(&query.Node.BranchProtectionRule)
+		}
+
+		parsePushAllowances(row, &query.Node.BranchProtectionRule.PushAllowances)
+
+		firstRun = false
+		if !query.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
+			break
+		}
+		variables["pushAllowanceCursor"] = query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor
+	}
+
+	return row, nil
 }
 
 func mapBranchProtectionRule(rule *models.BranchProtectionRuleWithPushAllowances) branchProtectionRow {
