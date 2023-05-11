@@ -9,7 +9,7 @@ require (
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7
 	github.com/turbot/go-kit v0.5.0
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.3.0
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.4.1
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 
