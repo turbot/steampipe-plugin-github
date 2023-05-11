@@ -38,7 +38,7 @@ where
 select
   name,
   slug,
-  members_count
+  members_total_count
 from
   github_team
 where
@@ -53,7 +53,7 @@ and
 select
   name,
   slug,
-  repositories_count
+  repositories_total_count
 from
   github_team
 where
@@ -83,7 +83,7 @@ where
 select
   name,
   slug,
-  invitations_count
+  invitations_total_count
 from
   github_team
 where
