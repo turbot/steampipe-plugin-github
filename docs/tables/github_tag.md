@@ -40,9 +40,23 @@ select
   name,
   commit_sha,
   commit_short_sha,
-  commit_date,
-  commit_author,
-  commit_message
+  commit_authored_date,
+  commit_author_login,
+  commit_committed_date,
+  commit_committer_login,
+  commit_message,
+  commit_url,
+  commit_additions,
+  commit_deletions,
+  commit_changed_files,
+  commit_committed_via_web,
+  commit_signature_is_valid,
+  commit_signature_email,
+  commit_signature_login,
+  commit_tarball_url,
+  commit_zipball_url,
+  commit_tree_url,
+  commit_status
 from
   github_tag
 where
