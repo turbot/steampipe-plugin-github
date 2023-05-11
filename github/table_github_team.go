@@ -2,7 +2,9 @@ package github
 
 import (
 	"context"
-	"fmt"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"strings"
 
 	"github.com/google/go-github/v48/github"
 
@@ -11,37 +13,36 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func gitHubTeamColumns() []*plugin.Column {
 	return []*plugin.Column{
-
-		// Top columns
-		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromField("Organization.Login"), Hydrate: tableGitHubTeamGet},
+		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromField("Organization.Login")},
 		{Name: "slug", Type: proto.ColumnType_STRING, Description: "The team slug name."},
 		{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the team."},
-		{Name: "members_count", Type: proto.ColumnType_INT, Description: "The number of members.", Hydrate: tableGitHubTeamGet},
-
-		// Not yet supported by go-github
-		//{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Hydrate: tableGitHubTeamGet, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp)},
+		{Name: "id", Type: proto.ColumnType_INT, Description: "The ID of the team.", Transform: transform.FromField("Id")},
+		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node id of the team.", Transform: transform.FromField("NodeId")},
 		{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the team."},
-		// Not yet supported by go-github
-		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The URL of the team page in GitHub."},
-		{Name: "id", Type: proto.ColumnType_INT, Description: "The ID of the team."},
-		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "The API Members URL."},
-		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node id of the team."},
-		// Only load relevant fields from the organization
-		{Name: "organization_id", Type: proto.ColumnType_INT, Description: "The user id (number) of the organization.", Transform: transform.FromField("Organization.ID"), Hydrate: tableGitHubTeamGet},
-		{Name: "organization_login", Type: proto.ColumnType_STRING, Description: "The login name of the organization.", Transform: transform.FromField("Organization.Login"), Hydrate: tableGitHubTeamGet},
-		{Name: "organization_type", Type: proto.ColumnType_STRING, Description: "The type of the organization).", Transform: transform.FromField("Organization.Type"), Hydrate: tableGitHubTeamGet},
-		{Name: "parent", Type: proto.ColumnType_JSON, Description: "The parent team of the team."},
-		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions of the team."},
-		{Name: "privacy", Type: proto.ColumnType_STRING, Description: "The privacy setting of the team (closed or secret)."},
-		{Name: "repos_count", Type: proto.ColumnType_INT, Description: "The number of repositories for the team.", Hydrate: tableGitHubTeamGet},
-		{Name: "repositories_url", Type: proto.ColumnType_STRING, Description: "The API Repositories URL."},
-		// Not yet supported by go-github
-		//{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Hydrate: tableGitHubTeamGet},
-		{Name: "url", Type: proto.ColumnType_STRING, Description: "The API URL of the team."},
+		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when team was created.", Transform: transform.FromField("CreatedAt")},
+		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when team was last updated.", Transform: transform.FromField("UpdatedAt")},
+		{Name: "combined_slug", Type: proto.ColumnType_STRING, Description: "The slug corresponding to the organization and the team."},
+		{Name: "parent_team", Type: proto.ColumnType_JSON, Description: "The teams parent team.", Transform: transform.FromField("ParentTeam").NullIfZero()},
+		{Name: "privacy", Type: proto.ColumnType_STRING, Description: "The privacy setting of the team (VISIBLE or SECRET)."},
+		{Name: "ancestors_total_count", Type: proto.ColumnType_INT, Description: "Count of ancestors this team has.", Transform: transform.FromField("Ancestors.TotalCount")},
+		{Name: "child_teams_total_count", Type: proto.ColumnType_INT, Description: "Count of children teams this team has.", Transform: transform.FromField("ChildTeams.TotalCount")},
+		{Name: "discussions_count", Type: proto.ColumnType_INT, Description: "Count of team discussions.", Transform: transform.FromField("Discussions.TotalCount")},
+		{Name: "invitations_count", Type: proto.ColumnType_INT, Description: "Count of outstanding team member invitations for the team.", Transform: transform.FromField("Invitations.TotalCount")},
+		{Name: "members_count", Type: proto.ColumnType_INT, Description: "Count of team members.", Transform: transform.FromField("Members.TotalCount")},
+		{Name: "projects_v2_count", Type: proto.ColumnType_INT, Description: "Count of the teams v2 projects.", Transform: transform.FromField("ProjectsV2.TotalCount")},
+		{Name: "repositories_count", Type: proto.ColumnType_INT, Description: "Count of repositories the team has.", Transform: transform.FromField("Repositories.TotalCount")},
+		{Name: "url", Type: proto.ColumnType_STRING, Description: "URL for the team page in GitHub.", Transform: transform.FromField("Url")},
+		{Name: "avatar_url", Type: proto.ColumnType_STRING, Description: "URL for teams avatar.", Transform: transform.FromField("AvatarUrl")},
+		{Name: "discussions_url", Type: proto.ColumnType_STRING, Description: "URL for team discussions.", Transform: transform.FromField("DiscussionsUrl")},
+		{Name: "edit_team_url", Type: proto.ColumnType_STRING, Description: "URL for editing this team.", Transform: transform.FromField("EditTeamUrl")},
+		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "URL for team members.", Transform: transform.FromField("MembersUrl")},
+		{Name: "repositories_url", Type: proto.ColumnType_STRING, Description: "URL for team repositories.", Transform: transform.FromField("RepositoriesUrl")},
+		{Name: "teams_url", Type: proto.ColumnType_STRING, Description: "URL for this team's teams.", Transform: transform.FromField("TeamsUrl")},
+		{Name: "can_administer", Type: proto.ColumnType_BOOL, Description: "If true, current user can administer the team."},
+		{Name: "can_subscribe", Type: proto.ColumnType_BOOL, Description: "If true, current user can subscribe to the team."},
+		{Name: "subscription", Type: proto.ColumnType_STRING, Description: "Subscription status of the current user to the team."},
 	}
 }
 
@@ -63,50 +64,46 @@ func tableGitHubTeam() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	client := connectV4(ctx, d)
 
 	org := h.Item.(*github.Organization)
 
-	opt := &github.ListOptions{PerPage: 100}
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.PerPage) {
-			opt.PerPage = int(*limit)
-		}
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Teams struct {
+				TotalCount int
+				PageInfo   struct {
+					EndCursor   githubv4.String
+					HasNextPage bool
+				}
+				Nodes []models.TeamWithCounts
+			} `graphql:"teams(first: $pageSize, after: $cursor)"`
+		} `graphql:"organization(login: $login)"`
 	}
 
-	type ListPageResponse struct {
-		teams []*github.Team
-		resp  *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		teams, resp, err := client.Teams.ListTeams(ctx, *org.Login, opt)
-		return ListPageResponse{
-			teams: teams,
-			resp:  resp,
-		}, err
+	variables := map[string]interface{}{
+		"login":    githubv4.String(*org.Login),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
+		err := client.Query(ctx, &query, variables)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_team", "api_error", err)
+			if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+				return nil, nil
+			}
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		teams := listResponse.teams
-		resp := listResponse.resp
-
-		for _, i := range teams {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, team := range query.Organization.Teams.Nodes {
+			d.StreamListItem(ctx, team)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
@@ -114,63 +111,43 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if !query.Organization.Teams.PageInfo.HasNextPage {
 			break
 		}
 
-		opt.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Organization.Teams.PageInfo.EndCursor)
 	}
 
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	var org, slug string
-	if h.Item != nil {
-		team := h.Item.(*github.Team)
-		slug = *team.Slug
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
 
-		// Organization login will be available from different sources based on how
-		// this function is called
-		if team.Organization != nil { // If called from github_my_team table, use the team's organization login
-			org = *team.Organization.Login
-		} else if h.ParentItem != nil { // If called from github_team table through parent hydrate, use the parent organization's login
-			parentOrg := h.ParentItem.(*github.Organization)
-			org = *parentOrg.Login
-		} else { // Unknown caller
-			logger.Error("tableGitHubTeam.tableGitHubTeamGet", "unknown_caller_error")
-			return nil, fmt.Errorf("unknown caller for tableGitHubTeamGet function")
-		}
-	} else {
-		org = d.EqualsQuals["organization"].GetStringValue()
-		slug = d.EqualsQuals["slug"].GetStringValue()
+	client := connectV4(ctx, d)
+
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Team models.TeamWithCounts `graphql:"team(slug: $slug)"`
+		} `graphql:"organization(login: $login)"`
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		team *github.Team
-		resp *github.Response
+	variables := map[string]interface{}{
+		"login": githubv4.String(org),
+		"slug":  githubv4.String(slug),
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.GetTeamBySlug(ctx, org, slug)
-		return GetResponse{
-			team: detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
-
+	err := client.Query(ctx, &query, variables)
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 	if err != nil {
+		plugin.Logger(ctx).Error("github_team", "api_error", err)
+		if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+			return nil, nil
+		}
 		return nil, err
 	}
-	getResp := getResponse.(GetResponse)
-	team := getResp.team
 
-	return team, nil
+	return query.Organization.Team, nil
 }
