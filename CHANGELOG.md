@@ -1,3 +1,9 @@
+## v0.27.0 [2023-05-11]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.4.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v541-2023-05-05) which fixes increased plugin initialization time due to multiple connections causing the schema to be loaded repeatedly. ([#250](https://github.com/turbot/steampipe-plugin-github/pull/250))
+
 ## v0.26.0 [2023-03-22]
 
 _Enhancements_
