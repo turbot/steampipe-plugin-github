@@ -10,5 +10,5 @@ type basicIdentifiers struct {
 // TODO: Build out user struct
 type User struct {
 	basicIdentifiers
-	Login string
+	Login string `json:"login"`
 }

@@ -6,33 +6,33 @@ import (
 
 // BasicCommit returns the core fields of a Commit.
 type BasicCommit struct {
-	Sha           string `graphql:"sha: oid"`
-	ShortSha      string `graphql:"shortSha: abbreviatedOid"`
-	AuthoredDate  time.Time
-	Author        GitActor
-	CommittedDate time.Time
-	Committer     GitActor
-	Message       string
-	Url           string
+	Sha           string    `graphql:"sha: oid" json:"sha"`
+	ShortSha      string    `graphql:"shortSha: abbreviatedOid" json:"short_sha"`
+	AuthoredDate  time.Time `json:"authored_date"`
+	Author        GitActor  `json:"author"`
+	CommittedDate time.Time `json:"committed_date"`
+	Committer     GitActor  `json:"committer"`
+	Message       string    `json:"message"`
+	Url           string    `json:"url"`
 }
 
 // Commit returns the full detail of a Commit
 type Commit struct {
 	BasicCommit
-	Additions           int
-	AuthoredByCommitter bool
-	ChangedFiles        int `graphql:"changedFiles: changedFilesIfAvailable"`
-	CommittedViaWeb     bool
-	CommitUrl           string
-	Deletions           int
-	Signature           Signature
-	TarballUrl          string
-	TreeUrl             string
-	CanSubscribe        bool   `graphql:"canSubscribe: viewerCanSubscribe"`
-	Subscription        string `graphql:"subscription: viewerSubscription"`
-	ZipballUrl          string
-	MessageHeadline     string
-	Status              CommitStatus
+	Additions           int          `json:"additions"`
+	AuthoredByCommitter bool         `json:"authored_by_committer"`
+	ChangedFiles        int          `graphql:"changedFiles: changedFilesIfAvailable" json:"changed_files"`
+	CommittedViaWeb     bool         `json:"committed_via_web"`
+	CommitUrl           string       `json:"commit_url"`
+	Deletions           int          `json:"deletions"`
+	Signature           Signature    `json:"signature"`
+	TarballUrl          string       `json:"tarball_url"`
+	TreeUrl             string       `json:"tree_url"`
+	CanSubscribe        bool         `graphql:"canSubscribe: viewerCanSubscribe" json:"can_subscribe"`
+	Subscription        string       `graphql:"subscription: viewerSubscription" json:"subscription"`
+	ZipballUrl          string       `json:"zipball_url"`
+	MessageHeadline     string       `json:"message_headline"`
+	Status              CommitStatus `json:"status"`
 	// AssociatedPullRequests [Pageable]
 	// Authors [Pageable]
 	// Blame [n-level nesting for an array, requires a path, etc]
@@ -46,5 +46,5 @@ type Commit struct {
 }
 
 type CommitStatus struct {
-	State string
+	State string `json:"state"`
 }

@@ -11,7 +11,7 @@ The `github_tag` table can be used to query information about any tag, and **you
 ```sql
 select
   name,
-  commit_sha
+  commit ->> 'sha' as commit_sha
 from
   github_tag
 where
@@ -23,7 +23,7 @@ where
 ```sql
 select
   name,
-  commit_sha
+  commit ->> 'sha' as commit_sha
 from
   github_tag
 where
@@ -38,27 +38,23 @@ order by
 ```sql
 select
   name,
-  commit_sha,
-  commit_short_sha,
-  commit_authored_date,
-  commit_author_login,
-  commit_committed_date,
-  commit_committer_login,
-  commit_message,
-  commit_url,
-  commit_additions,
-  commit_deletions,
-  commit_changed_files,
-  commit_committed_via_web,
-  commit_signature_is_valid,
-  commit_signature_email,
-  commit_signature_login,
-  commit_tarball_url,
-  commit_zipball_url,
-  commit_tree_url,
-  commit_status
+  commit ->> 'sha' as commit_sha,
+  commit ->> 'message' as commit_message,
+  commit ->> 'url' as commit_url,
+  commit -> 'author' -> 'user' ->> 'login' as author,
+  commit ->> 'authored_date' as authored_date,
+  commit -> 'committer' -> 'user' ->> 'login' as committer,
+  commit ->> 'committed_date' as committed_date,
+  commit ->> 'additions' as additions,
+  commit ->> 'deletions' as deletions,
+  commit ->> 'changed_files' as changed_files,
+  commit -> 'signature' ->> 'is_valid' as commit_signed,
+  commit -> 'signature' ->> 'email' as commit_signature_email,
+  commit -> 'signature' -> 'signer' ->> 'login' as commit_signature_login,
+  commit ->> 'tarball_url' as tarball_url,
+  commit ->> 'zipball_url' as zipball_url 
 from
   github_tag
 where
-  t.repository_full_name = 'turbot/steampipe';
+  repository_full_name = 'turbot/steampipe';
 ```
