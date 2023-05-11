@@ -52,22 +52,19 @@ type PushAllowances struct {
 	PageInfo   PageInfo
 	Nodes      []struct {
 		Actor struct {
-			Type string `graphql:"type: __typename" json:"type,omitempty"`
+			Type string `graphql:"type: __typename"`
 			App  struct {
-				AppId   int    `graphql:"appId: databaseId" json:"id,omitempty"`
-				AppName string `graphql:"appName: name" json:"name,omitempty"`
-				AppSlug string `graphql:"appSlug: slug" json:"slug,omitempty"`
-			} `graphql:"... on App" json:"app,omitempty"`
+				Name string
+				Slug string
+			} `graphql:"... on App"`
 			Team struct {
-				TeamId   int    `graphql:"teamId: databaseId" json:"id,omitempty"`
-				TeamName string `graphql:"teamName: name" json:"name,omitempty"`
-				TeamSlug string `graphql:"appSlug: slug" json:"slug,omitempty"`
-			} `graphql:"... on Team" json:"team,omitempty"`
+				Name string
+				Slug string
+			} `graphql:"... on Team"`
 			User struct {
-				Id    int    `graphql:"id: databaseId" json:"id,omitempty"`
-				Name  string `json:"name,omitempty"`
-				Login string `json:"login,omitempty"`
-			} `graphql:"... on User" json:"user,omitempty"`
+				Name  string
+				Login string
+			} `graphql:"... on User"`
 		}
 	}
 }
