@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/shurcooL/githubv4"
 	"time"
 )
 
@@ -53,4 +54,9 @@ type TeamWithCounts struct {
 	Repositories struct {
 		TotalCount int
 	}
+}
+
+type TeamMemberWithRole struct {
+	Role githubv4.TeamMemberRole `json:"role"`
+	Node User
 }

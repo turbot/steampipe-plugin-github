@@ -5,6 +5,18 @@ import (
 	"time"
 )
 
+type NullableTime struct {
+	time.Time
+}
+
+func (t NullableTime) MarshalJSON() ([]byte, error) {
+	if t.IsZero() {
+		return []byte("null"), nil
+	} else {
+		return t.Time.MarshalJSON()
+	}
+}
+
 type NameSlug struct {
 	Name string `json:"name"`
 	Slug string `json:"slug"`

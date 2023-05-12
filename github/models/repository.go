@@ -1,9 +1,7 @@
 package models
 
-import "time"
-
 type RepositoryInteractionAbility struct {
-	ExpiresAt                        time.Time
-	RepositoryInteractionLimit       string
-	RepositoryInteractionLimitOrigin string
+	ExpiresAt NullableTime `json:"expires_at,omitempty"`
+	Limit     string       `json:"repository_interaction_limit,omitempty"`
+	Origin    string       `json:"repository_interaction_limit_origin,omitempty"`
 }

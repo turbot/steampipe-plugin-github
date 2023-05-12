@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Actor struct {
 	AvatarUrl string `json:"avatar_url"`
 	Login     string `json:"login"`
@@ -9,9 +7,9 @@ type Actor struct {
 }
 
 type GitActor struct {
-	AvatarUrl string    `json:"avatar_url"`
-	Date      time.Time `json:"date"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	User      User      `json:"user"`
+	AvatarUrl string       `json:"avatar_url"`
+	Date      NullableTime `json:"date"`
+	Email     string       `json:"email"`
+	Name      string       `json:"name"`
+	User      BasicUser    `json:"user"`
 }
