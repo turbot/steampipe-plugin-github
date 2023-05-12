@@ -62,3 +62,7 @@ type StripeConnectAccount struct {
 	IsActive               bool   `json:"is_active"`
 	StripeDashboardUrl     string `json:"stripe_dashboard_url"`
 }
+
+type Count struct {
+	TotalCount int `json:"total_count"`
+}

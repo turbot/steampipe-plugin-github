@@ -62,6 +62,25 @@ func tableGitHubUser() *plugin.Table {
 			{Name: "is_following", Type: proto.ColumnType_BOOL, Description: "If true, you are following this user."},
 			{Name: "is_sponsoring", Type: proto.ColumnType_BOOL, Description: "If true, you are sponsoring this user."},
 			{Name: "website_url", Type: proto.ColumnType_STRING, Description: "The URL pointing to the user's public website/blog.", Transform: transform.FromField("WebsiteUrl")},
+			// Counts
+			{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Description: "Total disk spaced used by the users repositories.", Transform: transform.FromField("Repositories.TotalDiskUsage")},
+			{Name: "followers_total_count", Type: proto.ColumnType_INT, Description: "Count of how many users this user follows.", Transform: transform.FromField("Followers.TotalCount")},
+			{Name: "following_total_count", Type: proto.ColumnType_INT, Description: "Count of how many users follow this user.", Transform: transform.FromField("Following.TotalCount")},
+			{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Description: "Count of public repositories for the user.", Transform: transform.FromField("PublicRepositories.TotalCount")},
+			{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Description: "Count of private repositories for the user.", Transform: transform.FromField("PrivateRepositories.TotalCount")},
+			{Name: "public_gists_total_count", Type: proto.ColumnType_INT, Description: "Count of public gists for the user.", Transform: transform.FromField("PublicGists.TotalCount")},
+			{Name: "issues_total_count", Type: proto.ColumnType_INT, Description: "Count of issues associated with the user.", Transform: transform.FromField("Issues.TotalCount")},
+			{Name: "organizations_total_count", Type: proto.ColumnType_INT, Description: "Count of organizations the user belongs to.", Transform: transform.FromField("Organizations.TotalCount")},
+			{Name: "public_keys_total_count", Type: proto.ColumnType_INT, Description: "Count of public keys associated with the user.", Transform: transform.FromField("PublicKeys.TotalCount")},
+			{Name: "open_pull_requests_total_count", Type: proto.ColumnType_INT, Description: "Count of open pull requests associated with the user.", Transform: transform.FromField("OpenPullRequests.TotalCount")},
+			{Name: "merged_pull_requests_total_count", Type: proto.ColumnType_INT, Description: "Count of merged pull requests associated with the user.", Transform: transform.FromField("MergedPullRequests.TotalCount")},
+			{Name: "closed_pull_requests_total_count", Type: proto.ColumnType_INT, Description: "Count of closed pull requests associated with the user.", Transform: transform.FromField("ClosedPullRequests.TotalCount")},
+			{Name: "packages_total_count", Type: proto.ColumnType_INT, Description: "Count of packages hosted by the user.", Transform: transform.FromField("Packages.TotalCount")},
+			{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Description: "Count of items pinned on the users profile.", Transform: transform.FromField("PinnedItems.TotalCount")},
+			{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Description: "Count of users that this user is sponsoring.", Transform: transform.FromField("Sponsoring.TotalCount")},
+			{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Description: "Count of users sponsoring this user.", Transform: transform.FromField("Sponsors.TotalCount")},
+			{Name: "starred_repositories_total_count", Type: proto.ColumnType_INT, Description: "Count of repositories the user has starred.", Transform: transform.FromField("StarredRepositories.TotalCount")},
+			{Name: "watching_total_count", Type: proto.ColumnType_INT, Description: "Count of repositories being watched by the user.", Transform: transform.FromField("Watching.TotalCount")},
 		},
 	}
 }
@@ -84,7 +103,7 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	var query struct {
 		RateLimit models.RateLimit
-		User      models.User `graphql:"user(login: $login)"`
+		User      models.UserWithCounts `graphql:"user(login: $login)"`
 	}
 
 	variables := map[string]interface{}{

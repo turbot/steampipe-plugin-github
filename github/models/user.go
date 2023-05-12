@@ -99,6 +99,30 @@ type User struct {
 	// Watching [pageable]
 }
 
+type UserWithCounts struct {
+	User
+	Repositories struct {
+		TotalDiskUsage int
+	}
+	Followers           Count
+	Following           Count
+	PublicRepositories  Count `graphql:"publicRepositories: repositories(privacy: PUBLIC)"`
+	PrivateRepositories Count `graphql:"privateRepositories: repositories(privacy: PRIVATE)"`
+	PublicGists         Count `graphql:"publicGists: gists(privacy: PUBLIC)"`
+	Issues              Count
+	Organizations       Count
+	PublicKeys          Count
+	OpenPullRequests    Count `graphql:"openPullRequests: pullRequests(states: OPEN)"`
+	MergedPullRequests  Count `graphql:"mergedPullRequests: pullRequests(states: MERGED)"`
+	ClosedPullRequests  Count `graphql:"closedPullRequests: pullRequests(states: CLOSED)"`
+	Packages            Count
+	PinnedItems         Count
+	Sponsoring          Count
+	Sponsors            Count
+	StarredRepositories Count
+	Watching            Count
+}
+
 type userStatus struct {
 	CreatedAt                    NullableTime `json:"created_at,omitempty"`
 	UpdatedAt                    NullableTime `json:"updated_at,omitempty"`
