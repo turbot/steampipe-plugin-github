@@ -27,6 +27,17 @@ type NameLogin struct {
 	Login string `json:"login"`
 }
 
+type BasicRef struct {
+	Name   string `json:"name"`
+	Prefix string `json:"prefix"`
+}
+
+type Language struct {
+	Id    githubv4.ID `json:"id"`
+	Name  string      `json:"name"`
+	Color string      `json:"color"`
+}
+
 type SponsorsListing struct {
 	Id                         string               `json:"id"`
 	ActiveGoal                 SponsorsGoal         `json:"active_goal"`

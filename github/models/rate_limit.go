@@ -9,4 +9,5 @@ type RateLimit struct {
 	Cost      int
 	Limit     int
 	ResetAt   time.Time
+	NodeCount int
 }
