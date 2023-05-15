@@ -51,6 +51,12 @@ func tableGitHubBranchProtection() *plugin.Table {
 			{Name: "push_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can push to the branch only if in this list."},
 			{Name: "push_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can push to the branch only if in this list."},
 			{Name: "push_allowance_users", Type: proto.ColumnType_JSON, Description: "Users can push to the branch only if in this list."},
+			{Name: "bypass_force_push_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can force push to the branch only if in this list."},
+			{Name: "bypass_force_push_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can force push to the branch only if in this list."},
+			{Name: "bypass_force_push_allowance_users", Type: proto.ColumnType_JSON, Description: "Users can force push to the branch only if in this list."},
+			{Name: "bypass_pull_request_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can bypass pull requests to the branch only if in this list."},
+			{Name: "bypass_pull_request_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can bypass pull requests to the branch only if in this list."},
+			{Name: "bypass_pull_request_allowance_users", Type: proto.ColumnType_JSON, Description: "Users can bypass pull requests to the branch only if in this list."},
 		},
 	}
 }
@@ -68,18 +74,16 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 			BranchProtectionRules struct {
 				TotalCount int
 				PageInfo   models.PageInfo
-				Nodes      []models.BranchProtectionRuleWithPushAllowances
+				Nodes      []models.BranchProtectionRuleWithFirstPageEmbeddedItems
 			} `graphql:"branchProtectionRules(first: $pageSize, after: $cursor)"`
 		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{
-		"owner":                 githubv4.String(owner),
-		"repo":                  githubv4.String(repo),
-		"pageSize":              githubv4.Int(pageSize),
-		"cursor":                (*githubv4.String)(nil),
-		"pushAllowancePageSize": githubv4.Int(100),
-		"pushAllowanceCursor":   (*githubv4.String)(nil),
+		"owner":    githubv4.String(owner),
+		"repo":     githubv4.String(repo),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	for {
@@ -94,34 +98,23 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 			row := mapBranchProtectionRule(&rule)
 
 			if rule.PushAllowances.PageInfo.HasNextPage {
-				// We need to pull individual row as Node with second page of PushAllowances onwards
-				var subQuery struct {
-					RateLimit models.RateLimit
-					Node      struct {
-						BranchProtectionRule models.BranchProtectionRuleWithPushAllowances `graphql:"... on BranchProtectionRule"`
-					} `graphql:"node(id: $nodeId)"`
+				err := branchProtectionGetPushAllowances(ctx, client, &row, rule.PushAllowances.PageInfo.EndCursor)
+				if err != nil {
+					return nil, err
 				}
+			}
 
-				vars := map[string]interface{}{
-					"nodeId":                githubv4.ID(rule.NodeId),
-					"pushAllowancePageSize": githubv4.Int(100),
-					"pushAllowanceCursor":   githubv4.NewString(rule.PushAllowances.PageInfo.EndCursor),
+			if rule.BypassForcePushAllowances.PageInfo.HasNextPage {
+				err := branchProtectionGetBypassForcePushAllowances(ctx, client, &row, rule.BypassForcePushAllowances.PageInfo.EndCursor)
+				if err != nil {
+					return nil, err
 				}
+			}
 
-				for {
-					err := client.Query(ctx, &subQuery, vars)
-					plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &subQuery.RateLimit))
-					if err != nil {
-						plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
-						return nil, err
-					}
-
-					parsePushAllowances(&row, &subQuery.Node.BranchProtectionRule.PushAllowances)
-
-					if !subQuery.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
-						break
-					}
-					vars["pushAllowanceCursor"] = githubv4.NewString(subQuery.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
+			if rule.BypassPullRequestAllowances.PageInfo.HasNextPage {
+				err := branchProtectionGetBypassPullRequestAllowances(ctx, client, &row, rule.BypassPullRequestAllowances.PageInfo.EndCursor)
+				if err != nil {
+					return nil, err
 				}
 			}
 
@@ -150,44 +143,159 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	var query struct {
 		RateLimit models.RateLimit
 		Node      struct {
-			BranchProtectionRule models.BranchProtectionRuleWithPushAllowances `graphql:"... on BranchProtectionRule"`
+			BranchProtectionRule models.BranchProtectionRuleWithFirstPageEmbeddedItems `graphql:"... on BranchProtectionRule"`
 		} `graphql:"node(id: $nodeId)"`
 	}
 
 	variables := map[string]interface{}{
-		"nodeId":                githubv4.ID(nodeId),
-		"pushAllowancePageSize": githubv4.Int(100),
-		"pushAllowanceCursor":   (*githubv4.String)(nil),
+		"nodeId": githubv4.ID(nodeId),
 	}
 
-	firstRun := true
-	var row = new(branchProtectionRow)
+	err := client.Query(ctx, &query, variables)
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+	if err != nil {
+		plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+		return nil, err
+	}
 
-	for {
-		err := client.Query(ctx, &query, variables)
-		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+	row := mapBranchProtectionRule(&query.Node.BranchProtectionRule)
+
+	if query.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
+		err := branchProtectionGetPushAllowances(ctx, client, &row, query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
 		if err != nil {
-			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
 			return nil, err
 		}
+	}
 
-		if firstRun {
-			*row = mapBranchProtectionRule(&query.Node.BranchProtectionRule)
+	if query.Node.BranchProtectionRule.BypassForcePushAllowances.PageInfo.HasNextPage {
+		err := branchProtectionGetBypassForcePushAllowances(ctx, client, &row, query.Node.BranchProtectionRule.BypassForcePushAllowances.PageInfo.EndCursor)
+		if err != nil {
+			return nil, err
 		}
+	}
 
-		parsePushAllowances(row, &query.Node.BranchProtectionRule.PushAllowances)
-
-		firstRun = false
-		if !query.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
-			break
+	if query.Node.BranchProtectionRule.BypassPullRequestAllowances.PageInfo.HasNextPage {
+		err := branchProtectionGetBypassPullRequestAllowances(ctx, client, &row, query.Node.BranchProtectionRule.BypassPullRequestAllowances.PageInfo.EndCursor)
+		if err != nil {
+			return nil, err
 		}
-		variables["pushAllowanceCursor"] = query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor
 	}
 
 	return row, nil
 }
 
-func mapBranchProtectionRule(rule *models.BranchProtectionRuleWithPushAllowances) branchProtectionRow {
+func branchProtectionGetPushAllowances(ctx context.Context, client *githubv4.Client, row *branchProtectionRow, initialCursor githubv4.String) error {
+	var query struct {
+		RateLimit models.RateLimit
+		Node      struct {
+			BranchProtectionRule models.BranchProtectionRuleWithPushAllowances `graphql:"... on BranchProtectionRule"`
+		} `graphql:"node(id: $nodeId)"`
+	}
+
+	vars := map[string]interface{}{
+		"nodeId":   githubv4.ID(row.NodeID),
+		"pageSize": githubv4.Int(100),
+		"cursor":   githubv4.NewString(initialCursor),
+	}
+
+	for {
+		err := client.Query(ctx, &query, vars)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+		if err != nil {
+			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+			return err
+		}
+
+		a, t, u := query.Node.BranchProtectionRule.PushAllowances.Explode()
+		row.PushAllowanceApps = append(row.PushAllowanceApps, a...)
+		row.PushAllowanceTeams = append(row.PushAllowanceTeams, t...)
+		row.PushAllowanceUsers = append(row.PushAllowanceUsers, u...)
+
+		if !query.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
+			break
+		}
+
+		vars["cursor"] = githubv4.NewString(query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
+	}
+
+	return nil
+}
+
+func branchProtectionGetBypassForcePushAllowances(ctx context.Context, client *githubv4.Client, row *branchProtectionRow, initialCursor githubv4.String) error {
+	var query struct {
+		RateLimit models.RateLimit
+		Node      struct {
+			BranchProtectionRule models.BranchProtectionRuleWithBypassForcePushAllowances `graphql:"... on BranchProtectionRule"`
+		} `graphql:"node(id: $nodeId)"`
+	}
+
+	vars := map[string]interface{}{
+		"nodeId":   githubv4.ID(row.NodeID),
+		"pageSize": githubv4.Int(100),
+		"cursor":   githubv4.NewString(initialCursor),
+	}
+
+	for {
+		err := client.Query(ctx, &query, vars)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+		if err != nil {
+			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+			return err
+		}
+
+		a, t, u := query.Node.BranchProtectionRule.BypassForcePushAllowances.Explode()
+		row.BypassForcePushAllowanceApps = append(row.BypassForcePushAllowanceApps, a...)
+		row.BypassForcePushAllowanceTeams = append(row.BypassForcePushAllowanceTeams, t...)
+		row.BypassForcePushAllowanceUsers = append(row.BypassForcePushAllowanceUsers, u...)
+
+		if !query.Node.BranchProtectionRule.BypassForcePushAllowances.PageInfo.HasNextPage {
+			break
+		}
+
+		vars["cursor"] = githubv4.NewString(query.Node.BranchProtectionRule.BypassForcePushAllowances.PageInfo.EndCursor)
+	}
+
+	return nil
+}
+
+func branchProtectionGetBypassPullRequestAllowances(ctx context.Context, client *githubv4.Client, row *branchProtectionRow, initialCursor githubv4.String) error {
+	var query struct {
+		RateLimit models.RateLimit
+		Node      struct {
+			BranchProtectionRule models.BranchProtectionRuleWithBypassPullRequestAllowances `graphql:"... on BranchProtectionRule"`
+		} `graphql:"node(id: $nodeId)"`
+	}
+
+	vars := map[string]interface{}{
+		"nodeId":   githubv4.ID(row.NodeID),
+		"pageSize": githubv4.Int(100),
+		"cursor":   githubv4.NewString(initialCursor),
+	}
+
+	for {
+		err := client.Query(ctx, &query, vars)
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
+		if err != nil {
+			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
+			return err
+		}
+
+		a, t, u := query.Node.BranchProtectionRule.BypassPullRequestAllowances.Explode()
+		row.BypassPullRequestAllowanceApps = append(row.BypassPullRequestAllowanceApps, a...)
+		row.BypassPullRequestAllowanceTeams = append(row.BypassPullRequestAllowanceTeams, t...)
+		row.BypassPullRequestAllowanceUsers = append(row.BypassPullRequestAllowanceUsers, u...)
+
+		if !query.Node.BranchProtectionRule.BypassPullRequestAllowances.PageInfo.HasNextPage {
+			break
+		}
+
+		vars["cursor"] = githubv4.NewString(query.Node.BranchProtectionRule.BypassPullRequestAllowances.PageInfo.EndCursor)
+	}
+
+	return nil
+}
+
+func mapBranchProtectionRule(rule *models.BranchProtectionRuleWithFirstPageEmbeddedItems) branchProtectionRow {
 	row := branchProtectionRow{
 		ID:                             rule.Id,
 		NodeID:                         rule.NodeId,
@@ -216,53 +324,47 @@ func mapBranchProtectionRule(rule *models.BranchProtectionRuleWithPushAllowances
 		RestrictsPushes:                rule.RestrictsPushes,
 	}
 
-	parsePushAllowances(&row, &rule.PushAllowances)
+	row.PushAllowanceApps, row.PushAllowanceTeams, row.PushAllowanceUsers = rule.PushAllowances.Explode()
+	row.BypassForcePushAllowanceApps, row.BypassForcePushAllowanceTeams, row.BypassForcePushAllowanceUsers = rule.BypassForcePushAllowances.Explode()
+	row.BypassPullRequestAllowanceApps, row.BypassPullRequestAllowanceTeams, row.BypassPullRequestAllowanceUsers = rule.BypassPullRequestAllowances.Explode()
 
 	return row
 }
 
-func parsePushAllowances(row *branchProtectionRow, allowances *models.PushAllowances) {
-	for _, pa := range allowances.Nodes {
-		switch pa.Actor.Type {
-		case "App":
-			row.PushAllowanceApps = append(row.PushAllowanceApps, models.NameSlug{Name: pa.Actor.App.Name, Slug: pa.Actor.App.Slug})
-		case "Team":
-			row.PushAllowanceTeams = append(row.PushAllowanceTeams, models.NameSlug{Name: pa.Actor.Team.Name, Slug: pa.Actor.Team.Slug})
-		case "User":
-			row.PushAllowanceUsers = append(row.PushAllowanceUsers, models.NameLogin{Name: pa.Actor.User.Name, Login: pa.Actor.User.Login})
-
-		}
-	}
-}
-
-// branchProtectionRow is used to flatten nested PushAllowances into separate columns by type
+// branchProtectionRow is used to flatten nested pageable items into separate columns by type
 type branchProtectionRow struct {
-	ID                             int
-	NodeID                         string
-	MatchingBranches               int
-	IsAdminEnforced                bool
-	AllowsDeletions                bool
-	AllowsForcePushes              bool
-	BlocksCreations                bool
-	CreatorLogin                   string
-	DismissesStaleReviews          bool
-	LockAllowsFetchAndMerge        bool
-	LockBranch                     bool
-	Pattern                        string
-	RequireLastPushApproval        bool
-	RequiredApprovingReviewCount   int
-	RequiredDeploymentEnvironments []string
-	RequiredStatusChecks           []string
-	RequiresApprovingReviews       bool
-	RequiresConversationResolution bool
-	RequiresCodeOwnerReviews       bool
-	RequiresCommitSignatures       bool
-	RequiresDeployments            bool
-	RequiresLinearHistory          bool
-	RequiresStatusChecks           bool
-	RequiresStrictStatusChecks     bool
-	RestrictsPushes                bool
-	PushAllowanceApps              []models.NameSlug
-	PushAllowanceTeams             []models.NameSlug
-	PushAllowanceUsers             []models.NameLogin
+	ID                              int
+	NodeID                          string
+	MatchingBranches                int
+	IsAdminEnforced                 bool
+	AllowsDeletions                 bool
+	AllowsForcePushes               bool
+	BlocksCreations                 bool
+	CreatorLogin                    string
+	DismissesStaleReviews           bool
+	LockAllowsFetchAndMerge         bool
+	LockBranch                      bool
+	Pattern                         string
+	RequireLastPushApproval         bool
+	RequiredApprovingReviewCount    int
+	RequiredDeploymentEnvironments  []string
+	RequiredStatusChecks            []string
+	RequiresApprovingReviews        bool
+	RequiresConversationResolution  bool
+	RequiresCodeOwnerReviews        bool
+	RequiresCommitSignatures        bool
+	RequiresDeployments             bool
+	RequiresLinearHistory           bool
+	RequiresStatusChecks            bool
+	RequiresStrictStatusChecks      bool
+	RestrictsPushes                 bool
+	PushAllowanceApps               []models.NameSlug
+	PushAllowanceTeams              []models.NameSlug
+	PushAllowanceUsers              []models.NameLogin
+	BypassForcePushAllowanceApps    []models.NameSlug
+	BypassForcePushAllowanceTeams   []models.NameSlug
+	BypassForcePushAllowanceUsers   []models.NameLogin
+	BypassPullRequestAllowanceApps  []models.NameSlug
+	BypassPullRequestAllowanceTeams []models.NameSlug
+	BypassPullRequestAllowanceUsers []models.NameLogin
 }

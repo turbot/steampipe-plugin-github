@@ -37,19 +37,31 @@ type BranchProtectionRule struct {
 		TotalCount int `json:"total_count"`
 	} `graphql:"matchingBranches: matchingRefs" json:"matching_branches"`
 	// BranchProtectionRuleConflicts
-	// BypassForcePushAllowances
-	// BypassPullRequestAllowances
-	// Repository
-	// RestrictsReviewDismissals      bool
-	// ReviewDismissalAllowances
+}
+
+type BranchProtectionRuleWithFirstPageEmbeddedItems struct {
+	BranchProtectionRule
+	PushAllowances              BranchActorAllowances `graphql:"pushAllowances(first: 100)"`
+	BypassForcePushAllowances   BranchActorAllowances `graphql:"bypassForcePushAllowances(first: 100)"`
+	BypassPullRequestAllowances BranchActorAllowances `graphql:"bypassPullRequestAllowances(first: 100)"`
 }
 
 type BranchProtectionRuleWithPushAllowances struct {
 	BranchProtectionRule
-	PushAllowances PushAllowances `graphql:"pushAllowances(first: $pushAllowancePageSize, after: $pushAllowanceCursor)"`
+	PushAllowances BranchActorAllowances `graphql:"pushAllowances(first: $pageSize, after: $cursor)"`
 }
 
-type PushAllowances struct {
+type BranchProtectionRuleWithBypassForcePushAllowances struct {
+	BranchProtectionRule
+	BypassForcePushAllowances BranchActorAllowances `graphql:"bypassForcePushAllowances(first: $pageSize, after: $cursor)"`
+}
+
+type BranchProtectionRuleWithBypassPullRequestAllowances struct {
+	BranchProtectionRule
+	BypassPullRequestAllowances BranchActorAllowances `graphql:"bypassPullRequestAllowances(first: $pageSize, after: $cursor)"`
+}
+
+type BranchActorAllowances struct {
 	TotalCount int
 	PageInfo   PageInfo
 	Nodes      []struct {
@@ -69,4 +81,23 @@ type PushAllowances struct {
 			} `graphql:"... on User"`
 		}
 	}
+}
+
+// Explode returns 3 collections from BranchActorAllowances by type (in order) Apps, Teams, Users.
+func (b *BranchActorAllowances) Explode() ([]NameSlug, []NameSlug, []NameLogin) {
+	var apps, teams []NameSlug
+	var users []NameLogin
+
+	for _, a := range b.Nodes {
+		switch a.Actor.Type {
+		case "App":
+			apps = append(apps, NameSlug{Name: a.Actor.App.Name, Slug: a.Actor.App.Slug})
+		case "Team":
+			teams = append(teams, NameSlug{Name: a.Actor.Team.Name, Slug: a.Actor.Team.Slug})
+		case "User":
+			users = append(users, NameLogin{Name: a.Actor.User.Name, Login: a.Actor.User.Login})
+		}
+	}
+
+	return apps, teams, users
 }
