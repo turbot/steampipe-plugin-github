@@ -13,76 +13,30 @@ select
   login as organization,
   name,
   twitter_username,
-  total_private_repos,
-  public_repos,
-  plan_name,
-  plan_seats,
-  plan_filled_seats
+  private_repositories_total_count as private_repos,
+  public_repositories_total_count as public_repos,
+  created_at,
+  updated_at,
+  is_verified,
+  teams_total_count as teams_count,
+  members_with_role_total_count as member_count,
+  url
 from
   github_my_organization;
 ```
 
-### Show members of an organization
+### Show your permissions on the Organization
 
 ```sql
 select
   login as organization,
-  name,
-  m ->> 'login' as member_login,
-  m ->> 'type' as member_type
-from
-  github_my_organization,
-  jsonb_array_elements(members) as m
-where
-  login = 'turbot';
-```
-
-### Show Organization security settings
-
-```sql
-select
-  login as organization,
-  jsonb_array_length(members) as num_members,
-  members_allowed_repository_creation_type,
-  members_can_create_internal_repos,
-  members_can_create_pages,
-  members_can_create_private_repos,
-  members_can_create_public_repos,
-  members_can_create_repos,
-  default_repo_permission,
-  two_factor_requirement_enabled
+  members_with_role_total_count as members_count,
+  can_administer,
+  can_changed_pinned_items,
+  can_create_projects,
+  can_create_repositories,
+  can_create_teams,
+  is_a_member as current_member
 from
   github_my_organization;
-```
-
-### Show collaborators in your organization's repositories that are not members of the organization
-
-```sql
-select
-  r.name,
-  collaborator_login
-from
-  github_my_repository as r,
-  jsonb_array_elements_text(r.collaborator_logins) as collaborator_login,
-  github_my_organization as o
-where
-  r.owner_login = o.login
-  and collaborator_login not in (
-    select m from github_my_organization, jsonb_array_elements_text(member_logins) as m
-  );
-```
-
-### List organization hooks that are insecure
-
-```sql
-select
-  login as organization,
-  hook
-from
-  github_my_organization,
-  jsonb_array_elements(hooks) as hook
-where
-  hook -> 'config' ->> 'insecure_ssl' = '1'
-    or hook -> 'config' ->> 'secret' is null
-    or hook -> 'config' ->> 'url' not like '%https:%';
 ```

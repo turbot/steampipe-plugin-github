@@ -15,25 +15,14 @@ select
   login as organization,
   name,
   twitter_username,
-  public_repos,
-  public_gists,
-  member_logins
+  created_at,
+  updated_at,
+  is_verified,
+  teams_total_count as teams_count,
+  members_with_role_total_count as member_count,
+  repositories_total_count as repo_count
 from
   github_organization
 where
   login = 'postgres';
-```
-
-### List members of an organization
-
-```sql
-select
-  login as organization,
-  name,
-  member_login
-from
-  github_organization,
-  jsonb_array_elements_text(member_logins) as member_login
-where
-  login = 'google';
 ```
