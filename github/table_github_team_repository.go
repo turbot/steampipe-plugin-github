@@ -42,7 +42,7 @@ func gitHubTeamRepositoryColumns() []*plugin.Column {
 		{Name: "has_vulnerability_alerts_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("HasVulnerabilityAlertsEnabled", "Node.HasVulnerabilityAlertsEnabled"), Description: "If true, vulnerability alerts are enabled for the repository."},
 		{Name: "has_wiki_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("HasWikiEnabled", "Node.HasWikiEnabled"), Description: "If true, the repository has wiki feature enabled."},
 		{Name: "homepage_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("HomepageUrl", "Node.HomepageUrl"), Description: "The external URL of the repository if set."},
-		{Name: "interaction_ability", Type: proto.ColumnType_JSON, Transform: transform.FromField("InteractionAbility", "Node.InteractionAbility"), Description: "The interaction ability settings for this repository."},
+		{Name: "interaction_ability", Type: proto.ColumnType_JSON, Transform: transform.FromField("InteractionAbility", "Node.InteractionAbility").NullIfZero(), Description: "The interaction ability settings for this repository."},
 		{Name: "is_archived", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsArchived", "Node.IsArchived"), Description: "If true, the repository is unmaintained (archived)."},
 		{Name: "is_blank_issues_enabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsBlankIssuesEnabled", "Node.IsBlankIssuesEnabled"), Description: "If true, blank issue creation is allowed."},
 		{Name: "is_disabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsDisabled", "Node.IsDisabled"), Description: "If true, this repository disabled."},
@@ -108,15 +108,15 @@ func tableGitHubTeamRepository() *plugin.Table {
 			Hydrate:           tableGitHubTeamRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		// Get: &plugin.GetConfig{
-		// 	KeyColumns: []*plugin.KeyColumn{
-		// 		{Name: "organization", Require: plugin.Required},
-		// 		{Name: "slug", Require: plugin.Required},
-		// 		{Name: "full_name", Require: plugin.Required},
-		// 	},
-		// 	Hydrate:           tableGitHubTeamRepositoryGet,
-		// 	ShouldIgnoreError: isNotFoundError([]string{"404"}),
-		// },
+		Get: &plugin.GetConfig{
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "organization", Require: plugin.Required},
+				{Name: "slug", Require: plugin.Required},
+				{Name: "name", Require: plugin.Required},
+			},
+			Hydrate:           tableGitHubTeamRepositoryGet,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+		},
 		Columns: gitHubTeamRepositoryColumns(),
 	}
 }
@@ -126,7 +126,7 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 
 	org := d.EqualsQuals["organization"].GetStringValue()
 	slug := d.EqualsQuals["slug"].GetStringValue()
-	pageSize := adjustPageSize(100, d.QueryContext.Limit)
+	pageSize := adjustPageSize(75, d.QueryContext.Limit)
 
 	var query struct {
 		RateLimit    models.RateLimit
@@ -172,6 +172,50 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 			break
 		}
 		variables["cursor"] = githubv4.NewString(query.Organization.Team.Repositories.PageInfo.EndCursor)
+	}
+
+	return nil, nil
+}
+
+func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client := connectV4(ctx, d)
+
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
+	name := d.EqualsQuals["name"].GetStringValue()
+
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Team struct {
+				Repositories struct {
+					TotalCount int
+					PageInfo   models.PageInfo
+					Edges      []models.TeamRepositoryWithPermission
+				} `graphql:"repositories(first: $pageSize, query: $name)"`
+			} `graphql:"team(slug: $slug)"`
+		} `graphql:"organization(login: $login)"`
+	}
+
+	variables := map[string]interface{}{
+		"login":    githubv4.String(org),
+		"slug":     githubv4.String(slug),
+		"name":     githubv4.String(name),
+		"pageSize": githubv4.Int(1),
+	}
+
+	err := client.Query(ctx, &query, variables)
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_team_repository", &query.RateLimit))
+	if err != nil {
+		plugin.Logger(ctx).Error("github_team_repository", "api_error", err)
+		if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if len(query.Organization.Team.Repositories.Edges) == 1 && query.Organization.Team.Repositories.Edges[0].Node.Name == name {
+		return query.Organization.Team.Repositories.Edges[0], nil
 	}
 
 	return nil, nil

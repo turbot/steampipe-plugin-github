@@ -2,7 +2,7 @@ package models
 
 type Release struct {
 	basicIdentifiers
-	Author       User         `json:"author"`
+	Author       BasicUser    `json:"author"`
 	CreatedAt    NullableTime `json:"created_at"`
 	Description  string       `json:"description"`
 	IsDraft      bool         `json:"is_draft"`
@@ -10,7 +10,7 @@ type Release struct {
 	IsPrerelease bool         `json:"is_prerelease"`
 	PublishedAt  NullableTime `json:"published_at"`
 	Tag          BasicRef     `json:"tag"`
-	TagCommit    Commit       `json:"tag_commit"`
+	TagCommit    BasicCommit  `json:"tag_commit"`
 	TagName      string       `json:"tag_name"`
 	UpdatedAt    NullableTime `json:"updated_at"`
 	Url          string       `json:"url"`
