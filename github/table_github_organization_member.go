@@ -13,20 +13,19 @@ import (
 )
 
 func gitHubOrganizationMemberColumns() []*plugin.Column {
-	return []*plugin.Column{
+	tableCols := []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the member is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "login", Type: proto.ColumnType_STRING, Description: "The username used to login.", Transform: transform.FromField("Node.Login")},
 		{Name: "role", Type: proto.ColumnType_STRING, Description: "The role this user has in the organization. Returns null if information is not available to viewer."},
 		{Name: "has_two_factor_enabled", Type: proto.ColumnType_BOOL, Description: "Whether the organization member has two factor enabled or not. Returns null if information is not available to viewer."},
 	}
+
+	return append(tableCols, sharedUserColumns()...)
 }
 
 type memberWithRole struct {
 	HasTwoFactorEnabled *bool
 	Role                *string
-	Node                struct {
-		Login string
-	}
+	Node                models.User
 }
 
 func tableGitHubOrganizationMember() *plugin.Table {
