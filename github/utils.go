@@ -150,7 +150,7 @@ func adjustPageSize(pageSize int, limit *int64) int {
 }
 
 func rateLimitLogString(table string, rateLimits *models.RateLimit) string {
-	return fmt.Sprintf("Query for table %s - rate limit cost: %d (used: %d/%d), resets at: %s", table, rateLimits.Cost, rateLimits.Used, rateLimits.Limit, rateLimits.ResetAt.String())
+	return fmt.Sprintf("Query for table %s - rate limit cost: %d (used: %d/%d) [Nodes: %d], resets at: %s", table, rateLimits.Cost, rateLimits.Used, rateLimits.Limit, rateLimits.NodeCount, rateLimits.ResetAt.String())
 }
 
 // transforms
@@ -160,6 +160,12 @@ func convertTimestamp(ctx context.Context, input *transform.TransformData) (inte
 	case *github.Timestamp:
 		return t.Format(time.RFC3339), nil
 	case github.Timestamp:
+		return t.Format(time.RFC3339), nil
+	case githubv4.DateTime:
+		return t.Format(time.RFC3339), nil
+	case *githubv4.DateTime:
+		return t.Format(time.RFC3339), nil
+	case models.NullableTime:
 		return t.Format(time.RFC3339), nil
 	default:
 		return nil, nil

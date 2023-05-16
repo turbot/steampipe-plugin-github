@@ -60,3 +60,8 @@ type TeamMemberWithRole struct {
 	Role githubv4.TeamMemberRole `json:"role"`
 	Node User
 }
+
+type TeamRepositoryWithPermission struct {
+	Permission githubv4.RepositoryPermission `json:"permission"`
+	Node       Repository
+}

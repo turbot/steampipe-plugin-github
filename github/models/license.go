@@ -1,20 +1,24 @@
 package models
 
 type License struct {
-	Body           string
-	Conditions     []LicenseRule
-	Description    string
-	Featured       bool
-	Hidden         bool
-	Implementation string
-	Key            string
-	Limitations    []LicenseRule
-	Name           string
-	Nickname       string
-	Permissions    []LicenseRule
-	PseudoLicense  bool
-	SpdxId         string
-	Url            string
+	BasicLicense
+	Body           string        `json:"body"`
+	Conditions     []LicenseRule `json:"conditions"`
+	Description    string        `json:"description"`
+	Featured       bool          `json:"featured"`
+	Hidden         bool          `json:"hidden"`
+	Implementation string        `json:"implementation"`
+	Limitations    []LicenseRule `json:"limitations"`
+	Permissions    []LicenseRule `json:"permissions"`
+	PseudoLicense  bool          `json:"pseudo_license"`
+}
+
+type BasicLicense struct {
+	Key      string `json:"key"`
+	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
+	SpdxId   string `json:"spdx_id"`
+	Url      string `json:"url"`
 }
 
 type LicenseRule struct {
