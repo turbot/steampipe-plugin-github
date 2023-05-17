@@ -37,9 +37,11 @@ type Issue struct {
 	UserCannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"userCannotUpdateReasons: viewerCannotUpdateReasons" json:"user_cannot_update_reasons"`
 	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor" json:"user_did_author"`
 	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription" json:"user_subscription"`
+	Comments                Count                                `json:"comments"`
 	Repo                    struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
+
 	// Assignees [pageable]
 	// Comments [pageable]
 	// Labels [pageable]
