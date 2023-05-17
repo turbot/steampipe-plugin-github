@@ -38,6 +38,7 @@ type Issue struct {
 	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor" json:"user_did_author"`
 	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription" json:"user_subscription"`
 	Comments                Count                                `json:"comments"`
+	Assignees               Count                                `json:"assignees"`
 	Repo                    struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
