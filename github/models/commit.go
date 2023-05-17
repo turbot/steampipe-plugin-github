@@ -1,19 +1,15 @@
 package models
 
-import (
-	"time"
-)
-
 // BasicCommit returns the core fields of a Commit.
 type BasicCommit struct {
-	Sha           string    `graphql:"sha: oid" json:"sha"`
-	ShortSha      string    `graphql:"shortSha: abbreviatedOid" json:"short_sha"`
-	AuthoredDate  time.Time `json:"authored_date"`
-	Author        GitActor  `json:"author"`
-	CommittedDate time.Time `json:"committed_date"`
-	Committer     GitActor  `json:"committer"`
-	Message       string    `json:"message"`
-	Url           string    `json:"url"`
+	Sha           string       `graphql:"sha: oid" json:"sha"`
+	ShortSha      string       `graphql:"shortSha: abbreviatedOid" json:"short_sha"`
+	AuthoredDate  NullableTime `json:"authored_date"`
+	Author        GitActor     `json:"author"`
+	CommittedDate NullableTime `json:"committed_date"`
+	Committer     GitActor     `json:"committer"`
+	Message       string       `json:"message"`
+	Url           string       `json:"url"`
 }
 
 // Commit returns the full detail of a Commit
@@ -33,6 +29,7 @@ type Commit struct {
 	ZipballUrl          string       `json:"zipball_url"`
 	MessageHeadline     string       `json:"message_headline"`
 	Status              CommitStatus `json:"status"`
+	NodeId              string       `graphql:"nodeId:id" json:"node_id"`
 	// AssociatedPullRequests [Pageable]
 	// Authors [Pageable]
 	// Blame [n-level nesting for an array, requires a path, etc]
