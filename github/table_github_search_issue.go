@@ -62,8 +62,8 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 			return nil, err
 		}
 
-		for _, repo := range query.Search.Edges {
-			d.StreamListItem(ctx, repo)
+		for _, issue := range query.Search.Edges {
+			d.StreamListItem(ctx, issue)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
