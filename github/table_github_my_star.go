@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -72,63 +71,6 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 			break
 		}
 		variables["cursor"] = githubv4.NewString(query.Viewer.StarredRepositories.PageInfo.EndCursor)
-	}
-
-	return nil, nil
-}
-
-func tableGitHubMyStarredRepositoryListOld(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
-
-	opt := &github.ActivityListStarredOptions{ListOptions: github.ListOptions{PerPage: 100}}
-
-	type ListPageResponse struct {
-		starredRepos []*github.StarredRepository
-		resp         *github.Response
-	}
-
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.ListOptions.PerPage) {
-			opt.ListOptions.PerPage = int(*limit)
-		}
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		starredRepos, resp, err := client.Activity.ListStarred(ctx, "", opt)
-		return ListPageResponse{
-			starredRepos: starredRepos,
-			resp:         resp,
-		}, err
-	}
-
-	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
-		if err != nil {
-			return nil, err
-		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		starredRepos := listResponse.starredRepos
-		resp := listResponse.resp
-
-		for _, i := range starredRepos {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
-
-			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.RowsRemaining(ctx) == 0 {
-				return nil, nil
-			}
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-
-		opt.Page = resp.NextPage
 	}
 
 	return nil, nil

@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -77,65 +76,6 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 			break
 		}
 		variables["cursor"] = githubv4.NewString(query.Repository.Stargazers.PageInfo.EndCursor)
-	}
-
-	return nil, nil
-}
-
-func tableGitHubStargazerListOld(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
-
-	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
-	owner, repo := parseRepoFullName(fullName)
-
-	opts := &github.ListOptions{PerPage: 100}
-
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opts.PerPage) {
-			opts.PerPage = int(*limit)
-		}
-	}
-
-	type ListPageResponse struct {
-		stargazers []*github.Stargazer
-		resp       *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		stargazers, resp, err := client.Activity.ListStargazers(ctx, owner, repo, opts)
-		return ListPageResponse{
-			stargazers: stargazers,
-			resp:       resp,
-		}, err
-	}
-
-	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-		if err != nil {
-			return nil, err
-		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		stargazers := listResponse.stargazers
-		resp := listResponse.resp
-
-		for _, i := range stargazers {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
-
-			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.RowsRemaining(ctx) == 0 {
-				return nil, nil
-			}
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-
-		opts.Page = resp.NextPage
 	}
 
 	return nil, nil
