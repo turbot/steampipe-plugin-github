@@ -25,8 +25,7 @@ where
 ```sql
 select 
   repository_full_name, 
-  security ->> 'html_url' as security_file_url,
-  security ->> 'name' as security_file_name
+  security ->> 'text' as security_file_content
 from
   github_community_profile c 
   join github_my_repository r on r.full_name = c.repository_full_name
