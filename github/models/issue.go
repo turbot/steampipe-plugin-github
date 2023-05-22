@@ -39,6 +39,7 @@ type Issue struct {
 	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription" json:"user_subscription"`
 	Comments                Count                                `json:"comments"`
 	Assignees               Count                                `json:"assignees"`
+	Labels                  Count                                `json:"labels"`
 	Repo                    struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`

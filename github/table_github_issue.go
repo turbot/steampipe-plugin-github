@@ -51,6 +51,7 @@ func sharedIssueColumns() []*plugin.Column {
 		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url", "Node.Url"), Description: "URL for the issue."},
 		{Name: "assignees_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Assignees.TotalCount", "Node.Assignees.TotalCount"), Description: "Count of assignees on the issue."},
 		{Name: "comments_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Comments.TotalCount", "Node.Comments.TotalCount"), Description: "Count of comments on the issue."},
+		{Name: "labels_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Labels.TotalCount", "Node.Labels.TotalCount"), Description: "Count of labels on the issue."},
 		{Name: "user_can_close", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanClose", "Node.UserCanClose"), Description: "If true, user can close the issue."},
 		{Name: "user_can_react", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanReact", "Node.UserCanReact"), Description: "If true, user can react on the issue."},
 		{Name: "user_can_reopen", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanReopen", "Node.UserCanReopen"), Description: "If true, user can reopen the issue."},
