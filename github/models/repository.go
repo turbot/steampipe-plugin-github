@@ -74,7 +74,8 @@ type Repository struct {
 	Subscription             githubv4.SubscriptionState        `graphql:"subscription: viewerSubscription" json:"subscription"`
 	Visibility               githubv4.RepositoryVisibility     `json:"visibility"`
 	WebCommitSignoffRequired bool                              `json:"web_commit_signoff_required"`
-
+	OutsideCollaborators     Count                             `graphql:"collaborators(affiliation: OUTSIDE)" json:"outside_collaborators"`
+	RepositoryTopics         Count                             `json:"repository_topics"`
 	// AssignableUsers [pageable]
 	// BranchProtectionRules [pageable]
 	// CodeOwners [search by refName]

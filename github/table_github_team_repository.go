@@ -51,7 +51,7 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 
 	org := d.EqualsQuals["organization"].GetStringValue()
 	slug := d.EqualsQuals["slug"].GetStringValue()
-	pageSize := adjustPageSize(75, d.QueryContext.Limit)
+	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
 	var query struct {
 		RateLimit    models.RateLimit

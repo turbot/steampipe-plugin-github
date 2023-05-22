@@ -22,7 +22,7 @@ func tableGitHubMyRepository() *plugin.Table {
 func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	pageSize := adjustPageSize(75, d.QueryContext.Limit)
+	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
 	var query struct {
 		RateLimit models.RateLimit
