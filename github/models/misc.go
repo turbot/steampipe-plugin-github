@@ -32,6 +32,11 @@ type BasicRef struct {
 	Prefix string `json:"prefix"`
 }
 
+type BasicRefWithBranchProtectionRule struct {
+	BasicRef
+	BranchProtectionRule BranchProtectionRule `json:"branch_protection_rule"`
+}
+
 type Language struct {
 	Id    githubv4.ID `json:"id"`
 	Name  string      `json:"name"`
