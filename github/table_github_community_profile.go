@@ -25,8 +25,8 @@ func tableGitHubCommunityProfile() *plugin.Table {
 			{Name: "issue_templates", Type: proto.ColumnType_JSON, Transform: transform.FromField("IssueTemplates").NullIfZero(), Description: "Issue template for the repository."},
 			{Name: "pull_request_templates", Type: proto.ColumnType_JSON, Transform: transform.FromField("PullRequestTemplates").NullIfZero(), Description: "Pull request template for the repository."},
 			{Name: "license_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("LicenseInfo").NullIfZero(), Description: "License for the repository."},
-			{Name: "readme", Type: proto.ColumnType_JSON, Transform: transform.FromField("ReadMeUpper.Blob", "ReadMeLower.Blob", "ReadMeTitle.Blob"), Description: "README for the repository."},
-			{Name: "security", Type: proto.ColumnType_JSON, Transform: transform.FromField("SecurityUpper.Blob", "SecurityLower.Blob", "SecurityTitle.Blob"), Description: "Security for the repository."},
+			{Name: "readme", Type: proto.ColumnType_JSON, Transform: transform.FromField("ReadMeUpper.Blob", "ReadMeLower.Blob", "ReadMeTitle.Blob").NullIfZero(), Description: "README for the repository."},
+			{Name: "security", Type: proto.ColumnType_JSON, Transform: transform.FromField("SecurityUpper.Blob", "SecurityLower.Blob", "SecurityTitle.Blob").NullIfZero(), Description: "Security for the repository."},
 		},
 	}
 }
