@@ -45,6 +45,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_rate_limit":                      tableGitHubRateLimit(ctx),
 			"github_release":                         tableGitHubRelease(ctx),
 			"github_repository":                      tableGitHubRepository(),
+			"github_repository_collaborator":         tableGitHubRepositoryCollaborator(),
 			"github_repository_dependabot_alert":     tableGitHubRepositoryDependabotAlert(),
 			"github_search_code":                     tableGitHubSearchCode(ctx),
 			"github_search_commit":                   tableGitHubSearchCommit(ctx),
