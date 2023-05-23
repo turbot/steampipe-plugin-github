@@ -34,7 +34,7 @@ type BasicRef struct {
 
 type BasicRefWithBranchProtectionRule struct {
 	BasicRef
-	BranchProtectionRule BranchProtectionRule `json:"branch_protection_rule,omitempty"`
+	BranchProtectionRule *BranchProtectionRule `json:"branch_protection_rule,omitempty"`
 }
 
 type Language struct {
