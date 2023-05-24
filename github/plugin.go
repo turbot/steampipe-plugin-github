@@ -24,7 +24,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_audit_log":                       tableGitHubAuditLog(ctx),
 			"github_branch_protection":               tableGitHubBranchProtection(),
 			"github_branch":                          tableGitHubBranch(),
-			"github_commit":                          tableGitHubCommit(ctx),
+			"github_commit":                          tableGitHubCommit(),
 			"github_community_profile":               tableGitHubCommunityProfile(),
 			"github_code_owner":                      tableGitHubCodeOwner(),
 			"github_gist":                            tableGitHubGist(),
