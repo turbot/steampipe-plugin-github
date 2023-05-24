@@ -6,8 +6,6 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
 
-	"github.com/google/go-github/v48/github"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -51,7 +49,7 @@ func tableGitHubTeam() *plugin.Table {
 		Name:        "github_team",
 		Description: "GitHub Teams in a given organization. GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
 		List: &plugin.ListConfig{
-			ParentHydrate:     tableGitHubMyOrganizationList,
+			KeyColumns:        plugin.SingleColumn("organization"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamList,
 		},
@@ -67,7 +65,7 @@ func tableGitHubTeam() *plugin.Table {
 func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	org := h.Item.(*github.Organization)
+	org := d.EqualsQuals["organization"].GetStringValue()
 
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
@@ -86,7 +84,7 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	variables := map[string]interface{}{
-		"login":    githubv4.String(*org.Login),
+		"login":    githubv4.String(org),
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}

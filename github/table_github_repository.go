@@ -90,6 +90,8 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "visibility", Type: proto.ColumnType_STRING, Transform: transform.FromField("Visibility", "Node.Visibility"), Description: "Indicates the repository's visibility level."},
 		{Name: "your_permission", Type: proto.ColumnType_STRING, Transform: transform.FromField("YourPermission", "Node.YourPermission"), Description: "Your permission level on the repository. Will return null if authenticated as an GitHub App."},
 		{Name: "web_commit_signoff_required", Type: proto.ColumnType_BOOL, Transform: transform.FromField("WebCommitSignoffRequired", "Node.WebCommitSignoffRequired"), Description: "If true, contributors are required to sign off on web-based commits in this repository."},
+		{Name: "outside_collaborators_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("OutsideCollaborators.TotalCount", "Node.OutsideCollaborators.TotalCount"), Description: "Count of outside collaborators."},
+		{Name: "repository_topics_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("RepositoryTopics.TotalCount", "Node.RepositoryTopics.TotalCount"), Description: "Count of topics associated with the repository."},
 	}
 }
 

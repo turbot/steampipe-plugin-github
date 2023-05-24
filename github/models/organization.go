@@ -71,19 +71,41 @@ type Organization struct {
 	// SponsorsActivities [pageable]
 	// Team [find by slug]
 	// Teams [pageable]
+}
 
-	// Below fields are for admins only - break getting org if not admin.
-	// IpAllowListEnabledSetting                     githubv4.IpAllowListEnabledSettingValue
-	// IpAllowListForInstalledAppsEnabledSetting     githubv4.IpAllowListForInstalledAppsEnabledSettingValue
-	// MembersCanForkPrivateRepositories             bool
-	// OrganizationBillingEmail                      string
-	// NotificationDeliveryRestrictionEnabledSetting githubv4.NotificationRestrictionSettingValue
-	// RequiresTwoFactorAuthentication        bool
-	// WebCommitSignoffRequired               bool
+type OrganizationWithOwnerProperties struct {
+	Organization
+	IpAllowListEnabledSetting                     githubv4.IpAllowListEnabledSettingValue                 `json:"ip_allow_list_enabled_setting"`
+	IpAllowListForInstalledAppsEnabledSetting     githubv4.IpAllowListForInstalledAppsEnabledSettingValue `json:"ip_allow_list_for_installed_apps_enabled_setting"`
+	MembersCanForkPrivateRepositories             bool                                                    `json:"members_can_fork_private_repositories"`
+	OrganizationBillingEmail                      string                                                  `json:"organization_billing_email"`
+	NotificationDeliveryRestrictionEnabledSetting githubv4.NotificationRestrictionSettingValue            `json:"notification_delivery_restriction_enabled_setting"`
+	RequiresTwoFactorAuthentication               bool                                                    `json:"requires_two_factor_authentication"`
+	WebCommitSignoffRequired                      bool                                                    `json:"web_commit_signoff_required"`
 }
 
 type OrganizationWithCounts struct {
 	Organization
+	MembersWithRole     Count `json:"members_with_role"`
+	Packages            Count `json:"packages"`
+	PendingMembers      Count `json:"pending_members"`
+	PinnableItems       Count `json:"pinnable_items"`
+	PinnedItems         Count `json:"pinned_items"`
+	Projects            Count `json:"projects"`
+	ProjectsV2          Count `json:"projects_v2"`
+	Sponsoring          Count `json:"sponsoring"`
+	Sponsors            Count `json:"sponsors"`
+	Teams               Count `json:"teams"`
+	PrivateRepositories Count `graphql:"privateRepositories: repositories(privacy: PRIVATE)" json:"private_repositories"`
+	PublicRepositories  Count `graphql:"publicRepositories: repositories(privacy: PUBLIC)" json:"public_repositories"`
+	Repositories        struct {
+		TotalCount     int `json:"total_count"`
+		TotalDiskUsage int `json:"total_disk_usage"`
+	} `json:"repositories"`
+}
+
+type OrganizationWithOwnerPropertiesAndCounts struct {
+	OrganizationWithOwnerProperties
 	MembersWithRole     Count `json:"members_with_role"`
 	Packages            Count `json:"packages"`
 	PendingMembers      Count `json:"pending_members"`
