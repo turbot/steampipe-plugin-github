@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // basicIdentifiers is used to store basic identifying information.
 type basicIdentifiers struct {
 	Id     int    `graphql:"id: databaseId" json:"id,omitempty"`
@@ -11,11 +9,11 @@ type basicIdentifiers struct {
 
 type BasicUser struct {
 	basicIdentifiers
-	Login     string    `json:"login"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Url       string    `json:"url"`
+	Login     string       `json:"login"`
+	Email     string       `json:"email"`
+	CreatedAt NullableTime `json:"created_at"`
+	UpdatedAt NullableTime `json:"updated_at"`
+	Url       string       `json:"url"`
 }
 
 type User struct {

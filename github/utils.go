@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/turbot/steampipe-plugin-github/github/models"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"net/url"
 	"os"
 	"reflect"
@@ -197,8 +198,11 @@ func filterUserLogins(_ context.Context, input *transform.TransformData) (interf
 	return user_logins, nil
 }
 
-func gitHubSearchRepositoryColumns(columns []*plugin.Column) []*plugin.Column {
-	return append(gitHubRepositoryColumns(), columns...)
+func defaultSearchColumns() []*plugin.Column {
+	return []*plugin.Column{
+		{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query provided for the search."},
+		{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
+	}
 }
 
 func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.HydrateData, hydrateFunc plugin.HydrateFunc) (interface{}, error) {
