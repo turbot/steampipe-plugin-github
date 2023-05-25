@@ -33,6 +33,7 @@ type BranchProtectionRule struct {
 	RequiresStatusChecks           bool     `json:"requires_status_checks"`
 	RequiresStrictStatusChecks     bool     `json:"requires_strict_status_checks"`
 	RestrictsPushes                bool     `json:"restricts_pushes"`
+	RestrictsReviewDismissals      bool     `json:"restricts_review_dismissals"`
 	MatchingBranches               struct {
 		TotalCount int `json:"total_count"`
 	} `graphql:"matchingBranches: matchingRefs" json:"matching_branches"`

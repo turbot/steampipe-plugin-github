@@ -47,6 +47,7 @@ func tableGitHubBranchProtection() *plugin.Table {
 			{Name: "requires_status_checks", Type: proto.ColumnType_BOOL, Description: "If true, status checks are required to update matching branches."},
 			{Name: "required_status_checks", Type: proto.ColumnType_JSON, Description: "Status checks that must pass before a branch can be merged into branches matching this rule."},
 			{Name: "requires_strict_status_checks", Type: proto.ColumnType_BOOL, Description: "If true, branches required to be up to date before merging."},
+			{Name: "restricts_review_dismissals", Type: proto.ColumnType_BOOL, Description: "If true, review dismissals are restricted."},
 			{Name: "restricts_pushes", Type: proto.ColumnType_BOOL, Description: "If true, pushing to matching branches is restricted."},
 			{Name: "push_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can push to the branch only if in this list."},
 			{Name: "push_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can push to the branch only if in this list."},
