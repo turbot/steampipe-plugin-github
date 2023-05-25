@@ -55,7 +55,6 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "is_template", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsTemplate", "Node.IsTemplate"), Description: "If true, the repository is a template that can be used to generate new repositories."},
 		{Name: "is_user_configuration_repository", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsUserConfigurationRepository", "Node.IsUserConfigurationRepository"), Description: "If true, this is a user configuration repository."},
 		{Name: "issue_templates", Type: proto.ColumnType_JSON, Transform: transform.FromField("IssueTemplates", "Node.IssueTemplates").NullIfZero(), Description: "A list of issue templates associated to the repository."},
-		{Name: "latest_release", Type: proto.ColumnType_JSON, Transform: transform.FromField("LatestRelease", "Node.LatestRelease").NullIfZero(), Description: "The latest release for the repository if one exists."},
 		{Name: "license_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("LicenseInfo", "Node.LicenseInfo").NullIfZero(), Description: "The license associated with the repository."},
 		{Name: "lock_reason", Type: proto.ColumnType_STRING, Transform: transform.FromField("LockReason", "Node.LockReason"), Description: "The reason the repository has been locked."},
 		{Name: "merge_commit_allowed", Type: proto.ColumnType_BOOL, Transform: transform.FromField("MergeCommitAllowed", "Node.MergeCommitAllowed"), Description: "If true, PRs are merged with a merge commit on this repository."},

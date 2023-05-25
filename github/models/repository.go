@@ -37,7 +37,6 @@ type Repository struct {
 	IsTemplate                    bool                             `json:"is_template"`
 	IsUserConfigurationRepository bool                             `json:"is_user_configuration_repository"`
 	IssueTemplates                []IssueTemplate                  `json:"issue_templates"`
-	LatestRelease                 Release                          `json:"latest_release"`
 	LicenseInfo                   BasicLicense                     `json:"license_info"`
 	LockReason                    githubv4.LockReason              `json:"lock_reason"`
 	MergeCommitAllowed            bool                             `json:"merge_commit_allowed"`
