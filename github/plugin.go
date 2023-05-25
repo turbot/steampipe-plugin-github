@@ -66,6 +66,10 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_tree":                            tableGitHubTree(ctx),
 			"github_user":                            tableGitHubUser(),
 			"github_workflow":                        tableGitHubWorkflow(ctx),
+			"github_my_organization_v3":              tableGitHubMyOrganizationV3(),
+			"github_organization_v3":                 tableGitHubOrganizationV3(),
+			"github_my_repository_v3":                tableGitHubMyRepositoryV3(),
+			"github_repository_v3":                   tableGitHubRepositoryV3(),
 		},
 	}
 	return p
