@@ -3,8 +3,16 @@ package github
 import (
 	"context"
 	"github.com/google/go-github/v48/github"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
+
+func gitHubMyRepositoryV3Columns() []*plugin.Column {
+	tableCols := []*plugin.Column{
+		{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the repository (public or private)", Hydrate: tableGitHubRepositoryV3Get},
+	}
+	return append(gitHubRepositoryV3Columns(), tableCols...)
+}
 
 func tableGitHubMyRepositoryV3() *plugin.Table {
 	return &plugin.Table{
@@ -17,7 +25,7 @@ func tableGitHubMyRepositoryV3() *plugin.Table {
 				{Name: "visibility", Require: plugin.Optional},
 			},
 		},
-		Columns: gitHubRepositoryV3Columns(),
+		Columns: gitHubMyRepositoryV3Columns(),
 	}
 }
 
