@@ -6,8 +6,6 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
 
-	"github.com/google/go-github/v48/github"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -96,16 +94,7 @@ func tableGitHubOrganization() *plugin.Table {
 func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	var login string
-	if h.Item != nil {
-		org := h.Item.(*github.Organization)
-		if org == nil {
-			return nil, nil
-		}
-		login = *org.Login
-	} else {
-		login = d.EqualsQuals["login"].GetStringValue()
-	}
+	login := d.EqualsQuals["login"].GetStringValue()
 
 	plugin.Logger(ctx).Debug("github_organization", login)
 	var query struct {
