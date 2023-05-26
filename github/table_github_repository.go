@@ -91,6 +91,8 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "web_commit_signoff_required", Type: proto.ColumnType_BOOL, Transform: transform.FromField("WebCommitSignoffRequired", "Node.WebCommitSignoffRequired"), Description: "If true, contributors are required to sign off on web-based commits in this repository."},
 		{Name: "outside_collaborators_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("OutsideCollaborators.TotalCount", "Node.OutsideCollaborators.TotalCount"), Description: "Count of outside collaborators."},
 		{Name: "repository_topics_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("RepositoryTopics.TotalCount", "Node.RepositoryTopics.TotalCount"), Description: "Count of topics associated with the repository."},
+		{Name: "open_issues_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("OpenIssues.TotalCount", "Node.OpenIssues.TotalCount"), Description: "Count of issues open on the repository."},
+		{Name: "watchers_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Watchers.TotalCount", "Node.Watchers.TotalCount"), Description: "Count of watchers on the repository."},
 	}
 }
 

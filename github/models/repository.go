@@ -75,6 +75,8 @@ type Repository struct {
 	WebCommitSignoffRequired bool                              `json:"web_commit_signoff_required"`
 	OutsideCollaborators     Count                             `graphql:"collaborators(affiliation: OUTSIDE)" json:"outside_collaborators"`
 	RepositoryTopics         Count                             `json:"repository_topics"`
+	OpenIssues               Count                             `graphql:"issues(states: OPEN)" json:"open_issues"`
+	Watchers                 Count                             `json:"watchers"`
 	// AssignableUsers [pageable]
 	// BranchProtectionRules [pageable]
 	// CodeOwners [search by refName]

@@ -24,9 +24,6 @@ func gitHubRepositoryV3Columns() []*plugin.Column {
 		{Name: "has_downloads", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Downloads feature is enabled on the repository."},
 		{Name: "has_pages", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Pages feature is enabled on the repository."},
 		{Name: "network_count", Type: proto.ColumnType_INT, Description: "The number of member repositories in the network.", Hydrate: tableGitHubRepositoryV3Get},
-		// Can get in v4 but don't currently
-		{Name: "open_issues_count", Type: proto.ColumnType_INT, Description: "The number of open issues for the repository."},
-		{Name: "watchers_count", Type: proto.ColumnType_INT, Description: "The number of users who have watched the repository."},
 	}
 }
 
