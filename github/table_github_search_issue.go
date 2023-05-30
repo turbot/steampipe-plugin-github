@@ -54,8 +54,12 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	client := connectV4(ctx, d)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_issue", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_issue", "api_error", err)

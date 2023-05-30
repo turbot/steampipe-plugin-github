@@ -40,8 +40,12 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 		"cursor":   (*githubv4.String)(nil),
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_repository", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_repository", "api_error", err)

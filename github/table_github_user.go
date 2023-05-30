@@ -124,7 +124,11 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"login": githubv4.String(login),
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_user", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_user", "api_error", err)

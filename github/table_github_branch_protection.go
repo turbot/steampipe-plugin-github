@@ -87,8 +87,12 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 		"cursor":   (*githubv4.String)(nil),
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
@@ -99,7 +103,7 @@ func tableGitHubRepositoryBranchProtectionList(ctx context.Context, d *plugin.Qu
 			row := mapBranchProtectionRule(&rule)
 
 			if rule.PushAllowances.PageInfo.HasNextPage {
-				err := branchProtectionGetPushAllowances(ctx, client, &row, rule.PushAllowances.PageInfo.EndCursor)
+				err := branchProtectionGetPushAllowances(ctx, d, h, client, &row, rule.PushAllowances.PageInfo.EndCursor)
 				if err != nil {
 					return nil, err
 				}
@@ -152,7 +156,11 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 		"nodeId": githubv4.ID(nodeId),
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)
@@ -162,7 +170,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	row := mapBranchProtectionRule(&query.Node.BranchProtectionRule)
 
 	if query.Node.BranchProtectionRule.PushAllowances.PageInfo.HasNextPage {
-		err := branchProtectionGetPushAllowances(ctx, client, &row, query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
+		err := branchProtectionGetPushAllowances(ctx, d, h, client, &row, query.Node.BranchProtectionRule.PushAllowances.PageInfo.EndCursor)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +193,7 @@ func tableGitHubRepositoryBranchProtectionGet(ctx context.Context, d *plugin.Que
 	return row, nil
 }
 
-func branchProtectionGetPushAllowances(ctx context.Context, client *githubv4.Client, row *branchProtectionRow, initialCursor githubv4.String) error {
+func branchProtectionGetPushAllowances(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, client *githubv4.Client, row *branchProtectionRow, initialCursor githubv4.String) error {
 	var query struct {
 		RateLimit models.RateLimit
 		Node      struct {
@@ -199,8 +207,12 @@ func branchProtectionGetPushAllowances(ctx context.Context, client *githubv4.Cli
 		"cursor":   githubv4.NewString(initialCursor),
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, vars)
+	}
+
 	for {
-		err := client.Query(ctx, &query, vars)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch_protection", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_branch_protection", "api_error", err)

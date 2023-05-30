@@ -70,7 +70,11 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	client := connectV4(ctx, d)
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_workflow", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_workflow", "api_error", err)

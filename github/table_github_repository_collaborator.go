@@ -58,8 +58,12 @@ func tableGitHubRepositoryCollaboratorList(ctx context.Context, d *plugin.QueryD
 	}
 
 	client := connectV4(ctx, d)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_repository_collaborator", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_repository_collaborator", "api_error", err)

@@ -89,8 +89,12 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		"cursor":   (*githubv4.String)(nil),
 	}
 
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_team", "api_error", err)
@@ -137,7 +141,11 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"slug":  githubv4.String(slug),
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_team", "api_error", err)
