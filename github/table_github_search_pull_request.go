@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -100,12 +99,13 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 		"query":    githubv4.String(input),
 	}
 
-	qj, _ := json.Marshal(query)
-	plugin.Logger(ctx).Debug(string(qj))
-
 	client := connectV4(ctx, d)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_pull_request", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_pull_request", "api_error", err)

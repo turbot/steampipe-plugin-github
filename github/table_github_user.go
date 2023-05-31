@@ -62,8 +62,8 @@ func sharedUserColumns() []*plugin.Column {
 		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the user.", Transform: transform.FromField("NodeId", "Node.NodeId")},
 		{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user.", Transform: transform.FromField("Email", "Node.Email")},
 		{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the user's GitHub page.", Transform: transform.FromField("Url", "Node.Url")},
-		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when user was created.", Transform: transform.FromField("CreatedAt", "Node.CreatedAt")},
-		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when user was last updated.", Transform: transform.FromField("UpdatedAt", "Node.UpdatedAt")},
+		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when user was created.", Transform: transform.FromField("CreatedAt", "Node.CreatedAt").NullIfZero().Transform(convertTimestamp)},
+		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when user was last updated.", Transform: transform.FromField("UpdatedAt", "Node.UpdatedAt").NullIfZero().Transform(convertTimestamp)},
 		{Name: "any_pinnable_items", Type: proto.ColumnType_BOOL, Description: "If true, user has pinnable items.", Transform: transform.FromField("AnyPinnableItems", "Node.AnyPinnableItems")},
 		{Name: "avatar_url", Type: proto.ColumnType_STRING, Description: "The URL of the user's avatar.", Transform: transform.FromField("AvatarUrl", "Node.AvatarUrl")},
 		{Name: "bio", Type: proto.ColumnType_STRING, Description: "The biography of the user.", Transform: transform.FromField("Bio", "Node.Bio")},
@@ -124,7 +124,11 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"login": githubv4.String(login),
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_user", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_user", "api_error", err)

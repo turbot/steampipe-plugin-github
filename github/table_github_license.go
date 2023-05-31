@@ -50,7 +50,10 @@ func tableGitHubLicenseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		Licenses  []models.License `graphql:"licenses"`
 	}
 
-	err := client.Query(ctx, &query, nil)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, nil)
+	}
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_license", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_license", "api_error", err)
@@ -86,7 +89,10 @@ func tableGitHubLicenseGetData(ctx context.Context, d *plugin.QueryData, h *plug
 		License   models.License `graphql:"license(key: $key)"`
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_license", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_license", "api_error", err)

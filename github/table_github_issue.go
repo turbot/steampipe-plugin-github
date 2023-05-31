@@ -162,8 +162,13 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 	}
 
 	client := connectV4(ctx, d)
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := retryHydrate(ctx, d, h, listPage)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_issue", "api_error", err)
@@ -209,7 +214,11 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		"issueNumber": githubv4.Int(issueNumber),
 	}
 
-	err := client.Query(ctx, &query, variables)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := retryHydrate(ctx, d, h, listPage)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_issue", "api_error", err)

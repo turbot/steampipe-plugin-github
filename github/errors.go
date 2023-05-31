@@ -36,6 +36,12 @@ func shouldRetryError(ctx context.Context, err error) bool {
 		return diff <= 60
 	}
 
+	// v4 secondary rate limit
+	if strings.Contains(err.Error(), "You have exceeded a secondary rate limit.") {
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "abuse_rate_limit_error", err)
+		return true
+	}
+
 	return false
 }
 
