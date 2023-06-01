@@ -49,7 +49,7 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}, err
 	}
 
-	listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+	listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 			resp:      resp,
 		}, err
 	}
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 
 	if err != nil {
 		return nil, err

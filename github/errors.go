@@ -9,7 +9,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-func shouldRetryError(ctx context.Context, err error) bool {
+func shouldRetryError(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, err error) bool {
 	if _, ok := err.(*github.AbuseRateLimitError); ok {
 		var retryAfter *time.Duration
 		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
@@ -43,6 +43,16 @@ func shouldRetryError(ctx context.Context, err error) bool {
 	}
 
 	return false
+}
+
+func retryConfig() *plugin.RetryConfig {
+	return &plugin.RetryConfig{
+		ShouldRetryErrorFunc: shouldRetryError,
+		MaxAttempts:          10,
+		BackoffAlgorithm:     "Exponential",
+		RetryInterval:        1000,
+		CappedDuration:       30000,
+	}
 }
 
 // function which returns an ErrorPredicate for Github API calls

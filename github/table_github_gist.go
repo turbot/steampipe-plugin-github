@@ -72,7 +72,7 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 	if err != nil {
 		return nil, err
 	}

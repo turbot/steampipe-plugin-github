@@ -62,7 +62,7 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_tag", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_tag", "api_error", err)

@@ -73,7 +73,7 @@ func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 			resp: resp,
 		}, err
 	}
-	getResponse, err := retryHydrate(ctx, d, h, getTree)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getTree, retryConfig())
 
 	if err != nil {
 		logger.Error("github_tree.tableGitHubTreeList", "api_error", err)

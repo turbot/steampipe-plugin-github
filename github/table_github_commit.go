@@ -116,7 +116,7 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_commit", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_commit", "api_error", err)
@@ -168,7 +168,7 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		return nil, client.Query(ctx, &query, variables)
 	}
 
-	_, err := retryHydrate(ctx, d, h, listPage)
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_commit", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_commit", "api_error", err)
