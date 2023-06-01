@@ -104,7 +104,7 @@ func tableGitHubCodeOwnerList(ctx context.Context, d *plugin.QueryData, h *plugi
 		return decodeCodeOwnerFileContent(decodedContent), err
 	}
 
-	codeOwnersElements, err := retryHydrate(ctx, d, h, getCodeOwners)
+	codeOwnersElements, err := plugin.RetryHydrate(ctx, d, h, getCodeOwners, retryConfig())
 	if err != nil {
 		plugin.Logger(ctx).Error("github_code_owner.tableGitHubCodeOwnerList", "retry_hydrate_error", err)
 		return nil, err

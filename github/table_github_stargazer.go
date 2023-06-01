@@ -60,7 +60,7 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_stargazer", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_stargazer", "api_error", err)

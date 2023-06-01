@@ -94,7 +94,7 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_team", "api_error", err)
@@ -145,7 +145,7 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, client.Query(ctx, &query, variables)
 	}
 
-	_, err := retryHydrate(ctx, d, h, listPage)
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_team", "api_error", err)

@@ -86,7 +86,7 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			logger.Error("tableGitHubSearchLabelList", "error_RetryHydrate", err)

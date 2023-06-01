@@ -168,7 +168,7 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_issue", "api_error", err)
@@ -218,7 +218,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		return nil, client.Query(ctx, &query, variables)
 	}
 
-	_, err := retryHydrate(ctx, d, h, listPage)
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_issue", "api_error", err)

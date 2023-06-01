@@ -66,7 +66,7 @@ func tableGitHubRepositoryV3Get(ctx context.Context, d *plugin.QueryData, h *plu
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
@@ -103,7 +103,7 @@ func repositoryHooksV3Get(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		if err != nil && strings.Contains(err.Error(), "Not Found") {
 			return nil, nil
 		} else if err != nil {

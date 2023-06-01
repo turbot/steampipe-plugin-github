@@ -59,7 +59,7 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 	}
 
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_pull_request", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_pull_request", "api_error", err)

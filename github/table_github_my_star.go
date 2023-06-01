@@ -54,7 +54,7 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 		return nil, client.Query(ctx, &query, variables)
 	}
 	for {
-		_, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_star", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_star", "api_error", err)
