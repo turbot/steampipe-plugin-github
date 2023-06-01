@@ -7,7 +7,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"net/url"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
@@ -172,30 +171,30 @@ func convertTimestamp(ctx context.Context, input *transform.TransformData) (inte
 	}
 }
 
-func filterUserLogins(_ context.Context, input *transform.TransformData) (interface{}, error) {
-	user_logins := make([]string, 0)
-	if input.Value == nil {
-		return user_logins, nil
-	}
-
-	var userType []*github.User
-
-	// Check type of the transform values otherwise it is throwing error while type casting the interface to []*github.User type
-	if reflect.TypeOf(input.Value) != reflect.TypeOf(userType) {
-		return nil, nil
-	}
-
-	users := input.Value.([]*github.User)
-
-	if users == nil {
-		return user_logins, nil
-	}
-
-	for _, u := range users {
-		user_logins = append(user_logins, *u.Login)
-	}
-	return user_logins, nil
-}
+// func filterUserLogins(_ context.Context, input *transform.TransformData) (interface{}, error) {
+// 	user_logins := make([]string, 0)
+// 	if input.Value == nil {
+// 		return user_logins, nil
+// 	}
+//
+// 	var userType []*github.User
+//
+// 	// Check type of the transform values otherwise it is throwing error while type casting the interface to []*github.User type
+// 	if reflect.TypeOf(input.Value) != reflect.TypeOf(userType) {
+// 		return nil, nil
+// 	}
+//
+// 	users := input.Value.([]*github.User)
+//
+// 	if users == nil {
+// 		return user_logins, nil
+// 	}
+//
+// 	for _, u := range users {
+// 		user_logins = append(user_logins, *u.Login)
+// 	}
+// 	return user_logins, nil
+// }
 
 func defaultSearchColumns() []*plugin.Column {
 	return []*plugin.Column{
