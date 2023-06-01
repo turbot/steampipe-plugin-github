@@ -1,5 +1,6 @@
 package github
 
+/*
 import (
 	"context"
 	"github.com/google/go-github/v48/github"
@@ -86,3 +87,4 @@ func tableGitHubMyRepositoryV3List(ctx context.Context, d *plugin.QueryData, h *
 
 	return nil, nil
 }
+*/
