@@ -46,13 +46,14 @@ type BasicPullRequest struct {
 	Repo                struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
+	// CanBeRebased        bool                               `json:"can_be_rebased"`
 }
 
 type PullRequest struct {
 	BasicPullRequest
-	BaseRef             BasicRef                             `json:"base_ref"`
-	HeadRef             BasicRef                             `json:"head_ref"`
-	MergeCommit         Commit                               `json:"merge_commit"`
+	BaseRef             *BasicRef                            `json:"base_ref,omitempty"`
+	HeadRef             *BasicRef                            `json:"head_ref,omitempty"`
+	MergeCommit         *BasicCommit                         `json:"merge_commit,omitempty"`
 	SuggestedReviewers  []SuggestedReviewer                  `json:"suggested_reviewers"`
 	CanApplySuggestion  bool                                 `graphql:"canApplySuggestion:viewerCanApplySuggestion" json:"can_apply_suggestion"`
 	CanClose            bool                                 `graphql:"canClose:viewerCanClose" json:"can_close"`
@@ -69,6 +70,13 @@ type PullRequest struct {
 	DidAuthor           bool                                 `graphql:"didAuthor:viewerDidAuthor" json:"did_author"`
 	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons" json:"cannot_update_reasons"`
 	Subscription        githubv4.SubscriptionState           `graphql:"subscription: viewerSubscription" json:"subscription"`
+
+	// Counts
+	Assignees      Count `json:"assignees"`
+	Labels         Count `json:"labels"`
+	Commits        Count `json:"commits"`
+	ReviewRequests Count `json:"review_requests"`
+	Reviews        Count `json:"reviews"`
 
 	// Assignees [pageable]
 	// ClosingIssueReferences [pageable]
