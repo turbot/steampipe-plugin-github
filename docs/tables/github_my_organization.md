@@ -25,6 +25,18 @@ from
   github_my_organization;
 ```
 
+### Show all members for the GitHub Organizations to which you belong
+
+```sql
+select
+  o.login as organization,
+  m.login as member_login
+from
+  github_my_organization o
+join github_organization_member m
+on o.login = m.organization;
+```
+
 ### Show your permissions on the Organization
 
 ```sql
@@ -39,4 +51,37 @@ select
   is_a_member as current_member
 from
   github_my_organization;
+```
+
+### Show Organization security settings
+
+```sql
+select
+  login as organization,
+  members_with_role_total_count as members_count,
+  members_allowed_repository_creation_type,
+  members_can_create_internal_repos,
+  members_can_create_pages,
+  members_can_create_private_repos,
+  members_can_create_public_repos,
+  members_can_create_repos,
+  default_repo_permission,
+  two_factor_requirement_enabled
+from
+  github_my_organization;
+```
+
+### List organization hooks that are insecure
+
+```sql
+select
+  login as organization,
+  hook
+from
+  github_my_organization,
+  jsonb_array_elements(hooks) as hook
+where
+  hook -> 'config' ->> 'insecure_ssl' = '1'
+    or hook -> 'config' ->> 'secret' is null
+    or hook -> 'config' ->> 'url' not like '%https:%';
 ```

@@ -42,6 +42,12 @@ func shouldRetryError(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		return true
 	}
 
+	// v4 execution timeout error
+	if strings.Contains(err.Error(), "Something went wrong while executing your query. This may be the result of a timeout, or it could be a GitHub bug.") {
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "execution_timeout_error", err)
+		return true
+	}
+
 	return false
 }
 

@@ -2,18 +2,19 @@ package github
 
 import (
 	"context"
+	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"strings"
 )
 
 func gitHubRepositoryColumns() []*plugin.Column {
 	repoColumns := []*plugin.Column{
 		{Name: "full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromQual("full_name")},
 	}
-
 	return append(repoColumns, sharedRepositoryColumns()...)
 }
 
@@ -93,6 +94,13 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "repository_topics_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("RepositoryTopics.TotalCount", "Node.RepositoryTopics.TotalCount"), Description: "Count of topics associated with the repository."},
 		{Name: "open_issues_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("OpenIssues.TotalCount", "Node.OpenIssues.TotalCount"), Description: "Count of issues open on the repository."},
 		{Name: "watchers_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Watchers.TotalCount", "Node.Watchers.TotalCount"), Description: "Count of watchers on the repository."},
+		// Columns from v3 api - hydrates
+		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: hydrateRepositoryHooksFromV3, Transform: transform.FromValue()},
+		{Name: "topics", Type: proto.ColumnType_JSON, Description: "The topics (similar to tags or labels) associated with the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "subscribers_count", Type: proto.ColumnType_INT, Description: "The number of users who have subscribed to the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "has_downloads", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Downloads feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "has_pages", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Pages feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "network_count", Type: proto.ColumnType_INT, Description: "The number of member repositories in the network.", Hydrate: hydrateRepositoryDataFromV3},
 	}
 }
 
@@ -139,4 +147,78 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	d.StreamListItem(ctx, query.Repository)
 
 	return nil, nil
+}
+
+func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	repo := h.Item.(models.Repository)
+	owner := repo.Owner.Login
+	repoName := repo.Name
+
+	client := connect(ctx, d)
+
+	type GetResponse struct {
+		repo *github.Repository
+		resp *github.Response
+	}
+
+	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
+		return GetResponse{
+			repo: detail,
+			resp: resp,
+		}, err
+	}
+
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+
+	if err != nil {
+		if strings.Contains(err.Error(), "404") {
+			return nil, nil
+		}
+		return nil, err
+	}
+	getResp := getResponse.(GetResponse)
+	r := getResp.repo
+
+	if r == nil {
+		return nil, nil
+	}
+
+	return r, nil
+}
+
+func hydrateRepositoryHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	repo := h.Item.(models.Repository)
+	owner := repo.Owner.Login
+	repoName := repo.Name
+
+	client := connect(ctx, d)
+	var repositoryHooks []*github.Hook
+	opt := &github.ListOptions{PerPage: 100}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		hooks, resp, err := client.Repositories.ListHooks(ctx, owner, repoName, opt)
+		return ListHooksResponse{
+			hooks: hooks,
+			resp:  resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		if err != nil && strings.Contains(err.Error(), "Not Found") {
+			return nil, nil
+		} else if err != nil {
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListHooksResponse)
+		hooks := listResponse.hooks
+		resp := listResponse.resp
+		repositoryHooks = append(repositoryHooks, hooks...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	return repositoryHooks, nil
 }

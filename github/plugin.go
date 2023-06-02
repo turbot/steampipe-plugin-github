@@ -39,7 +39,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_my_team":                         tableGitHubMyTeam(),
 			"github_organization":                    tableGitHubOrganization(),
 			"github_organization_member":             tableGitHubOrganizationMember(),
-			"github_organization_owner":              tableGitHubOrganizationOwner(),
 			"github_organization_dependabot_alert":   tableGitHubOrganizationDependabotAlert(),
 			"github_pull_request":                    tableGitHubPullRequest(),
 			"github_rate_limit":                      tableGitHubRateLimit(ctx),
@@ -66,10 +65,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_tree":                            tableGitHubTree(ctx),
 			"github_user":                            tableGitHubUser(),
 			"github_workflow":                        tableGitHubWorkflow(ctx),
-			"github_my_organization_v3":              tableGitHubMyOrganizationV3(),
-			"github_organization_v3":                 tableGitHubOrganizationV3(),
-			"github_my_repository_v3":                tableGitHubMyRepositoryV3(),
-			"github_repository_v3":                   tableGitHubRepositoryV3(),
 		},
 	}
 	return p
