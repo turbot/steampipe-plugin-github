@@ -64,6 +64,7 @@ func sharedOrganizationColumns() []*plugin.Column {
 		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: hydrateOrganizationDataFromV3},
 		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: hydrateOrganizationDataFromV3},
 		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_fork_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can fork private organization repositories.", Hydrate: hydrateOrganizationDataFromV3},
 		{Name: "plan_filled_seats", Type: proto.ColumnType_INT, Description: "The number of used seats for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.FilledSeats")},
 		{Name: "plan_name", Type: proto.ColumnType_STRING, Description: "The name of the GitHub plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Name")},
 		{Name: "plan_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.PrivateRepos")},
