@@ -15,21 +15,7 @@ func gitHubRepositoryColumns() []*plugin.Column {
 	repoColumns := []*plugin.Column{
 		{Name: "full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromQual("full_name")},
 	}
-
-	testCols := append(repoColumns, v3repoColumns()...)
-
-	return append(testCols, sharedRepositoryColumns()...)
-}
-
-func v3repoColumns() []*plugin.Column {
-	return []*plugin.Column{
-		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: v3repoHooksGet, Transform: transform.FromValue()},
-		{Name: "topics", Type: proto.ColumnType_JSON, Description: "The topics (similar to tags or labels) associated with the repository.", Hydrate: v3repoGet},
-		{Name: "subscribers_count", Type: proto.ColumnType_INT, Description: "The number of users who have subscribed to the repository.", Hydrate: v3repoGet},
-		{Name: "has_downloads", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Downloads feature is enabled on the repository.", Hydrate: v3repoGet},
-		{Name: "has_pages", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Pages feature is enabled on the repository.", Hydrate: v3repoGet},
-		{Name: "network_count", Type: proto.ColumnType_INT, Description: "The number of member repositories in the network.", Hydrate: v3repoGet},
-	}
+	return append(repoColumns, sharedRepositoryColumns()...)
 }
 
 func sharedRepositoryColumns() []*plugin.Column {
@@ -108,6 +94,13 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "repository_topics_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("RepositoryTopics.TotalCount", "Node.RepositoryTopics.TotalCount"), Description: "Count of topics associated with the repository."},
 		{Name: "open_issues_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("OpenIssues.TotalCount", "Node.OpenIssues.TotalCount"), Description: "Count of issues open on the repository."},
 		{Name: "watchers_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Watchers.TotalCount", "Node.Watchers.TotalCount"), Description: "Count of watchers on the repository."},
+		// Columns from v3 api - hydrates
+		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: hydrateRepositoryHooksFromV3, Transform: transform.FromValue()},
+		{Name: "topics", Type: proto.ColumnType_JSON, Description: "The topics (similar to tags or labels) associated with the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "subscribers_count", Type: proto.ColumnType_INT, Description: "The number of users who have subscribed to the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "has_downloads", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Downloads feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "has_pages", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Pages feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "network_count", Type: proto.ColumnType_INT, Description: "The number of member repositories in the network.", Hydrate: hydrateRepositoryDataFromV3},
 	}
 }
 
@@ -156,7 +149,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
-func v3repoGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	repo := h.Item.(models.Repository)
 	owner := repo.Owner.Login
 	repoName := repo.Name
@@ -194,7 +187,7 @@ func v3repoGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	return r, nil
 }
 
-func v3repoHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func hydrateRepositoryHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	repo := h.Item.(models.Repository)
 	owner := repo.Owner.Login
 	repoName := repo.Name

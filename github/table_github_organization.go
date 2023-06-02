@@ -53,6 +53,27 @@ func sharedOrganizationColumns() []*plugin.Column {
 		{Name: "is_following", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsFollowing", "Node.IsFollowing"), Description: "If true, you are following the organization."},
 		{Name: "is_sponsoring", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsSponsoring", "Node.IsSponsoring"), Description: "If true, you are sponsoring the organization."},
 		{Name: "website_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("WebsiteUrl", "Node.WebsiteUrl"), Description: "URL for the organization's public website."},
+		// Columns from v3 api - hydrates
+		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The Hooks of the organization.", Hydrate: hydrateOrganizationHooksFromV3, Transform: transform.FromValue()},
+		{Name: "billing_email", Type: proto.ColumnType_STRING, Description: "The email address for billing.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "two_factor_requirement_enabled", Type: proto.ColumnType_BOOL, Description: "If true, all members in the organization must have two factor authentication enabled.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "default_repo_permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions for the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_allowed_repository_creation_type", Type: proto.ColumnType_STRING, Description: "Specifies which types of repositories non-admin organization members can create", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_internal_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create internal repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_pages", Type: proto.ColumnType_BOOL, Description: "If true, members can create pages.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "plan_filled_seats", Type: proto.ColumnType_INT, Description: "The number of used seats for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.FilledSeats")},
+		{Name: "plan_name", Type: proto.ColumnType_STRING, Description: "The name of the GitHub plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Name")},
+		{Name: "plan_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.PrivateRepos")},
+		{Name: "plan_seats", Type: proto.ColumnType_INT, Description: "The number of available seats for the plan", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Seats")},
+		{Name: "plan_space", Type: proto.ColumnType_INT, Description: "The total space allocated for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Space")},
+		{Name: "followers", Type: proto.ColumnType_INT, Description: "The number of users following the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "following", Type: proto.ColumnType_INT, Description: "The number of users followed by the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators for the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: hydrateOrganizationDataFromV3},
 	}
 }
 
@@ -75,34 +96,8 @@ func sharedOrganizationCountColumns() []*plugin.Column {
 	}
 }
 
-func v3orgColumns() []*plugin.Column {
-	return []*plugin.Column{
-		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The Hooks of the organization.", Hydrate: v3orgHooksGet3, Transform: transform.FromValue()},
-		{Name: "billing_email", Type: proto.ColumnType_STRING, Description: "The email address for billing.", Hydrate: v3orgGet},
-		{Name: "two_factor_requirement_enabled", Type: proto.ColumnType_BOOL, Description: "If true, all members in the organization must have two factor authentication enabled.", Hydrate: v3orgGet},
-		{Name: "default_repo_permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions for the organization.", Hydrate: v3orgGet},
-		{Name: "members_allowed_repository_creation_type", Type: proto.ColumnType_STRING, Description: "Specifies which types of repositories non-admin organization members can create", Hydrate: v3orgGet},
-		{Name: "members_can_create_internal_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create internal repositories.", Hydrate: v3orgGet},
-		{Name: "members_can_create_pages", Type: proto.ColumnType_BOOL, Description: "If true, members can create pages.", Hydrate: v3orgGet},
-		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: v3orgGet},
-		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: v3orgGet},
-		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: v3orgGet},
-		{Name: "plan_filled_seats", Type: proto.ColumnType_INT, Description: "The number of used seats for the plan.", Hydrate: v3orgGet, Transform: transform.FromField("Plan.FilledSeats")},
-		{Name: "plan_name", Type: proto.ColumnType_STRING, Description: "The name of the GitHub plan.", Hydrate: v3orgGet, Transform: transform.FromField("Plan.Name")},
-		{Name: "plan_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories for the plan.", Hydrate: v3orgGet, Transform: transform.FromField("Plan.PrivateRepos")},
-		{Name: "plan_seats", Type: proto.ColumnType_INT, Description: "The number of available seats for the plan", Hydrate: v3orgGet, Transform: transform.FromField("Plan.Seats")},
-		{Name: "plan_space", Type: proto.ColumnType_INT, Description: "The total space allocated for the plan.", Hydrate: v3orgGet, Transform: transform.FromField("Plan.Space")},
-		{Name: "followers", Type: proto.ColumnType_INT, Description: "The number of users following the organization.", Hydrate: v3orgGet},
-		{Name: "following", Type: proto.ColumnType_INT, Description: "The number of users followed by the organization.", Hydrate: v3orgGet},
-		{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators for the organization.", Hydrate: v3orgGet},
-		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: v3orgGet},
-		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: v3orgGet},
-	}
-}
-
 func gitHubOrganizationColumns() []*plugin.Column {
-	orgCols := append(sharedOrganizationColumns(), sharedOrganizationCountColumns()...)
-	return append(orgCols, v3orgColumns()...)
+	return append(sharedOrganizationColumns(), sharedOrganizationCountColumns()...)
 }
 
 func tableGitHubOrganization() *plugin.Table {
@@ -152,7 +147,7 @@ func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *pl
 	return nil, nil
 }
 
-func v3orgHooksGet3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func hydrateOrganizationHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	org := h.Item.(models.OrganizationWithCounts)
 	login := org.Login
 
@@ -188,7 +183,7 @@ func v3orgHooksGet3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	return orgHooks, nil
 }
 
-func v3orgGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func hydrateOrganizationDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	org := h.Item.(models.OrganizationWithCounts)
 	login := org.Login
 

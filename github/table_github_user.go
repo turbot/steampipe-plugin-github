@@ -6,8 +6,6 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
 
-	"github.com/google/go-github/v48/github"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -100,18 +98,7 @@ func sharedUserColumns() []*plugin.Column {
 }
 
 func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var login string
-	if h.Item != nil {
-		item := h.Item.(*github.User)
-		plugin.Logger(ctx).Trace("tableGitHubUserGet", item.String())
-		login = *item.Login
-	} else {
-		login = d.EqualsQuals["login"].GetStringValue()
-	}
-
-	if login == "" {
-		return nil, nil
-	}
+	login := d.EqualsQuals["login"].GetStringValue()
 
 	client := connectV4(ctx, d)
 
