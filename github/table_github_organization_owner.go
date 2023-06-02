@@ -11,7 +11,8 @@ import (
 )
 
 func gitHubOrganizationOwnerColumns() []*plugin.Column {
-	ownerCols := []*plugin.Column{
+	return []*plugin.Column{
+		{Name: "login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Login", "Node.Login"), Description: "The login name of the organization."},
 		{Name: "ip_allow_list_enabled_setting", Type: proto.ColumnType_STRING, Transform: transform.FromField("IpAllowListEnabledSetting", "Node.IpAllowListEnabledSetting"), Description: "The setting value for whether the organization has an IP allow list enabled."},
 		{Name: "ip_allow_list_for_installed_apps_enabled_setting", Type: proto.ColumnType_STRING, Transform: transform.FromField("IpAllowListForInstalledAppsEnabledSetting", "Node.IpAllowListForInstalledAppsEnabledSetting"), Description: "The setting value for whether the organization has IP allow list configuration for installed GitHub Apps enabled."},
 		{Name: "members_can_fork_private_repositories", Type: proto.ColumnType_BOOL, Transform: transform.FromField("MembersCanForkPrivateRepositories", "Node.MembersCanForkPrivateRepositories"), Description: "If true, members can fork private repositories in this organization."},
@@ -20,8 +21,6 @@ func gitHubOrganizationOwnerColumns() []*plugin.Column {
 		{Name: "requires_two_factor_authentication", Type: proto.ColumnType_BOOL, Transform: transform.FromField("RequiresTwoFactorAuthentication", "Node.RequiresTwoFactorAuthentication"), Description: "If true, the organization requires all members, billing managers, and outside collaborators to enable two-factor authentication."},
 		{Name: "web_commit_signoff_required", Type: proto.ColumnType_BOOL, Transform: transform.FromField("WebCommitSignoffRequired", "Node.WebCommitSignoffRequired"), Description: "Whether contributors are required to sign off on web-based commits for repositories in this organization."},
 	}
-
-	return append(gitHubOrganizationColumns(), ownerCols...)
 }
 
 func tableGitHubOrganizationOwner() *plugin.Table {

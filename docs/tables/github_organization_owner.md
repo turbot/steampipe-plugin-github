@@ -20,7 +20,6 @@ This table is an extended variant of the `github_organization` table with the fo
 ```sql
 select
   login as organization,
-  name,
   ip_allow_list_enabled_setting,
   ip_allow_list_for_installed_apps_enabled_setting,
   members_can_fork_private_repositories,
