@@ -26,3 +26,32 @@ from
 where
   login = 'postgres';
 ```
+
+### List members of an organization
+
+```sql
+select
+  o.login as organization,
+  m.login as user_login,
+  m.has_two_factor_enabled as mfa_enabled
+from
+  github_organization o,
+  github_organization_member m
+where
+  o.login = 'turbot'
+and
+  o.login = m.organization;
+```
+
+OR
+
+```sql
+select
+  organization,
+  login as user_login,
+  has_two_factor_enabled as mfa_enabled
+from
+  github_organization_member
+where
+  organization = 'turbot';
+```

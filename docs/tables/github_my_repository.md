@@ -30,6 +30,8 @@ select
   primary_language ->> 'name' as language,
   fork_count,
   stargazer_count,
+  subscribers_count,
+  watchers_total_count,
   updated_at as last_updated,
   description
 from
@@ -63,3 +65,47 @@ where
   visibility = 'PUBLIC';
 ```
 
+### List all your repositories and their collaborators
+
+```sql
+select
+  r.name_with_owner as repository_full_name,
+  c.user_login,
+  c.permission
+from
+  github_my_repository r
+ ,github_repository_collaborator c
+where
+  r.name_with_owner = c.repository_full_name;
+```
+
+### List all your repository collaborators with admin or maintainer permissions
+
+```sql
+select
+  r.name_with_owner as repository_full_name,
+  c.user_login,
+  c.permission
+from
+  github_my_repository r
+ ,github_repository_collaborator c
+where
+  r.name_with_owner = c.repository_full_name
+and
+  permission in ('ADMIN', 'MAINTAIN');
+```
+
+### List repository hooks that are insecure
+
+```sql
+select
+  name as repository,
+  hook
+from
+  github_my_repository,
+  jsonb_array_elements(hooks) as hook
+where
+  hook -> 'config' ->> 'insecure_ssl' = '1'
+    or hook -> 'config' ->> 'secret' is null
+    or hook -> 'config' ->> 'url' not like '%https:%';
+```
