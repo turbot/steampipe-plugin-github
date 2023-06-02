@@ -75,6 +75,7 @@ func sharedOrganizationColumns() []*plugin.Column {
 		{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators for the organization.", Hydrate: hydrateOrganizationDataFromV3},
 		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: hydrateOrganizationDataFromV3},
 		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "web_commit_signoff_required", Type: proto.ColumnType_BOOL, Description: "If true, contributors are required to sign off on web-based commits for repositories in this organization.", Hydrate: hydrateOrganizationDataFromV3},
 	}
 }
 
