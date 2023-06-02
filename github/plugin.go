@@ -39,7 +39,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_my_team":                         tableGitHubMyTeam(),
 			"github_organization":                    tableGitHubOrganization(),
 			"github_organization_member":             tableGitHubOrganizationMember(),
-			"github_organization_owner":              tableGitHubOrganizationOwner(),
 			"github_organization_dependabot_alert":   tableGitHubOrganizationDependabotAlert(),
 			"github_pull_request":                    tableGitHubPullRequest(),
 			"github_rate_limit":                      tableGitHubRateLimit(ctx),
