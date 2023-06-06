@@ -42,12 +42,12 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "alert_number"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertGet,
 		},
 		Columns: append(

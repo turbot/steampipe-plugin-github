@@ -198,7 +198,7 @@ func tableGitHubOrganizationDependabotAlert() *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubOrganizationDependabotAlertList,
 		},
 		Columns: append(
