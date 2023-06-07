@@ -82,8 +82,9 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	for _, workflow := range query.Repository.Object.Tree.Entries {
-		d.StreamListItem(ctx, workflow)
-
+		if workflow.Extension == ".yml" || workflow.Extension == ".yaml" {
+			d.StreamListItem(ctx, workflow)
+		}
 		// Context can be cancelled due to manual cancellation or the limit has been hit
 		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
