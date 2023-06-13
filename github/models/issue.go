@@ -75,3 +75,28 @@ type IssueTemplate struct {
 	// Assignees [pageable]
 	// Labels [pageable]
 }
+
+type IssueComment struct {
+	Id                  int                                  `graphql:"id: databaseId" json:"id"`
+	NodeId              string                               `graphql:"nodeId: id" json:"node_id"`
+	Author              Actor                                `json:"author"`
+	AuthorAssociation   githubv4.CommentAuthorAssociation    `json:"author_association"`
+	Body                string                               `json:"body"`
+	BodyText            string                               `json:"body_text"`
+	CreatedAt           NullableTime                         `json:"created_at"`
+	CreatedViaEmail     bool                                 `json:"created_via_email"`
+	Editor              Actor                                `json:"editor"`
+	IncludesCreatedEdit bool                                 `json:"includes_created_edit"`
+	IsMinimized         bool                                 `json:"is_minimized"`
+	LastEditedAt        NullableTime                         `json:"last_edited_at"`
+	MinimizedReason     string                               `json:"minimized_reason"`
+	PublishedAt         NullableTime                         `json:"published_at"`
+	UpdatedAt           NullableTime                         `json:"updated_at"`
+	Url                 string                               `json:"url"`
+	CanDelete           bool                                 `graphql:"canDelete: viewerCanDelete" json:"can_delete"`
+	CanMinimize         bool                                 `graphql:"canMinimize: viewerCanMinimize" json:"can_minimize"`
+	CanReact            bool                                 `graphql:"canReact: viewerCanReact" json:"can_react"`
+	CanUpdate           bool                                 `graphql:"canUpdate: viewerCanUpdate" json:"can_update"`
+	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons" json:"cannot_update_reasons"`
+	DidAuthor           bool                                 `graphql:"didAuthor: viewerDidAuthor" json:"did_author"`
+}
