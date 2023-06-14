@@ -11,33 +11,58 @@ The `github_pull_request_comment` table can be used to query comments from a spe
 ```sql
 select
   id,
-  node_id,
-  author,
   author_login,
   author_association,
-  body,
   body_text,
   created_at,
   updated_at,
   published_at,
   last_edited_at,
-  created_via_email,
-  editor,
   editor_login,
-  includes_created_edit,
-  is_minimized,
-  minimized_reason,
-  url,
-  can_delete,
-  can_minimize,
-  can_react,
-  can_update,
-  cannot_update_reasons,
-  did_author
+  url
 from
   github_pull_request_comment
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
 and
   number = 207;
+```
+
+### List comments for a specific pull request which match a certain body content
+
+```sql
+select
+  id,
+  number as issue,
+  author_login as comment_author,
+  author_association,
+  body_text as content,
+  created_at,
+  url
+from
+  github_pull_request_comment
+where
+  repository_full_name = 'turbot/steampipe-plugin-github'
+and
+  number = 207
+and
+  body_text ~~* '%DELAY%';
+```
+
+### List comments for all open pull requests from a specific repository
+```sql
+select
+  c.*
+from
+  github_pull_request r
+join
+  github_pull_request_comment c
+on
+  r.repository_full_name = c.repository_full_name
+and
+  r.number = c.number
+where
+  r.repository_full_name = 'turbot/steampipe-plugin-github'
+and
+  r.state = 'OPEN';
 ```
