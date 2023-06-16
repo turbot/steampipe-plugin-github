@@ -13,7 +13,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchLable(ctx context.Context) *plugin.Table {
+func tableGitHubSearchLable() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_label",
 		Description: "Find labels in a repository with names or descriptions that match search keywords.",

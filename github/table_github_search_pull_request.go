@@ -11,7 +11,7 @@ func gitHubSearchPullRequestColumns() []*plugin.Column {
 	return append(defaultSearchColumns(), sharedPullRequestColumns()...)
 }
 
-func tableGitHubSearchPullRequest(ctx context.Context) *plugin.Table {
+func tableGitHubSearchPullRequest() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_pull_request",
 		Description: "Find pull requests by state and keyword.",

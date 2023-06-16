@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINTION
 
-func tableGitHubTrafficViewDaily(ctx context.Context) *plugin.Table {
+func tableGitHubTrafficViewDaily() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_traffic_view_daily",
 		Description: "Daily traffic view over the last 14 days for the given repository.",

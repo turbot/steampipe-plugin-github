@@ -10,7 +10,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-func tableGitHubRateLimit(ctx context.Context) *plugin.Table {
+func tableGitHubRateLimit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_rate_limit",
 		Description: "Rate limit of github.",

@@ -12,7 +12,7 @@ func gitHubSearchRepositoryColumns() []*plugin.Column {
 	return append(defaultSearchColumns(), sharedRepositoryColumns()...)
 }
 
-func tableGitHubSearchRepository(ctx context.Context) *plugin.Table {
+func tableGitHubSearchRepository() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_repository",
 		Description: "Find repositories via various criteria.",

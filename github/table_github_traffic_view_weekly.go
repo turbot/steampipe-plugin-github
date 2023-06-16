@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINTION
 
-func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
+func tableGitHubTrafficViewWeekly() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_traffic_view_weekly",
 		Description: "Weekly traffic view over the last 14 days for the given repository.",

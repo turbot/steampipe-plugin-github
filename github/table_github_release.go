@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINTION
 
-func tableGitHubRelease(ctx context.Context) *plugin.Table {
+func tableGitHubRelease() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_release",
 		Description: "GitHub Releases bundle project files for download by users.",

@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubTree(ctx context.Context) *plugin.Table {
+func tableGitHubTree() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_tree",
 		Description: "Lists directories and files in the given repository's git tree.",

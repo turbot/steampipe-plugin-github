@@ -11,7 +11,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchTopic(ctx context.Context) *plugin.Table {
+func tableGitHubSearchTopic() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_topic",
 		Description: "Find topics via various criteria.",
