@@ -11,7 +11,7 @@ The `github_branch` table can be used to query information about any branch, and
 ```sql
 select
   name,
-  commit_sha,
+  commit ->> 'sha' as commit_sha,
   protected
 from
   github_branch
@@ -19,25 +19,44 @@ where
   repository_full_name = 'turbot/steampipe';
 ```
 
-### Get commit details for each branch (Not working yet)
-
-Note: This example is intended to join branches with commit information to return the
-full details of each item. Currently joins with multiple columns are not
-working pending a solution to [#47](https://github.com/turbot/steampipe-postgres-fdw/issues/47).
+### List commit details for each branch
 
 ```sql
 select
-  t.name,
-  t.commit_sha,
-  c.author_date,
-  c.message
+  name,
+  commit ->> 'sha' as commit_sha,
+  commit ->> 'message' as commit_message,
+  commit ->> 'url' as commit_url,
+  commit -> 'author' -> 'user' ->> 'login' as author,
+  commit ->> 'authored_date' as authored_date,
+  commit -> 'committer' -> 'user' ->> 'login' as committer,
+  commit ->> 'committed_date' as committed_date,
+  commit ->> 'additions' as additions,
+  commit ->> 'deletions' as deletions,
+  commit ->> 'changed_files' as changed_files
 from
-  github_branch as t,
-  github_commit as c
+  github_branch
 where
-  t.repository_full_name = 'turbot/steampipe'
-  and t.repository_full_name = c.repository_full_name
-  and t.commit_sha = c.sha
-order by
-  c.author_date desc;
+  repository_full_name = 'turbot/steampipe';
+```
+
+### List branch protection information for each protected branch
+
+```sql
+select
+  name,
+  protected,
+  branch_protection_rule ->> 'id' as rule_id,
+  branch_protection_rule ->> 'node_id' as rule_node_id,
+  branch_protection_rule ->> 'allows_deletions' as allows_deletions,
+  branch_protection_rule ->> 'allows_force_pushes' as allows_force_pushes,
+  branch_protection_rule ->> 'creator_login' as rule_creator,
+  branch_protection_rule ->> 'requires_commit_signatures' as requires_signatures,
+  branch_protection_rule ->> 'restricts_pushes' as restricts_pushes
+from
+  github_branch
+where
+  repository_full_name = 'turbot/steampipe';
+and
+  protected = true;
 ```

@@ -2,75 +2,105 @@ package github
 
 import (
 	"context"
-	"strings"
-
 	"github.com/google/go-github/v48/github"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-func gitHubOrganizationColumns() []*plugin.Column {
+func sharedOrganizationColumns() []*plugin.Column {
 	return []*plugin.Column{
-		// Top columns
-		{Name: "login", Type: proto.ColumnType_STRING, Description: "The login name of the organization."},
-		{Name: "name", Type: proto.ColumnType_STRING, Description: "The organization name.", Hydrate: getOrganizationDetail},
-		{Name: "type", Type: proto.ColumnType_STRING, Description: "The user type of the organization.", Hydrate: getOrganizationDetail},
-		{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The address for the organization's GitHub web page.", Hydrate: getOrganizationDetail, Transform: transform.FromField("HTMLURL")},
-
-		{Name: "avatar_url", Type: proto.ColumnType_STRING, Description: "The URL of the organization's avatar.", Transform: transform.FromField("AvatarURL")},
-		{Name: "billing_email", Type: proto.ColumnType_STRING, Description: "The email address for billing.", Hydrate: getOrganizationDetail},
-		{Name: "blog", Type: proto.ColumnType_STRING, Description: "The URL of the organizations blog.", Hydrate: getOrganizationDetail},
-		{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators for the organization.", Hydrate: getOrganizationDetail},
-		{Name: "company", Type: proto.ColumnType_STRING, Description: "The name of the associated company.", Hydrate: getOrganizationDetail},
-		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the organization was created.", Hydrate: getOrganizationDetail},
-		{Name: "default_repo_permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions for the organization.", Hydrate: getOrganizationDetail},
-		{Name: "description", Type: proto.ColumnType_STRING, Description: "The organization description."},
-		{Name: "disk_usage", Type: proto.ColumnType_INT, Description: "The total disk usage for the organization.", Hydrate: getOrganizationDetail},
-		{Name: "email", Type: proto.ColumnType_STRING, Description: "The email address associated with the organization.", Hydrate: getOrganizationDetail},
-		{Name: "events_url", Type: proto.ColumnType_STRING, Description: "The API Events URL."},
-		{Name: "followers", Type: proto.ColumnType_INT, Description: "The number of users following the organization.", Hydrate: getOrganizationDetail},
-		{Name: "following", Type: proto.ColumnType_INT, Description: "The number of users followed by the organization.", Hydrate: getOrganizationDetail},
-		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: getOrganizationDetail},
-		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: getOrganizationDetail},
-		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: organizationHooksGet, Transform: transform.FromValue()},
-		{Name: "hooks_url", Type: proto.ColumnType_STRING, Description: "The API Hooks URL."},
-		{Name: "id", Type: proto.ColumnType_INT, Description: "The unique ID number of the organization."},
-		{Name: "is_verified", Type: proto.ColumnType_BOOL, Description: "If true, the organization has been verified with domain verification.", Hydrate: getOrganizationDetail},
-		{Name: "issues_url", Type: proto.ColumnType_STRING, Description: "The API Issues URL."},
-		{Name: "location", Type: proto.ColumnType_STRING, Description: "The geographical location.", Hydrate: getOrganizationDetail},
-		{Name: "members_allowed_repository_creation_type", Type: proto.ColumnType_STRING, Description: "Specifies which types of repositories non-admin organization members can create", Hydrate: getOrganizationDetail},
-		{Name: "members_can_create_internal_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create internal repositories.", Hydrate: getOrganizationDetail},
-		{Name: "members_can_create_pages", Type: proto.ColumnType_BOOL, Description: "If true, members can create pages.", Hydrate: getOrganizationDetail},
-		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: getOrganizationDetail},
-		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: getOrganizationDetail},
-		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: getOrganizationDetail},
-		{Name: "members_can_fork_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can fork private organization repositories.", Hydrate: getOrganizationDetail},
-		{Name: "members", Type: proto.ColumnType_JSON, Description: "An array of users that are members of the organization.", Transform: transform.FromValue(), Hydrate: tableGitHubOrganizationMembersGet},
-		{Name: "member_logins", Type: proto.ColumnType_JSON, Description: "An array of user logins that are members of the organization.", Transform: transform.FromValue().Transform(filterUserLogins), Hydrate: tableGitHubOrganizationMembersGet},
-		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "The API Members URL."},
-		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node id of the organization."},
-		{Name: "owned_private_repos", Type: proto.ColumnType_INT, Description: "The number of owned private repositories.", Hydrate: getOrganizationDetail},
-		{Name: "plan_filled_seats", Type: proto.ColumnType_INT, Description: "The number of used seats for the plan.", Hydrate: getOrganizationDetail, Transform: transform.FromField("Plan.FilledSeats")},
-		{Name: "plan_name", Type: proto.ColumnType_STRING, Description: "The name of the GitHub plan.", Hydrate: getOrganizationDetail, Transform: transform.FromField("Plan.Name")},
-		{Name: "plan_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories for the plan.", Hydrate: getOrganizationDetail, Transform: transform.FromField("Plan.PrivateRepos")},
-		{Name: "plan_seats", Type: proto.ColumnType_INT, Description: "The number of available seats for the plan", Hydrate: getOrganizationDetail, Transform: transform.FromField("Plan.Seats")},
-		{Name: "plan_space", Type: proto.ColumnType_INT, Description: "The total space allocated for the plan.", Hydrate: getOrganizationDetail, Transform: transform.FromField("Plan.Space")},
-		{Name: "private_gists", Type: proto.ColumnType_INT, Description: "The number of private gists.", Hydrate: getOrganizationDetail},
-		{Name: "public_gists", Type: proto.ColumnType_INT, Description: "The number of public gists.", Hydrate: getOrganizationDetail},
-		{Name: "public_members_url", Type: proto.ColumnType_STRING, Description: "The API Public Members URL."},
-		{Name: "public_repos", Type: proto.ColumnType_INT, Description: "The number of public repositories.", Hydrate: getOrganizationDetail},
-		{Name: "repos_url", Type: proto.ColumnType_STRING, Description: "The API Repos URL.", Hydrate: getOrganizationDetail, Transform: transform.FromField("ReposURL")},
-		{Name: "total_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories.", Hydrate: getOrganizationDetail},
-		{Name: "twitter_username", Type: proto.ColumnType_STRING, Description: "The organizations twitter handle.", Hydrate: getOrganizationDetail},
-		{Name: "two_factor_requirement_enabled", Type: proto.ColumnType_BOOL, Description: "If true, all members in the organization must have two factor authentication enabled.", Hydrate: getOrganizationDetail},
-		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the organization was last updated.", Hydrate: getOrganizationDetail},
-		{Name: "url", Type: proto.ColumnType_STRING, Description: "The API URL of the organization."},
+		{Name: "login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Login", "Node.Login"), Description: "The login name of the organization."},
+		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromField("Id", "Node.Id"), Description: "The ID number of the organization."},
+		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("NodeId", "Node.NodeId"), Description: "The node ID of the organization."},
+		{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name", "Node.Name"), Description: "The display name of the organization."},
+		{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt", "Node.CreatedAt").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the organization was created."},
+		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt", "Node.UpdatedAt").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the organization was last updated."},
+		{Name: "description", Type: proto.ColumnType_STRING, Transform: transform.FromField("Description", "Node.Description"), Description: "The description of the organization."},
+		{Name: "email", Type: proto.ColumnType_STRING, Transform: transform.FromField("Email", "Node.Email"), Description: "The email address associated with the organization."},
+		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url", "Node.Url"), Description: "The URL for this organization."},
+		{Name: "announcement", Type: proto.ColumnType_STRING, Transform: transform.FromField("Announcement", "Node.Announcement"), Description: "The text of the announcement."},
+		{Name: "announcement_expires_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("AnnouncementExpiresAt", "Node.AnnouncementExpiresAt").NullIfZero().Transform(convertTimestamp), Description: "The expiration date of the announcement, if any."},
+		{Name: "announcement_user_dismissible", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AnnouncementUserDismissible", "Node.AnnouncementUserDismissible"), Description: "If true, the announcement can be dismissed by the user."},
+		{Name: "any_pinnable_items", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AnyPinnableItems", "Node.AnyPinnableItems"), Description: "If true, this organization has items that can be pinned to their profile."},
+		{Name: "avatar_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("AvatarUrl", "Node.AvatarUrl"), Description: "URL pointing to the organization's public avatar."},
+		{Name: "estimated_next_sponsors_payout_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("EstimatedNextSponsorsPayoutInCents", "Node.EstimatedNextSponsorsPayoutInCents"), Description: "The estimated next GitHub Sponsors payout for this organization in cents (USD)."},
+		{Name: "has_sponsors_listing", Type: proto.ColumnType_BOOL, Transform: transform.FromField("HasSponsorsListing", "Node.HasSponsorsListing"), Description: "If true, this organization has a GitHub Sponsors listing."},
+		{Name: "interaction_ability", Type: proto.ColumnType_JSON, Transform: transform.FromField("InteractionAbility", "Node.InteractionAbility").NullIfZero(), Description: "The interaction ability settings for this organization."},
+		{Name: "is_sponsoring_you", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsSponsoringYou", "Node.IsSponsoringYou"), Description: "If true, you are sponsored by this organization."},
+		{Name: "is_verified", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsVerified", "Node.IsVerified"), Description: "If true, the organization has verified its profile email and website."},
+		{Name: "location", Type: proto.ColumnType_STRING, Transform: transform.FromField("Location", "Node.Location"), Description: "The organization's public profile location."},
+		{Name: "monthly_estimated_sponsors_income_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("MonthlyEstimatedSponsorsIncomeInCents", "Node.MonthlyEstimatedSponsorsIncomeInCents"), Description: "The estimated monthly GitHub Sponsors income for this organization in cents (USD)."},
+		{Name: "new_team_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("NewTeamUrl", "Node.NewTeamUrl"), Description: "URL for creating a new team."},
+		{Name: "pinned_items_remaining", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItemsRemaining", "Node.PinnedItemsRemaining"), Description: "Returns how many more items this organization can pin to their profile."},
+		{Name: "projects_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("ProjectsUrl", "Node.ProjectsUrl"), Description: "URL listing organization's projects."},
+		{Name: "saml_identity_provider", Type: proto.ColumnType_JSON, Transform: transform.FromField("SamlIdentityProvider", "Node.SamlIdentityProvider").NullIfZero(), Description: "The Organization's SAML identity provider. Visible to (1) organization owners, (2) organization owners' personal access tokens (classic) with read:org or admin:org scope, (3) GitHub App with an installation token with read or write access to members, else null."},
+		{Name: "sponsors_listing", Type: proto.ColumnType_JSON, Transform: transform.FromField("SponsorsListing", "Node.SponsorsListing").NullIfZero(), Description: "The GitHub sponsors listing for this organization."},
+		{Name: "teams_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TeamsUrl", "Node.TeamsUrl"), Description: "URL listing organization's teams."},
+		{Name: "total_sponsorship_amount_as_sponsor_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("TotalSponsorshipAmountAsSponsorInCents", "Node.TotalSponsorshipAmountAsSponsorInCents").NullIfZero(), Description: "The amount in United States cents (e.g., 500 = $5.00 USD) that this entity has spent on GitHub to fund sponsorships. Only returns a value when viewed by the user themselves or by a user who can manage sponsorships for the requested organization."},
+		{Name: "twitter_username", Type: proto.ColumnType_STRING, Transform: transform.FromField("TwitterUsername", "Node.TwitterUsername"), Description: "The organization's Twitter username."},
+		{Name: "can_administer", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanAdminister", "Node.CanAdminister"), Description: "If true, you can administer the organization."},
+		{Name: "can_changed_pinned_items", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanChangedPinnedItems", "Node.CanChangedPinnedItems"), Description: "If true, you can change the pinned items on the organization's profile."},
+		{Name: "can_create_projects", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateProjects", "Node.CanCreateProjects"), Description: "If true, you can create projects for the organization."},
+		{Name: "can_create_repositories", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateRepositories", "Node.CanCreateRepositories"), Description: "If true, you can create repositories for the organization."},
+		{Name: "can_create_teams", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateTeams", "Node.CanCreateTeams"), Description: "If true, you can create teams within the organization."},
+		{Name: "can_sponsor", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanSponsor", "Node.CanSponsor"), Description: "If true, you can sponsor this organization."},
+		{Name: "is_a_member", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsAMember", "Node.IsAMember"), Description: "If true, you are an active member of the organization."},
+		{Name: "is_following", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsFollowing", "Node.IsFollowing"), Description: "If true, you are following the organization."},
+		{Name: "is_sponsoring", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsSponsoring", "Node.IsSponsoring"), Description: "If true, you are sponsoring the organization."},
+		{Name: "website_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("WebsiteUrl", "Node.WebsiteUrl"), Description: "URL for the organization's public website."},
+		// Columns from v3 api - hydrates
+		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The Hooks of the organization.", Hydrate: hydrateOrganizationHooksFromV3, Transform: transform.FromValue()},
+		{Name: "billing_email", Type: proto.ColumnType_STRING, Description: "The email address for billing.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "two_factor_requirement_enabled", Type: proto.ColumnType_BOOL, Description: "If true, all members in the organization must have two factor authentication enabled.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "default_repo_permission", Type: proto.ColumnType_STRING, Description: "The default repository permissions for the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_allowed_repository_creation_type", Type: proto.ColumnType_STRING, Description: "Specifies which types of repositories non-admin organization members can create", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_internal_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create internal repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_pages", Type: proto.ColumnType_BOOL, Description: "If true, members can create pages.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create private repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_public_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create public repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_create_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can create repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "members_can_fork_private_repos", Type: proto.ColumnType_BOOL, Description: "If true, members can fork private organization repositories.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "plan_filled_seats", Type: proto.ColumnType_INT, Description: "The number of used seats for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.FilledSeats")},
+		{Name: "plan_name", Type: proto.ColumnType_STRING, Description: "The name of the GitHub plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Name")},
+		{Name: "plan_private_repos", Type: proto.ColumnType_INT, Description: "The number of private repositories for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.PrivateRepos")},
+		{Name: "plan_seats", Type: proto.ColumnType_INT, Description: "The number of available seats for the plan", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Seats")},
+		{Name: "plan_space", Type: proto.ColumnType_INT, Description: "The total space allocated for the plan.", Hydrate: hydrateOrganizationDataFromV3, Transform: transform.FromField("Plan.Space")},
+		{Name: "followers", Type: proto.ColumnType_INT, Description: "The number of users following the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "following", Type: proto.ColumnType_INT, Description: "The number of users followed by the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "collaborators", Type: proto.ColumnType_INT, Description: "The number of collaborators for the organization.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "has_organization_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use organization projects.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "has_repository_projects", Type: proto.ColumnType_BOOL, Description: "If true, the organization can use repository projects.", Hydrate: hydrateOrganizationDataFromV3},
+		{Name: "web_commit_signoff_required", Type: proto.ColumnType_BOOL, Description: "If true, contributors are required to sign off on web-based commits for repositories in this organization.", Hydrate: hydrateOrganizationDataFromV3},
 	}
 }
 
-//// TABLE DEFINITION
+func sharedOrganizationCountColumns() []*plugin.Column {
+	return []*plugin.Column{
+		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("MembersWithRole.TotalCount", "Node.MembersWithRole.TotalCount"), Description: "Count of members with a role within the organization."},
+		{Name: "packages_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Packages.TotalCount", "Node.Packages.TotalCount"), Description: "Count of packages within the organization."},
+		{Name: "pending_members_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PendingMembers.TotalCount", "Node.PendingMembers.TotalCount"), Description: "Count of pending members within the organization."},
+		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnableItems.TotalCount", "Node.PinnableItems.TotalCount"), Description: "Count of pinnable items within the organization."},
+		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItems.TotalCount", "Node.PinnedItems.TotalCount"), Description: "Count of itesm pinned to the organization's profile."},
+		{Name: "projects_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Projects.TotalCount", "Node.Projects.TotalCount"), Description: "Count of projects within the organization."},
+		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("ProjectsV2.TotalCount", "Node.ProjectsV2.TotalCount"), Description: "Count of V2 projects within the organization."},
+		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalCount", "Node.Repositories.TotalCount"), Description: "Count of all repositories within the organization."},
+		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsoring.TotalCount", "Node.Sponsoring.TotalCount"), Description: "Count of users the organization is sponsoring."},
+		{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsors.TotalCount", "Node.Sponsors.TotalCount"), Description: "Count of sponsors the organization has."},
+		{Name: "teams_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Teams.TotalCount", "Node.Teams.TotalCount"), Description: "Count of teams within the organization."},
+		{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalDiskUsage", "Node.Repositories.TotalDiskUsage"), Description: "Total disk usage for all repositories within the organization."},
+		{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PrivateRepositories.TotalCount", "Node.PrivateRepositories.TotalCount"), Description: "Count of private repositories within the organization."},
+		{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PublicRepositories.TotalCount", "Node.PublicRepositories.TotalCount"), Description: "Count of public repositories within the organization."},
+	}
+}
+
+func gitHubOrganizationColumns() []*plugin.Column {
+	return append(sharedOrganizationColumns(), sharedOrganizationCountColumns()...)
+}
 
 func tableGitHubOrganization() *plugin.Table {
 	return &plugin.Table{
@@ -79,45 +109,85 @@ func tableGitHubOrganization() *plugin.Table {
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("login"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           ListOrganizationDetail,
+			Hydrate:           tableGitHubOrganizationList,
 		},
 		Columns: gitHubOrganizationColumns(),
 	}
 }
 
-//// LIST FUNCTION
+func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client := connectV4(ctx, d)
 
-func ListOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	item, err := getOrganizationDetail(ctx, d, h)
+	login := d.EqualsQuals["login"].GetStringValue()
+
+	plugin.Logger(ctx).Debug("github_organization", login)
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization models.OrganizationWithCounts `graphql:"organization(login: $login)"`
+	}
+
+	variables := map[string]interface{}{
+		"login": githubv4.String(login),
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_organization", &query.RateLimit))
 	if err != nil {
+		plugin.Logger(ctx).Error("github_organization", "api_error", err)
+		if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	if item != nil {
-		d.StreamListItem(ctx, item)
-	}
+	d.StreamListItem(ctx, query.Organization)
+
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
+func hydrateOrganizationHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org := h.Item.(models.OrganizationWithCounts)
+	login := org.Login
 
-type ListPageResponse struct {
-	hooks []*github.Hook
-	resp  *github.Response
+	client := connect(ctx, d)
+
+	var orgHooks []*github.Hook
+	opt := &github.ListOptions{PerPage: 100}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		hooks, resp, err := client.Organizations.ListHooks(ctx, login, opt)
+		return ListHooksResponse{
+			hooks: hooks,
+			resp:  resp,
+		}, err
+	}
+
+	for {
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		if err != nil && strings.Contains(err.Error(), "Not Found") {
+			return nil, nil
+		} else if err != nil {
+			return nil, err
+		}
+		listResponse := listPageResponse.(ListHooksResponse)
+		hooks := listResponse.hooks
+		resp := listResponse.resp
+		orgHooks = append(orgHooks, hooks...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	return orgHooks, nil
 }
 
-func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var login string
-	if h.Item != nil {
-		org := h.Item.(*github.Organization)
-		// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
-		if org == nil {
-			return nil, nil
-		}
-		login = *org.Login
-	} else {
-		login = d.EqualsQuals["login"].GetStringValue()
-	}
+func hydrateOrganizationDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org := h.Item.(models.OrganizationWithCounts)
+	login := org.Login
 
 	client := connect(ctx, d)
 
@@ -134,107 +204,19 @@ func getOrganizationDetail(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 
 	if err != nil {
-		plugin.Logger(ctx).Error("getOrganizationDetail", err)
+		plugin.Logger(ctx).Error("getOrganizationDetailV3", err)
 		return nil, err
 	}
 
 	getResp := getResponse.(GetResponse)
-	org := getResp.org
 
-	return org, nil
+	return getResp.org, nil
 }
 
-func tableGitHubOrganizationMembersGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("tableGitHubOrganizationMembersGet")
-
-	org := h.Item.(*github.Organization)
-
-	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
-	if org == nil {
-		return nil, nil
-	}
-	orgName := *org.Login
-
-	client := connect(ctx, d)
-
-	var repositoryCollaborators []*github.User
-
-	opt := &github.ListMembersOptions{ListOptions: github.ListOptions{PerPage: 100}}
-
-	type ListPageResponse struct {
-		users []*github.User
-		resp  *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		users, resp, err := client.Organizations.ListMembers(ctx, orgName, opt)
-		return ListPageResponse{
-			users: users,
-			resp:  resp,
-		}, err
-	}
-
-	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
-		if err != nil {
-			return nil, err
-		}
-		listResponse := listPageResponse.(ListPageResponse)
-		users := listResponse.users
-		resp := listResponse.resp
-
-		repositoryCollaborators = append(repositoryCollaborators, users...)
-
-		if resp.NextPage == 0 {
-			break
-		}
-
-		opt.Page = resp.NextPage
-	}
-
-	return repositoryCollaborators, nil
-}
-
-func organizationHooksGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	org := h.Item.(*github.Organization)
-
-	// Check the null value for hydrated item, while accessing the inner level property of the null value it this throwing panic error
-	if org == nil {
-		return nil, nil
-	}
-	orgName := *org.Login
-	client := connect(ctx, d)
-
-	var orgHooks []*github.Hook
-	opt := &github.ListOptions{PerPage: 100}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		hooks, resp, err := client.Organizations.ListHooks(ctx, orgName, opt)
-		return ListPageResponse{
-			hooks: hooks,
-			resp:  resp,
-		}, err
-	}
-
-	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-		if err != nil && strings.Contains(err.Error(), "Not Found") {
-			return nil, nil
-		} else if err != nil {
-			return nil, err
-		}
-		listResponse := listPageResponse.(ListPageResponse)
-		hooks := listResponse.hooks
-		resp := listResponse.resp
-		orgHooks = append(orgHooks, hooks...)
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
-	}
-	return orgHooks, nil
+type ListHooksResponse struct {
+	hooks []*github.Hook
+	resp  *github.Response
 }

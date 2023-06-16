@@ -14,11 +14,11 @@ To query **ANY** repository, including public repos, use the `github_repository`
 select
   name,
   owner_login,
-  full_name
+  name_with_owner
 from
   github_my_repository
 order by
-  full_name;
+  name_with_owner;
 ```
 
 ### Show repository stats
@@ -27,11 +27,12 @@ order by
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language ->> 'name' as language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count,
+  watchers_total_count,
+  updated_at as last_updated,
   description
 from
   github_my_repository;
@@ -42,13 +43,13 @@ from
 ```sql
 select
   name,
-  private,
+  is_private,
   visibility,
   owner_login
 from
   github_my_repository
 where
-  not private;
+  not is_private;
 ```
 
 OR
@@ -56,90 +57,42 @@ OR
 ```sql
 select
   name,
-  private,
+  is_private,
   visibility
 from
   github_my_repository
 where
-  visibility = 'public';
+  visibility = 'PUBLIC';
 ```
 
 ### List all your repositories and their collaborators
 
 ```sql
 select
-  name,
-  collaborator_logins
+  r.name_with_owner as repository_full_name,
+  c.user_login,
+  c.permission
 from
-  github_my_repository;
-```
-
-### List collaborators and their permissions in your repositories
-
-```sql
-select
-  name,
-  c ->> 'login' as login,
-  c -> 'permissions' -> 'pull' as can_pull,
-  c -> 'permissions' -> 'push' as can_push,
-  c -> 'permissions' -> 'admin' as is_admin
-from
-  github_my_repository,
-  jsonb_array_elements(collaborators) as c
-order by
-  name,
-  c ->> 'login';
-```
-
-### List collaborators who have "push" or "admin" to a specific repository
-
-In this case, collaborators who have "push" or "admin" to the `turbot/steampipe-plugin-aws repository`:
-
-```sql
-select
-  name,
-  c ->> 'login' as login,
-  c -> 'permissions' -> 'pull' as can_pull,
-  c -> 'permissions' -> 'push' as can_push,
-  c -> 'permissions' -> 'admin' as is_admin
-from
-  github_my_repository,
-  jsonb_array_elements(collaborators) as c
+  github_my_repository r
+ ,github_repository_collaborator c
 where
-  name = 'steampipe-plugin-aws'
-  and owner_login = 'turbot'
-  and (
-    (c -> 'permissions' -> 'admin') :: bool
-    or (c -> 'permissions' -> 'push') :: bool
-  );
+  r.name_with_owner = c.repository_full_name;
 ```
 
-### List collaborators for organization repositories that are not organization members
-
-In this case, for the `turbot` org:
+### List all your repository collaborators with admin or maintainer permissions
 
 ```sql
 select
-  name,
-  owner_login as owner,
-  c ->> 'login' as login,
-  c -> 'permissions' -> 'pull' as can_pull,
-  c -> 'permissions' -> 'push' as can_push,
-  c -> 'permissions' -> 'admin' as is_admin
+  r.name_with_owner as repository_full_name,
+  c.user_login,
+  c.permission
 from
-  github_my_repository as r,
-  jsonb_array_elements(collaborators) as c
+  github_my_repository r
+ ,github_repository_collaborator c
 where
-  owner_login = 'turbotio'
-  and c ->> 'login' not in (
-    select
-      m ->> 'login' as member_login
-    from
-      github_organization,
-      jsonb_array_elements(members) as m
-    where
-      login = 'turbotio'
-  );
+  r.name_with_owner = c.repository_full_name
+and
+  permission in ('ADMIN', 'MAINTAIN');
 ```
 
 ### List repository hooks that are insecure

@@ -42,12 +42,12 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "alert_number"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertGet,
 		},
 		Columns: append(
@@ -119,7 +119,7 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 		}, err
 	}
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			return nil, err
@@ -177,7 +177,7 @@ func tableGitHubRepositoryDependabotAlertGet(ctx context.Context, d *plugin.Quer
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 	if err != nil {
 		return nil, err
 	}

@@ -15,9 +15,12 @@ select
   login as organization,
   name,
   twitter_username,
-  public_repos,
-  public_gists,
-  member_logins
+  created_at,
+  updated_at,
+  is_verified,
+  teams_total_count as teams_count,
+  members_with_role_total_count as member_count,
+  repositories_total_count as repo_count
 from
   github_organization
 where
@@ -28,12 +31,27 @@ where
 
 ```sql
 select
-  login as organization,
-  name,
-  member_login
+  o.login as organization,
+  m.login as user_login,
+  m.has_two_factor_enabled as mfa_enabled
 from
-  github_organization,
-  jsonb_array_elements_text(member_logins) as member_login
+  github_organization o,
+  github_organization_member m
 where
-  login = 'google';
+  o.login = 'turbot'
+and
+  o.login = m.organization;
+```
+
+OR
+
+```sql
+select
+  organization,
+  login as user_login,
+  has_two_factor_enabled as mfa_enabled
+from
+  github_organization_member
+where
+  organization = 'turbot';
 ```

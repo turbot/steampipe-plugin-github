@@ -2,12 +2,11 @@ package github
 
 import (
 	"context"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 
-	"github.com/google/go-github/v48/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubMyOrganization() *plugin.Table {
 	return &plugin.Table{
@@ -20,48 +19,41 @@ func tableGitHubMyOrganization() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	client := connectV4(ctx, d)
 
-	opt := &github.ListOptions{PerPage: 100}
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.PerPage) {
-			opt.PerPage = int(*limit)
+	var query struct {
+		RateLimit models.RateLimit
+		Viewer    struct {
+			Organizations struct {
+				TotalCount int
+				PageInfo   models.PageInfo
+				Nodes      []models.OrganizationWithCounts
+			} `graphql:"organizations(first: $pageSize, after: $cursor)"`
 		}
 	}
 
-	type ListPageResponse struct {
-		org  []*github.Organization
-		resp *github.Response
+	variables := map[string]interface{}{
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		orgs, resp, err := client.Organizations.List(ctx, "", opt)
-		return ListPageResponse{
-			org:  orgs,
-			resp: resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_organization", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_my_organization", "api_error", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		orgs := listResponse.org
-		resp := listResponse.resp
-
-		for _, i := range orgs {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, org := range query.Viewer.Organizations.Nodes {
+			d.StreamListItem(ctx, org)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
@@ -69,11 +61,10 @@ func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, h *
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if !query.Viewer.Organizations.PageInfo.HasNextPage {
 			break
 		}
-
-		opt.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Viewer.Organizations.PageInfo.EndCursor)
 	}
 
 	return nil, nil

@@ -2,12 +2,10 @@ package github
 
 import (
 	"context"
-
-	"github.com/google/go-github/v48/github"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubMyRepository() *plugin.Table {
 	return &plugin.Table{
@@ -16,64 +14,46 @@ func tableGitHubMyRepository() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           tableGitHubMyRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			KeyColumns: []*plugin.KeyColumn{
-				{Name: "visibility", Require: plugin.Optional},
-			},
 		},
-		Columns: gitHubRepositoryColumns(),
+		Columns: sharedRepositoryColumns(),
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	client := connectV4(ctx, d)
 
-	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
+	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
-	// Additional filters
-	if d.EqualsQuals["visibility"] != nil {
-		opt.Visibility = d.EqualsQuals["visibility"].GetStringValue()
-	} else {
-		// Will cause a 422 error if 'type' used in the same request as visibility or
-		// affiliation.
-		opt.Type = "all"
-	}
-	type ListPageResponse struct {
-		repo []*github.Repository
-		resp *github.Response
-	}
-
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.ListOptions.PerPage) {
-			opt.ListOptions.PerPage = int(*limit)
+	var query struct {
+		RateLimit models.RateLimit
+		Viewer    struct {
+			Repositories struct {
+				PageInfo   models.PageInfo
+				TotalCount int
+				Nodes      []models.Repository
+			} `graphql:"repositories(first: $pageSize, after: $cursor, affiliations: [COLLABORATOR, OWNER, ORGANIZATION_MEMBER], ownerAffiliations: [COLLABORATOR, OWNER, ORGANIZATION_MEMBER])"`
 		}
+	}
+
+	variables := map[string]interface{}{
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		repos, resp, err := client.Repositories.List(ctx, "", opt)
-		return ListPageResponse{
-			repo: repos,
-			resp: resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_repository", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_my_repository", "api_error", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		repos := listResponse.repo
-		resp := listResponse.resp
-
-		for _, i := range repos {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, repo := range query.Viewer.Repositories.Nodes {
+			d.StreamListItem(ctx, repo)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
@@ -81,11 +61,10 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if !query.Viewer.Repositories.PageInfo.HasNextPage {
 			break
 		}
-
-		opt.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Viewer.Repositories.PageInfo.EndCursor)
 	}
 
 	return nil, nil

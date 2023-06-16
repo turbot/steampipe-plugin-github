@@ -14,40 +14,41 @@ To list all **your** repositories use the `github_my_repository` table instead. 
 select
   organization,
   slug as team_slug,
-  name,
-  permissions,
-  language,
-  forks_count,
-  stargazers_count,
-  subscribers_count,
-  description
+  name as team_name,
+  permission,
+  primary_language ->> 'name' as language,
+  fork_count,
+  stargazer_count,
+  license_info ->> 'spdx_id' as license,
+  description,
+  url
 from
   github_team_repository
 where
   organization = 'my_org'
-  and slug = 'my-team';
+and 
+  slug = 'my-team';
 ```
 
 ### List visible teams and repositories they have admin permissions to
 
 ```sql
 select
-  t.organization as organization,
-  t.name as team_name,
-  t.slug as team_slug,
-  t.privacy as team_privacy,
-  t.description as team_description,
-  tr.name as repo_name,
-  tr.permissions as team_repo_permissions,
-  tr.fork as repo_is_fork,
-  tr.private as repo_is_private,
-  tr.archived as repo_is_archived,
-  tr.language as repo_primary_language
+  organization,
+  slug as team_slug,
+  name as name,
+  description,
+  permission,
+  is_fork,
+  is_private,
+  is_archived,
+  primary_language ->> 'name' as language
 from
-  github_team as t,
-  github_team_repository AS tr
+  github_team_repository
 where
-  t.organization = tr.organization
-  and t.slug = tr.slug
-  and permissions ? 'admin';
+  organization = 'my_org'
+and 
+  slug = 'my-team'
+and 
+  permission = 'ADMIN';
 ```

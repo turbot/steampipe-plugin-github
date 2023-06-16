@@ -53,7 +53,7 @@ func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, 
 			resp:         resp,
 		}, err
 	}
-	listResponse, err := retryHydrate(ctx, d, h, listPage)
+	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 	if err != nil {
 		return nil, err

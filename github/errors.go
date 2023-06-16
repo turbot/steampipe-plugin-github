@@ -9,7 +9,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-func shouldRetryError(ctx context.Context, err error) bool {
+func shouldRetryError(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, err error) bool {
 	if _, ok := err.(*github.AbuseRateLimitError); ok {
 		var retryAfter *time.Duration
 		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
@@ -36,7 +36,29 @@ func shouldRetryError(ctx context.Context, err error) bool {
 		return diff <= 60
 	}
 
+	// v4 secondary rate limit
+	if strings.Contains(err.Error(), "You have exceeded a secondary rate limit.") {
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "abuse_rate_limit_error", err)
+		return true
+	}
+
+	// v4 execution timeout error
+	if strings.Contains(err.Error(), "Something went wrong while executing your query. This may be the result of a timeout, or it could be a GitHub bug.") {
+		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "execution_timeout_error", err)
+		return true
+	}
+
 	return false
+}
+
+func retryConfig() *plugin.RetryConfig {
+	return &plugin.RetryConfig{
+		ShouldRetryErrorFunc: shouldRetryError,
+		MaxAttempts:          10,
+		BackoffAlgorithm:     "Exponential",
+		RetryInterval:        1000,
+		CappedDuration:       30000,
+	}
 }
 
 // function which returns an ErrorPredicate for Github API calls

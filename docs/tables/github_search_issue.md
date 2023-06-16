@@ -14,7 +14,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -29,7 +29,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -44,7 +44,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -59,7 +59,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -74,7 +74,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -87,10 +87,10 @@ where
 select
   title,
   id,
-  comments,
+  comments_total_count,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_issue
 where
@@ -106,7 +106,7 @@ select
   state,
   created_at,
   closed_at,
-  html_url
+  url
 from
   github_search_issue
 where

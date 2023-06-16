@@ -12,14 +12,14 @@ The `github_commit` table can be used to query information about any commit, and
 select
   sha,
   author_login,
-  author_date,
+  authored_date,
   message
 from
   github_commit
 where
   repository_full_name = 'turbot/steampipe'
 order by
-  author_date desc;
+  authored_date desc;
 ```
 
 ### Commits by a given author
@@ -27,7 +27,7 @@ order by
 ```sql
 select
   sha,
-  author_date,
+  authored_date,
   message
 from
   github_commit
@@ -60,12 +60,31 @@ order by
 select
   sha,
   author_login,
-  author_date
+  authored_date
 from
   github_commit
 where
   repository_full_name = 'turbot/steampipe'
-  and not verified
+and
+  signature is null
 order by
   author_date desc;
+```
+
+### Commits with most file changes
+
+```sql
+select
+  sha,
+  message,
+  author_login,
+  changed_files,
+  additions,
+  deletions
+from
+  github_commit
+where
+  repository_full_name = 'turbot/steampipe'
+order by
+  changed_files desc;
 ```

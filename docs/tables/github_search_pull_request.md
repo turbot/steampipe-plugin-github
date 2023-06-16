@@ -15,7 +15,7 @@ select
   state,
   created_at,
   repository_full_name,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -30,7 +30,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -45,7 +45,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -60,7 +60,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -76,7 +76,7 @@ select
   comments,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -91,7 +91,7 @@ select
   id,
   state,
   created_at,
-  html_url
+  url
 from
   github_search_pull_request
 where
@@ -107,7 +107,7 @@ select
   state,
   created_at,
   closed_at,
-  html_url
+  url
 from
   github_search_pull_request
 where

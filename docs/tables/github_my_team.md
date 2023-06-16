@@ -14,8 +14,8 @@ select
   slug,
   description,
   organization,
-  members_count,
-  repos_count
+  members_total_count,
+  repositories_total_count
 from
   github_my_team;
 ```
