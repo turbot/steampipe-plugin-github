@@ -1,3 +1,54 @@
+## v0.28.0 [TBD]
+
+_Breaking changes_
+
+This release updates 25+ tables to use [GitHub's GraphQL API](https://docs.github.com/en/graphql/overview/about-the-graphql-api) in an effort to optimize the number of outgoing API calls, increase query speed, and make the latest data available.
+
+Due to the significant differences between the GitHub REST and GraphQL APIs, most updated tables have a large number of column breaking changes (removed or renamed columns, column data value changes).
+
+Below is a list of updated tables along with all column changes:
+- [github_branch](https://github.com/turbot/steampipe-plugin-github/issues/244)
+- [github_branch_protection](https://github.com/turbot/steampipe-plugin-github/issues/251)
+- [github_commit](https://github.com/turbot/steampipe-plugin-github/issues/262)
+- [github_community_profile](https://github.com/turbot/steampipe-plugin-github/issues/266)
+- [github_issue](https://github.com/turbot/steampipe-plugin-github/issues/260)
+- [github_license](https://github.com/turbot/steampipe-plugin-github/issues/236)
+- [github_my_issue](https://github.com/turbot/steampipe-plugin-github/issues/260)
+- [github_my_organization](https://github.com/turbot/steampipe-plugin-github/issues/259)
+- [github_my_repository](https://github.com/turbot/steampipe-plugin-github/issues/257)
+- [github_my_star](https://github.com/turbot/steampipe-plugin-github/issues/270)
+- [github_my_team](https://github.com/turbot/steampipe-plugin-github/issues/241)
+- [github_organization](https://github.com/turbot/steampipe-plugin-github/issues/258)
+- [github_organization_member](https://github.com/turbot/steampipe-plugin-github/issues/279)
+- [github_pull_request](https://github.com/turbot/steampipe-plugin-github/issues/276)
+- [github_repository](https://github.com/turbot/steampipe-plugin-github/issues/256)
+- [github_search_issue](https://github.com/turbot/steampipe-plugin-github/issues/268)
+- [github_search_pull_request](https://github.com/turbot/steampipe-plugin-github/issues/268)
+- [github_search_repository](https://github.com/turbot/steampipe-plugin-github/issues/268)
+- [github_search_user](https://github.com/turbot/steampipe-plugin-github/issues/268)
+- [github_stargazer](https://github.com/turbot/steampipe-plugin-github/issues/270)
+- [github_tag](https://github.com/turbot/steampipe-plugin-github/issues/238)
+- [github_team](https://github.com/turbot/steampipe-plugin-github/issues/241)
+- [github_team_member](https://github.com/turbot/steampipe-plugin-github/issues/243)
+- [github_team_repository](https://github.com/turbot/steampipe-plugin-github/issues/254)
+- [github_user](https://github.com/turbot/steampipe-plugin-github/issues/248)
+- [github_workflow](https://github.com/turbot/steampipe-plugin-github/issues/264)
+
+_What's new_
+
+- New tables added
+  - [github_issue_comment](https://hub.steampipe.io/plugins/turbot/github/tables/github_issue_comment) ([#281](https://github.com/turbot/steampipe-plugin-github/pull/281))
+  - [github_pull_request_comment](https://hub.steampipe.io/plugins/turbot/github/tables/github_pull_request_comment) ([#281](https://github.com/turbot/steampipe-plugin-github/pull/281))
+  - [github_rate_limit_graphql](https://hub.steampipe.io/plugins/turbot/github/tables/github_rate_limit_graphql) ([#280](https://github.com/turbot/steampipe-plugin-github/pull/280))
+  - [github_repository_collaborator](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_collaborator) ([#280](https://github.com/turbot/steampipe-plugin-github/pull/280))
+  - [github_repository_deployment](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_deployment) ([#282](https://github.com/turbot/steampipe-plugin-github/pull/282))
+  - [github_repository_environment](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_environment) ([#282](https://github.com/turbot/steampipe-plugin-github/pull/282))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.5.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v550-2023-06-16) which includes pending cache improvements that improve query speed and decrease the number of unnecessary API calls. ([#280](https://github.com/turbot/steampipe-plugin-github/pull/280))
+
+
 ## v0.27.0 [2023-05-11]
 
 _Dependencies_
