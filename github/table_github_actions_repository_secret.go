@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubActionsRepositorySecret(ctx context.Context) *plugin.Table {
+func tableGitHubActionsRepositorySecret() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_secret",
 		Description: "Secrets are encrypted environment variables that you create in a repository",

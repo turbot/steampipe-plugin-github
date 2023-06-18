@@ -46,7 +46,7 @@ func gitHubSearchUserColumns() []*plugin.Column {
 	return append(defaultSearchColumns(), userSearchCols...)
 }
 
-func tableGitHubSearchUser(ctx context.Context) *plugin.Table {
+func tableGitHubSearchUser() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_user",
 		Description: "Find users via various criteria.",

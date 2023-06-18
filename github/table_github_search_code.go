@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchCode(ctx context.Context) *plugin.Table {
+func tableGitHubSearchCode() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_code",
 		Description: "Searches for query terms inside of a file.",

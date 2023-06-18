@@ -35,7 +35,7 @@ func gitHubWorkflowColumns() []*plugin.Column {
 	}
 }
 
-func tableGitHubWorkflow(ctx context.Context) *plugin.Table {
+func tableGitHubWorkflow() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_workflow",
 		Description: "GitHub Workflows bundle project files for download by users.",

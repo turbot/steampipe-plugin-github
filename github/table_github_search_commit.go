@@ -13,7 +13,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchCommit(ctx context.Context) *plugin.Table {
+func tableGitHubSearchCommit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_commit",
 		Description: "Find commits via various criteria on the default branch (usually master).",

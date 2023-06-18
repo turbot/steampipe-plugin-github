@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table {
+func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_workflow_run",
 		Description: "WorkflowRun represents a repository action workflow run",

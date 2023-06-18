@@ -11,7 +11,7 @@ func gitHubSearchIssueColumns() []*plugin.Column {
 	return append(defaultSearchColumns(), gitHubMyIssueColumns()...)
 }
 
-func tableGitHubSearchIssue(ctx context.Context) *plugin.Table {
+func tableGitHubSearchIssue() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_issue",
 		Description: "Find issues by state and keyword.",

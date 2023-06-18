@@ -10,7 +10,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-func tableGitHubStargazer(ctx context.Context) *plugin.Table {
+func tableGitHubStargazer() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_stargazer",
 		Description: "Stargazers are users who have starred the repository.",

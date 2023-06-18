@@ -12,7 +12,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
+func tableGitHubAuditLog() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_audit_log",
 		Description: "Gets the audit logs for an organization.",
