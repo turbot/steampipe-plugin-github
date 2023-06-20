@@ -2,10 +2,11 @@ package github
 
 import (
 	"context"
+	"strings"
+
 	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
-	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -83,7 +84,6 @@ func sharedOrganizationCountColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("MembersWithRole.TotalCount", "Node.MembersWithRole.TotalCount"), Description: "Count of members with a role within the organization."},
 		{Name: "packages_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Packages.TotalCount", "Node.Packages.TotalCount"), Description: "Count of packages within the organization."},
-		{Name: "pending_members_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PendingMembers.TotalCount", "Node.PendingMembers.TotalCount"), Description: "Count of pending members within the organization."},
 		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnableItems.TotalCount", "Node.PinnableItems.TotalCount"), Description: "Count of pinnable items within the organization."},
 		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItems.TotalCount", "Node.PinnedItems.TotalCount"), Description: "Count of itesm pinned to the organization's profile."},
 		{Name: "projects_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Projects.TotalCount", "Node.Projects.TotalCount"), Description: "Count of projects within the organization."},

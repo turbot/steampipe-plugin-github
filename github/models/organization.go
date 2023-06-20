@@ -88,7 +88,6 @@ type OrganizationWithCounts struct {
 	Organization
 	MembersWithRole     Count `json:"members_with_role"`
 	Packages            Count `json:"packages"`
-	PendingMembers      Count `json:"pending_members"`
 	PinnableItems       Count `json:"pinnable_items"`
 	PinnedItems         Count `json:"pinned_items"`
 	Projects            Count `json:"projects"`
@@ -108,7 +107,6 @@ type OrganizationWithOwnerPropertiesAndCounts struct {
 	OrganizationWithOwnerProperties
 	MembersWithRole     Count `json:"members_with_role"`
 	Packages            Count `json:"packages"`
-	PendingMembers      Count `json:"pending_members"`
 	PinnableItems       Count `json:"pinnable_items"`
 	PinnedItems         Count `json:"pinned_items"`
 	Projects            Count `json:"projects"`
