@@ -1,3 +1,9 @@
+## v0.28.1 [2023-06-21]
+
+_Bug fixes_
+
+- Fixed `saml_identity_provider` column errors in `github_my_organization` and `github_organization` tables for organizations with SAML SSO enabled. ([#287](https://github.com/turbot/steampipe-plugin-github/pull/287))
+
 ## v0.28.0 [2023-06-21]
 
 _Breaking changes_
