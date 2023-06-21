@@ -123,10 +123,9 @@ type OrganizationWithOwnerPropertiesAndCounts struct {
 }
 
 type OrganizationIdentityProvider struct {
-	DigestMethod    string                   `json:"digest_method"`
-	IdpCertificate  githubv4.X509Certificate `json:"idp_certificate"`
-	Issuer          string                   `json:"issuer"`
-	SignatureMethod string                   `json:"signature_method"`
-	SsoUrl          string                   `json:"sso_url"`
+	DigestMethod    string `json:"digest_method"`
+	Issuer          string `json:"issuer"`
+	SignatureMethod string `json:"signature_method"`
+	SsoUrl          string `json:"sso_url"`
 	// ExternalIdentities [pageable]
 }
