@@ -1,8 +1,8 @@
-## v0.28.0 [TBD]
+## v0.28.0 [2023-06-21]
 
 _Breaking changes_
 
-This release updates 25+ tables to use [GitHub's GraphQL API](https://docs.github.com/en/graphql/overview/about-the-graphql-api) in an effort to optimize the number of outgoing API calls, increase query speed, and make the latest data available.
+This release updates 25 tables to use [GitHub's GraphQL API](https://docs.github.com/en/graphql/overview/about-the-graphql-api) in an effort to optimize the number of outgoing API calls, increase query speed, and make the latest data available.
 
 Due to the significant differences between the GitHub REST and GraphQL APIs, most updated tables have a large number of column breaking changes (removed or renamed columns, column data value changes).
 
@@ -32,7 +32,6 @@ Below is a list of updated tables along with all column changes:
 - [github_team_member](https://github.com/turbot/steampipe-plugin-github/issues/243)
 - [github_team_repository](https://github.com/turbot/steampipe-plugin-github/issues/254)
 - [github_user](https://github.com/turbot/steampipe-plugin-github/issues/248)
-- [github_workflow](https://github.com/turbot/steampipe-plugin-github/issues/264)
 
 _What's new_
 
