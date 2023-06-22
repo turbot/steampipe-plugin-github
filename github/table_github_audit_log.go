@@ -41,7 +41,7 @@ func tableGitHubAuditLog() *plugin.Table {
 
 			// Optional columns, depending on the audit event
 			{Name: "team", Type: proto.ColumnType_STRING, Description: "The GitHub team, when the action relates to a team."},
-			{Name: "user", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user."},
+			{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user.", Transform: transform.FromField("User")},
 			{Name: "repo", Type: proto.ColumnType_STRING, Description: "The GitHub repository, when the action relates to a repository."},
 			{Name: "data", Type: proto.ColumnType_JSON, Description: "Additional data relating to the audit event."},
 		},
