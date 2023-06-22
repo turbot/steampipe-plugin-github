@@ -12,8 +12,9 @@ import (
 func gitHubOrganizationExternalIdentityColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the external identity is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "guid", Type: proto.ColumnType_STRING, Description: "Guid identifier for the external identity."},
-		{Name: "user", Type: proto.ColumnType_JSON, Description: "The GitHub user account."},
+		{Name: "guid", Type: proto.ColumnType_STRING, Description: "Guid identifier for the external identity.", Transform: transform.FromField("Guid")},
+		{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user login.", Transform: transform.FromField("User.Login")},
+		{Name: "user_detail", Type: proto.ColumnType_JSON, Description: "The GitHub user details.", Transform: transform.FromField("User")},
 		{Name: "saml_identity", Type: proto.ColumnType_JSON, Description: "The external SAML identity."},
 		{Name: "scim_identity", Type: proto.ColumnType_JSON, Description: "The external SCIM identity."},
 		{Name: "organization_invitation", Type: proto.ColumnType_JSON, Description: "The invitation to the organization."},
