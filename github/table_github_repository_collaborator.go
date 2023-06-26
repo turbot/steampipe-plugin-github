@@ -14,7 +14,7 @@ import (
 func gitHubRepositoryCollaboratorColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromQual("repository_full_name")},
-		{Name: "filter", Type: proto.ColumnType_STRING, Description: "Affiliation filter - valid values 'ALL' (default), 'OUTSIDE', 'DIRECT'.", Transform: transform.FromQual("filter"), Default: "ALL"},
+		{Name: "affiliation", Type: proto.ColumnType_STRING, Description: "Affiliation filter - valid values 'ALL' (default), 'OUTSIDE', 'DIRECT'.", Transform: transform.FromQual("affiliation"), Default: "ALL"},
 		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The permission the collaborator has on the repository."},
 		{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The login of the collaborator", Transform: transform.FromField("Node.Login")},
 	}
@@ -33,9 +33,8 @@ func tableGitHubRepositoryCollaborator() *plugin.Table {
 					Require: plugin.Required,
 				},
 				{
-					Name:       "filter",
+					Name:       "affiliation",
 					Require:    plugin.Optional,
-					Operators:  []string{"="},
 					CacheMatch: "exact",
 				},
 			},
@@ -48,11 +47,11 @@ func tableGitHubRepositoryCollaboratorList(ctx context.Context, d *plugin.QueryD
 	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repoName := parseRepoFullName(fullName)
-	filter := quals["filter"].GetStringValue()
+	a := quals["affiliation"].GetStringValue()
 	affiliation := githubv4.CollaboratorAffiliationAll
 
-	if filter != "" {
-		switch strings.ToLower(filter) {
+	if a != "" {
+		switch strings.ToLower(a) {
 		case "direct":
 			affiliation = githubv4.CollaboratorAffiliationDirect
 		case "outside":
@@ -60,7 +59,7 @@ func tableGitHubRepositoryCollaboratorList(ctx context.Context, d *plugin.QueryD
 		case "all":
 			affiliation = githubv4.CollaboratorAffiliationAll
 		default:
-			return nil, fmt.Errorf("filter must be 'ALL', 'OUTSIDE' or 'DIRECT' you provided '%s' which is invalid", filter)
+			return nil, fmt.Errorf("filter must be 'ALL', 'OUTSIDE' or 'DIRECT' you provided '%s' which is invalid", a)
 		}
 	}
 
@@ -97,7 +96,7 @@ func tableGitHubRepositoryCollaboratorList(ctx context.Context, d *plugin.QueryD
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_repository_collaborator", &query.RateLimit))
 		if err != nil {
 			if strings.Contains(err.Error(), "You do not have permission to view repository collaborators") {
-				return nil, nil
+				plugin.Logger(ctx).Info("github_repository_collaborator", "insufficient_permissions", fullName)
 			}
 			plugin.Logger(ctx).Error("github_repository_collaborator", "api_error", err)
 			return nil, err
