@@ -29,7 +29,7 @@ from
 where
   repository_full_name = 'turbot/steampipe'
 and
-  filter = 'OUTSIDE';
+  affiliation = 'OUTSIDE';
 ```
 
 ### List all repository admins
