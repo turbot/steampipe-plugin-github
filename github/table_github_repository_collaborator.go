@@ -95,10 +95,7 @@ func tableGitHubRepositoryCollaboratorList(ctx context.Context, d *plugin.QueryD
 		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_repository_collaborator", &query.RateLimit))
 		if err != nil {
-			if strings.Contains(err.Error(), "You do not have permission to view repository collaborators") {
-				plugin.Logger(ctx).Info("github_repository_collaborator", "insufficient_permissions", fullName)
-			}
-			plugin.Logger(ctx).Error("github_repository_collaborator", "api_error", err)
+			plugin.Logger(ctx).Error("github_repository_collaborator", "api_error", err, "repository", fullName)
 			return nil, err
 		}
 
