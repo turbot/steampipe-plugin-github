@@ -18,6 +18,20 @@ where
   repository_full_name = 'turbot/steampipe';
 ```
 
+### List all outside collaborators on a repository
+
+```sql
+select
+  user_login,
+  permission
+from
+  github_repository_collaborator
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  affiliation = 'OUTSIDE';
+```
+
 ### List all repository admins
 
 ```sql
