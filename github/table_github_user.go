@@ -57,6 +57,7 @@ func sharedUserColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "login", Type: proto.ColumnType_STRING, Description: "The login name of the user.", Transform: transform.FromField("Login", "Node.Login")},
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The ID of the user.", Transform: transform.FromField("Id", "Node.Id")},
+		{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the user.", Transform: transform.FromField("Name", "Node.Name")},
 		{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node ID of the user.", Transform: transform.FromField("NodeId", "Node.NodeId")},
 		{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user.", Transform: transform.FromField("Email", "Node.Email")},
 		{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the user's GitHub page.", Transform: transform.FromField("Url", "Node.Url")},
