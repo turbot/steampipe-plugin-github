@@ -129,3 +129,43 @@ type OrganizationIdentityProvider struct {
 	SsoUrl          string `json:"sso_url"`
 	// ExternalIdentities [pageable]
 }
+
+type OrganizationExternalIdentity struct {
+	Guid                   string               `json:"guid"`
+	User                   BasicUser            `json:"user"`
+	SamlIdentity           externalIdentitySaml `json:"saml_identity,omitempty"`
+	ScimIdentity           externalIdentityBase `json:"scim_identity,omitempty"`
+	OrganizationInvitation struct {
+		CreatedAt      NullableTime                        `json:"created_at"`
+		Email          string                              `json:"email"`
+		InvitationType githubv4.OrganizationInvitationType `json:"invitation_type"`
+		Invitee        BasicUser                           `json:"invitee"`
+		Inviter        BasicUser                           `json:"inviter"`
+		Organization   BasicOrganization                   `json:"organization"`
+		Role           githubv4.OrganizationInvitationRole `json:"role"`
+	} `json:"organization_invitation"`
+}
+
+type externalIdentityBase struct {
+	Username   string          `json:"username"`
+	GivenName  string          `json:"given_name"`
+	FamilyName string          `json:"family_name"`
+	Groups     []string        `json:"groups,omitempty"`
+	Emails     []emailMetadata `json:"emails,omitempty"`
+}
+
+type externalIdentitySaml struct {
+	externalIdentityBase
+	NameId     string `json:"name_id"`
+	Attributes []struct {
+		Name     string `json:"name"`
+		Value    string `json:"value"`
+		Metadata string `json:"metadata"`
+	} `json:"attributes,omitempty"`
+}
+
+type emailMetadata struct {
+	Primary bool   `json:"primary"`
+	Type    string `json:"type"`
+	Value   string `json:"value"`
+}
