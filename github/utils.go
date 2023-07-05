@@ -3,12 +3,13 @@ package github
 import (
 	"context"
 	"fmt"
-	"github.com/turbot/steampipe-plugin-github/github/models"
-	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 
 	"github.com/google/go-github/v48/github"
 	"github.com/shurcooL/githubv4"
@@ -116,7 +117,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		}
 
 		if uv4.String() != "https://api.github.com/" {
-			uv4.Path = uv4.Path + "api/v4/"
+			uv4.Path = uv4.Path + "api/graphql/"
 		}
 
 		conn = githubv4.NewEnterpriseClient(uv4.String(), tc)
