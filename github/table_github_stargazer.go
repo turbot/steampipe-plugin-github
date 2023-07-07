@@ -23,7 +23,7 @@ func tableGitHubStargazer() *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the stargazer."},
 			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("StarredAt").Transform(convertTimestamp), Description: "Time when the stargazer was created."},
 			{Name: "user_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Node.Login"), Description: "The login name of the user who starred the repository."},
-			{Name: "user", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node"), Description: "Details of the user who starred the repository."},
+			{Name: "user_detail", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node"), Description: "Details of the user who starred the repository."},
 		},
 	}
 }
