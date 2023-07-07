@@ -1,3 +1,25 @@
+## v0.29.0 [2023-07-07]
+
+_Breaking changes_
+
+- Renamed column `user` to `user_login` in `github_audit_log` table to avoid incorrectly returning database username instead of the GitHub user, since it is a reserverd keyword. ([#289](https://github.com/turbot/steampipe-plugin-github/pull/289))
+- Renamed column `user` to `user_detail` in `github_stargazer` table to avoid incorrectly returning database username instead of the GitHub user, since it is a reserverd keyword. ([#289](https://github.com/turbot/steampipe-plugin-github/pull/289))
+- Removed column `outside_collaborators_total_count` column from `github_repository` table. The data is now available in `github_repository_collaborator` table. ([#292](https://github.com/turbot/steampipe-plugin-github/pull/292))
+
+_What's new?_
+
+- New tables added
+  - [github_organization_external_identity](https://hub.steampipe.io/plugins/turbot/github/tables/github_organization_external_identity) ([#290](https://github.com/turbot/steampipe-plugin-github/pull/290))
+
+_Enhancements_
+
+- Added column `name` to `github_user` table. ([#294](https://github.com/turbot/steampipe-plugin-github/pull/294)) (Thanks [@ahlfors](https://github.com/ahlfors) for the contribution!)
+- Added column `affiliation` to `github_repository_collaborator` table. ([#292](https://github.com/turbot/steampipe-plugin-github/pull/292))
+
+_Bug fixes_
+
+- Fixed the GraphQL API URLs when using base_url config argument.
+
 ## v0.28.1 [2023-06-21]
 
 _Bug fixes_
