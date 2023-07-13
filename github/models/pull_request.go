@@ -73,17 +73,18 @@ type PullRequest struct {
 
 	// Counts
 	Assignees      Count `json:"assignees"`
-	Labels         Count `json:"labels"`
 	Commits        Count `json:"commits"`
 	ReviewRequests Count `json:"review_requests"`
 	Reviews        Count `json:"reviews"`
+	Labels         struct {
+		TotalCount int
+		Nodes      []Label
+	} `graphql:"labels(first: 100)" json:"labels"`
 
 	// Assignees [pageable]
 	// ClosingIssueReferences [pageable]
-	// Comments [pageable]
 	// Commits [pageable]
 	// Files [pageable]
-	// Labels [pageable]
 	// LatestOpinionatedReviews [pageable]
 	// LatestReviews [pageable]
 	// Participants [pageable]
