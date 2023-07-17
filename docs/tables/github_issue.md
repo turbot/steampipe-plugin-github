@@ -81,39 +81,37 @@ where
 
 ```sql
 select
-  i.repository_full_name
-  i.number,
-  i.title,
-  json_agg(l ->> 'name') as labels
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
 from
   github_issue i,
-  jsonb_array_elements(i.labels) as l
+  jsonb_object_keys(i.labels) as t
 where
   repository_full_name = 'turbot/steampipe'
 group by
-  i.repository_full_name, i.number, i.title;
+  repository_full_name, number, title;
 ```
 
 OR
 
 ```sql
 select
-  repository_full_name,
-  number,
-  title,
-  json_agg(t) as labels
+  i.repository_full_name,
+  i.number,
+  i.title,
+  json_agg(l ->> 'name') as labels
 from
   github_issue i,
-  jsonb_object_keys(i.tags) as t
+  jsonb_array_elements(i.labels_src) as l
 where
   repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
 group by
-  repository_full_name, number, title;
+  i.repository_full_name, i.number, i.title;
 ```
 
-### List all issues in a repository with a specific label
+### List all open issues in a repository with a specific label
 
 ```sql
 select
@@ -123,13 +121,13 @@ select
   json_agg(t) as labels
 from
   github_issue i,
-  jsonb_object_keys(i.tags) as t
+  jsonb_object_keys(labels) as t
 where
   repository_full_name = 'turbot/steampipe'
 and
   state = 'OPEN'
 and
-  tags ? 'bug'
+  labels ? 'bug'
 group by
   repository_full_name, number, title;
 ```

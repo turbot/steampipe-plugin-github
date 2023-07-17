@@ -105,7 +105,7 @@ select
   jsonb_agg(l ->> 'name') as labels
 from
   github_pull_request r,
-  jsonb_array_elements(r.labels) as l
+  jsonb_array_elements(r.labels_src) as l
 where
   repository_full_name = 'turbot/steampipe'
 and
@@ -124,11 +124,32 @@ select
   json_agg(t) as labels
 from
   github_pull_request r,
-  jsonb_object_keys(r.tags) as t
+  jsonb_object_keys(r.labels) as t
 where
   repository_full_name = 'turbot/steampipe'
 and 
   state = 'OPEN'
+group by
+  repository_full_name, number, title;
+```
+
+### List all open PRs in a repository with a specific label
+
+```sql
+select
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
+from
+  github_pull_request r,
+  jsonb_object_keys(labels) as t
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  state = 'OPEN'
+and
+  labels ? 'bug'
 group by
   repository_full_name, number, title;
 ```

@@ -78,8 +78,8 @@ func gitHubPullRequestColumns() []*plugin.Column {
 		{Name: "did_author", Type: proto.ColumnType_BOOL, Transform: transform.FromField("DidAuthor", "Node.DidAuthor"), Description: "If true, current user authored the pull request."},
 		{Name: "cannot_update_reasons", Type: proto.ColumnType_JSON, Transform: transform.FromField("CannotUpdateReasons", "Node.CannotUpdateReasons").NullIfZero(), Description: "Reasons why the current user cannot update the pull request, if applicable."},
 		{Name: "subscription", Type: proto.ColumnType_STRING, Transform: transform.FromField("Subscription", "Node.Subscription"), Description: "Status of current users subscription to the pull request."},
-		{Name: "labels", Type: proto.ColumnType_JSON, Transform: transform.FromField("Labels.Nodes", "Node.Labels.Nodes"), Description: "The first 100 labels associated to the pull request."},
-		{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.From(getPullRequestTags), Description: "A map of label names associated with this PR, in Steampipe standard format."},
+		{Name: "labels_src", Type: proto.ColumnType_JSON, Transform: transform.FromField("Labels.Nodes", "Node.Labels.Nodes"), Description: "The first 100 labels associated to the pull request."},
+		{Name: "labels", Type: proto.ColumnType_JSON, Transform: transform.From(getPullRequestLabels), Description: "A map of label names associated with this PR, in Steampipe standard format."},
 		{Name: "assignees_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Assignees.TotalCount", "Node.Assignees.TotalCount"), Description: "A count of users assigned to the pull request."},
 		{Name: "labels_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Labels.TotalCount", "Node.Labels.TotalCount"), Description: "A count of labels applied to the pull request."},
 		{Name: "commits_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Commits.TotalCount", "Node.Commits.TotalCount"), Description: "A count of commits in the pull request."},
@@ -220,7 +220,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 	return query.Repository.PullRequest, nil
 }
 
-func getPullRequestTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func getPullRequestLabels(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	issue := d.HydrateItem.(models.PullRequest)
 
 	tags := make(map[string]bool)
