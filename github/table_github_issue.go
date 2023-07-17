@@ -53,6 +53,7 @@ func sharedIssueColumns() []*plugin.Column {
 		{Name: "comments_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Comments.TotalCount", "Node.Comments.TotalCount"), Description: "Count of comments on the issue."},
 		{Name: "labels_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Labels.TotalCount", "Node.Labels.TotalCount"), Description: "Count of labels on the issue."},
 		{Name: "labels", Type: proto.ColumnType_JSON, Transform: transform.FromField("Labels.Nodes", "Node.Labels.Nodes"), Description: "The first 100 labels associated to the issue."},
+		{Name: "tags", Type: proto.ColumnType_JSON, Description: "A map of label names associated with this issue, in Steampipe standard format.", Transform: transform.From(getIssueTags)},
 		{Name: "user_can_close", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanClose", "Node.UserCanClose"), Description: "If true, user can close the issue."},
 		{Name: "user_can_react", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanReact", "Node.UserCanReact"), Description: "If true, user can react on the issue."},
 		{Name: "user_can_reopen", Type: proto.ColumnType_BOOL, Transform: transform.FromField("UserCanReopen", "Node.UserCanReopen"), Description: "If true, user can reopen the issue."},
@@ -227,4 +228,16 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 	}
 
 	return query.Repository.Issue, nil
+}
+
+func getIssueTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	issue := d.HydrateItem.(models.Issue)
+
+	tags := make(map[string]bool)
+	if issue.Labels.TotalCount != 0 {
+		for _, i := range issue.Labels.Nodes {
+			tags[i.Name] = true
+		}
+	}
+	return tags, nil
 }

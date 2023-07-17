@@ -76,3 +76,60 @@ where
   and i.state = 'OPEN'
   and i.repository_full_name = r.full_name;
 ```
+
+### List all issues with labels as a string array (instead of JSON objects)
+
+```sql
+select
+  i.repository_full_name
+  i.number,
+  i.title,
+  json_agg(l ->> 'name') as labels
+from
+  github_issue i,
+  jsonb_array_elements(i.labels) as l
+where
+  repository_full_name = 'turbot/steampipe'
+group by
+  i.repository_full_name, i.number, i.title;
+```
+
+OR
+
+```sql
+select
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
+from
+  github_issue i,
+  jsonb_object_keys(i.tags) as t
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  state = 'OPEN'
+group by
+  repository_full_name, number, title;
+```
+
+### List all issues in a repository with a specific label
+
+```sql
+select
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
+from
+  github_issue i,
+  jsonb_object_keys(i.tags) as t
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  state = 'OPEN'
+and
+  tags ? 'bug'
+group by
+  repository_full_name, number, title;
+```
