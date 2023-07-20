@@ -1,3 +1,9 @@
+## v0.30.0 [2023-07-20]
+
+_Enhancements_
+
+- Added the `labels_src` and `labels` columns to `github_issue`, `github_my_issue`, and `github_pull_request` tables. ([#299](https://github.com/turbot/steampipe-plugin-github/pull/299))
+
 ## v0.29.0 [2023-07-07]
 
 _Breaking changes_
