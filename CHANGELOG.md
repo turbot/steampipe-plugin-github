@@ -1,3 +1,9 @@
+## v0.30.1 [2023-07-24]
+
+_Bug fixes_
+
+- Fixed the `labels` column of `github_issue` and `github_my_issue` tables to correctly return data instead of an error. ([#303](https://github.com/turbot/steampipe-plugin-github/pull/303))
+
 ## v0.30.0 [2023-07-20]
 
 _Enhancements_
