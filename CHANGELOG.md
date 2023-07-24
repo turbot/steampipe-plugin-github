@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Adjusted the transform func for the `labels` column to utilise the `label_src` column data. ([#303](https://github.com/turbot/steampipe-plugin-github/pull/303))
+- Fixed the `labels` column to correctly return data instead of throwing an error. ([#303](https://github.com/turbot/steampipe-plugin-github/pull/303))
 
 ## v0.30.0 [2023-07-20]
 
