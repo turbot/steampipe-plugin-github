@@ -117,7 +117,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		}
 
 		if uv4.String() != "https://api.github.com/" {
-			uv4.Path = uv4.Path + "api/graphql/"
+			uv4.Path = uv4.Path + "api/graphql"
 		}
 
 		conn = githubv4.NewEnterpriseClient(uv4.String(), tc)
