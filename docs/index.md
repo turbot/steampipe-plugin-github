@@ -90,4 +90,4 @@ connection "github" {
 ## Get involved
 
 - Open source: https://github.com/turbot/steampipe-plugin-github
-- Community: [Slack Channel](https://steampipe.io/community/join)
+- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
