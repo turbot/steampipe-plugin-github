@@ -1,3 +1,9 @@
+## v0.30.2 [2023-07-28]
+
+_Bug fixes_
+
+- Fixed the `base_url` config argument to correctly parse the GitHub Enterprise graphql url to avoid queries returning `404` error. ([#307](https://github.com/turbot/steampipe-plugin-github/pull/307))
+
 ## v0.30.1 [2023-07-24]
 
 _Bug fixes_
