@@ -99,6 +99,18 @@ type PullRequest struct {
 	// TimelineItems [pageable]
 }
 
+type PullRequestReview struct {
+	Id                        int                               `graphql:"id: databaseId" json:"id"`
+	NodeId                    string                            `graphql:"nodeId: id" json:"node_id"`
+	Author                    Actor                             `json:"author"`
+	AuthorAssociation         githubv4.CommentAuthorAssociation `json:"author_association"`
+	AuthorCanPushToRepository bool                              `json:"author_can_push_to_repository"`
+	State                     string                            `json:"state"`
+	Body                      string                            `json:"body"`
+	Url                       string                            `json:"html_url"`
+	SubmittedAt               NullableTime                      `json:"submitted_at"`
+}
+
 type SuggestedReviewer struct {
 	IsAuthor    bool      `json:"is_author"`
 	IsCommenter bool      `json:"is_commenter"`
