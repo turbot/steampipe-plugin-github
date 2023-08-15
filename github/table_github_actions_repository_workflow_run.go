@@ -5,14 +5,14 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table {
+func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_workflow_run",
 		Description: "WorkflowRun represents a repository action workflow run",
@@ -70,7 +70,7 @@ func tableGitHubActionsRepositoryWorkflowRun(ctx context.Context) *plugin.Table 
 func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(orgName)
 
 	type ListPageResponse struct {
@@ -81,7 +81,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 	opts := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
-	equalQuals := d.KeyColumnQuals
+	equalQuals := d.EqualsQuals
 	if equalQuals["event"] != nil {
 		if equalQuals["event"].GetStringValue() != "" {
 			opts.Event = equalQuals["event"].GetStringValue()
@@ -124,7 +124,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +138,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -156,8 +156,8 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 //// HYDRATE FUNCTIONS
 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	runId := d.KeyColumnQuals["id"].GetInt64Value()
-	orgName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	runId := d.EqualsQuals["id"].GetInt64Value()
+	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 
 	// Empty check for the parameters
 	if runId == 0 || orgName == "" {
@@ -182,7 +182,7 @@ func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 	if err != nil {
 		return nil, err
 	}

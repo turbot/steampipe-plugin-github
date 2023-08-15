@@ -40,22 +40,20 @@ order by
 
 ```sql
 select
-  u.login,
-  s.starred_at,
-  u.name,
-  u.company,
-  u.email,
-  u.html_url,
-  u.twitter_username,
-  u.blog,
-  u.location,
-  u.bio
+  user_login,
+  starred_at,
+  user_detail ->> 'name' as name,
+  user_detail ->> 'company' as company,
+  user_detail ->> 'email' as email,
+  user_detail ->> 'url' as url,
+  user_detail ->> 'twitter_username' as twitter_username,
+  user_detail ->> 'website_url' as website,
+  user_detail ->> 'location' as location,
+  user_detail ->> 'bio' as bio
 from
-  github_stargazer as s,
-  github_user as u
+  github_stargazer
 where
-  s.repository_full_name = 'turbot/steampipe'
-  and s.user_login = u.login
+  repository_full_name = 'turbot/steampipe-plugin-github'
 order by
-  s.starred_at desc;
+  starred_at desc;
 ```

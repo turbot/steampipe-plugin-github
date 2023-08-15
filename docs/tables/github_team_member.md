@@ -12,12 +12,13 @@ select
   slug as team_slug,
   login,
   role,
-  state
+  status
 from
   github_team_member
 where
   organization = 'my_org'
-  and slug = 'my-team';
+and
+  slug = 'my-team';
 ```
 
 ### List active team members with maintainer role for a specific team
@@ -28,31 +29,15 @@ select
   slug as team_slug,
   login,
   role,
-  state
+  status
 from
   github_team_member
 where
   organization = 'my_org'
-  and slug = 'my-team'
-  and role = 'maintainer'
-  and state = 'active';
-```
-
-### List pending team members for a specific team
-
-```sql
-select
-  organization,
-  slug as team_slug,
-  login,
-  role,
-  state
-from
-  github_team_member
-where
-  organization = 'my_org'
-  and slug = 'my-team'
-  and state = 'pending';
+and 
+  slug = 'my-team'
+and 
+  role = 'MAINTAINER';
 ```
 
 ### List team members with maintainer role for visible teams
@@ -66,12 +51,12 @@ select
   t.description as team_description,
   tm.login as member_login,
   tm.role as member_role,
-  tm.state as member_state
+  tm.status as member_status
 from
   github_team as t,
   github_team_member as tm
 where
   t.organization = tm.organization
   and t.slug = tm.slug
-  and tm.role = 'maintainer';
+  and tm.role = 'MAINTAINER';
 ```

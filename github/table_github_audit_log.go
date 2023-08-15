@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
+func tableGitHubAuditLog() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_audit_log",
 		Description: "Gets the audit logs for an organization.",
@@ -41,7 +41,7 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 
 			// Optional columns, depending on the audit event
 			{Name: "team", Type: proto.ColumnType_STRING, Description: "The GitHub team, when the action relates to a team."},
-			{Name: "user", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user."},
+			{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user.", Transform: transform.FromField("User")},
 			{Name: "repo", Type: proto.ColumnType_STRING, Description: "The GitHub repository, when the action relates to a repository."},
 			{Name: "data", Type: proto.ColumnType_JSON, Description: "Additional data relating to the audit event."},
 		},
@@ -51,7 +51,7 @@ func tableGitHubAuditLog(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 	phrase := quals["phrase"].GetStringValue()
 	include := quals["include"].GetStringValue()
@@ -116,7 +116,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			return nil, err
@@ -130,7 +130,7 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

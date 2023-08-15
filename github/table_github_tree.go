@@ -5,14 +5,14 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubTree(ctx context.Context) *plugin.Table {
+func tableGitHubTree() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_tree",
 		Description: "Lists directories and files in the given repository's git tree.",
@@ -54,7 +54,7 @@ func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	sha := quals["tree_sha"].GetStringValue()
 	recursive := quals["recursive"].GetBoolValue()
@@ -73,7 +73,7 @@ func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 			resp: resp,
 		}, err
 	}
-	getResponse, err := retryHydrate(ctx, d, h, getTree)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getTree, retryConfig())
 
 	if err != nil {
 		logger.Error("github_tree.tableGitHubTreeList", "api_error", err)

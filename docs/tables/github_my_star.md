@@ -11,20 +11,8 @@ The `github_my_star` table can be used to query the repositories you have starre
 ```sql
 select
   starred_at,
-  repository_full_name
+  repository_full_name,
+  url
 from
   github_my_star;
-```
-
-### Show all details from your starred repositories
-
-```sql
-select
-  gr.homepage
-from
-  github_my_star gs
-inner join
-  github_repository gr
-on
-  gs.repository_full_name = gr.full_name;
 ```

@@ -6,14 +6,14 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchLable(ctx context.Context) *plugin.Table {
+func tableGitHubSearchLable() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_label",
 		Description: "Find labels in a repository with names or descriptions that match search keywords.",
@@ -44,8 +44,8 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchLabelList")
 
-	quals := d.KeyColumnQuals
-	repoId := d.KeyColumnQuals["repository_id"].GetInt64Value()
+	quals := d.EqualsQuals
+	repoId := d.EqualsQuals["repository_id"].GetInt64Value()
 	query := quals["query"].GetStringValue()
 
 	if query == "" {
@@ -86,7 +86,7 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			logger.Error("tableGitHubSearchLabelList", "error_RetryHydrate", err)
@@ -101,7 +101,7 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

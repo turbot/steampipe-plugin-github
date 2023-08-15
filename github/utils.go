@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+
 	"github.com/google/go-github/v48/github"
-	"github.com/sethvargo/go-retry"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 // Create Rest API (v3) client
@@ -116,7 +117,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		}
 
 		if uv4.String() != "https://api.github.com/" {
-			uv4.Path = uv4.Path + "api/v4/"
+			uv4.Path = uv4.Path + "api/graphql"
 		}
 
 		conn = githubv4.NewEnterpriseClient(uv4.String(), tc)
@@ -141,6 +142,17 @@ func parseRepoFullName(fullName string) (string, string) {
 	return owner, repo
 }
 
+func adjustPageSize(pageSize int, limit *int64) int {
+	if limit != nil && *limit < int64(pageSize) {
+		return int(*limit)
+	}
+	return pageSize
+}
+
+func rateLimitLogString(table string, rateLimits *models.RateLimit) string {
+	return fmt.Sprintf("Query for table %s - rate limit cost: %d (used: %d/%d) [Nodes: %d], resets at: %s", table, rateLimits.Cost, rateLimits.Used, rateLimits.Limit, rateLimits.NodeCount, rateLimits.ResetAt.String())
+}
+
 // transforms
 
 func convertTimestamp(ctx context.Context, input *transform.TransformData) (interface{}, error) {
@@ -149,68 +161,20 @@ func convertTimestamp(ctx context.Context, input *transform.TransformData) (inte
 		return t.Format(time.RFC3339), nil
 	case github.Timestamp:
 		return t.Format(time.RFC3339), nil
+	case githubv4.DateTime:
+		return t.Format(time.RFC3339), nil
+	case *githubv4.DateTime:
+		return t.Format(time.RFC3339), nil
+	case models.NullableTime:
+		return t.Format(time.RFC3339), nil
 	default:
 		return nil, nil
 	}
 }
 
-func filterUserLogins(_ context.Context, input *transform.TransformData) (interface{}, error) {
-	user_logins := make([]string, 0)
-	if input.Value == nil {
-		return user_logins, nil
+func defaultSearchColumns() []*plugin.Column {
+	return []*plugin.Column{
+		{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query provided for the search."},
+		{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 	}
-
-	var userType []*github.User
-
-	// Check type of the transform values otherwise it is throwing error while type casting the interface to []*github.User type
-	if reflect.TypeOf(input.Value) != reflect.TypeOf(userType) {
-		return nil, nil
-	}
-
-	users := input.Value.([]*github.User)
-
-	if users == nil {
-		return user_logins, nil
-	}
-
-	for _, u := range users {
-		user_logins = append(user_logins, *u.Login)
-	}
-	return user_logins, nil
-}
-
-func gitHubSearchRepositoryColumns(columns []*plugin.Column) []*plugin.Column {
-	return append(gitHubRepositoryColumns(), columns...)
-}
-
-func retryHydrate(ctx context.Context, d *plugin.QueryData, hydrateData *plugin.HydrateData, hydrateFunc plugin.HydrateFunc) (interface{}, error) {
-
-	// Retry configs
-	maxRetries := 10
-	interval := time.Duration(1)
-
-	// Create the backoff based on the given mode
-	// Use exponential instead of fibonacci due to GitHub's aggressive throttling
-	backoff, err := retry.NewExponential(interval * time.Second)
-	if err != nil {
-		return nil, err
-	}
-
-	// Ensure the maximum value is 30s. In this scenario, the sleep values would be
-	// 1s, 2s, 4s, 16s, 30s, 30s...
-	backoff = retry.WithCappedDuration(30*time.Second, backoff)
-
-	var hydrateResult interface{}
-
-	err = retry.Do(ctx, retry.WithMaxRetries(uint64(maxRetries), backoff), func(ctx context.Context) error {
-		hydrateResult, err = hydrateFunc(ctx, d, hydrateData)
-		if err != nil {
-			if shouldRetryError(ctx, err) {
-				err = retry.RetryableError(err)
-			}
-		}
-		return err
-	})
-
-	return hydrateResult, err
 }

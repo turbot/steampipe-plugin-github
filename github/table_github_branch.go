@@ -2,114 +2,98 @@ package github
 
 import (
 	"context"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 
-	"github.com/google/go-github/v48/github"
-
-	"github.com/turbot/go-kit/types"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
-func tableGitHubBranch(ctx context.Context) *plugin.Table {
+func tableGitHubBranch() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_branch",
 		Description: "Branches in the given repository.",
 		List: &plugin.ListConfig{
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
-				{Name: "protected", Require: plugin.Optional, Operators: []string{"<>", "="}},
 			},
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubBranchList,
 		},
 		Columns: []*plugin.Column{
-			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
-			{Name: "commit_sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("Commit.SHA"), Description: "Commit SHA the branch refers to."},
-			{Name: "commit_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Commit.URL"), Description: "Commit URL the branch refers to."},
-			{Name: "protected", Type: proto.ColumnType_BOOL, Description: "True if the branch is protected."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch.", Transform: transform.FromField("Node.Name")},
+			{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node.Target.Commit"), Description: "Latest commit on the branch."},
+			{Name: "protected", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Node.BranchProtectionRule.NodeId").Transform(HasValue), Description: "If true, the branch is protected."},
+			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node.BranchProtectionRule").NullIfZero(), Description: "Branch protection rule if protected."},
 		},
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	client := connectV4(ctx, d)
+
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
-	opts := buildGithubBranchListOptions(d.KeyColumnQuals, d.Quals)
-	opts.ListOptions = github.ListOptions{PerPage: 100}
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opts.ListOptions.PerPage) {
-			opts.ListOptions.PerPage = int(*limit)
-		}
+	var query struct {
+		RateLimit  models.RateLimit
+		Repository struct {
+			Refs struct {
+				TotalCount int
+				PageInfo   models.PageInfo
+				Edges      []struct {
+					Node models.Branch
+				}
+			} `graphql:"refs(refPrefix: \"refs/heads/\", first: $pageSize, after: $cursor)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
-	type ListPageResponse struct {
-		branches []*github.Branch
-		resp     *github.Response
+	variables := map[string]interface{}{
+		"owner":    githubv4.String(owner),
+		"repo":     githubv4.String(repo),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		branches, resp, err := client.Repositories.ListBranches(ctx, owner, repo, opts)
-		return ListPageResponse{
-			branches: branches,
-			resp:     resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
+
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_branch", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_branch", "api_error", err)
 			return nil, err
 		}
-		listResponse := listPageResponse.(ListPageResponse)
-		branches := listResponse.branches
-		resp := listResponse.resp
 
-		for _, i := range branches {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, branch := range query.Repository.Refs.Edges {
+			d.StreamListItem(ctx, branch)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
-		if resp.NextPage == 0 {
+
+		if !query.Repository.Refs.PageInfo.HasNextPage {
 			break
 		}
-		opts.ListOptions.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Repository.Refs.PageInfo.EndCursor)
 	}
+
 	return nil, nil
 }
 
-func buildGithubBranchListOptions(equalQuals plugin.KeyColumnEqualsQualMap, quals plugin.KeyColumnQualMap) *github.BranchListOptions {
-	request := &github.BranchListOptions{}
-
-	if equalQuals["protected"] != nil {
-		request.Protected = types.Bool(equalQuals["protected"].GetBoolValue())
+// HasValue Note: if useful to other tables, move to utils.go
+func HasValue(_ context.Context, input *transform.TransformData) (interface{}, error) {
+	if input.Value == nil || input.Value.(string) == "" {
+		return false, nil
 	}
 
-	// Non-Equals Qual Map handling
-	if quals["protected"] != nil {
-		for _, q := range quals["protected"].Quals {
-			value := q.Value.GetBoolValue()
-			if q.Operator == "<>" {
-				request.Protected = types.Bool(false)
-				if !value {
-					request.Protected = types.Bool(true)
-				}
-			}
-		}
-	}
-	return request
+	return true, nil
 }

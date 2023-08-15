@@ -2,45 +2,30 @@ package github
 
 import (
 	"context"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
 
 	"github.com/shurcooL/githubv4"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func gitHubOrganizationMemberColumns() []*plugin.Column {
-	return []*plugin.Column{
+	tableCols := []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the member is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "login", Type: proto.ColumnType_STRING, Description: "The username used to login.", Transform: transform.FromField("Node.Login")},
 		{Name: "role", Type: proto.ColumnType_STRING, Description: "The role this user has in the organization. Returns null if information is not available to viewer."},
 		{Name: "has_two_factor_enabled", Type: proto.ColumnType_BOOL, Description: "Whether the organization member has two factor enabled or not. Returns null if information is not available to viewer."},
 	}
+
+	return append(tableCols, sharedUserColumns()...)
 }
 
 type memberWithRole struct {
 	HasTwoFactorEnabled *bool
 	Role                *string
-	Node                struct {
-		Login string
-	}
-}
-
-var query struct {
-	Organization struct {
-		Login           string
-		MembersWithRole struct {
-			Edges    []memberWithRole
-			PageInfo struct {
-				EndCursor   githubv4.String
-				HasNextPage bool
-			}
-		} `graphql:"membersWithRole(first: $membersWithRolePageSize, after: $membersWithRoleCursor)"`
-	} `graphql:"organization(login: $login)"`
+	Node                models.User
 }
 
 func tableGitHubOrganizationMember() *plugin.Table {
@@ -57,31 +42,41 @@ func tableGitHubOrganizationMember() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 
-	pageSize := 100
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(pageSize) {
-			pageSize = int(*limit)
-		}
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Login           string
+			MembersWithRole struct {
+				Edges    []memberWithRole
+				PageInfo struct {
+					EndCursor   githubv4.String
+					HasNextPage bool
+				}
+			} `graphql:"membersWithRole(first: $pageSize, after: $cursor)"`
+		} `graphql:"organization(login: $login)"`
 	}
 
 	variables := map[string]interface{}{
-		"login":                   githubv4.String(org),
-		"membersWithRolePageSize": githubv4.Int(pageSize),
-		"membersWithRoleCursor":   (*githubv4.String)(nil), // Null after argument to get first page.
+		"login":    githubv4.String(org),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil), // Null after argument to get first page.
+	}
+
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
 	}
 
 	for {
-		err := client.Query(ctx, &query, variables)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_organization_member", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_organization_member", "api_error", err)
 			if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
@@ -94,7 +89,7 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 			d.StreamListItem(ctx, member)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -102,7 +97,7 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 		if !query.Organization.MembersWithRole.PageInfo.HasNextPage {
 			break
 		}
-		variables["membersWithRoleCursor"] = githubv4.NewString(query.Organization.MembersWithRole.PageInfo.EndCursor)
+		variables["cursor"] = githubv4.NewString(query.Organization.MembersWithRole.PageInfo.EndCursor)
 	}
 
 	return nil, nil

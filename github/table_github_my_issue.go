@@ -2,13 +2,23 @@ package github
 
 import (
 	"context"
+	"fmt"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 	"time"
 
-	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-//// TABLE DEFINITION
+func gitHubMyIssueColumns() []*plugin.Column {
+	tableCols := []*plugin.Column{
+		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Repo.NameWithOwner", "Node.Repo.NameWithOwner"), Description: "The full name of the repository (login/repo-name)."},
+	}
+
+	return append(tableCols, sharedIssueColumns()...)
+}
 
 func tableGitHubMyIssue() *plugin.Table {
 	return &plugin.Table{
@@ -18,88 +28,90 @@ func tableGitHubMyIssue() *plugin.Table {
 			Hydrate: tableGitHubMyIssueList,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "state", Require: plugin.Optional},
-				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">="}},
+				{Name: "updated_at", Require: plugin.Optional, Operators: []string{">", ">="}},
 			},
 		},
-		Columns: gitHubIssueColumns(),
+		Columns: gitHubMyIssueColumns(),
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	opt := &github.IssueListOptions{
-		ListOptions: github.ListOptions{PerPage: 100},
-		State:       "all",
+	var filters githubv4.IssueFilters
+
+	quals := d.EqualsQuals
+	if quals["state"] != nil {
+		state := quals["state"].GetStringValue()
+		switch state {
+		case "OPEN":
+			filters.States = &[]githubv4.IssueState{githubv4.IssueStateOpen}
+		case "CLOSED":
+			filters.States = &[]githubv4.IssueState{githubv4.IssueStateClosed}
+		default:
+			plugin.Logger(ctx).Error("github_my_issue", "invalid filter", "state", state)
+			return nil, fmt.Errorf("invalid value for 'state' can only filter for 'OPEN' or 'CLOSED' - you attempted to filter for '%s'", state)
+		}
+	} else {
+		filters.States = &[]githubv4.IssueState{githubv4.IssueStateOpen, githubv4.IssueStateClosed}
 	}
 
-	// Additional filters
-	if d.KeyColumnQuals["state"] != nil {
-		opt.State = d.KeyColumnQuals["state"].GetStringValue()
-	}
-
-	if d.Quals["created_at"] != nil {
-		for _, q := range d.Quals["created_at"].Quals {
+	if d.Quals["updated_at"] != nil {
+		for _, q := range d.Quals["updated_at"].Quals {
 			givenTime := q.Value.GetTimestampValue().AsTime()
 			afterTime := givenTime.Add(time.Second * 1)
 
 			switch q.Operator {
 			case ">":
-				opt.Since = afterTime
+				filters.Since = githubv4.NewDateTime(githubv4.DateTime{Time: afterTime})
 			case ">=":
-				opt.Since = givenTime
+				filters.Since = githubv4.NewDateTime(githubv4.DateTime{Time: givenTime})
 			}
 		}
 	}
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.ListOptions.PerPage) {
-			opt.ListOptions.PerPage = int(*limit)
+	var query struct {
+		RateLimit models.RateLimit
+		Viewer    struct {
+			Issues struct {
+				TotalCount int
+				PageInfo   models.PageInfo
+				Nodes      []models.Issue
+			} `graphql:"issues(first: $pageSize, after: $cursor, filterBy: $filters)"`
 		}
 	}
 
-	client := connect(ctx, d)
-
-	type ListPageResponse struct {
-		issues []*github.Issue
-		resp   *github.Response
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
+	variables := map[string]interface{}{
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
+		"filters":  filters,
 	}
+
+	client := connectV4(ctx, d)
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		issues, resp, err := client.Issues.List(ctx, true, opt)
-		return ListPageResponse{
-			issues: issues,
-			resp:   resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_issue", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_my_issue", "api_error", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		issues := listResponse.issues
-		resp := listResponse.resp
-
-		for _, i := range issues {
-			// Only issues, not PRs (those are in the pull_request table...)
-			if !i.IsPullRequest() {
-				d.StreamListItem(ctx, i)
-			}
+		for _, issue := range query.Viewer.Issues.Nodes {
+			d.StreamListItem(ctx, issue)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if !query.Viewer.Issues.PageInfo.HasNextPage {
 			break
 		}
-
-		opt.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Viewer.Issues.PageInfo.EndCursor)
 	}
 
 	return nil, nil

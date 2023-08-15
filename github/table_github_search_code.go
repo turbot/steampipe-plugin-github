@@ -5,14 +5,14 @@ import (
 	"regexp"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchCode(ctx context.Context) *plugin.Table {
+func tableGitHubSearchCode() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_code",
 		Description: "Searches for query terms inside of a file.",
@@ -39,7 +39,7 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchCodeList")
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	query := quals["query"].GetStringValue()
 
 	if query == "" {
@@ -81,7 +81,7 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			logger.Error("tableGitHubSearchCodeList", "error_RetryHydrate", err)
@@ -96,7 +96,7 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

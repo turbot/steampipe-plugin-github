@@ -11,7 +11,7 @@ The `github_tag` table can be used to query information about any tag, and **you
 ```sql
 select
   name,
-  commit_sha
+  commit ->> 'sha' as commit_sha
 from
   github_tag
 where
@@ -23,7 +23,7 @@ where
 ```sql
 select
   name,
-  commit_sha
+  commit ->> 'sha' as commit_sha
 from
   github_tag
 where
@@ -33,25 +33,28 @@ order by
   name;
 ```
 
-### Get commit details for each tag (Not working yet)
-
-Note: This example is intended to join tags with commit information to return the
-full details of each item. Currently joins with multiple columns are not
-working pending a solution to [#47](https://github.com/turbot/steampipe-postgres-fdw/issues/47).
+### Get commit details for each tag
 
 ```sql
 select
-  t.name,
-  t.commit_sha,
-  c.author_date,
-  c.message
+  name,
+  commit ->> 'sha' as commit_sha,
+  commit ->> 'message' as commit_message,
+  commit ->> 'url' as commit_url,
+  commit -> 'author' -> 'user' ->> 'login' as author,
+  commit ->> 'authored_date' as authored_date,
+  commit -> 'committer' -> 'user' ->> 'login' as committer,
+  commit ->> 'committed_date' as committed_date,
+  commit ->> 'additions' as additions,
+  commit ->> 'deletions' as deletions,
+  commit ->> 'changed_files' as changed_files,
+  commit -> 'signature' ->> 'is_valid' as commit_signed,
+  commit -> 'signature' ->> 'email' as commit_signature_email,
+  commit -> 'signature' -> 'signer' ->> 'login' as commit_signature_login,
+  commit ->> 'tarball_url' as tarball_url,
+  commit ->> 'zipball_url' as zipball_url 
 from
-  github_tag as t,
-  github_commit as c
+  github_tag
 where
-  t.repository_full_name = 'turbot/steampipe'
-  and t.repository_full_name = c.repository_full_name
-  and t.commit_sha = c.sha
-order by
-  c.author_date desc;
+  repository_full_name = 'turbot/steampipe';
 ```

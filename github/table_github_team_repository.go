@@ -2,25 +2,23 @@ package github
 
 import (
 	"context"
+	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
+	"strings"
 
-	"github.com/google/go-github/v48/github"
-
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func gitHubTeamRepositoryColumns() []*plugin.Column {
-	repoColumns := gitHubRepositoryColumns()
 	teamColumns := []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the team is associated with.", Transform: transform.FromQual("organization")},
 		{Name: "slug", Type: proto.ColumnType_STRING, Description: "The team slug name.", Transform: transform.FromQual("slug")},
-		{Name: "permissions", Type: proto.ColumnType_JSON, Description: "The team's permissions for a repository.", Transform: transform.From(perissionsFromMap)},
+		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The permission level the team has on the repository."},
 	}
 
-	return append(repoColumns, teamColumns...)
+	return append(teamColumns, sharedRepositoryColumns()...)
 }
 
 func tableGitHubTeamRepository() *plugin.Table {
@@ -39,7 +37,7 @@ func tableGitHubTeamRepository() *plugin.Table {
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "organization", Require: plugin.Required},
 				{Name: "slug", Require: plugin.Required},
-				{Name: "full_name", Require: plugin.Required},
+				{Name: "name", Require: plugin.Required},
 			},
 			Hydrate:           tableGitHubTeamRepositoryGet,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
@@ -48,124 +46,110 @@ func tableGitHubTeamRepository() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connect(ctx, d)
+	client := connectV4(ctx, d)
 
-	opt := &github.ListOptions{PerPage: 100}
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
+	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
-	org := d.KeyColumnQuals["organization"].GetStringValue()
-	slug := d.KeyColumnQuals["slug"].GetStringValue()
-
-	type ListPageResponse struct {
-		repos []*github.Repository
-		resp  *github.Response
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Team struct {
+				Repositories struct {
+					TotalCount int
+					PageInfo   models.PageInfo
+					Edges      []models.TeamRepositoryWithPermission
+				} `graphql:"repositories(first: $pageSize, after: $cursor)"`
+			} `graphql:"team(slug: $slug)"`
+		} `graphql:"organization(login: $login)"`
 	}
 
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(opt.PerPage) {
-			opt.PerPage = int(*limit)
-		}
+	variables := map[string]interface{}{
+		"login":    githubv4.String(org),
+		"slug":     githubv4.String(slug),
+		"pageSize": githubv4.Int(pageSize),
+		"cursor":   (*githubv4.String)(nil),
 	}
 
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		repos, resp, err := client.Teams.ListTeamReposBySlug(ctx, org, slug, opt)
-		return ListPageResponse{
-			repos: repos,
-			resp:  resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
-
+		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		plugin.Logger(ctx).Debug(rateLimitLogString("github_team_repository", &query.RateLimit))
 		if err != nil {
+			plugin.Logger(ctx).Error("github_team_repository", "api_error", err)
+			if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+				return nil, nil
+			}
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		repos := listResponse.repos
-		resp := listResponse.resp
-
-		for _, i := range repos {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
+		for _, repo := range query.Organization.Team.Repositories.Edges {
+			d.StreamListItem(ctx, repo)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
 
-		if resp.NextPage == 0 {
+		if !query.Organization.Team.Repositories.PageInfo.HasNextPage {
 			break
 		}
-
-		opt.Page = resp.NextPage
+		variables["cursor"] = githubv4.NewString(query.Organization.Team.Repositories.PageInfo.EndCursor)
 	}
 
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var org, slug, owner, repoName string
-	if h.Item != nil {
-		repo := h.Item.(*github.Repository)
-		org = *repo.Organization.Login
-		owner = *repo.Owner.Login
-		repoName = *repo.Name
-		slug = *h.Item.(*github.Team).Slug
-	} else {
-		org = d.KeyColumnQuals["organization"].GetStringValue()
-		slug = d.KeyColumnQuals["slug"].GetStringValue()
-		fullName := d.KeyColumnQuals["full_name"].GetStringValue()
-		owner, repoName = parseRepoFullName(fullName)
+	client := connectV4(ctx, d)
+
+	org := d.EqualsQuals["organization"].GetStringValue()
+	slug := d.EqualsQuals["slug"].GetStringValue()
+	name := d.EqualsQuals["name"].GetStringValue()
+
+	var query struct {
+		RateLimit    models.RateLimit
+		Organization struct {
+			Team struct {
+				Repositories struct {
+					TotalCount int
+					PageInfo   models.PageInfo
+					Edges      []models.TeamRepositoryWithPermission
+				} `graphql:"repositories(first: $pageSize, query: $name)"`
+			} `graphql:"team(slug: $slug)"`
+		} `graphql:"organization(login: $login)"`
 	}
 
-	client := connect(ctx, d)
-
-	type GetResponse struct {
-		repo *github.Repository
-		resp *github.Response
+	variables := map[string]interface{}{
+		"login":    githubv4.String(org),
+		"slug":     githubv4.String(slug),
+		"name":     githubv4.String(name),
+		"pageSize": githubv4.Int(1),
 	}
 
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Teams.IsTeamRepoBySlug(ctx, org, slug, owner, repoName)
-		return GetResponse{
-			repo: detail,
-			resp: resp,
-		}, err
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
-
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	plugin.Logger(ctx).Debug(rateLimitLogString("github_team_repository", &query.RateLimit))
 	if err != nil {
+		plugin.Logger(ctx).Error("github_team_repository", "api_error", err)
+		if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	repo := getResponse.(GetResponse).repo
-
-	if repo != nil {
-		return repo, nil
+	if len(query.Organization.Team.Repositories.Edges) == 1 && query.Organization.Team.Repositories.Edges[0].Node.Name == name {
+		return query.Organization.Team.Repositories.Edges[0], nil
 	}
 
 	return nil, nil
-}
-
-func perissionsFromMap(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	permissions := d.HydrateItem.(*github.Repository).Permissions
-
-	var arr []string
-	for key, value := range permissions {
-		if value {
-			arr = append(arr, key)
-		}
-	}
-
-	return arr, nil
 }

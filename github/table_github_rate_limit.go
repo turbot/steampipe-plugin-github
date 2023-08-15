@@ -5,12 +5,12 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-func tableGitHubRateLimit(ctx context.Context) *plugin.Table {
+func tableGitHubRateLimit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_rate_limit",
 		Description: "Rate limit of github.",
@@ -45,7 +45,7 @@ func listGitHubRateLimit(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 	if err != nil {
 		return nil, err
 	}

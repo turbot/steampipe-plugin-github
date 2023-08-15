@@ -5,14 +5,14 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINTION
 
-func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
+func tableGitHubTrafficViewWeekly() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_traffic_view_weekly",
 		Description: "Weekly traffic view over the last 14 days for the given repository.",
@@ -36,7 +36,7 @@ func tableGitHubTrafficViewWeekly(ctx context.Context) *plugin.Table {
 func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	opts := &github.TrafficBreakdownOptions{Per: "week"}
@@ -53,7 +53,7 @@ func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, 
 			resp:         resp,
 		}, err
 	}
-	listResponse, err := retryHydrate(ctx, d, h, listPage)
+	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, 
 		}
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}

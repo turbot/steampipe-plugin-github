@@ -13,11 +13,11 @@ Note that pull requests are technically also issues in GitHub, however we do not
 ```sql
 select
   repository_full_name,
-  issue_number,
+  number,
   title,
   state,
   author_login,
-  assignee_logins
+  assignees_total_count
 from
   github_issue
 where
@@ -29,53 +29,20 @@ where
 ```sql
 select
   repository_full_name,
-  issue_number,
+  number,
   title,
   state,
   author_login,
-  assignee_logins
+  assignees_total_count
 from
   github_issue
 where
   repository_full_name = 'turbot/steampipe'
-  and jsonb_array_length(assignee_logins) = 0
-  and state = 'open';
+and 
+  assignees_total_count = 0
+and 
+  state = 'OPEN';
 
-```
-
-### List the open issues in a repository with a given label
-
-```sql
-select
-  repository_full_name,
-  issue_number,
-  title,
-  state,
-  tags
-from
-  github_issue
-where
-  repository_full_name = 'turbot/steampipe'
-  and state = 'open'
-  and tags ? 'bug';
-```
-
-### List the open issues in a repository assigned to a specific user
-
-```sql
-select
-  repository_full_name,
-  issue_number,
-  title,
-  state,
-  assigned_to
-from
-  github_issue,
-  jsonb_array_elements_text(assignee_logins) as assigned_to
-where
-  repository_full_name = 'turbot/steampipe'
-  and assigned_to = 'binaek89'
-  and state = 'open';
 ```
 
 ### Report of the number issues in a repository by author
@@ -99,13 +66,68 @@ order by
 ```sql
 select
   i.repository_full_name,
-  i.issue_number,
+  i.number,
   i.title
 from
   github_my_repository as r,
   github_issue as i
 where 
   r.full_name like 'turbot/steampip%'
-  and i.state = 'open'
+  and i.state = 'OPEN'
   and i.repository_full_name = r.full_name;
+```
+
+### List all issues with labels as a string array (instead of JSON objects)
+
+```sql
+select
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
+from
+  github_issue i,
+  jsonb_object_keys(i.labels) as t
+where
+  repository_full_name = 'turbot/steampipe'
+group by
+  repository_full_name, number, title;
+```
+
+OR
+
+```sql
+select
+  i.repository_full_name,
+  i.number,
+  i.title,
+  json_agg(l ->> 'name') as labels
+from
+  github_issue i,
+  jsonb_array_elements(i.labels_src) as l
+where
+  repository_full_name = 'turbot/steampipe'
+group by
+  i.repository_full_name, i.number, i.title;
+```
+
+### List all open issues in a repository with a specific label
+
+```sql
+select
+  repository_full_name,
+  number,
+  title,
+  json_agg(t) as labels
+from
+  github_issue i,
+  jsonb_object_keys(labels) as t
+where
+  repository_full_name = 'turbot/steampipe'
+and
+  state = 'OPEN'
+and
+  labels ? 'bug'
+group by
+  repository_full_name, number, title;
 ```

@@ -11,7 +11,7 @@ To view **all the issues belonging to a repository**, use the `github_issue` tab
 ```sql
 select
   repository_full_name,
-  issue_number,
+  number,
   title,
   state,
   author_login,
@@ -19,23 +19,7 @@ select
 from
   github_my_issue
 where
-  state = 'open';
-```
-
-### List your open issues with a given label
-
-```sql
-select
-  repository_full_name,
-  issue_number,
-  title,
-  state,
-  tags
-from
-  github_my_issue
-where
-  state = 'open'
-  and tags ? 'bug';
+  state = 'OPEN';
 ```
 
 ### List your 10 oldest open issues
@@ -43,7 +27,7 @@ where
 ```sql
 select
   repository_full_name,
-  issue_number,
+  number,
   created_at,
   age(created_at),
   title,
@@ -51,7 +35,7 @@ select
 from
   github_my_issue
 where
-  state = 'open'
+  state = 'OPEN'
 order by
   created_at
 limit 10;

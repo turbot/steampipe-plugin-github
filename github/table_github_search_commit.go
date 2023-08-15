@@ -6,14 +6,14 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubSearchCommit(ctx context.Context) *plugin.Table {
+func tableGitHubSearchCommit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_commit",
 		Description: "Find commits via various criteria on the default branch (usually master).",
@@ -44,7 +44,7 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchCommitList")
 
-	quals := d.KeyColumnQuals
+	quals := d.EqualsQuals
 	query := quals["query"].GetStringValue()
 
 	if query == "" {
@@ -86,7 +86,7 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 		if err != nil {
 			logger.Error("tableGitHubSearchCommitList", "error_RetryHydrate", err)
@@ -101,7 +101,7 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 			d.StreamListItem(ctx, i)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}

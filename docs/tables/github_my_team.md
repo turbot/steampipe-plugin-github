@@ -14,8 +14,8 @@ select
   slug,
   description,
   organization,
-  members_count,
-  repos_count
+  members_total_count,
+  repositories_total_count
 from
   github_my_team;
 ```
@@ -29,4 +29,18 @@ select
   permission
 from
   github_my_team;
+```
+
+### Get parent team details for child teams
+
+```sql
+select
+  slug,
+  organization,
+  parent ->> 'id' as parent_team_id,
+  parent ->> 'slug' as parent_team_slug
+from
+  github_my_team
+where
+  parent is not null;
 ```

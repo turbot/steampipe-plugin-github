@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -49,7 +49,7 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}, err
 	}
 
-	listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+	listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}
@@ -79,7 +79,7 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 		item := h.Item.(github.Gitignore)
 		name = *item.Name
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	// Return nil, if no input provided
@@ -101,7 +101,7 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 			resp:      resp,
 		}, err
 	}
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 
 	if err != nil {
 		return nil, err

@@ -5,14 +5,14 @@ import (
 
 	"github.com/google/go-github/v48/github"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
 
-func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
+func tableGitHubActionsArtifact() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_artifact",
 		Description: "Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed.",
@@ -48,7 +48,7 @@ func tableGitHubActionsArtifact(ctx context.Context) *plugin.Table {
 func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	type ListPageResponse struct {
@@ -74,7 +74,7 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +89,7 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -107,8 +107,8 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 //// HYDRATE FUNCTIONS
 
 func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	id := d.KeyColumnQuals["id"].GetInt64Value()
-	fullName := d.KeyColumnQuals["repository_full_name"].GetStringValue()
+	id := d.EqualsQuals["id"].GetInt64Value()
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 
 	// Empty check for the parameters
 	if id == 0 || fullName == "" {
@@ -133,7 +133,7 @@ func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getDetails)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
 	if err != nil {
 		return nil, err
 	}
