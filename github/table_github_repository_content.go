@@ -3,9 +3,9 @@ package github
 import (
 	"context"
 	"github.com/google/go-github/v48/github"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -43,10 +43,10 @@ func tableGitHubRepositoryContent() *plugin.Table {
 //// LIST FUNCTION
 
 func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	owner, repo := parseRepoFullName(d.KeyColumnQuals["repository_full_name"].GetStringValue())
+	owner, repo := parseRepoFullName(d.EqualsQualString("repository_full_name"))
 	var filterPath string
-	if d.KeyColumnQuals["repository_content_path"] != nil {
-		filterPath = d.KeyColumnQuals["repository_content_path"].GetStringValue()
+	if d.EqualsQualString("repository_content_path") != "" {
+		filterPath = d.EqualsQualString("repository_content_path")
 	}
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentList", "owner", owner, "repo", repo, "path", filterPath)
 
@@ -75,7 +75,7 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	}
 
 	for {
-		listPageResponse, err := retryHydrate(ctx, d, h, listPage)
+		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 		if err != nil {
 			plugin.Logger(ctx).Error("tableGitHubRepositoryContentList", "retry_hydrate_error", err)
 			return nil, err
@@ -87,7 +87,7 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -102,7 +102,7 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 //// GET FUNCTION
 
 func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	owner, repo := parseRepoFullName(d.KeyColumnQuals["repository_full_name"].GetStringValue())
+	owner, repo := parseRepoFullName(d.EqualsQualString("repository_full_name"))
 	filterPath := *h.Item.(*github.RepositoryContent).Path
 
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentGet", "owner", owner, "repo", repo, "path", filterPath)
@@ -127,7 +127,7 @@ func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h
 		}, err
 	}
 
-	getResponse, err := retryHydrate(ctx, d, h, getFileContent)
+	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, retryConfig())
 	if err != nil {
 		return nil, err
 	}
