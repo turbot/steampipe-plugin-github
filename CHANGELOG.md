@@ -1,3 +1,10 @@
+## v0.31.0 [2023-08-17]
+
+_What's new?_
+
+- New tables added
+  - [github_pull_request_review](https://hub.steampipe.io/plugins/turbot/github/tables/github_pull_request_review) ([#313](https://github.com/turbot/steampipe-plugin-github/pull/313)) (Thanks [@jramosf](https://github.com/jramosf) for the contribution!)
+
 ## v0.30.2 [2023-07-28]
 
 _Bug fixes_
