@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/shurcooL/githubv4"
+	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -71,6 +72,7 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentList", "owner", owner, "repo", repo, "path", filterPath)
 
 	var query struct {
+		RateLimit  models.RateLimit
 		Repository struct {
 			Object struct {
 				Tree struct {
