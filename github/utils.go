@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 
@@ -177,4 +178,17 @@ func defaultSearchColumns() []*plugin.Column {
 		{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query provided for the search."},
 		{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
 	}
+}
+
+func lastPathElement(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	return getLastPathElement(types.SafeString(d.Value)), nil
+}
+
+func getLastPathElement(path string) string {
+	if path == "" {
+		return ""
+	}
+
+	pathItems := strings.Split(path, "/")
+	return pathItems[len(pathItems)-1]
 }

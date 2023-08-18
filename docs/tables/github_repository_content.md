@@ -1,9 +1,9 @@
 # Table: github_repository_content
 
-Gets the contents of a file or directory in a repository. 
+Gets the contents of a file or directory in a repository.
 
-Specify the file path or directory in `repository_content_path`. 
-If you omit `repository_content_path`, you will receive the contents of the repository's root directory. 
+Specify the file path or directory in `repository_content_path`.
+If you omit `repository_content_path`, you will receive the contents of the repository's root directory.
 See the description below regarding what the response includes for directories.
 
 The `github_repository_content` table can be used to query information about **ANY** repository, and **you must specify which repository** in the where or join clause (`where repository_full_name=`, `join github_repository_content on repository_full_name=`).
@@ -19,10 +19,9 @@ select
   content,
   type,
   size,
-  sha,
-  html_url 
+  sha
 from
-  github_repository_content 
+  github_repository_content
 where
   repository_full_name = 'github/docs';
 ```
@@ -36,12 +35,11 @@ select
   content,
   type,
   size,
-  sha,
-  html_url 
+  sha
 from
-  github_repository_content 
+  github_repository_content
 where
-  repository_full_name = 'github/docs' 
+  repository_full_name = 'github/docs'
   and repository_content_path = 'docs';
 ```
 
@@ -54,11 +52,10 @@ select
   type,
   size,
   sha,
-  content,
-  html_url 
+  content
 from
-  github_repository_content 
+  github_repository_content
 where
-  repository_full_name = 'github/docs' 
+  repository_full_name = 'github/docs'
   and repository_content_path = '.vscode/settings.json';
 ```

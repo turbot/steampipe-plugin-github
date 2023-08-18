@@ -2,7 +2,8 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v48/github"
+
+	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -26,18 +27,37 @@ func tableGitHubRepositoryContent() *plugin.Table {
 			{Name: "repository_full_name", Description: "The full name of the repository (login/repo-name).", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name")},
 			{Name: "type", Description: "The file type (directory or file).", Type: proto.ColumnType_STRING},
 			{Name: "name", Description: "The file name.", Type: proto.ColumnType_STRING},
+			{Name: "oid", Description: "The Git object ID.", Type: proto.ColumnType_STRING},
+			{Name: "abbreviated_oid", Description: "An abbreviated version of the Git object ID.", Type: proto.ColumnType_STRING},
 			{Name: "repository_content_path", Description: "The requested path in repository search.", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_content_path")},
 			{Name: "path", Description: "The path of the file.", Type: proto.ColumnType_STRING},
-			{Name: "size", Description: "The size of the file (in MB).", Type: proto.ColumnType_INT},
-			{Name: "content", Description: "The decoded file content (if the element is a file).", Type: proto.ColumnType_STRING, Transform: transform.From(transformFileContent), Hydrate: tableGitHubRepositoryContentGet},
-			{Name: "target", Description: "Target is only set if the type is \"symlink\" and the target is not a normal file. If Target is set, Path will be the symlink path.", Type: proto.ColumnType_STRING},
-			{Name: "sha", Description: "The sha of the file.", Type: proto.ColumnType_STRING, Transform: transform.FromField("SHA")},
-			{Name: "url", Description: "URL of file's metadata.", Type: proto.ColumnType_STRING},
-			{Name: "git_url", Description: "Git URL (with SHA) of the file.", Type: proto.ColumnType_STRING},
-			{Name: "html_url", Description: "Raw file URL in GitHub.", Type: proto.ColumnType_STRING},
-			{Name: "download_url", Description: "Download URL : it expires and can be be used just once.", Type: proto.ColumnType_STRING},
+			{Name: "path_raw", Description: "A Base64-encoded representation of the file's path.", Type: proto.ColumnType_STRING},
+			{Name: "mode", Description: "The mode of the file.", Type: proto.ColumnType_INT},
+			{Name: "size", Description: "The size of the file (in KB).", Type: proto.ColumnType_INT},
+			{Name: "line_count", Description: "The number of lines available in the file.", Type: proto.ColumnType_INT},
+			{Name: "content", Description: "The decoded file content (if the element is a file).", Type: proto.ColumnType_STRING},
+			{Name: "is_generated", Description: "Whether or not this tree entry is generated.", Type: proto.ColumnType_BOOL},
+			{Name: "is_binary", Description: "Indicates whether the Blob is binary or text.", Type: proto.ColumnType_BOOL},
+			{Name: "sha", Description: "The sha of the file.", Type: proto.ColumnType_STRING, Transform: transform.FromField("CommitUrl").Transform(lastPathElement)},
+			{Name: "commit_url", Description: "Git URL (with SHA) of the file.", Type: proto.ColumnType_STRING},
 		},
 	}
+}
+
+type ContentInfo struct {
+	Oid            string
+	AbbreviatedOid string
+	Name           string
+	Mode           int
+	PathRaw        string
+	IsGenerated    bool
+	Path           string
+	Size           int
+	LineCount      int
+	Type           string
+	Content        string
+	CommitUrl      string
+	IsBinary       bool
 }
 
 //// LIST FUNCTION
@@ -50,101 +70,122 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	}
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentList", "owner", owner, "repo", repo, "path", filterPath)
 
-	type ListPageResponse struct {
-		repositoryContent []*github.RepositoryContent
-		resp              *github.Response
+	var query struct {
+		Repository struct {
+			Object struct {
+				Tree struct {
+					Oid            githubv4.String
+					AbbreviatedOid githubv4.String
+					Entries        []struct {
+						Name        githubv4.String
+						Path        githubv4.String
+						Size        githubv4.Int
+						LineCount   githubv4.Int
+						Mode        githubv4.Int
+						PathRaw     githubv4.String
+						IsGenerated githubv4.Boolean
+						Type        githubv4.String
+						Object      struct {
+							Blob struct {
+								Oid            githubv4.String
+								AbbreviatedOid githubv4.String
+								Text           githubv4.String
+								IsBinary       githubv4.Boolean
+								CommitUrl      githubv4.String
+							} `graphql:"... on Blob"`
+							SubTree struct {
+								Entries []struct {
+									Name        githubv4.String
+									Path        githubv4.String
+									Size        githubv4.Int
+									LineCount   githubv4.Int
+									Mode        githubv4.Int
+									PathRaw     githubv4.String
+									IsGenerated githubv4.Boolean
+									Type        githubv4.String
+									Object      struct {
+										Blob struct {
+											Oid            githubv4.String
+											AbbreviatedOid githubv4.String
+											Text           githubv4.String
+											IsBinary       githubv4.Boolean
+											CommitUrl      githubv4.String
+										} `graphql:"... on Blob"`
+									}
+								}
+							} `graphql:"... on Tree"`
+						}
+					}
+				} `graphql:"... on Tree"`
+			} `graphql:"object(expression: $expression)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
-	client := connect(ctx, d)
-	opt := &github.RepositoryContentGetOptions{}
+
+	variables := map[string]interface{}{
+		"owner":      githubv4.String(owner),
+		"repo":       githubv4.String(repo),
+		"expression": githubv4.String("HEAD:" + filterPath),
+	}
+
+	client := connectV4(ctx, d)
 	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		fileContent, directoryContent, resp, err := client.Repositories.GetContents(ctx, owner, repo, filterPath, opt)
-
-		if err != nil {
-			plugin.Logger(ctx).Error("tableGitHubRepositoryContentList", "api_error", err, "path", filterPath)
-			return nil, err
-		}
-
-		if fileContent != nil {
-			directoryContent = []*github.RepositoryContent{fileContent}
-		}
-
-		return ListPageResponse{
-			repositoryContent: directoryContent,
-			resp:              resp,
-		}, err
+		return nil, client.Query(ctx, &query, variables)
 	}
 
-	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-		if err != nil {
-			plugin.Logger(ctx).Error("tableGitHubRepositoryContentList", "retry_hydrate_error", err)
-			return nil, err
-		}
-
-		for _, i := range listPageResponse.(ListPageResponse).repositoryContent {
-			if i != nil {
-				d.StreamListItem(ctx, i)
-			}
-
-			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.RowsRemaining(ctx) == 0 {
-				return nil, nil
-			}
-		}
-
-		if listPageResponse.(ListPageResponse).resp.NextPage == 0 {
-			break
-		}
-	}
-	return nil, nil
-}
-
-//// GET FUNCTION
-
-func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	owner, repo := parseRepoFullName(d.EqualsQualString("repository_full_name"))
-	filterPath := *h.Item.(*github.RepositoryContent).Path
-
-	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentGet", "owner", owner, "repo", repo, "path", filterPath)
-
-	type GetResponse struct {
-		repositoryContent *github.RepositoryContent
-		resp              *github.Response
-	}
-
-	client := connect(ctx, d)
-	getFileContent := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		fileContent, _, resp, err := client.Repositories.GetContents(ctx, owner, repo, filterPath, &github.RepositoryContentGetOptions{})
-
-		if err != nil {
-			plugin.Logger(ctx).Error("tableGitHubRepositoryContentGet", "api_error", err, "path", filterPath)
-			return nil, err
-		}
-
-		return GetResponse{
-			repositoryContent: fileContent,
-			resp:              resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, retryConfig())
+	// for {
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	if err != nil {
+		plugin.Logger(ctx).Error("github_repository_content", "api_error", err, "repository", repo)
 		return nil, err
 	}
 
-	return getResponse.(GetResponse).repositoryContent, nil
-}
+	var contents []ContentInfo
 
-func transformFileContent(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	content := d.HydrateItem.(*github.RepositoryContent)
-	// directory use case. By definition, a directory doesn't have a raw content
-	if content.Content == nil {
-		return nil, nil
+	for _, data := range query.Repository.Object.Tree.Entries {
+		contents = append(contents, ContentInfo{
+			Oid:            string(data.Object.Blob.Oid),
+			AbbreviatedOid: string(data.Object.Blob.AbbreviatedOid),
+			Name:           string(data.Name),
+			Mode:           int(data.Mode),
+			PathRaw:        string(data.PathRaw),
+			IsGenerated:    bool(data.IsGenerated),
+			Path:           string(data.Path),
+			Size:           int(data.Size),
+			LineCount:      int(data.LineCount),
+			Type:           string(data.Type),
+			Content:        string(data.Object.Blob.Text),
+			IsBinary:       bool(data.Object.Blob.IsBinary),
+			CommitUrl:      string(data.Object.Blob.CommitUrl),
+		})
+		if len(data.Object.SubTree.Entries) > 0 {
+			for _, subData := range data.Object.SubTree.Entries {
+				contents = append(contents, ContentInfo{
+					Oid:            string(subData.Object.Blob.Oid),
+					AbbreviatedOid: string(subData.Object.Blob.AbbreviatedOid),
+					Name:           string(subData.Name),
+					Mode:           int(subData.Mode),
+					PathRaw:        string(subData.PathRaw),
+					IsGenerated:    bool(subData.IsGenerated),
+					Path:           string(subData.Path),
+					Size:           int(subData.Size),
+					LineCount:      int(subData.LineCount),
+					Type:           string(subData.Type),
+					Content:        string(subData.Object.Blob.Text),
+					IsBinary:       bool(subData.Object.Blob.IsBinary),
+					CommitUrl:      string(subData.Object.Blob.CommitUrl),
+				})
+			}
+		}
 	}
-	// empty file with "none" encoding,
-	// or too big file (greater than 100MB, the RepositoryContent endpoint is not supported)
-	if *content.Content == "" {
-		return "", nil
+
+	for _, c := range contents {
+		d.StreamListItem(ctx, c)
+
+		// Context can be cancelled due to manual cancellation or the limit has been hit
+		if d.RowsRemaining(ctx) == 0 {
+			return nil, nil
+		}
 	}
-	return content.GetContent()
+
+	return nil, nil
 }
