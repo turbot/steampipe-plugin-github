@@ -59,7 +59,6 @@ type Repository struct {
 	SquashMergeCommitTitle   githubv4.SquashMergeCommitTitle   `json:"squash_merge_commit_title"`
 	SshUrl                   string                            `json:"ssh_url"`
 	StargazerCount           int                               `json:"stargazer_count"`
-	TempCloneToken           string                            `json:"temp_clone_token"`
 	UpdatedAt                NullableTime                      `json:"updated_at"`
 	Url                      string                            `json:"url"`
 	UsesCustomOpenGraphImage bool                              `json:"uses_custom_open_graph_image"`

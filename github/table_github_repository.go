@@ -84,7 +84,6 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "can_subscribe", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanSubscribe", "Node.CanSubscribe"), Description: "If true, you can subscribe to this repository."},
 		{Name: "can_update_topics", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanUpdateTopics", "Node.CanUpdateTopics"), Description: "If true, you can update topics on this repository."},
 		{Name: "has_starred", Type: proto.ColumnType_BOOL, Transform: transform.FromField("HasStarred", "Node.HasStarred"), Description: "If true, you have starred this repository."},
-		{Name: "temp_clone_token", Type: proto.ColumnType_STRING, Transform: transform.FromField("TempCloneToken", "Node.TempCloneToken"), Description: "Temporary authentication token for cloning this repository."},
 		{Name: "possible_commit_emails", Type: proto.ColumnType_JSON, Transform: transform.FromField("PossibleCommitEmails", "Node.PossibleCommitEmails").NullIfZero(), Description: "A list of emails you can commit to this repository with."},
 		{Name: "subscription", Type: proto.ColumnType_STRING, Transform: transform.FromField("Subscription", "Node.Subscription"), Description: "Identifies if the current user is watching, not watching, or ignoring the repository."},
 		{Name: "visibility", Type: proto.ColumnType_STRING, Transform: transform.FromField("Visibility", "Node.Visibility"), Description: "Indicates the repository's visibility level."},
