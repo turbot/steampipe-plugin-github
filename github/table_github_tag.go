@@ -33,8 +33,6 @@ func tableGitHubTag() *plugin.Table {
 }
 
 func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connectV4(ctx, d)
-
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
@@ -57,12 +55,9 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
+	client := connectV4(ctx, d)
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_tag", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_tag", "api_error", err)

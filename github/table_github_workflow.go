@@ -17,8 +17,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubWorkflow() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_workflow",
@@ -55,19 +53,10 @@ func tableGitHubWorkflow() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
-
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-
-	type ListPageResponse struct {
-		workflows *github.Workflows
-		resp      *github.Response
-	}
-
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -77,24 +66,11 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		workflows, resp, err := client.Actions.ListWorkflows(ctx, owner, repo, opts)
-		return ListPageResponse{
-			workflows: workflows,
-			resp:      resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		workflows, resp, err := client.Actions.ListWorkflows(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		workflows := listResponse.workflows
-		resp := listResponse.resp
 
 		for _, i := range workflows.Workflows {
 			if i != nil {
@@ -117,8 +93,6 @@ func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	id := d.EqualsQuals["id"].GetInt64Value()
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
@@ -126,27 +100,10 @@ func tableGitHubWorkflowGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 	plugin.Logger(ctx).Trace("tableGitHubWorkflowGet", "owner", owner, "repo", repo, "id", id)
 
 	client := connect(ctx, d)
-
-	type GetResponse struct {
-		workflow *github.Workflow
-		resp     *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetWorkflowByID(ctx, owner, repo, id)
-		return GetResponse{
-			workflow: detail,
-			resp:     resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	workflow, _, err := client.Actions.GetWorkflowByID(ctx, owner, repo, id)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	workflow := getResp.workflow
 
 	return workflow, nil
 }
@@ -164,11 +121,6 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	type GetFileContentResponse struct {
-		content *github.RepositoryContent
-		resp    *github.Response
-	}
-
 	// Get the name of the default branch for the repository
 	workflowUrlParts := strings.Split(*workflow.HTMLURL, "/")
 	defaultBranch := "main"
@@ -177,15 +129,7 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	// Get workflow file content
-	getFileContent := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		content, _, resp, err := client.Repositories.GetContents(ctx, owner, repo, *workflow.Path, &github.RepositoryContentGetOptions{Ref: defaultBranch})
-		return GetFileContentResponse{
-			content: content,
-			resp:    resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getFileContent, retryConfig())
+	content, _, _, err := client.Repositories.GetContents(ctx, owner, repo, *workflow.Path, &github.RepositoryContentGetOptions{Ref: defaultBranch})
 	if err != nil {
 		// the workflow object exists, but the file is deleted
 		if strings.Contains(err.Error(), "404 Not Found") {
@@ -194,13 +138,8 @@ func GitHubWorkflowFileContent(ctx context.Context, d *plugin.QueryData, h *plug
 		return nil, err
 	}
 
-	getResp := getResponse.(GetFileContentResponse)
-	content := getResp.content
-
 	return content, nil
 }
-
-//// TRANSFORM FUNCTIONS
 
 // decodeFileContentBase64:: Decode the workflow file content from Base64 encoded string to simple text
 func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (interface{}, error) {

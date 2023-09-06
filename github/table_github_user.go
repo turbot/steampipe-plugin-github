@@ -101,8 +101,6 @@ func sharedUserColumns() []*plugin.Column {
 func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	login := d.EqualsQuals["login"].GetStringValue()
 
-	client := connectV4(ctx, d)
-
 	var query struct {
 		RateLimit models.RateLimit
 		User      models.UserWithCounts `graphql:"user(login: $login)"`
@@ -112,11 +110,8 @@ func tableGitHubUserGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"login": githubv4.String(login),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	client := connectV4(ctx, d)
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_user", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_user", "api_error", err)

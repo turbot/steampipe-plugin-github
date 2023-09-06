@@ -130,11 +130,7 @@ func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *pl
 		"login": githubv4.String(login),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_organization", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_organization", "api_error", err)
@@ -152,30 +148,19 @@ func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *pl
 func hydrateOrganizationHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	org := h.Item.(models.OrganizationWithCounts)
 	login := org.Login
-
-	client := connect(ctx, d)
-
 	var orgHooks []*github.Hook
 	opt := &github.ListOptions{PerPage: 100}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		hooks, resp, err := client.Organizations.ListHooks(ctx, login, opt)
-		return ListHooksResponse{
-			hooks: hooks,
-			resp:  resp,
-		}, err
-	}
+	client := connect(ctx, d)
 
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		hooks, resp, err := client.Organizations.ListHooks(ctx, login, opt)
 		if err != nil && strings.Contains(err.Error(), "Not Found") {
 			return nil, nil
 		} else if err != nil {
 			return nil, err
 		}
-		listResponse := listPageResponse.(ListHooksResponse)
-		hooks := listResponse.hooks
-		resp := listResponse.resp
+
 		orgHooks = append(orgHooks, hooks...)
 		if resp.NextPage == 0 {
 			break
@@ -190,33 +175,11 @@ func hydrateOrganizationDataFromV3(ctx context.Context, d *plugin.QueryData, h *
 	login := org.Login
 
 	client := connect(ctx, d)
-
-	type GetResponse struct {
-		org  *github.Organization
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Organizations.Get(ctx, login)
-		return GetResponse{
-			org:  detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
-
+	organization, _, err := client.Organizations.Get(ctx, login)
 	if err != nil {
 		plugin.Logger(ctx).Error("getOrganizationDetailV3", err)
 		return nil, err
 	}
 
-	getResp := getResponse.(GetResponse)
-
-	return getResp.org, nil
-}
-
-type ListHooksResponse struct {
-	hooks []*github.Hook
-	resp  *github.Response
+	return organization, nil
 }

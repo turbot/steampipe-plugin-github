@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubActionsRepositoryRunner() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_runner",
@@ -39,19 +37,11 @@ func tableGitHubActionsRepositoryRunner() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(orgName)
-
-	type ListPageResponse struct {
-		runners *github.Runners
-		resp    *github.Response
-	}
-
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -61,23 +51,11 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		runners, resp, err := client.Actions.ListRunners(ctx, owner, repo, opts)
-		return ListPageResponse{
-			runners: runners,
-			resp:    resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		runners, resp, err := client.Actions.ListRunners(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		runners := listResponse.runners
-		resp := listResponse.resp
 
 		for _, i := range runners.Runners {
 			if i != nil {
@@ -100,8 +78,6 @@ func tableGitHubRunnerList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runnerId := d.EqualsQuals["id"].GetInt64Value()
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
@@ -116,25 +92,10 @@ func tableGitHubRunnerGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	client := connect(ctx, d)
 
-	type GetResponse struct {
-		runner *github.Runner
-		resp   *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetRunner(ctx, owner, repo, runnerId)
-		return GetResponse{
-			runner: detail,
-			resp:   resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	runner, _, err := client.Actions.GetRunner(ctx, owner, repo, runnerId)
 	if err != nil {
 		return nil, err
 	}
 
-	getResp := getResponse.(GetResponse)
-
-	return getResp.runner, nil
+	return runner, nil
 }

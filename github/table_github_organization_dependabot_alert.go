@@ -9,8 +9,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func gitHubDependabotAlertColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{
@@ -215,8 +213,6 @@ func tableGitHubOrganizationDependabotAlert() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 
@@ -239,21 +235,15 @@ func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.Q
 		opt.Ecosystem = &ecosystem
 	}
 	if quals["dependency_package_name"] != nil {
-		package_name := quals["dependency_package_name"].GetStringValue()
-		opt.Package = &package_name
+		packageName := quals["dependency_package_name"].GetStringValue()
+		opt.Package = &packageName
 	}
 	if quals["dependency_scope"] != nil {
 		scope := quals["dependency_scope"].GetStringValue()
 		opt.Scope = &scope
 	}
 
-	type ListPageResponse struct {
-		alerts []*github.DependabotAlert
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
-
 	limit := d.QueryContext.Limit
 	if limit != nil {
 		if *limit < int64(opt.ListCursorOptions.First) {
@@ -261,23 +251,11 @@ func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.Q
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		alerts, resp, err := client.Dependabot.ListOrgAlerts(ctx, org, opt)
-		return ListPageResponse{
-			alerts: alerts,
-			resp:   resp,
-		}, err
-	}
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		alerts, resp, err := client.Dependabot.ListOrgAlerts(ctx, org, opt)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		alerts := listResponse.alerts
-		resp := listResponse.resp
 
 		for _, i := range alerts {
 			d.StreamListItem(ctx, i)

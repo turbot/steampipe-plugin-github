@@ -155,12 +155,8 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 
 	client := connectV4(ctx, d)
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_pull_request", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_pull_request", "api_error", err)
@@ -206,11 +202,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 		"number": githubv4.Int(number),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_pull_request", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_pull_request", "api_error", err)

@@ -9,8 +9,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubSearchTopic() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_topic",
@@ -35,8 +33,6 @@ func tableGitHubSearchTopic() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubSearchTopicList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchTopicList")
@@ -53,11 +49,6 @@ func tableGitHubSearchTopicList(ctx context.Context, d *plugin.QueryData, h *plu
 		TextMatch:   true,
 	}
 
-	type ListPageResponse struct {
-		result *github.TopicsSearchResult
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
 
 	// Reduce the basic request limit down if the user has only requested a small number of rows
@@ -68,32 +59,14 @@ func tableGitHubSearchTopicList(ctx context.Context, d *plugin.QueryData, h *plu
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		result, resp, err := client.Search.Topics(ctx, query, opt)
-
-		if err != nil {
-			logger.Error("tableGitHubSearchTopicList", "error_Search.Topics", err)
-			return nil, err
-		}
-
-		return ListPageResponse{
-			result: result,
-			resp:   resp,
-		}, nil
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		result, resp, err := client.Search.Topics(ctx, query, opt)
 		if err != nil {
 			logger.Error("tableGitHubSearchTopicList", "error_RetryHydrate", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		topics := listResponse.result.Topics
-		resp := listResponse.resp
-
+		topics := result.Topics
 		for _, i := range topics {
 			d.StreamListItem(ctx, i)
 

@@ -11,9 +11,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
-func tableGitHubSearchLable() *plugin.Table {
+func tableGitHubSearchLabel() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_label",
 		Description: "Find labels in a repository with names or descriptions that match search keywords.",
@@ -38,8 +36,6 @@ func tableGitHubSearchLable() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchLabelList")
@@ -57,13 +53,6 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 		TextMatch:   true,
 	}
 
-	type ListPageResponse struct {
-		result *github.LabelsSearchResult
-		resp   *github.Response
-	}
-
-	client := connect(ctx, d)
-
 	// Reduce the basic request limit down if the user has only requested a small number of rows
 	limit := d.QueryContext.Limit
 	if limit != nil {
@@ -72,31 +61,15 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		result, resp, err := client.Search.Labels(ctx, repoId, query, opt)
-		if err != nil {
-			logger.Error("tableGitHubSearchLabelList", "error_Search.Labels", err)
-			return nil, err
-		}
-
-		return ListPageResponse{
-			result: result,
-			resp:   resp,
-		}, nil
-	}
-
+	client := connect(ctx, d)
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		result, resp, err := client.Search.Labels(ctx, repoId, query, opt)
 		if err != nil {
 			logger.Error("tableGitHubSearchLabelList", "error_RetryHydrate", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		labels := listResponse.result.Labels
-		resp := listResponse.resp
-
+		labels := result.Labels
 		for _, i := range labels {
 			d.StreamListItem(ctx, i)
 
@@ -115,8 +88,6 @@ func tableGitHubSearchLabelList(ctx context.Context, d *plugin.QueryData, h *plu
 
 	return nil, nil
 }
-
-//// TRANSFORM FUNCTION
 
 func extractSearchLabelRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	label := d.HydrateItem.(*github.LabelResult)

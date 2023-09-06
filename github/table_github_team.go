@@ -63,10 +63,7 @@ func tableGitHubTeam() *plugin.Table {
 }
 
 func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connectV4(ctx, d)
-
 	org := d.EqualsQuals["organization"].GetStringValue()
-
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
 	var query struct {
@@ -89,12 +86,9 @@ func tableGitHubTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
+	client := connectV4(ctx, d)
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_team", "api_error", err)
@@ -127,8 +121,6 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	org := d.EqualsQuals["organization"].GetStringValue()
 	slug := d.EqualsQuals["slug"].GetStringValue()
 
-	client := connectV4(ctx, d)
-
 	var query struct {
 		RateLimit    models.RateLimit
 		Organization struct {
@@ -141,11 +133,8 @@ func tableGitHubTeamGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"slug":  githubv4.String(slug),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	client := connectV4(ctx, d)
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_team", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_team", "api_error", err)

@@ -31,8 +31,6 @@ func gitHubGistColumns() []*plugin.Column {
 	}
 }
 
-//// TABLE DEFINITION
-
 func tableGitHubGist() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_gist",
@@ -46,8 +44,6 @@ func tableGitHubGist() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
@@ -59,26 +55,10 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		id = d.EqualsQuals["id"].GetStringValue()
 	}
 
-	type GetResponse struct {
-		gist *github.Gist
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		gist, resp, err := client.Gists.Get(ctx, id)
-		return GetResponse{
-			gist: gist,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	gist, _, err := client.Gists.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	gist := getResp.gist
 
 	if gist != nil {
 		d.StreamListItem(ctx, gist)
@@ -86,8 +66,6 @@ func tableGitHubGistList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	return nil, nil
 }
-
-//// TRANSFORM FUNCTIONS
 
 func gistFileMapToArray(ctx context.Context, input *transform.TransformData) (interface{}, error) {
 	var objectList []github.GistFile

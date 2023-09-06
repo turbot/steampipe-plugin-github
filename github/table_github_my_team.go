@@ -51,13 +51,10 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	}
 
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
 
 	var teams []models.TeamWithCounts
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_team", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_team", "api_error", err)

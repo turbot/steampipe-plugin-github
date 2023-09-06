@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINTION
-
 func tableGitHubRelease() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_release",
@@ -54,8 +52,6 @@ func tableGitHubRelease() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
@@ -70,30 +66,11 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		}
 	}
 
-	type ListPageResponse struct {
-		releases []*github.RepositoryRelease
-		resp     *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		releases, resp, err := client.Repositories.ListReleases(ctx, owner, repo, opts)
-		return ListPageResponse{
-			releases: releases,
-			resp:     resp,
-		}, err
-	}
-
 	for {
-
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		releases, resp, err := client.Repositories.ListReleases(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		releases := listResponse.releases
-		resp := listResponse.resp
 
 		for _, i := range releases {
 			if i != nil {
@@ -116,37 +93,17 @@ func tableGitHubReleaseList(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubReleaseGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	id := d.EqualsQuals["id"].GetInt64Value()
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
-
 	owner, repo := parseRepoFullName(fullName)
 	plugin.Logger(ctx).Trace("tableGitHubReleaseGet", "owner", owner, "repo", repo, "id", id)
 
 	client := connect(ctx, d)
-
-	type GetResponse struct {
-		release *github.RepositoryRelease
-		resp    *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.GetRelease(ctx, owner, repo, id)
-		return GetResponse{
-			release: detail,
-			resp:    resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	release, _, err := client.Repositories.GetRelease(ctx, owner, repo, id)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	release := getResp.release
 
 	return release, nil
 }

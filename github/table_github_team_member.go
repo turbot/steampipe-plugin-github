@@ -40,8 +40,6 @@ func gitHubTeamMemberColumns() []*plugin.Column {
 }
 
 func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connectV4(ctx, d)
-
 	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 	slug := quals["slug"].GetStringValue()
@@ -71,12 +69,9 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
+	client := connectV4(ctx, d)
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_team_member", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_team_member", "api_error", err)
