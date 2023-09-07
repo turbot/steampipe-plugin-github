@@ -1,3 +1,18 @@
+## v0.32.0 [2023-09-07]
+
+_Breaking changes_
+
+- Removed the `temp_clone_token` column from `github_my_repository` and `github_repository` tables to allow queries with fine-grained access tokens. ([#321](https://github.com/turbot/steampipe-plugin-github/pull/321))
+
+_What's new?_
+
+- New tables added
+  - [github_repository_vulnerability_alert](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_vulnerability_alert) ([#318](https://github.com/turbot/steampipe-plugin-github/pull/318))
+
+_Enhancements_
+
+- The plugin has been updated to use `DefaultRetryConfig` rather than `plugin.RetryHydrate` in each table. ([#322](https://github.com/turbot/steampipe-plugin-github/pull/322))
+
 ## v0.31.0 [2023-08-17]
 
 _What's new?_
