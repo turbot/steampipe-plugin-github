@@ -131,11 +131,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 		"name":  githubv4.String(repoName),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_repository", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_repository", "api_error", err)
@@ -153,31 +149,13 @@ func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *pl
 	repoName := repo.Name
 
 	client := connect(ctx, d)
-
-	type GetResponse struct {
-		repo *github.Repository
-		resp *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Repositories.Get(ctx, owner, repoName)
-		return GetResponse{
-			repo: detail,
-			resp: resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
-
+	r, _, err := client.Repositories.Get(ctx, owner, repoName)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			return nil, nil
 		}
 		return nil, err
 	}
-	getResp := getResponse.(GetResponse)
-	r := getResp.repo
-
 	if r == nil {
 		return nil, nil
 	}
@@ -194,24 +172,13 @@ func hydrateRepositoryHooksFromV3(ctx context.Context, d *plugin.QueryData, h *p
 	var repositoryHooks []*github.Hook
 	opt := &github.ListOptions{PerPage: 100}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		hooks, resp, err := client.Repositories.ListHooks(ctx, owner, repoName, opt)
-		return ListHooksResponse{
-			hooks: hooks,
-			resp:  resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		hooks, resp, err := client.Repositories.ListHooks(ctx, owner, repoName, opt)
 		if err != nil && strings.Contains(err.Error(), "Not Found") {
 			return nil, nil
 		} else if err != nil {
 			return nil, err
 		}
-		listResponse := listPageResponse.(ListHooksResponse)
-		hooks := listResponse.hooks
-		resp := listResponse.resp
 		repositoryHooks = append(repositoryHooks, hooks...)
 		if resp.NextPage == 0 {
 			break

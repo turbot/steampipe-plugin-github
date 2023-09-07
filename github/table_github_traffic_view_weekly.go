@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINTION
-
 func tableGitHubTrafficViewWeekly() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_traffic_view_weekly",
@@ -31,36 +29,17 @@ func tableGitHubTrafficViewWeekly() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubTrafficViewWeeklyList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-
 	opts := &github.TrafficBreakdownOptions{Per: "week"}
 
-	type ListResponse struct {
-		trafficViews *github.TrafficViews
-		resp         *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		trafficViews, resp, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
-		return ListResponse{
-			trafficViews: trafficViews,
-			resp:         resp,
-		}, err
-	}
-	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+	trafficViews, _, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
 	if err != nil {
 		return nil, err
 	}
-
-	result := listResponse.(ListResponse)
-	trafficViews := result.trafficViews
 
 	for _, i := range trafficViews.Views {
 		if i != nil {

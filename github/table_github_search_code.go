@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubSearchCode() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_code",
@@ -33,8 +31,6 @@ func tableGitHubSearchCode() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchCodeList")
@@ -51,11 +47,6 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 		TextMatch:   true,
 	}
 
-	type ListPageResponse struct {
-		result *github.CodeSearchResult
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
 
 	// Reduce the basic request limit down if the user has only requested a small number of rows
@@ -66,32 +57,14 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		result, resp, err := client.Search.Code(ctx, query, opt)
-
-		if err != nil {
-			logger.Error("tableGitHubSearchCodeList", "error_Search.Code", err)
-			return nil, err
-		}
-
-		return ListPageResponse{
-			result: result,
-			resp:   resp,
-		}, nil
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		result, resp, err := client.Search.Code(ctx, query, opt)
 		if err != nil {
 			logger.Error("tableGitHubSearchCodeList", "error_RetryHydrate", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		codeResults := listResponse.result.CodeResults
-		resp := listResponse.resp
-
+		codeResults := result.CodeResults
 		for _, i := range codeResults {
 			d.StreamListItem(ctx, i)
 
@@ -110,8 +83,6 @@ func tableGitHubSearchCodeList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	return nil, nil
 }
-
-//// TRANSFORM FUNCTION
 
 func extractSearchCodeRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	code := d.HydrateItem.(*github.CodeResult)

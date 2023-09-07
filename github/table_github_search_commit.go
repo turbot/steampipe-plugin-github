@@ -11,8 +11,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubSearchCommit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_search_commit",
@@ -38,8 +36,6 @@ func tableGitHubSearchCommit() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("tableGitHubSearchCommitList")
@@ -56,11 +52,6 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 		TextMatch:   true,
 	}
 
-	type ListPageResponse struct {
-		result *github.CommitsSearchResult
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
 
 	// Reduce the basic request limit down if the user has only requested a small number of rows
@@ -71,32 +62,14 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		result, resp, err := client.Search.Commits(ctx, query, opt)
-
-		if err != nil {
-			logger.Error("tableGitHubSearchCommitList", "error_Search.Commits", err)
-			return nil, err
-		}
-
-		return ListPageResponse{
-			result: result,
-			resp:   resp,
-		}, nil
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		result, resp, err := client.Search.Commits(ctx, query, opt)
 		if err != nil {
 			logger.Error("tableGitHubSearchCommitList", "error_RetryHydrate", err)
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		codeResults := listResponse.result.Commits
-		resp := listResponse.resp
-
+		codeResults := result.Commits
 		for _, i := range codeResults {
 			d.StreamListItem(ctx, i)
 
@@ -115,8 +88,6 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 
 	return nil, nil
 }
-
-//// TRANSFORM FUNCTION
 
 func extractSearchCommitRepositoryFullName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	commit := d.HydrateItem.(*github.CommitResult)

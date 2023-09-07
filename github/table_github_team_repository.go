@@ -47,8 +47,6 @@ func tableGitHubTeamRepository() *plugin.Table {
 }
 
 func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connectV4(ctx, d)
-
 	org := d.EqualsQuals["organization"].GetStringValue()
 	slug := d.EqualsQuals["slug"].GetStringValue()
 	pageSize := adjustPageSize(50, d.QueryContext.Limit)
@@ -73,12 +71,9 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
+	client := connectV4(ctx, d)
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_team_repository", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_team_repository", "api_error", err)
@@ -107,8 +102,6 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 }
 
 func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client := connectV4(ctx, d)
-
 	org := d.EqualsQuals["organization"].GetStringValue()
 	slug := d.EqualsQuals["slug"].GetStringValue()
 	name := d.EqualsQuals["name"].GetStringValue()
@@ -133,11 +126,8 @@ func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *p
 		"pageSize": githubv4.Int(1),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	client := connectV4(ctx, d)
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_team_repository", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_team_repository", "api_error", err)

@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubAuditLog() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_audit_log",
@@ -47,8 +45,6 @@ func tableGitHubAuditLog() *plugin.Table {
 		},
 	}
 }
-
-//// LIST FUNCTION
 
 func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
@@ -86,11 +82,6 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 		opts.Phrase = &phrase
 	}
 
-	type ListPageResponse struct {
-		entries []*github.AuditEntry
-		resp    *github.Response
-	}
-
 	client := connect(ctx, d)
 
 	// Reduce the basic request limit down if the user has only requested a small number of rows
@@ -101,30 +92,11 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		plugin.Logger(ctx).Debug("tableGitHubAuditLogs", "org", org, "include", include, "phrase", *opts.Phrase)
-		entries, resp, err := client.Organizations.GetAuditLog(ctx, org, opts)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return ListPageResponse{
-			entries: entries,
-			resp:    resp,
-		}, nil
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		auditResults, resp, err := client.Organizations.GetAuditLog(ctx, org, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		auditResults := listResponse.entries
-		resp := listResponse.resp
 
 		for _, i := range auditResults {
 			d.StreamListItem(ctx, i)

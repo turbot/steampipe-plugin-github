@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubActionsRepositorySecret() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_secret",
@@ -40,19 +38,11 @@ func tableGitHubActionsRepositorySecret() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(orgName)
-
-	type ListPageResponse struct {
-		secrets *github.Secrets
-		resp    *github.Response
-	}
-
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -62,23 +52,11 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		secrets, resp, err := client.Actions.ListRepoSecrets(ctx, owner, repo, opts)
-		return ListPageResponse{
-			secrets: secrets,
-			resp:    resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		secrets, resp, err := client.Actions.ListRepoSecrets(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		secrets := listResponse.secrets
-		resp := listResponse.resp
 
 		for _, i := range secrets.Secrets {
 			if i != nil {
@@ -100,8 +78,6 @@ func tableGitHubRepoSecretList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	return nil, nil
 }
-
-//// HYDRATE FUNCTIONS
 
 func tableGitHubRepoSecretGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	name := d.EqualsQuals["name"].GetStringValue()

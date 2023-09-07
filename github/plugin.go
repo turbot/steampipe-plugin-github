@@ -15,7 +15,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			NewInstance: ConfigInstance,
 			Schema:      ConfigSchema,
 		},
-		DefaultTransform: transform.FromGo(),
+		DefaultTransform:   transform.FromGo(),
+		DefaultRetryConfig: retryConfig(),
 		TableMap: map[string]*plugin.Table{
 			"github_actions_artifact":                tableGitHubActionsArtifact(),
 			"github_actions_repository_runner":       tableGitHubActionsRepositoryRunner(),
@@ -56,7 +57,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_search_code":                     tableGitHubSearchCode(),
 			"github_search_commit":                   tableGitHubSearchCommit(),
 			"github_search_issue":                    tableGitHubSearchIssue(),
-			"github_search_label":                    tableGitHubSearchLable(),
+			"github_search_label":                    tableGitHubSearchLabel(),
 			"github_search_pull_request":             tableGitHubSearchPullRequest(),
 			"github_search_repository":               tableGitHubSearchRepository(),
 			"github_search_topic":                    tableGitHubSearchTopic(),

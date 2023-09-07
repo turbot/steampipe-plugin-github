@@ -10,8 +10,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-//// TABLE DEFINITION
-
 func tableGitHubActionsArtifact() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_artifact",
@@ -43,19 +41,11 @@ func tableGitHubActionsArtifact() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-
-	type ListPageResponse struct {
-		artifacts *github.ArtifactList
-		resp      *github.Response
-	}
-
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -65,23 +55,11 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		artifacts, resp, err := client.Actions.ListArtifacts(ctx, owner, repo, opts)
-		return ListPageResponse{
-			artifacts: artifacts,
-			resp:      resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		artifacts, resp, err := client.Actions.ListArtifacts(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		artifacts := listResponse.artifacts
-		resp := listResponse.resp
 
 		for _, i := range artifacts.Artifacts {
 			if i != nil {
@@ -104,8 +82,6 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	id := d.EqualsQuals["id"].GetInt64Value()
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
@@ -120,26 +96,10 @@ func tableGitHubArtifactGet(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	client := connect(ctx, d)
 
-	type GetResponse struct {
-		artifact *github.Artifact
-		resp     *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetArtifact(ctx, owner, repo, id)
-		return GetResponse{
-			artifact: detail,
-			resp:     resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	artifact, _, err := client.Actions.GetArtifact(ctx, owner, repo, id)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	artifact := getResp.artifact
 
 	return artifact, nil
 }

@@ -3,8 +3,6 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -32,26 +30,10 @@ func tableGitHubRateLimit() *plugin.Table {
 func listGitHubRateLimit(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	type GetResponse struct {
-		rateLimit *github.RateLimits
-		resp      *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.RateLimits(ctx)
-		return GetResponse{
-			rateLimit: detail,
-			resp:      resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	rateLimits, _, err := client.RateLimits(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	rateLimits := getResp.rateLimit
 
 	if rateLimits != nil {
 		d.StreamListItem(ctx, rateLimits)
