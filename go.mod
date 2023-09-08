@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/argonsecurity/pipeline-parser v0.1.16
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/go-github/v48 v48.1.0
+	github.com/google/go-github/v48 v48.2.0
 	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7
 	github.com/turbot/go-kit v0.6.0
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.5.0
