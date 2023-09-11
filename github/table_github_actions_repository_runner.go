@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -31,7 +31,7 @@ func tableGitHubActionsRepositoryRunner() *plugin.Table {
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the runner."},
 			{Name: "os", Type: proto.ColumnType_STRING, Transform: transform.FromField("OS"), Description: "The operating system of the runner."},
 			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the runner."},
-			{Name: "busy", Type: proto.ColumnType_BOOL, Description: "Indicates wheather the runner is currently in use or not."},
+			{Name: "busy", Type: proto.ColumnType_BOOL, Description: "Indicates whether the runner is currently in use or not."},
 			{Name: "labels", Type: proto.ColumnType_JSON, Description: "Labels represents a collection of labels attached to each runner."},
 		},
 	}
