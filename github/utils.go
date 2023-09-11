@@ -63,7 +63,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		}
 
 		// The upload URL is not set as it's not currently required
-		conn, err = github.NewEnterpriseClient(uv4.String(), "", tc)
+		conn, err = github.NewClient(tc).WithEnterpriseURLs(uv4.String(), "")
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
 		}
