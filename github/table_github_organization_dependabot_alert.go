@@ -88,18 +88,6 @@ func gitHubDependabotAlertColumns() []*plugin.Column {
 			Description: "The full CVSS vector string for the advisory.",
 			Transform:   transform.FromField("SecurityAdvisory.CVSS.VectorString"),
 		},
-		// {
-		// 	Name:        "security_advisory_cwes_cweid",
-		// 	Type:        proto.ColumnType_STRING,
-		// 	Description: "The unique CWE ID.",
-		// 	Transform:   transform.FromField("SecurityAdvisory.CWEs[0].CWEID"),
-		// },
-		// {
-		// 	Name:        "security_advisory_cwes_name",
-		// 	Type:        proto.ColumnType_STRING,
-		// 	Description: "The short, plain text name of the CWE.",
-		// 	Transform:   transform.FromField("SecurityAdvisory.CWEs[0].Name"),
-		// },
 		{
 			Name:        "security_advisory_cwes",
 			Type:        proto.ColumnType_JSON,
