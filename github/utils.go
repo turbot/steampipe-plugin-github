@@ -11,7 +11,7 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 

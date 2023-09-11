@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -59,6 +59,10 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "pull_requests", Type: proto.ColumnType_JSON, Description: "The pull request details for the workflow run."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository info for the workflow run."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow run was updated."},
+			{Name: "actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the first instance of this workflow run."},
+			{Name: "actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the first instance of the workflow run.", Transform: transform.FromField("Actor.Login")},
+			{Name: "triggering_actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the latest instance of this workflow run."},
+			{Name: "triggering_actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the latest instance of this workflow run.", Transform: transform.FromField("TriggeringActor.Login")},
 		},
 	}
 }
