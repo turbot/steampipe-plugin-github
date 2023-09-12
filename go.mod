@@ -3,7 +3,7 @@ module github.com/turbot/steampipe-plugin-github
 go 1.19
 
 require (
-	github.com/argonsecurity/pipeline-parser v0.1.16
+	github.com/argonsecurity/pipeline-parser v0.3.3
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v48 v48.1.0
 	github.com/shurcooL/githubv4 v0.0.0-20221021030919-a134b1472cc7
