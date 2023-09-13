@@ -1,3 +1,22 @@
+## v0.33.0 [2023-09-13]
+
+_Breaking changes_
+
+- Removed the `security_advisory_cwes_cweid` and `security_advisory_cwes_name` columns from `github_organization_dependabot_alert` and `github_repository_dependabot_alert` tables. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
+_Enhancements_
+
+- Added the `security_advisory_cwes` column to `github_organization_dependabot_alert` and `github_repository_dependabot_alert` tables. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+- Added the `actor`, `actor_login`, `triggering_actor`, and `triggering_actor_login` columns to `github_actions_repository_workflow_run` table. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.5.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v551-2023-07-26). ([#325](https://github.com/turbot/steampipe-plugin-github/pull/325))
+- Recompiled plugin with `golang.org/x/oauth2 v0.12.0`. ([#326](https://github.com/turbot/steampipe-plugin-github/pull/326))
+- Recompiled plugin with `Github.com/argonsecurity/pipeline-parser v0.3.3`. ([#330](https://github.com/turbot/steampipe-plugin-github/pull/330))
+- Recompiled plugin with `github.com/turbot/go-kit v0.7.0`. ([#328](https://github.com/turbot/steampipe-plugin-github/pull/328))
+- Recompiled plugin with `github.com/google/go-github v55.0.0`. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
 ## v0.32.0 [2023-09-07]
 
 _Breaking changes_
