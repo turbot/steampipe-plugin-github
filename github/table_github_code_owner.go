@@ -4,14 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func gitHubCodeOwnerColumns() []*plugin.Column {
 	return []*plugin.Column{
@@ -27,8 +25,6 @@ func gitHubCodeOwnerColumns() []*plugin.Column {
 	}
 }
 
-//// TABLE DEFINITION
-
 func tableGitHubCodeOwner() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_code_owner",
@@ -42,7 +38,6 @@ func tableGitHubCodeOwner() *plugin.Table {
 	}
 }
 
-// // LIST FUNCTION
 type CodeOwnerRule struct {
 	LineNumber  int
 	Pattern     string

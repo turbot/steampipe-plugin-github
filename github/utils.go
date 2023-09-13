@@ -11,7 +11,7 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 
@@ -63,7 +63,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		}
 
 		// The upload URL is not set as it's not currently required
-		conn, err = github.NewEnterpriseClient(uv4.String(), "", tc)
+		conn, err = github.NewClient(tc).WithEnterpriseURLs(uv4.String(), "")
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
 		}

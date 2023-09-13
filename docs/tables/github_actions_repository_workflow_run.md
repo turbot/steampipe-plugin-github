@@ -48,7 +48,9 @@ select
   run_number,
   workflow_url,
   head_commit,
-  head_branch
+  head_branch,
+  actor_login,
+  triggering_actor_login
 from
     github_actions_repository_workflow_run
 where

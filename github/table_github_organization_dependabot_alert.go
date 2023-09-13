@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -80,25 +80,19 @@ func gitHubDependabotAlertColumns() []*plugin.Column {
 			Name:        "security_advisory_cvss_score",
 			Type:        proto.ColumnType_DOUBLE,
 			Description: "The overall CVSS score of the advisory.",
-			Transform:   transform.FromField("SecurityAdvisory.CVSs.Score"),
+			Transform:   transform.FromField("SecurityAdvisory.CVSS.Score"),
 		},
 		{
 			Name:        "security_advisory_cvss_vector_string",
 			Type:        proto.ColumnType_STRING,
 			Description: "The full CVSS vector string for the advisory.",
-			Transform:   transform.FromField("SecurityAdvisory.CVSs.VectorString"),
+			Transform:   transform.FromField("SecurityAdvisory.CVSS.VectorString"),
 		},
 		{
-			Name:        "security_advisory_cwes_cweid",
-			Type:        proto.ColumnType_STRING,
-			Description: "The unique CWE ID.",
-			Transform:   transform.FromField("SecurityAdvisory.CWEs.CWEID"),
-		},
-		{
-			Name:        "security_advisory_cwes_name",
-			Type:        proto.ColumnType_STRING,
-			Description: "The short, plain text name of the CWE.",
-			Transform:   transform.FromField("SecurityAdvisory.CWEs.Name"),
+			Name:        "security_advisory_cwes",
+			Type:        proto.ColumnType_JSON,
+			Description: "The associated CWEs",
+			Transform:   transform.FromField("SecurityAdvisory.CWEs"),
 		},
 		{
 			Name:        "security_advisory_published_at",

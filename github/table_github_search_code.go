@@ -4,7 +4,7 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
