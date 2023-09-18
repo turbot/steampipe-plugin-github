@@ -11,3 +11,10 @@ type TextMatchHighlight struct {
 	EndIndice   int    `json:"end_indice"`
 	Text        string `json:"text"`
 }
+
+type SearchRepositoryResult struct {
+	TextMatches []TextMatch
+	Node        struct {
+		Repository `graphql:"... on Repository"`
+	}
+}
