@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/go-github/v55/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
@@ -144,7 +145,10 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	repo := h.Item.(models.Repository)
+	repo, err := extractRepoFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
 	owner := repo.Owner.Login
 	repoName := repo.Name
 
@@ -164,7 +168,10 @@ func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *pl
 }
 
 func hydrateRepositoryHooksFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	repo := h.Item.(models.Repository)
+	repo, err := extractRepoFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
 	owner := repo.Owner.Login
 	repoName := repo.Name
 
@@ -186,4 +193,14 @@ func hydrateRepositoryHooksFromV3(ctx context.Context, d *plugin.QueryData, h *p
 		opt.Page = resp.NextPage
 	}
 	return repositoryHooks, nil
+}
+
+func extractRepoFromHydrateItem(h *plugin.HydrateData) (models.Repository, error) {
+	if repo, ok := h.Item.(models.Repository); ok {
+		return repo, nil
+	} else if searchResult, ok := h.Item.(models.SearchRepositoryResult); ok {
+		return searchResult.Node.Repository, nil
+	} else {
+		return models.Repository{}, fmt.Errorf("unable to parse hydrate item %v as a Repository", h.Item)
+	}
 }

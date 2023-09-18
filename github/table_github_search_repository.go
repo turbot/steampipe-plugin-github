@@ -37,12 +37,7 @@ func tableGitHubSearchRepositoryList(ctx context.Context, d *plugin.QueryData, h
 		Search    struct {
 			RepositoryCount int
 			PageInfo        models.PageInfo
-			Edges           []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.Repository `graphql:"... on Repository"`
-				}
-			}
+			Edges           []models.SearchRepositoryResult
 		} `graphql:"search(type: REPOSITORY, first: $pageSize, after: $cursor, query: $query)"`
 	}
 
