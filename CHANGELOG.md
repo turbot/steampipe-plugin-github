@@ -1,3 +1,9 @@
+## v0.33.1 [2023-09-19]
+
+_Bug fixes_
+
+- Fixed `github_search_repository` table queries failing when selecting the `has_downloads`, `has_pages`, `hooks`, `network_count`, `subscribers_count`, or `topics` columns. ([#337](https://github.com/turbot/steampipe-plugin-github/pull/337))
+
 ## v0.33.0 [2023-09-13]
 
 _Breaking changes_
