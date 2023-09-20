@@ -4,6 +4,10 @@ _What's new_
 
 - Update `github_my_repository`, `github_repository`, and `github_search_repository` tables to only include requested columns in GraphQL request. This should result in faster queries and large scale queries completing more consistently. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
 
+_Dependencies_
+
+- Recompiled plugin with Go 1.21. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
+
 ## v0.33.1 [2023-09-19]
 
 _Bug fixes_
