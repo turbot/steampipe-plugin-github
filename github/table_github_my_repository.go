@@ -39,6 +39,7 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
 		err := client.Query(ctx, &query, variables)

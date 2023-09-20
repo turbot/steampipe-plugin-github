@@ -1,6 +1,6 @@
 module github.com/turbot/steampipe-plugin-github
 
-go 1.19
+go 1.21
 
 require (
 	github.com/argonsecurity/pipeline-parser v0.3.3
