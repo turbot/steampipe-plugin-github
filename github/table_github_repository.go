@@ -9,6 +9,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"slices"
 	"strings"
 )
 
@@ -131,6 +132,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 		"owner": githubv4.String(owner),
 		"name":  githubv4.String(repoName),
 	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_repository", &query.RateLimit))
@@ -202,5 +204,26 @@ func extractRepoFromHydrateItem(h *plugin.HydrateData) (models.Repository, error
 		return searchResult.Node.Repository, nil
 	} else {
 		return models.Repository{}, fmt.Errorf("unable to parse hydrate item %v as a Repository", h.Item)
+	}
+}
+
+func appendRepoColumnIncludes(m *map[string]interface{}, cols []string) {
+	optionals := map[string]string{
+		"code_of_conduct":               "includeCodeOfConduct",
+		"contact_links":                 "includeContactLinks",
+		"default_branch_ref":            "includeDefaultBranchRef",
+		"funding_links":                 "includeFundingLinks",
+		"interaction_ability":           "includeInteractionAbility",
+		"issue_templates":               "includeIssueTemplates",
+		"license_info":                  "includeLicenseInfo",
+		"primary_language":              "includePrimaryLanguage",
+		"pull_request_templates":        "includePullRequestTemplates",
+		"repository_topics_total_count": "includeRepositoryTopics",
+		"open_issues_total_count":       "includeOpenIssues",
+		"watchers_total_count":          "includeWatchers",
+	}
+
+	for key, value := range optionals {
+		(*m)[value] = githubv4.Boolean(slices.Contains(cols, key))
 	}
 }

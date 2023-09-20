@@ -7,23 +7,23 @@ type Repository struct {
 	AllowUpdateBranch             bool                             `json:"allow_update_branch"`
 	ArchivedAt                    NullableTime                     `json:"archived_at"`
 	AutoMergeAllowed              bool                             `json:"auto_merge_allowed"`
-	CodeOfConduct                 RepositoryCodeOfConduct          `json:"code_of_conduct"`
-	ContactLinks                  []RepositoryContactLink          `json:"contact_links"`
+	CodeOfConduct                 RepositoryCodeOfConduct          `graphql:"codeOfConduct @include(if:$includeCodeOfConduct)" json:"code_of_conduct"`
+	ContactLinks                  []RepositoryContactLink          `graphql:"contactLinks @include(if:$includeContactLinks)" json:"contact_links"`
 	CreatedAt                     NullableTime                     `json:"created_at"`
-	DefaultBranchRef              BasicRefWithBranchProtectionRule `json:"default_branch_ref"`
+	DefaultBranchRef              BasicRefWithBranchProtectionRule `graphql:"defaultBranchRef @include(if:$includeDefaultBranchRef)" json:"default_branch_ref"`
 	DeleteBranchOnMerge           bool                             `json:"delete_branch_on_merge"`
 	Description                   string                           `json:"description"`
 	DiskUsage                     int                              `json:"disk_usage "`
 	ForkCount                     int                              `json:"fork_count"`
 	ForkingAllowed                bool                             `json:"forking_allowed"`
-	FundingLinks                  []RepositoryFundingLinks         `json:"funding_links"`
+	FundingLinks                  []RepositoryFundingLinks         `graphql:"fundingLinks @include(if:$includeFundingLinks)" json:"funding_links"`
 	HasDiscussionsEnabled         bool                             `json:"has_discussions_enabled"`
 	HasIssuesEnabled              bool                             `json:"has_issues_enabled"`
 	HasProjectsEnabled            bool                             `json:"has_projects_enabled"`
 	HasVulnerabilityAlertsEnabled bool                             `json:"has_vulnerability_alerts_enabled"`
 	HasWikiEnabled                bool                             `json:"has_wiki_enabled"`
 	HomepageUrl                   string                           `json:"homepage_url"`
-	InteractionAbility            RepositoryInteractionAbility     `json:"interaction_ability"`
+	InteractionAbility            RepositoryInteractionAbility     `graphql:"interactionAbility @include(if:$includeInteractionAbility)" json:"interaction_ability"`
 	IsArchived                    bool                             `json:"is_archived"`
 	IsBlankIssuesEnabled          bool                             `json:"is_blank_issues_enabled"`
 	IsDisabled                    bool                             `json:"is_disabled"`
@@ -36,8 +36,8 @@ type Repository struct {
 	IsSecurityPolicyEnabled       bool                             `json:"is_security_policy_enabled"`
 	IsTemplate                    bool                             `json:"is_template"`
 	IsUserConfigurationRepository bool                             `json:"is_user_configuration_repository"`
-	IssueTemplates                []IssueTemplate                  `json:"issue_templates"`
-	LicenseInfo                   BasicLicense                     `json:"license_info"`
+	IssueTemplates                []IssueTemplate                  `graphql:"issueTemplates @include(if:$includeIssueTemplates)" json:"issue_templates"`
+	LicenseInfo                   BasicLicense                     `graphql:"licenseInfo @include(if:$includeLicenseInfo)" json:"license_info"`
 	LockReason                    githubv4.LockReason              `json:"lock_reason"`
 	MergeCommitAllowed            bool                             `json:"merge_commit_allowed"`
 	MergeCommitMessage            githubv4.MergeCommitMessage      `json:"merge_commit_message"`
@@ -48,9 +48,9 @@ type Repository struct {
 	Owner                         struct {
 		Login string `json:"login"`
 	} `json:"owner"`
-	PrimaryLanguage          Language                          `json:"primary_language"`
+	PrimaryLanguage          Language                          `graphql:"primaryLanguage @include(if:$includePrimaryLanguage)" json:"primary_language"`
 	ProjectsUrl              string                            `json:"projects_url"`
-	PullRequestTemplates     []PullRequestTemplate             `json:"pull_request_templates"`
+	PullRequestTemplates     []PullRequestTemplate             `graphql:"pullRequestTemplates @include(if:$includePullRequestTemplates)" json:"pull_request_templates"`
 	PushedAt                 NullableTime                      `json:"pushed_at"`
 	RebaseMergeAllowed       bool                              `json:"rebase_merge_allowed"`
 	SecurityPolicyUrl        string                            `json:"security_policy_url"`
@@ -70,11 +70,11 @@ type Repository struct {
 	YourPermission           githubv4.RepositoryPermission     `graphql:"yourPermission: viewerPermission" json:"your_permission"`
 	PossibleCommitEmails     []string                          `graphql:"possibleCommitEmails: viewerPossibleCommitEmails" json:"possible_commit_emails"`
 	Subscription             githubv4.SubscriptionState        `graphql:"subscription: viewerSubscription" json:"subscription"`
-	Visibility               githubv4.RepositoryVisibility     `json:"visibility"`
-	WebCommitSignoffRequired bool                              `json:"web_commit_signoff_required"`
-	RepositoryTopics         Count                             `json:"repository_topics"`
-	OpenIssues               Count                             `graphql:"issues(states: OPEN)" json:"open_issues"`
-	Watchers                 Count                             `json:"watchers"`
+	Visibility               githubv4.RepositoryVisibility     `graphql:"visibility" json:"visibility"`
+	WebCommitSignoffRequired bool                              `graphql:"" json:"web_commit_signoff_required"`
+	RepositoryTopics         Count                             `graphql:"repositoryTopics @include(if:$includeRepositoryTopics)" json:"repository_topics"`
+	OpenIssues               Count                             `graphql:"issues(states: OPEN) @include(if:$includeOpenIssues)" json:"open_issues"`
+	Watchers                 Count                             `graphql:"watchers @include(if:$includeWatchers)" json:"watchers"`
 	// AssignableUsers [pageable]
 	// BranchProtectionRules [pageable]
 	// CodeOwners [search by refName]
