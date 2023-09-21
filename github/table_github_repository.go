@@ -93,7 +93,7 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "repository_topics_total_count", Type: proto.ColumnType_INT, Hydrate: repoHydrateRepositoryTopicsCount, Transform: transform.FromValue(), Description: "Count of topics associated with the repository."},
 		{Name: "open_issues_total_count", Type: proto.ColumnType_INT, Hydrate: repoHydrateOpenIssuesCount, Transform: transform.FromValue(), Description: "Count of issues open on the repository."},
 		{Name: "watchers_total_count", Type: proto.ColumnType_INT, Hydrate: repoHydrateWatchersCount, Transform: transform.FromValue(), Description: "Count of watchers on the repository."},
-		// // Columns from v3 api - hydrates
+		// Columns from v3 api - hydrates
 		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: hydrateRepositoryHooksFromV3, Transform: transform.FromValue()},
 		{Name: "topics", Type: proto.ColumnType_JSON, Description: "The topics (similar to tags or labels) associated with the repository.", Hydrate: hydrateRepositoryDataFromV3},
 		{Name: "subscribers_count", Type: proto.ColumnType_INT, Description: "The number of users who have subscribed to the repository.", Hydrate: hydrateRepositoryDataFromV3},
