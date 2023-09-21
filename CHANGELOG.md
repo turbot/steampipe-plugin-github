@@ -1,8 +1,15 @@
+## v0.34.1 [2023-09-21]
+
+_Bug fixes_
+
+- Empty values will no longer be cached incorrectly for the `github_my_repository`, `github_repository`, and `github_search_repository` tables. ([#340](https://github.com/turbot/steampipe-plugin-github/pull/340))
+- Fixed `github_team_repository table` to include support for dynamic GraphQL queries. ([#339](https://github.com/turbot/steampipe-plugin-github/pull/339))
+
 ## v0.34.0 [2023-09-20]
 
 _What's new_
 
-- Update `github_my_repository`, `github_repository`, and `github_search_repository` tables to only include requested columns in GraphQL request. This should result in faster queries and large scale queries completing more consistently. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
+- Updated `github_my_repository`, `github_repository`, and `github_search_repository` tables to only include requested columns in GraphQL request. This should result in faster queries and large scale queries completing more consistently. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
 
 _Dependencies_
 
