@@ -70,6 +70,7 @@ func tableGitHubTeamRepositoryList(ctx context.Context, d *plugin.QueryData, h *
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
