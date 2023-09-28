@@ -7,42 +7,42 @@ type Issue struct {
 	NodeId                  string                               `graphql:"nodeId: id" json:"node_id"`
 	Number                  int                                  `json:"number"`
 	ActiveLockReason        githubv4.LockReason                  `json:"active_lock_reason"`
-	Author                  Actor                                `json:"author"`
+	Author                  Actor                                `graphql:"author @include(if:$includeIssueAuthor)" json:"author"`
 	AuthorAssociation       githubv4.CommentAuthorAssociation    `json:"author_association"`
-	Body                    string                               `json:"body"`
+	Body                    string                               `graphql:"body @include(if:$includeIssueBody)" json:"body"`
 	BodyUrl                 string                               `json:"body_url"`
 	Closed                  bool                                 `json:"closed"`
 	ClosedAt                NullableTime                         `json:"closed_at"`
 	CreatedAt               NullableTime                         `json:"created_at"`
 	CreatedViaEmail         bool                                 `json:"created_via_email"`
-	Editor                  Actor                                `json:"editor"`
+	Editor                  Actor                                `graphql:"editor @include(if:$includeIssueEditor)" json:"editor"`
 	FullDatabaseId          string                               `json:"full_database_id"`
 	IncludesCreatedEdit     bool                                 `json:"includes_created_edit"`
 	IsPinned                bool                                 `json:"is_pinned"`
 	IsReadByUser            bool                                 `graphql:"isReadByUser: isReadByViewer" json:"is_read_by_user"`
 	LastEditedAt            NullableTime                         `json:"last_edited_at"`
 	Locked                  bool                                 `json:"locked"`
-	Milestone               Milestone                            `json:"milestone"`
+	Milestone               Milestone                            `graphql:"milestone @include(if:$includeIssueMilestone)" json:"milestone"`
 	PublishedAt             NullableTime                         `json:"published_at"`
 	State                   githubv4.IssueState                  `json:"state"`
 	StateReason             githubv4.IssueStateReason            `json:"state_reason"`
 	Title                   string                               `json:"title"`
 	UpdatedAt               NullableTime                         `json:"updated_at"`
 	Url                     string                               `json:"url"`
-	UserCanClose            bool                                 `graphql:"userCanClose: viewerCanClose" json:"user_can_close"`
-	UserCanReact            bool                                 `graphql:"userCanReact: viewerCanReact" json:"user_can_react"`
-	UserCanReopen           bool                                 `graphql:"userCanReopen: viewerCanReopen" json:"user_can_reopen"`
-	UserCanSubscribe        bool                                 `graphql:"userCanSubscribe: viewerCanSubscribe" json:"user_can_subscribe"`
-	UserCanUpdate           bool                                 `graphql:"userCanUpdate: viewerCanUpdate" json:"user_can_update"`
-	UserCannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"userCannotUpdateReasons: viewerCannotUpdateReasons" json:"user_cannot_update_reasons"`
-	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor" json:"user_did_author"`
-	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription" json:"user_subscription"`
-	Comments                Count                                `json:"comments"`
-	Assignees               Count                                `json:"assignees"`
+	UserCanClose            bool                                 `graphql:"userCanClose: viewerCanClose @include(if:$includeIssueViewer)" json:"user_can_close"`
+	UserCanReact            bool                                 `graphql:"userCanReact: viewerCanReact @include(if:$includeIssueViewer)" json:"user_can_react"`
+	UserCanReopen           bool                                 `graphql:"userCanReopen: viewerCanReopen @include(if:$includeIssueViewer)" json:"user_can_reopen"`
+	UserCanSubscribe        bool                                 `graphql:"userCanSubscribe: viewerCanSubscribe @include(if:$includeIssueViewer)" json:"user_can_subscribe"`
+	UserCanUpdate           bool                                 `graphql:"userCanUpdate: viewerCanUpdate @include(if:$includeIssueViewer)" json:"user_can_update"`
+	UserCannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"userCannotUpdateReasons: viewerCannotUpdateReasons @include(if:$includeIssueViewer)" json:"user_cannot_update_reasons"`
+	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor @include(if:$includeIssueViewer)" json:"user_did_author"`
+	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription @include(if:$includeIssueViewer)" json:"user_subscription"`
+	Comments                Count                                `graphql:"assignees @include(if:$includeIssueCommentCount)"json:"comments"`
+	Assignees               Count                                `graphql:"assignees @include(if:$includeIssueAssigneeCount)" json:"assignees"`
 	Labels                  struct {
 		TotalCount int
 		Nodes      []Label
-	} `graphql:"labels(first: 100)" json:"labels"`
+	} `graphql:"labels(first: 100) @include(if:$includeIssueLabels)" json:"labels"`
 	Repo struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
@@ -59,12 +59,6 @@ type Issue struct {
 	// TrackedInIssues [pageable]
 	// TrackedIssues [pageable]
 	// UserContentEdits [pageable]
-}
-
-// IssueWithRepository should not be nested under the repository, else circular reference will cause long wait and eventual error.
-type IssueWithRepository struct {
-	Issue
-	Repository Repository `json:"repository"`
 }
 
 type IssueTemplate struct {

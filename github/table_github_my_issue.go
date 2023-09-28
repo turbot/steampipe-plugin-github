@@ -85,6 +85,7 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		"cursor":   (*githubv4.String)(nil),
 		"filters":  filters,
 	}
+	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
