@@ -37,7 +37,7 @@ type Issue struct {
 	UserCannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"userCannotUpdateReasons: viewerCannotUpdateReasons @include(if:$includeIssueViewer)" json:"user_cannot_update_reasons"`
 	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor @include(if:$includeIssueViewer)" json:"user_did_author"`
 	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription @include(if:$includeIssueViewer)" json:"user_subscription"`
-	Comments                Count                                `graphql:"assignees @include(if:$includeIssueCommentCount)"json:"comments"`
+	Comments                Count                                `graphql:"comments @include(if:$includeIssueCommentCount)" json:"comments"`
 	Assignees               Count                                `graphql:"assignees @include(if:$includeIssueAssigneeCount)" json:"assignees"`
 	Labels                  struct {
 		TotalCount int
