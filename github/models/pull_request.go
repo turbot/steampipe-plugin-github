@@ -8,10 +8,10 @@ type BasicPullRequest struct {
 	Number              int                                `json:"number"`
 	ActiveLockReason    githubv4.LockReason                `json:"active_lock_reason"`
 	Additions           int                                `json:"additions"`
-	Author              Actor                              `json:"author"`
+	Author              Actor                              `graphql:"author @include(if:$includePRAuthor)" json:"author"`
 	AuthorAssociation   githubv4.CommentAuthorAssociation  `json:"author_association"`
 	BaseRefName         string                             `json:"base_ref_name"`
-	Body                string                             `json:"body"`
+	Body                string                             `graphql:"body @include(if:$includePRBody)" json:"body"`
 	ChangedFiles        int                                `json:"changed_files"`
 	ChecksUrl           string                             `json:"checks_url"`
 	Closed              bool                               `json:"closed"`
@@ -19,7 +19,7 @@ type BasicPullRequest struct {
 	CreatedAt           NullableTime                       `json:"created_at"`
 	CreatedViaEmail     bool                               `json:"created_via_email"`
 	Deletions           int                                `json:"deletions"`
-	Editor              Actor                              `json:"editor"`
+	Editor              Actor                              `graphql:"editor @include(if:$includePREditor)" json:"editor"`
 	HeadRefName         string                             `json:"head_ref_name"`
 	HeadRefOid          string                             `json:"head_ref_oid"`
 	IncludesCreatedEdit bool                               `json:"includes_created_edit"`
@@ -32,8 +32,8 @@ type BasicPullRequest struct {
 	Mergeable           githubv4.MergeableState            `json:"mergeable"`
 	Merged              bool                               `json:"merged"`
 	MergedAt            NullableTime                       `json:"merged_at"`
-	MergedBy            Actor                              `json:"merged_by"`
-	Milestone           Milestone                          `json:"milestone"`
+	MergedBy            Actor                              `graphql:"mergedBy @include(if:$includePRMergedBy)" json:"merged_by"`
+	Milestone           Milestone                          `graphql:"milestone @include(if:$includePRMilestone)" json:"milestone"`
 	Permalink           string                             `json:"permalink"`
 	PublishedAt         NullableTime                       `json:"published_at"`
 	RevertUrl           string                             `json:"revert_url"`
@@ -51,35 +51,35 @@ type BasicPullRequest struct {
 
 type PullRequest struct {
 	BasicPullRequest
-	BaseRef             *BasicRef                            `json:"base_ref,omitempty"`
-	HeadRef             *BasicRef                            `json:"head_ref,omitempty"`
-	MergeCommit         *BasicCommit                         `json:"merge_commit,omitempty"`
-	SuggestedReviewers  []SuggestedReviewer                  `json:"suggested_reviewers"`
-	CanApplySuggestion  bool                                 `graphql:"canApplySuggestion:viewerCanApplySuggestion" json:"can_apply_suggestion"`
-	CanClose            bool                                 `graphql:"canClose:viewerCanClose" json:"can_close"`
-	CanDeleteHeadRef    bool                                 `graphql:"canDeleteHeadRef:viewerCanDeleteHeadRef" json:"can_delete_head_ref"`
-	CanDisableAutoMerge bool                                 `graphql:"canDisableAutoMerge:viewerCanDisableAutoMerge" json:"can_disable_auto_merge"`
-	CanEditFiles        bool                                 `graphql:"canEditFiles:viewerCanEditFiles" json:"can_edit_files"`
-	CanEnableAutoMerge  bool                                 `graphql:"canEnableAutoMerge:viewerCanEnableAutoMerge" json:"can_enable_auto_merge"`
-	CanMergeAsAdmin     bool                                 `graphql:"canMergeAsAdmin:viewerCanMergeAsAdmin" json:"can_merge_as_admin"`
-	CanReact            bool                                 `graphql:"canReact:viewerCanReact" json:"can_react"`
-	CanReopen           bool                                 `graphql:"canReopen:viewerCanReopen" json:"can_reopen"`
-	CanSubscribe        bool                                 `graphql:"canSubscribe:viewerCanSubscribe" json:"can_subscribe"`
-	CanUpdate           bool                                 `graphql:"canUpdate:viewerCanUpdate" json:"can_update"`
-	CanUpdateBranch     bool                                 `graphql:"canUpdateBranch:viewerCanUpdateBranch" json:"can_update_branch"`
-	DidAuthor           bool                                 `graphql:"didAuthor:viewerDidAuthor" json:"did_author"`
-	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons" json:"cannot_update_reasons"`
-	Subscription        githubv4.SubscriptionState           `graphql:"subscription: viewerSubscription" json:"subscription"`
+	BaseRef             *BasicRef                            `graphql:"baseRef @include(if:$includePRBaseRef)" json:"base_ref,omitempty"`
+	HeadRef             *BasicRef                            `graphql:"headRef @include(if:$includePRHeadRef)" json:"head_ref,omitempty"`
+	MergeCommit         *BasicCommit                         `graphql:"mergeCommit @include(if:$includePRMergeCommit)" json:"merge_commit,omitempty"`
+	SuggestedReviewers  []SuggestedReviewer                  `graphql:"suggestedReviewers @include(if:$includePRSuggested)" json:"suggested_reviewers"`
+	CanApplySuggestion  bool                                 `graphql:"canApplySuggestion:viewerCanApplySuggestion @include(if:$includePRViewer)" json:"can_apply_suggestion"`
+	CanClose            bool                                 `graphql:"canClose:viewerCanClose @include(if:$includePRViewer)" json:"can_close"`
+	CanDeleteHeadRef    bool                                 `graphql:"canDeleteHeadRef:viewerCanDeleteHeadRef @include(if:$includePRViewer)" json:"can_delete_head_ref"`
+	CanDisableAutoMerge bool                                 `graphql:"canDisableAutoMerge:viewerCanDisableAutoMerge @include(if:$includePRViewer)" json:"can_disable_auto_merge"`
+	CanEditFiles        bool                                 `graphql:"canEditFiles:viewerCanEditFiles @include(if:$includePRViewer)" json:"can_edit_files"`
+	CanEnableAutoMerge  bool                                 `graphql:"canEnableAutoMerge:viewerCanEnableAutoMerge @include(if:$includePRViewer)" json:"can_enable_auto_merge"`
+	CanMergeAsAdmin     bool                                 `graphql:"canMergeAsAdmin:viewerCanMergeAsAdmin @include(if:$includePRViewer)" json:"can_merge_as_admin"`
+	CanReact            bool                                 `graphql:"canReact:viewerCanReact @include(if:$includePRViewer)" json:"can_react"`
+	CanReopen           bool                                 `graphql:"canReopen:viewerCanReopen @include(if:$includePRViewer)" json:"can_reopen"`
+	CanSubscribe        bool                                 `graphql:"canSubscribe:viewerCanSubscribe @include(if:$includePRViewer)" json:"can_subscribe"`
+	CanUpdate           bool                                 `graphql:"canUpdate:viewerCanUpdate @include(if:$includePRViewer)" json:"can_update"`
+	CanUpdateBranch     bool                                 `graphql:"canUpdateBranch:viewerCanUpdateBranch @include(if:$includePRViewer)" json:"can_update_branch"`
+	DidAuthor           bool                                 `graphql:"didAuthor:viewerDidAuthor @include(if:$includePRViewer)" json:"did_author"`
+	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons @include(if:$includePRViewer)" json:"cannot_update_reasons"`
+	Subscription        githubv4.SubscriptionState           `graphql:"subscription: viewerSubscription @include(if:$includePRViewer)" json:"subscription"`
 
 	// Counts
-	Assignees      Count `json:"assignees"`
-	Commits        Count `json:"commits"`
-	ReviewRequests Count `json:"review_requests"`
-	Reviews        Count `json:"reviews"`
+	Assignees      Count `graphql:"assignees @include(if:$includePRAssigneeCount)" json:"assignees"`
+	Commits        Count `graphql:"commits @include(if:$includePRCommitCount)" json:"commits"`
+	ReviewRequests Count `graphql:"reviewRequests @include(if:$includePRReviewRequestCount)" json:"review_requests"`
+	Reviews        Count `graphql:"reviews @include(if:$includePRReviewCount)" json:"reviews"`
 	Labels         struct {
 		TotalCount int
 		Nodes      []Label
-	} `graphql:"labels(first: 100)" json:"labels"`
+	} `graphql:"labels(first: 100) @include(if:$includePRLabels)" json:"labels"`
 
 	// Assignees [pageable]
 	// ClosingIssueReferences [pageable]

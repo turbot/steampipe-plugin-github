@@ -212,6 +212,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		"repo":        githubv4.String(repo),
 		"issueNumber": githubv4.Int(issueNumber),
 	}
+	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
 
 	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))

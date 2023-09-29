@@ -40,7 +40,7 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 			Edges    []struct {
 				TextMatches []models.TextMatch
 				Node        struct {
-					models.BasicPullRequest `graphql:"... on PullRequest"`
+					models.PullRequest `graphql:"... on PullRequest"`
 				}
 			}
 		} `graphql:"search(type: ISSUE, first: $pageSize, after: $cursor, query: $query)"`
@@ -52,6 +52,7 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 		"cursor":   (*githubv4.String)(nil),
 		"query":    githubv4.String(input),
 	}
+	appendPullRequestColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
