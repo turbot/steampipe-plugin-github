@@ -25,3 +25,10 @@ type SearchIssueResult struct {
 		Issue `graphql:"... on Issue"`
 	}
 }
+
+type SearchPullRequestResult struct {
+	TextMatches []TextMatch
+	Node        struct {
+		PullRequest `graphql:"... on PullRequest"`
+	}
+}

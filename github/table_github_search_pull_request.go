@@ -37,12 +37,7 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 		RateLimit models.RateLimit
 		Search    struct {
 			PageInfo models.PageInfo
-			Edges    []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.PullRequest `graphql:"... on PullRequest"`
-				}
-			}
+			Edges    []models.SearchPullRequestResult
 		} `graphql:"search(type: ISSUE, first: $pageSize, after: $cursor, query: $query)"`
 	}
 

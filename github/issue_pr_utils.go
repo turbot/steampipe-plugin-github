@@ -178,6 +178,8 @@ func issueHydrateLabels(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 func extractPullRequestFromHydrateItem(h *plugin.HydrateData) (models.PullRequest, error) {
 	if pr, ok := h.Item.(models.PullRequest); ok {
 		return pr, nil
+	} else if sr, ok := h.Item.(models.SearchPullRequestResult); ok {
+		return sr.Node.PullRequest, nil
 	}
 	return models.PullRequest{}, fmt.Errorf("unable to parse hydrate item %v as a PullRequest", h.Item)
 }
@@ -423,6 +425,7 @@ func prHydrateCanUpdate(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 	}
 	return pr.CanUpdate, nil
 }
+
 func prHydrateCanUpdateBranch(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
@@ -438,6 +441,7 @@ func prHydrateDidAuthor(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 	}
 	return pr.DidAuthor, nil
 }
+
 func prHydrateCannotUpdateReason(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
