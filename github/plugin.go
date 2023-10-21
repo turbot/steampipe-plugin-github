@@ -54,6 +54,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_repository_dependabot_alert":     tableGitHubRepositoryDependabotAlert(),
 			"github_repository_deployment":           tableGitHubRepositoryDeployment(),
 			"github_repository_environment":          tableGitHubRepositoryEnvironment(),
+			"github_repository_sbom":          		  tableGitHubRepositorySbom(),
 			"github_repository_vulnerability_alert":  tableGitHubRepositoryVulnerabilityAlert(),
 			"github_search_code":                     tableGitHubSearchCode(),
 			"github_search_commit":                   tableGitHubSearchCommit(),
