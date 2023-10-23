@@ -30,24 +30,53 @@ func tableGitHubRepositorySbom() *plugin.Table {
 				Description: "The full name of the repository (login/repo-name).",
 			},
 			{
+				Name:        "spdx_id",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SPDXID"),
+				Description: "The SPDX identifier for the SPDX document.",
+			},
+			{
+				Name:        "spdx_version",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SPDXVersion"),
+				Description: "The version of the SPDX specification that this document conforms to.",
+			},
+			{
+				Name:        "creation_info",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("CreationInfo"),
+				Description: "The version of the SPDX specification that this document conforms to.",
+			},
+			{
 				Name:        "name",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Name"),
-				Description: "The name of the package.",
+				Description: "The name of the SPDX document.",
 			},
 			{
-				Name:        "version",
+				Name:        "data_license",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("VersionInfo"),
-				Description: "Version info of the package.",
+				Transform:   transform.FromField("DataLicense"),
+				Description: "The license under which the SPDX document is licensed.",
 			},
 			{
-				Name:        "license",
+				Name:        "document_describes",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("LicenseConcluded"),
-				Description: "License of the package.",
+				Transform:   transform.FromField("DocumentDescribes"),
+				Description: "The name of the repository that the SPDX document describes.",
 			},
-			// TODO: there are more fields to be added here!
+			{
+				Name:        "document_namespace",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("DocumentNamespace"),
+				Description: "The namespace for the SPDX document.",
+			},
+			{
+				Name:        "packages",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Packages"),
+				Description: "Array of packages in spdx format.",
+			},
 		},
 	}
 }
@@ -68,14 +97,7 @@ func tableGitHubRepositorySbomList(ctx context.Context, d *plugin.QueryData, h *
 		return nil, err
 	}
 
-	for _, i := range sbom.SBOM.Packages {
-		d.StreamListItem(ctx, i)
-
-		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.RowsRemaining(ctx) == 0 {
-			return nil, nil
-		}
-	}
+	d.StreamListItem(ctx, sbom.SBOM)
 
 	return sbom, nil
 }
