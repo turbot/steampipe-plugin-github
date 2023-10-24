@@ -1,3 +1,9 @@
+## v0.36.0 [2023-10-24]
+
+_What's new_
+
+- Updated `github_issue`, `github_my_issue`, `github_pull_request`, `github_search_issue`, and `github_search_pull_request` tables to only include nested and user permission columns in GraphQL request when requested. This should result in faster queries and large scale queries completing more consistently. ([#342](https://github.com/turbot/steampipe-plugin-github/pull/342))
+
 ## v0.35.1 [2023-10-04]
 
 _Dependencies_
