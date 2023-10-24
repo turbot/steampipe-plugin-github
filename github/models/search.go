@@ -18,3 +18,17 @@ type SearchRepositoryResult struct {
 		Repository `graphql:"... on Repository"`
 	}
 }
+
+type SearchIssueResult struct {
+	TextMatches []TextMatch
+	Node        struct {
+		Issue `graphql:"... on Issue"`
+	}
+}
+
+type SearchPullRequestResult struct {
+	TextMatches []TextMatch
+	Node        struct {
+		PullRequest `graphql:"... on PullRequest"`
+	}
+}

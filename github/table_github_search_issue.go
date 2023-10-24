@@ -37,12 +37,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 		RateLimit models.RateLimit
 		Search    struct {
 			PageInfo models.PageInfo
-			Edges    []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.Issue `graphql:"... on Issue"`
-				}
-			}
+			Edges    []models.SearchIssueResult
 		} `graphql:"search(type: ISSUE, first: $pageSize, after: $cursor, query: $query)"`
 	}
 
@@ -52,6 +47,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 		"cursor":   (*githubv4.String)(nil),
 		"query":    githubv4.String(input),
 	}
+	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
