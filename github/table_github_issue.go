@@ -24,7 +24,7 @@ func gitHubIssueColumns() []*plugin.Column {
 func sharedIssueColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "number", Type: proto.ColumnType_INT, Transform: transform.FromField("Number", "Node.Number"), Description: "The issue number."},
-		{Name: "id", Type: proto.ColumnType_INT, Hydrate: issueHydrateNodeId, Transform: transform.FromValue(), Description: "The ID of the issue."},
+		{Name: "id", Type: proto.ColumnType_INT, Hydrate: issueHydrateId, Transform: transform.FromValue(), Description: "The ID of the issue."},
 		{Name: "node_id", Type: proto.ColumnType_STRING, Hydrate: issueHydrateNodeId, Transform: transform.FromValue(), Description: "The node ID of the issue."},
 		{Name: "active_lock_reason", Type: proto.ColumnType_STRING, Hydrate: issueHydrateActiveLockReason, Transform: transform.FromValue(), Description: "Reason that the conversation was locked."},
 		{Name: "author", Type: proto.ColumnType_JSON, Hydrate: issueHydrateAuthor, Transform: transform.FromValue().NullIfZero(), Description: "The actor who authored the issue."},

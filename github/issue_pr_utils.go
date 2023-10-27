@@ -365,6 +365,234 @@ func issueHydrateLabels(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 	return issue.Labels.Nodes, nil
 }
 
+func extractIssueCommentFromHydrateItem(h *plugin.HydrateData) (models.IssueComment, error) {
+	if issueComment, ok := h.Item.(models.IssueComment); ok {
+		return issueComment, nil
+	} else if searchResult, ok := h.Item.(models.SearchIssueCommentResult); ok {
+		return searchResult.Node.IssueComment, nil
+	} else {
+		return models.IssueComment{}, fmt.Errorf("unable to parse hydrate item %v as an IssueComment", h.Item)
+	}
+}
+
+func appendIssuePRCommentColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeIssueCommentAuthor"] = githubv4.Boolean(slices.Contains(cols, "author") || slices.Contains(cols, "author_login"))
+	(*m)["includeIssueCommentBody"] = githubv4.Boolean(slices.Contains(cols, "body"))
+	(*m)["includeIssueCommentEditor"] = githubv4.Boolean(slices.Contains(cols, "editor") || slices.Contains(cols, "editor_login"))
+	(*m)["includeIssueCommentViewer"] = githubv4.Boolean(slices.Contains(cols, "can_delete") ||
+		slices.Contains(cols, "can_react") ||
+		slices.Contains(cols, "can_minimize") ||
+		slices.Contains(cols, "can_update") ||
+		slices.Contains(cols, "cannot_update_reasons") ||
+		slices.Contains(cols, "did_author"))
+	(*m)["includeIssueCommentUrl"] = githubv4.Boolean(slices.Contains(cols, "url"))
+	(*m)["includeIssueCommentUpdatedAt"] = githubv4.Boolean(slices.Contains(cols, "updated_at"))
+	(*m)["includeIssueCommentPublishedAt"] = githubv4.Boolean(slices.Contains(cols, "published_at"))
+	(*m)["includeIssueCommentMinimizedReason"] = githubv4.Boolean(slices.Contains(cols, "minimized_reason"))
+	(*m)["includeIssueCommentLastEditedAt"] = githubv4.Boolean(slices.Contains(cols, "last_edited_at"))
+	(*m)["includeIssueCommentIsMinimized"] = githubv4.Boolean(slices.Contains(cols, "is_minimized"))
+	(*m)["includeIssueCommentIncludesCreatedEdit"] = githubv4.Boolean(slices.Contains(cols, "includes_created_edit"))
+	(*m)["includeIssueCommentCreatedViaEmail"] = githubv4.Boolean(slices.Contains(cols, "created_via_email"))
+	(*m)["includeIssueCommentCreatedAt"] = githubv4.Boolean(slices.Contains(cols, "created_at"))
+	(*m)["includeIssueCommentBody"] = githubv4.Boolean(slices.Contains(cols, "body"))
+	(*m)["includeIssueCommentBodyText"] = githubv4.Boolean(slices.Contains(cols, "body_text"))
+	(*m)["includeIssueCommentAuthorAssociation"] = githubv4.Boolean(slices.Contains(cols, "author_association"))
+	(*m)["includeIssueCommentNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includeIssueCommentId"] = githubv4.Boolean(slices.Contains(cols, "id"))
+}
+
+func issueCommentHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Id, nil
+}
+
+func issueCommentHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.NodeId, nil
+}
+
+func issueCommentHydrateAuthor(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Author, nil
+}
+
+func issueCommentHydrateAuthorLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Author.Login, nil
+}
+
+func issueCommentHydrateAuthorAssociation(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.AuthorAssociation, nil
+}
+
+func issueCommentHydrateBody(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Body, nil
+}
+
+func issueCommentHydrateBodyText(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.BodyText, nil
+}
+
+func issueCommentHydrateCreatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CreatedAt, nil
+}
+
+func issueCommentHydrateCreatedViaEmail(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CreatedViaEmail, nil
+}
+
+func issueCommentHydrateEditor(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Editor, nil
+}
+
+func issueCommentHydrateEditorLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Editor.Login, nil
+}
+
+func issueCommentHydrateIncludesCreatedEdit(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.IncludesCreatedEdit, nil
+}
+
+func issueCommentHydrateIsMinimized(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.IsMinimized, nil
+}
+
+func issueCommentHydrateMinimizedReason(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.MinimizedReason, nil
+}
+
+func issueCommentHydrateLastEditedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.LastEditedAt, nil
+}
+
+func issueCommentHydratePublishedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.PublishedAt, nil
+}
+
+func issueCommentHydrateUpdatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.UpdatedAt, nil
+}
+
+func issueCommentHydrateUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.Url, nil
+}
+
+func issueCommentHydrateCanDelete(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CanDelete, nil
+}
+
+func issueCommentHydrateCanMinimize(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CanMinimize, nil
+}
+
+func issueCommentHydrateCanReact(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CanReact, nil
+}
+
+func issueCommentHydrateCanUpdate(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CanUpdate, nil
+}
+
+func issueCommentHydrateCannotUpdateReasons(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.CannotUpdateReasons, nil
+}
+
+func issueCommentHydrateDidAuthor(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issueComment, err := extractIssueCommentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issueComment.DidAuthor, nil
+}
+
 func extractPullRequestFromHydrateItem(h *plugin.HydrateData) (models.PullRequest, error) {
 	if pr, ok := h.Item.(models.PullRequest); ok {
 		return pr, nil

@@ -26,6 +26,13 @@ type SearchIssueResult struct {
 	}
 }
 
+type SearchIssueCommentResult struct {
+	TextMatches []TextMatch
+	Node        struct {
+		IssueComment `graphql:"... on IssueComment"`
+	}
+}
+
 type SearchPullRequestResult struct {
 	TextMatches []TextMatch
 	Node        struct {
