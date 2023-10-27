@@ -1,3 +1,9 @@
+## v0.36.1 [2023-10-27]
+
+_Bug fixes_
+
+- Fixed the get call for `github_issue` and `github_pull_request` tables to return data instead of null. ([#355](https://github.com/turbot/steampipe-plugin-github/pull/355))
+
 ## v0.36.0 [2023-10-24]
 
 _What's new_
