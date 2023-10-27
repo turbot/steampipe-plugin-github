@@ -368,8 +368,6 @@ func issueHydrateLabels(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 func extractIssueCommentFromHydrateItem(h *plugin.HydrateData) (models.IssueComment, error) {
 	if issueComment, ok := h.Item.(models.IssueComment); ok {
 		return issueComment, nil
-	} else if searchResult, ok := h.Item.(models.SearchIssueCommentResult); ok {
-		return searchResult.Node.IssueComment, nil
 	} else {
 		return models.IssueComment{}, fmt.Errorf("unable to parse hydrate item %v as an IssueComment", h.Item)
 	}
