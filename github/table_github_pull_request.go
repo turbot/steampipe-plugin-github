@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -194,7 +195,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 		RateLimit  models.RateLimit
 		Repository struct {
 			PullRequest models.PullRequest `graphql:"pullRequest(number: $number)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{

@@ -3,9 +3,10 @@ package github
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
-	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -204,7 +205,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		RateLimit  models.RateLimit
 		Repository struct {
 			Issue models.Issue `graphql:"issue(number: $issueNumber)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{
