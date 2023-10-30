@@ -86,21 +86,21 @@ type OrganizationWithOwnerProperties struct {
 
 type OrganizationWithCounts struct {
 	Organization
-	MembersWithRole     Count `json:"members_with_role"`
-	Packages            Count `json:"packages"`
-	PinnableItems       Count `json:"pinnable_items"`
-	PinnedItems         Count `json:"pinned_items"`
-	Projects            Count `json:"projects"`
-	ProjectsV2          Count `json:"projects_v2"`
-	Sponsoring          Count `json:"sponsoring"`
-	Sponsors            Count `json:"sponsors"`
-	Teams               Count `json:"teams"`
-	PrivateRepositories Count `graphql:"privateRepositories: repositories(privacy: PRIVATE)" json:"private_repositories"`
-	PublicRepositories  Count `graphql:"publicRepositories: repositories(privacy: PUBLIC)" json:"public_repositories"`
+	MembersWithRole     Count `graphql:"membersWithRole @include(if:$includeMembersWithRole)" json:"members_with_role"`
+	Packages            Count `graphql:"packages @include(if:$includePackages)" json:"packages"`
+	PinnableItems       Count `graphql:"pinnableItems @include(if:$includePinnableItems)" json:"pinnable_items"`
+	PinnedItems         Count `graphql:"pinnedItems @include(if:$includePinnedItems)" json:"pinned_items"`
+	Projects            Count `graphql:"projects @include(if:$includeProjects)" json:"projects"`
+	ProjectsV2          Count `graphql:"projectsV2 @include(if:$includeProjectsV2)" json:"projects_v2"`
+	Sponsoring          Count `graphql:"sponsoring @include(if:$includeSponsoring)" json:"sponsoring"`
+	Sponsors            Count `graphql:"sponsors @include(if:$includeSponsors)" json:"sponsors"`
+	Teams               Count `graphql:"teams @include(if:$includeTeams)" json:"teams"`
+	PrivateRepositories Count `graphql:"privateRepositories: repositories(privacy: PRIVATE) @include(if:$includePrivateRepositories)" json:"private_repositories"`
+	PublicRepositories  Count `graphql:"publicRepositories: repositories(privacy: PUBLIC) @include(if:$includePublicRepositories)" json:"public_repositories"`
 	Repositories        struct {
 		TotalCount     int `json:"total_count"`
 		TotalDiskUsage int `json:"total_disk_usage"`
-	} `json:"repositories"`
+	} `graphql:"repositories @include(if:$includeRepositories)" json:"repositories"`
 }
 
 type OrganizationWithOwnerPropertiesAndCounts struct {

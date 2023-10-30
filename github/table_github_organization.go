@@ -82,19 +82,19 @@ func sharedOrganizationColumns() []*plugin.Column {
 
 func sharedOrganizationCountColumns() []*plugin.Column {
 	return []*plugin.Column{
-		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("MembersWithRole.TotalCount", "Node.MembersWithRole.TotalCount"), Description: "Count of members with a role within the organization."},
-		{Name: "packages_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Packages.TotalCount", "Node.Packages.TotalCount"), Description: "Count of packages within the organization."},
-		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnableItems.TotalCount", "Node.PinnableItems.TotalCount"), Description: "Count of pinnable items within the organization."},
-		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItems.TotalCount", "Node.PinnedItems.TotalCount"), Description: "Count of itesm pinned to the organization's profile."},
-		{Name: "projects_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Projects.TotalCount", "Node.Projects.TotalCount"), Description: "Count of projects within the organization."},
-		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("ProjectsV2.TotalCount", "Node.ProjectsV2.TotalCount"), Description: "Count of V2 projects within the organization."},
-		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalCount", "Node.Repositories.TotalCount"), Description: "Count of all repositories within the organization."},
-		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsoring.TotalCount", "Node.Sponsoring.TotalCount"), Description: "Count of users the organization is sponsoring."},
-		{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsors.TotalCount", "Node.Sponsors.TotalCount"), Description: "Count of sponsors the organization has."},
-		{Name: "teams_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Teams.TotalCount", "Node.Teams.TotalCount"), Description: "Count of teams within the organization."},
-		{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalDiskUsage", "Node.Repositories.TotalDiskUsage"), Description: "Total disk usage for all repositories within the organization."},
-		{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PrivateRepositories.TotalCount", "Node.PrivateRepositories.TotalCount"), Description: "Count of private repositories within the organization."},
-		{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PublicRepositories.TotalCount", "Node.PublicRepositories.TotalCount"), Description: "Count of public repositories within the organization."},
+		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateMembersWithRoleTotalCount, Transform: transform.FromValue(), Description: "Count of members with a role within the organization."},
+		{Name: "packages_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePackagesTotalCount, Transform: transform.FromValue(), Description: "Count of packages within the organization."},
+		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnableItemsTotalCount, Transform: transform.FromValue(), Description: "Count of pinnable items within the organization."},
+		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnedItemsTotalCount, Transform: transform.FromValue(), Description: "Count of itesm pinned to the organization's profile."},
+		{Name: "projects_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsTotalCount, Transform: transform.FromValue(), Description: "Count of projects within the organization."},
+		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsV2TotalCount, Transform: transform.FromValue(), Description: "Count of V2 projects within the organization."},
+		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of all repositories within the organization."},
+		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateSponsoringTotalCount, Transform: transform.FromValue(), Description: "Count of users the organization is sponsoring."},
+		{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateSponsorsTotalCount, Transform: transform.FromValue(), Description: "Count of sponsors the organization has."},
+		{Name: "teams_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateTeamsTotalCount, Transform: transform.FromValue(), Description: "Count of teams within the organization."},
+		{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Hydrate: orgHydrateRepositoriesTotalDiskUsage, Transform: transform.FromValue(), Description: "Total disk usage for all repositories within the organization."},
+		{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePrivateRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of private repositories within the organization."},
+		{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePublicRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of public repositories within the organization."},
 	}
 }
 

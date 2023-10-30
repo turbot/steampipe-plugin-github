@@ -10,11 +10,11 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-func extractOrganizationFromHydrateItem(h *plugin.HydrateData) (models.Organization, error) {
-	if org, ok := h.Item.(models.Organization); ok {
+func extractOrganizationFromHydrateItem(h *plugin.HydrateData) (models.OrganizationWithCounts, error) {
+	if org, ok := h.Item.(models.OrganizationWithCounts); ok {
 		return org, nil
 	} else {
-		return models.Organization{}, fmt.Errorf("unable to parse hydrate item %v as a Organization", h.Item)
+		return models.OrganizationWithCounts{}, fmt.Errorf("unable to parse hydrate item %v as a Organization", h.Item)
 	}
 }
 
@@ -44,6 +44,124 @@ func appendOrganizationColumnIncludes(m *map[string]interface{}, cols []string) 
 	(*m)["includeIsFollowing"] = githubv4.Boolean(slices.Contains(cols, "is_following"))
 	(*m)["includeIsSponsoring"] = githubv4.Boolean(slices.Contains(cols, "is_sponsoring"))
 	(*m)["includeWebsiteUrl"] = githubv4.Boolean(slices.Contains(cols, "website_url"))
+	(*m)["includeMembersWithRole"] = githubv4.Boolean(slices.Contains(cols, "members_with_role_total_count"))
+	(*m)["includePackages"] = githubv4.Boolean(slices.Contains(cols, "packages_total_count"))
+	(*m)["includePinnableItems"] = githubv4.Boolean(slices.Contains(cols, "pinnable_items_total_count"))
+	(*m)["includePinnedItems"] = githubv4.Boolean(slices.Contains(cols, "pinned_items_total_count"))
+	(*m)["includeProjects"] = githubv4.Boolean(slices.Contains(cols, "projects_total_count"))
+	(*m)["includeProjectsV2"] = githubv4.Boolean(slices.Contains(cols, "projects_v2_total_count"))
+	(*m)["includeSponsoring"] = githubv4.Boolean(slices.Contains(cols, "sponsoring_total_count"))
+	(*m)["includeSponsors"] = githubv4.Boolean(slices.Contains(cols, "sponsors_total_count"))
+	(*m)["includeTeams"] = githubv4.Boolean(slices.Contains(cols, "teams_total_count"))
+	(*m)["includePrivateRepositories"] = githubv4.Boolean(slices.Contains(cols, "private_repositories_total_count"))
+	(*m)["includePublicRepositories"] = githubv4.Boolean(slices.Contains(cols, "public_repositories_total_count"))
+	(*m)["includeRepositories"] = githubv4.Boolean(slices.Contains(cols, "repositories_total_count"))
+	(*m)["includeRepositories"] = githubv4.Boolean(slices.Contains(cols, "repositories_total_disk_usage"))
+
+}
+
+func orgHydrateMembersWithRoleTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.MembersWithRole.TotalCount, nil
+}
+
+func orgHydratePackagesTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Packages.TotalCount, nil
+}
+
+func orgHydratePinnableItemsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.PinnableItems.TotalCount, nil
+}
+
+func orgHydratePinnedItemsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.PinnedItems.TotalCount, nil
+}
+
+func orgHydrateProjectsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Projects.TotalCount, nil
+}
+
+func orgHydrateProjectsV2TotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.ProjectsV2.TotalCount, nil
+}
+
+func orgHydrateRepositoriesTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Repositories.TotalCount, nil
+}
+
+func orgHydrateSponsoringTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Sponsoring.TotalCount, nil
+}
+
+func orgHydrateSponsorsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Sponsors.TotalCount, nil
+}
+
+func orgHydrateTeamsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Teams.TotalCount, nil
+}
+
+func orgHydrateRepositoriesTotalDiskUsage(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.Repositories.TotalDiskUsage, nil
+}
+
+func orgHydratePrivateRepositoriesTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.PrivateRepositories.TotalCount, nil
+}
+
+func orgHydratePublicRepositoriesTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	org, err := extractOrganizationFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return org.PublicRepositories.TotalCount, nil
 }
 
 func orgHydrateAnnouncement(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
