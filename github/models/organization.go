@@ -16,36 +16,36 @@ type BasicOrganization struct {
 
 type Organization struct {
 	BasicOrganization
-	Announcement                           string                       `json:"announcement"`
-	AnnouncementExpiresAt                  NullableTime                 `json:"announcement_expires_at"`
-	AnnouncementUserDismissible            bool                         `json:"announcement_user_dismissible"`
-	AnyPinnableItems                       bool                         `json:"any_pinnable_items"`
-	AvatarUrl                              string                       `json:"avatar_url"`
-	EstimatedNextSponsorsPayoutInCents     int                          `json:"estimated_next_sponsors_payout_in_cents"`
-	HasSponsorsListing                     bool                         `json:"has_sponsors_listing"`
-	InteractionAbility                     RepositoryInteractionAbility `json:"interaction_ability"`
-	IsSponsoringYou                        bool                         `graphql:"isSponsoringYou: isSponsoringViewer" json:"is_sponsoring_you"`
-	IsVerified                             bool                         `json:"is_verified"`
-	Location                               string                       `json:"location"`
-	MonthlyEstimatedSponsorsIncomeInCents  int                          `json:"monthly_estimated_sponsors_income_in_cents"`
-	NewTeamUrl                             string                       `json:"new_team_url"`
-	PinnedItemsRemaining                   int                          `json:"pinned_items_remaining"`
-	ProjectsUrl                            string                       `json:"projects_url"`
-	SamlIdentityProvider                   OrganizationIdentityProvider `json:"saml_identity_provider"`
-	SponsorsListing                        SponsorsListing              `json:"sponsors_listing"`
-	TeamsUrl                               string                       `json:"teams_url"`
-	TotalSponsorshipAmountAsSponsorInCents int                          `json:"total_sponsorship_amount_as_sponsor_in_cents"`
-	TwitterUsername                        string                       `json:"twitter_username"`
-	CanAdminister                          bool                         `graphql:"canAdminister: viewerCanAdminister" json:"can_administer"`
-	CanChangedPinnedItems                  bool                         `graphql:"canChangedPinnedItems: viewerCanChangePinnedItems" json:"can_changed_pinned_items"`
-	CanCreateProjects                      bool                         `graphql:"canCreateProjects: viewerCanCreateProjects" json:"can_create_projects"`
-	CanCreateRepositories                  bool                         `graphql:"canCreateRepositories: viewerCanCreateRepositories" json:"can_create_repositories"`
-	CanCreateTeams                         bool                         `graphql:"canCreateTeams: viewerCanCreateTeams" json:"can_create_teams"`
-	CanSponsor                             bool                         `graphql:"canSponsor: viewerCanSponsor" json:"can_sponsor"`
-	IsAMember                              bool                         `graphql:"isAMember: viewerIsAMember" json:"is_a_member"`
-	IsFollowing                            bool                         `graphql:"isFollowing: viewerIsFollowing" json:"is_following"`
-	IsSponsoring                           bool                         `graphql:"isSponsoring: viewerIsSponsoring" json:"is_sponsoring"`
-	WebsiteUrl                             string                       `json:"website_url"`
+	Announcement                           string                       `graphql:"announcement @include(if:$includeAnnouncement)" json:"announcement"`
+	AnnouncementExpiresAt                  NullableTime                 `graphql:"announcementExpiresAt @include(if:$includeAnnouncementExpiresAt)" json:"announcement_expires_at"`
+	AnnouncementUserDismissible            bool                         `graphql:"announcementUserDismissible @include(if:$includeAnnouncementUserDismissible)" json:"announcement_user_dismissible"`
+	AnyPinnableItems                       bool                         `graphql:"anyPinnableItems @include(if:$includeAnyPinnableItems)" json:"any_pinnable_items"`
+	AvatarUrl                              string                       `graphql:"avatarUrl @include(if:$includeAvatarUrl)" json:"avatar_url"`
+	EstimatedNextSponsorsPayoutInCents     int                          `graphql:"estimatedNextSponsorsPayoutInCents @include(if:$includeEstimatedNextSponsorsPayoutInCents)" json:"estimated_next_sponsors_payout_in_cents"`
+	HasSponsorsListing                     bool                         `graphql:"hasSponsorsListing @include(if:$includeHasSponsorsListing)" json:"has_sponsors_listing"`
+	InteractionAbility                     RepositoryInteractionAbility `graphql:"interactionAbility @include(if:$includeInteractionAbility)" json:"interaction_ability"`
+	IsSponsoringYou                        bool                         `graphql:"isSponsoringYou: isSponsoringViewer @include(if:$includeIsSponsoringYou)" json:"is_sponsoring_you"`
+	IsVerified                             bool                         `graphql:"isVerified @include(if:$includeIsVerified)" json:"is_verified"`
+	Location                               string                       `graphql:"location @include(if:$includeLocation)" json:"location"`
+	MonthlyEstimatedSponsorsIncomeInCents  int                          `graphql:"monthlyEstimatedSponsorsIncomeInCents @include(if:$includeMonthlyEstimatedSponsorsIncomeInCents)" json:"monthly_estimated_sponsors_income_in_cents"`
+	NewTeamUrl                             string                       `graphql:"newTeamUrl @include(if:$includeNewTeamUrl)" json:"new_team_url"`
+	PinnedItemsRemaining                   int                          `graphql:"pinnedItemsRemaining @include(if:$includePinnedItemsRemaining)" json:"pinned_items_remaining"`
+	ProjectsUrl                            string                       `graphql:"projectsUrl @include(if:$includeProjectsUrl)" json:"projects_url"`
+	SamlIdentityProvider                   OrganizationIdentityProvider `graphql:"samlIdentityProvider @include(if:$includeSamlIdentityProvider)" json:"saml_identity_provider"`
+	SponsorsListing                        SponsorsListing              `graphql:"sponsorsListing @include(if:$includeSponsorsListing)" json:"sponsors_listing"`
+	TeamsUrl                               string                       `graphql:"teamsUrl @include(if:$includeTeamsUrl)" json:"teams_url"`
+	TotalSponsorshipAmountAsSponsorInCents int                          `graphql:"totalSponsorshipAmountAsSponsorInCents @include(if:$includeTotalSponsorshipAmountAsSponsorInCents)" json:"total_sponsorship_amount_as_sponsor_in_cents"`
+	TwitterUsername                        string                       `graphql:"twitterUsername @include(if:$includeTwitterUsername)" json:"twitter_username"`
+	CanAdminister                          bool                         `graphql:"canAdminister: viewerCanAdminister @include(if:$includeOrgViewer)" json:"can_administer"`
+	CanChangedPinnedItems                  bool                         `graphql:"canChangedPinnedItems: viewerCanChangePinnedItems @include(if:$includeOrgViewer)" json:"can_changed_pinned_items"`
+	CanCreateProjects                      bool                         `graphql:"canCreateProjects: viewerCanCreateProjects @include(if:$includeOrgViewer)" json:"can_create_projects"`
+	CanCreateRepositories                  bool                         `graphql:"canCreateRepositories: viewerCanCreateRepositories @include(if:$includeOrgViewer)" json:"can_create_repositories"`
+	CanCreateTeams                         bool                         `graphql:"canCreateTeams: viewerCanCreateTeams @include(if:$includeOrgViewer)" json:"can_create_teams"`
+	CanSponsor                             bool                         `graphql:"canSponsor: viewerCanSponsor @include(if:$includeOrgViewer)" json:"can_sponsor"`
+	IsAMember                              bool                         `graphql:"isAMember: viewerIsAMember @include(if:$includeIsAMember)" json:"is_a_member"`
+	IsFollowing                            bool                         `graphql:"isFollowing: viewerIsFollowing @include(if:$includeIsFollowing)" json:"is_following"`
+	IsSponsoring                           bool                         `graphql:"isSponsoring: viewerIsSponsoring @include(if:$includeIsSponsoring)" json:"is_sponsoring"`
+	WebsiteUrl                             string                       `graphql:"websiteUrl @include(if:$includeWebsiteUrl)" json:"website_url"`
 	// AuditLog [pageable]
 	// Domains [pageable]
 	// EnterpriseOwners [pageable]
