@@ -26,16 +26,9 @@ func tableGitHubBranch() *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
 			{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Target.Commit"), Description: "Latest commit on the branch."},
-			{Name: "protected", Type: proto.ColumnType_BOOL, Transform: transform.FromField("BranchProtectionRule.NodeId").Transform(HasValue), Description: "If true, the branch is protected."},
-			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Transform: transform.FromField("BranchProtectionRule").NullIfZero(), Description: "Branch protection rule if protected."},
+			{Name: "protected", Type: proto.ColumnType_BOOL, Hydrate: branchHydrateProtected, Transform: transform.FromValue().Transform(HasValue), Description: "If true, the branch is protected."},
+			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Hydrate: branchHydrateBranchProtectionRule, Transform: transform.FromValue().NullIfZero(), Description: "Branch protection rule if protected."},
 		},
-		// Columns: []*plugin.Column{
-		// 	{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
-		// 	{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
-		// 	{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Target.Commit"), Description: "Latest commit on the branch."},
-		// 	{Name: "protected", Type: proto.ColumnType_BOOL, Hydrate: branchHydrateProtected, Transform: transform.FromValue().Transform(HasValue), Description: "If true, the branch is protected."},
-		// 	{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Hydrate: branchHydrateBranchProtectionRule, Transform: transform.FromValue().NullIfZero(), Description: "Branch protection rule if protected."},
-		// },
 	}
 }
 
@@ -66,7 +59,7 @@ func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
-	//appendBranchColumnIncludes(&variables, d.QueryContext.Columns)
+	appendBranchColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
 		err := client.Query(ctx, &query, variables)
@@ -77,7 +70,6 @@ func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		}
 
 		for _, branch := range query.Repository.Refs.Edges {
-			plugin.Logger(ctx).Error("node:", branch.Node.BranchProtectionRule)
 			d.StreamListItem(ctx, branch.Node)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit

@@ -19,7 +19,34 @@ func extractBranchFromHydrateItem(h *plugin.HydrateData) (models.Branch, error) 
 }
 
 func appendBranchColumnIncludes(m *map[string]interface{}, cols []string) {
-	(*m)["includeBranchProtectionRule"] = githubv4.Boolean(slices.Contains(cols, "protected") || slices.Contains(cols, "branch_protection_rule"))
+	protectionIncluded := githubv4.Boolean(slices.Contains(cols, "protected") || slices.Contains(cols, "branch_protection_rule"))
+
+	(*m)["includeBranchProtectionRule"] = protectionIncluded
+	(*m)["includeAllowsDeletions"] = protectionIncluded
+	(*m)["includeAllowsForcePushes"] = protectionIncluded
+	(*m)["includeBlocksCreations"] = protectionIncluded
+	(*m)["includeCreator"] = protectionIncluded
+	(*m)["includeBranchProtectionRuleId"] = protectionIncluded
+	(*m)["includeDismissesStaleReviews"] = protectionIncluded
+	(*m)["includeIsAdminEnforced"] = protectionIncluded
+	(*m)["includeLockAllowsFetchAndMerge"] = protectionIncluded
+	(*m)["includeLockBranch"] = protectionIncluded
+	(*m)["includePattern"] = protectionIncluded
+	(*m)["includeRequireLastPushApproval"] = protectionIncluded
+	(*m)["includeRequiredApprovingReviewCount"] = protectionIncluded
+	(*m)["includeRequiredDeploymentEnvironments"] = protectionIncluded
+	(*m)["includeRequiredStatusChecks"] = protectionIncluded
+	(*m)["includeRequiresApprovingReviews"] = protectionIncluded
+	(*m)["includeRequiresConversationResolution"] = protectionIncluded
+	(*m)["includeRequiresCodeOwnerReviews"] = protectionIncluded
+	(*m)["includeRequiresCommitSignatures"] = protectionIncluded
+	(*m)["includeRequiresDeployments"] = protectionIncluded
+	(*m)["includeRequiresLinearHistory"] = protectionIncluded
+	(*m)["includeRequiresStatusChecks"] = protectionIncluded
+	(*m)["includeRequiresStrictStatusChecks"] = protectionIncluded
+	(*m)["includeRestrictsPushes"] = protectionIncluded
+	(*m)["includeRestrictsReviewDismissals"] = protectionIncluded
+	(*m)["includeMatchingBranches"] = protectionIncluded
 }
 
 func branchHydrateProtected(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
