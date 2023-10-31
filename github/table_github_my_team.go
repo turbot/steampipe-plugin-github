@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -25,7 +24,7 @@ func tableGitHubMyTeam() *plugin.Table {
 	}
 }
 
-func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var query struct {
 		RateLimit models.RateLimit
 		Viewer    struct {
@@ -50,7 +49,6 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		"pageSize":    githubv4.Int(pageSize),
 		"cursor":      (*githubv4.String)(nil),
 	}
-	appendTeamColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
@@ -70,7 +68,7 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 				break
 			}
 			if org.Teams.PageInfo.HasNextPage {
-				ts, err := getAdditionalTeams(ctx, d, client, org.Login, org.Teams.PageInfo.EndCursor)
+				ts, err := getAdditionalTeams(ctx, client, org.Login, org.Teams.PageInfo.EndCursor)
 				if err != nil {
 					plugin.Logger(ctx).Error("github_my_team", "api_error", err)
 					return nil, err
@@ -100,7 +98,7 @@ func tableGitHubMyTeamList(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	return nil, nil
 }
 
-func getAdditionalTeams(ctx context.Context, d *plugin.QueryData, client *githubv4.Client, org string, initialCursor githubv4.String) ([]models.TeamWithCounts, error) {
+func getAdditionalTeams(ctx context.Context, client *githubv4.Client, org string, initialCursor githubv4.String) ([]models.TeamWithCounts, error) {
 	var query struct {
 		RateLimit    models.RateLimit
 		Organization struct {
@@ -116,7 +114,6 @@ func getAdditionalTeams(ctx context.Context, d *plugin.QueryData, client *github
 		"cursor":   githubv4.NewString(initialCursor),
 		"login":    githubv4.String(org),
 	}
-	appendTeamColumnIncludes(&variables, d.QueryContext.Columns)
 
 	var ts []models.TeamWithCounts
 	for {
