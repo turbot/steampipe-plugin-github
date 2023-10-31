@@ -72,7 +72,6 @@ type PullRequest struct {
 	Subscription        githubv4.SubscriptionState           `graphql:"subscription: viewerSubscription @include(if:$includePRViewer)" json:"subscription"`
 
 	// Counts
-	Assignees      Count `graphql:"assignees @include(if:$includePRAssigneeCount)" json:"assignees"`
 	Commits        Count `graphql:"commits @include(if:$includePRCommitCount)" json:"commits"`
 	ReviewRequests Count `graphql:"reviewRequests @include(if:$includePRReviewRequestCount)" json:"review_requests"`
 	Reviews        Count `graphql:"reviews @include(if:$includePRReviewCount)" json:"reviews"`
@@ -80,8 +79,11 @@ type PullRequest struct {
 		TotalCount int
 		Nodes      []Label
 	} `graphql:"labels(first: 100) @include(if:$includePRLabels)" json:"labels"`
+	Assignees struct {
+		TotalCount int
+		Nodes      []User
+	} `graphql:"assignees(first: 10) @include(if:$includePRAssignees)" json:"assignees"`
 
-	// Assignees [pageable]
 	// ClosingIssueReferences [pageable]
 	// Commits [pageable]
 	// Files [pageable]

@@ -625,7 +625,7 @@ func appendPullRequestColumnIncludes(m *map[string]interface{}, cols []string) {
 		slices.Contains(cols, "did_author") ||
 		slices.Contains(cols, "cannot_update_reasons") ||
 		slices.Contains(cols, "subscription"))
-	(*m)["includePRAssigneeCount"] = githubv4.Boolean(slices.Contains(cols, "assignees_total_count"))
+	(*m)["includePRAssignees"] = githubv4.Boolean(slices.Contains(cols, "assignees_total_count") || slices.Contains(cols, "assignees"))
 	(*m)["includePRCommitCount"] = githubv4.Boolean(slices.Contains(cols, "commits_total_count"))
 	(*m)["includePRReviewRequestCount"] = githubv4.Boolean(slices.Contains(cols, "review_requests_total_count"))
 	(*m)["includePRReviewCount"] = githubv4.Boolean(slices.Contains(cols, "reviews_total_count"))
@@ -668,7 +668,7 @@ func appendPullRequestColumnIncludes(m *map[string]interface{}, cols []string) {
 	(*m)["includePRUrl"] = githubv4.Boolean(slices.Contains(cols, "url"))
 }
 
-func prHydrateAuthorAssociation(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateAuthorAssociation(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -676,7 +676,7 @@ func prHydrateAuthorAssociation(ctx context.Context, queryData *plugin.QueryData
 	return pr.AuthorAssociation, nil
 }
 
-func prHydrateBaseRefName(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateBaseRefName(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -684,7 +684,7 @@ func prHydrateBaseRefName(ctx context.Context, queryData *plugin.QueryData, h *p
 	return pr.BaseRefName, nil
 }
 
-func prHydrateMaintainerCanModify(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateMaintainerCanModify(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -692,7 +692,7 @@ func prHydrateMaintainerCanModify(ctx context.Context, queryData *plugin.QueryDa
 	return pr.MaintainerCanModify, nil
 }
 
-func prHydrateMergedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateMergedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -700,7 +700,7 @@ func prHydrateMergedAt(ctx context.Context, queryData *plugin.QueryData, h *plug
 	return pr.MergedAt, nil
 }
 
-func prHydrateMergeable(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateMergeable(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -708,7 +708,7 @@ func prHydrateMergeable(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.Mergeable, nil
 }
 
-func prHydrateMerged(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateMerged(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -716,7 +716,7 @@ func prHydrateMerged(ctx context.Context, queryData *plugin.QueryData, h *plugin
 	return pr.Merged, nil
 }
 
-func prHydratePermalink(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydratePermalink(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -724,7 +724,7 @@ func prHydratePermalink(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.Permalink, nil
 }
 
-func prHydratePublishedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydratePublishedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -732,7 +732,7 @@ func prHydratePublishedAt(ctx context.Context, queryData *plugin.QueryData, h *p
 	return pr.PublishedAt, nil
 }
 
-func prHydrateRevertUrl(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateRevertUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -740,7 +740,7 @@ func prHydrateRevertUrl(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.RevertUrl, nil
 }
 
-func prHydrateId(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -748,7 +748,7 @@ func prHydrateId(ctx context.Context, queryData *plugin.QueryData, h *plugin.Hyd
 	return pr.Id, nil
 }
 
-func prHydrateNodeId(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -756,7 +756,7 @@ func prHydrateNodeId(ctx context.Context, queryData *plugin.QueryData, h *plugin
 	return pr.NodeId, nil
 }
 
-func prHydrateAdditions(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateAdditions(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -764,7 +764,7 @@ func prHydrateAdditions(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.Additions, nil
 }
 
-func prHydrateChangedFiles(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateChangedFiles(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -772,7 +772,7 @@ func prHydrateChangedFiles(ctx context.Context, queryData *plugin.QueryData, h *
 	return pr.ChangedFiles, nil
 }
 
-func prHydrateChecksUrl(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateChecksUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -780,7 +780,7 @@ func prHydrateChecksUrl(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.ChecksUrl, nil
 }
 
-func prHydrateClosed(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateClosed(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -788,7 +788,7 @@ func prHydrateClosed(ctx context.Context, queryData *plugin.QueryData, h *plugin
 	return pr.Closed, nil
 }
 
-func prHydrateClosedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateClosedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -796,7 +796,7 @@ func prHydrateClosedAt(ctx context.Context, queryData *plugin.QueryData, h *plug
 	return pr.ClosedAt, nil
 }
 
-func prHydrateCreatedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateCreatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -804,7 +804,7 @@ func prHydrateCreatedAt(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.CreatedAt, nil
 }
 
-func prHydrateCreatedViaEmail(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateCreatedViaEmail(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -812,7 +812,7 @@ func prHydrateCreatedViaEmail(ctx context.Context, queryData *plugin.QueryData, 
 	return pr.CreatedViaEmail, nil
 }
 
-func prHydrateDeletions(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateDeletions(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -820,7 +820,7 @@ func prHydrateDeletions(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.Deletions, nil
 }
 
-func prHydrateHeadRefOid(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateHeadRefOid(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -828,7 +828,7 @@ func prHydrateHeadRefOid(ctx context.Context, queryData *plugin.QueryData, h *pl
 	return pr.HeadRefOid, nil
 }
 
-func prHydrateIncludesCreatedEdit(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateIncludesCreatedEdit(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -836,7 +836,7 @@ func prHydrateIncludesCreatedEdit(ctx context.Context, queryData *plugin.QueryDa
 	return pr.IncludesCreatedEdit, nil
 }
 
-func prHydrateIsCrossRepository(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateIsCrossRepository(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -844,7 +844,7 @@ func prHydrateIsCrossRepository(ctx context.Context, queryData *plugin.QueryData
 	return pr.IsCrossRepository, nil
 }
 
-func prHydrateIsDraft(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateIsDraft(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -852,7 +852,7 @@ func prHydrateIsDraft(ctx context.Context, queryData *plugin.QueryData, h *plugi
 	return pr.IsDraft, nil
 }
 
-func prHydrateIsReadByUser(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateIsReadByUser(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -860,7 +860,7 @@ func prHydrateIsReadByUser(ctx context.Context, queryData *plugin.QueryData, h *
 	return pr.IsReadByUser, nil
 }
 
-func prHydrateLastEditedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateLastEditedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -868,7 +868,7 @@ func prHydrateLastEditedAt(ctx context.Context, queryData *plugin.QueryData, h *
 	return pr.LastEditedAt, nil
 }
 
-func prHydrateLocked(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateLocked(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -876,7 +876,7 @@ func prHydrateLocked(ctx context.Context, queryData *plugin.QueryData, h *plugin
 	return pr.Locked, nil
 }
 
-func prHydrateReviewDecision(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateReviewDecision(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -884,7 +884,7 @@ func prHydrateReviewDecision(ctx context.Context, queryData *plugin.QueryData, h
 	return pr.ReviewDecision, nil
 }
 
-func prHydrateState(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateState(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -892,7 +892,7 @@ func prHydrateState(ctx context.Context, queryData *plugin.QueryData, h *plugin.
 	return pr.State, nil
 }
 
-func prHydrateTitle(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateTitle(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -900,7 +900,7 @@ func prHydrateTitle(ctx context.Context, queryData *plugin.QueryData, h *plugin.
 	return pr.Title, nil
 }
 
-func prHydrateTotalCommentsCount(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateTotalCommentsCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -908,7 +908,7 @@ func prHydrateTotalCommentsCount(ctx context.Context, queryData *plugin.QueryDat
 	return pr.TotalCommentsCount, nil
 }
 
-func prHydrateUpdatedAt(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateUpdatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -916,7 +916,7 @@ func prHydrateUpdatedAt(ctx context.Context, queryData *plugin.QueryData, h *plu
 	return pr.UpdatedAt, nil
 }
 
-func prHydrateUrl(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -924,7 +924,7 @@ func prHydrateUrl(ctx context.Context, queryData *plugin.QueryData, h *plugin.Hy
 	return pr.Url, nil
 }
 
-func prHydrateHeadRefName(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateHeadRefName(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -932,7 +932,7 @@ func prHydrateHeadRefName(ctx context.Context, queryData *plugin.QueryData, h *p
 	return pr.HeadRefName, nil
 }
 
-func prHydrateActiveLockReason(ctx context.Context, queryData *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func prHydrateActiveLockReason(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	pr, err := extractPullRequestFromHydrateItem(h)
 	if err != nil {
 		return nil, err
@@ -1034,6 +1034,14 @@ func prHydrateAssigneeCount(_ context.Context, _ *plugin.QueryData, h *plugin.Hy
 		return nil, err
 	}
 	return pr.Assignees.TotalCount, nil
+}
+
+func prHydrateAssignees(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	pr, err := extractPullRequestFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return pr.Assignees.Nodes, nil
 }
 
 func prHydrateCommitCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

@@ -56,6 +56,7 @@ func sharedPullRequestColumns() []*plugin.Column {
 		{Name: "total_comments_count", Type: proto.ColumnType_INT, Transform: transform.FromValue(), Hydrate: prHydrateTotalCommentsCount, Description: "The number of comments on the pull request."},
 		{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Hydrate: prHydrateUpdatedAt, Description: "Timestamp when the pull request was last updated."},
 		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prHydrateUrl, Description: "URL of the pull request."},
+		{Name: "assignees", Type: proto.ColumnType_JSON, Hydrate: prHydrateAssignees, Transform: transform.FromValue().NullIfZero(), Description: "A list of Users assigned to the pull request."},
 	}
 }
 
@@ -184,7 +185,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 	return nil, nil
 }
 
-func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	number := int(quals["number"].GetInt64Value())
 	fullName := quals["repository_full_name"].GetStringValue()
@@ -196,7 +197,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 		RateLimit  models.RateLimit
 		Repository struct {
 			PullRequest models.PullRequest `graphql:"pullRequest(number: $number)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{
