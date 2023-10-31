@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -40,8 +39,6 @@ func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, h *
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
-
-	appendOrganizationColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
 		err := client.Query(ctx, &query, variables)

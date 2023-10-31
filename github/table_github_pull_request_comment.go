@@ -49,7 +49,6 @@ func tableGitHubRepositoryPullRequestCommentList(ctx context.Context, d *plugin.
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
-	appendIssuePRCommentColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 

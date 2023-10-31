@@ -24,36 +24,36 @@ func sharedOrganizationColumns() []*plugin.Column {
 		{Name: "description", Type: proto.ColumnType_STRING, Transform: transform.FromField("Description", "Node.Description"), Description: "The description of the organization."},
 		{Name: "email", Type: proto.ColumnType_STRING, Transform: transform.FromField("Email", "Node.Email"), Description: "The email address associated with the organization."},
 		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url", "Node.Url"), Description: "The URL for this organization."},
-		{Name: "announcement", Type: proto.ColumnType_STRING, Hydrate: orgHydrateAnnouncement, Transform: transform.FromValue(), Description: "The text of the announcement."},
-		{Name: "announcement_expires_at", Type: proto.ColumnType_TIMESTAMP, Hydrate: orgHydrateAnnouncementExpiresAt, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Description: "The expiration date of the announcement, if any."},
-		{Name: "announcement_user_dismissible", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateAnnouncementUserDismissible, Transform: transform.FromValue(), Description: "If true, the announcement can be dismissed by the user."},
-		{Name: "any_pinnable_items", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateAnyPinnableItems, Transform: transform.FromValue(), Description: "If true, this organization has items that can be pinned to their profile."},
-		{Name: "avatar_url", Type: proto.ColumnType_STRING, Hydrate: orgHydrateAvatarUrl, Transform: transform.FromValue(), Description: "URL pointing to the organization's public avatar."},
-		{Name: "estimated_next_sponsors_payout_in_cents", Type: proto.ColumnType_INT, Hydrate: orgHydrateEstimatedNextSponsorsPayoutInCents, Transform: transform.FromValue(), Description: "The estimated next GitHub Sponsors payout for this organization in cents (USD)."},
-		{Name: "has_sponsors_listing", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateHasSponsorsListing, Transform: transform.FromValue(), Description: "If true, this organization has a GitHub Sponsors listing."},
-		{Name: "interaction_ability", Type: proto.ColumnType_JSON, Hydrate: orgHydrateInteractionAbility, Transform: transform.FromValue().NullIfZero(), Description: "The interaction ability settings for this organization."},
-		{Name: "is_sponsoring_you", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateIsSponsoringYou, Transform: transform.FromValue(), Description: "If true, you are sponsored by this organization."},
-		{Name: "is_verified", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateIsVerified, Transform: transform.FromValue(), Description: "If true, the organization has verified its profile email and website."},
-		{Name: "location", Type: proto.ColumnType_STRING, Hydrate: orgHydrateLocation, Transform: transform.FromValue(), Description: "The organization's public profile location."},
-		{Name: "monthly_estimated_sponsors_income_in_cents", Type: proto.ColumnType_INT, Hydrate: orgHydrateMonthlyEstimatedSponsorsIncomeInCents, Transform: transform.FromValue(), Description: "The estimated monthly GitHub Sponsors income for this organization in cents (USD)."},
-		{Name: "new_team_url", Type: proto.ColumnType_STRING, Hydrate: orgHydrateNewTeamUrl, Transform: transform.FromValue(), Description: "URL for creating a new team."},
-		{Name: "pinned_items_remaining", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnedItemsRemaining, Transform: transform.FromValue(), Description: "Returns how many more items this organization can pin to their profile."},
-		{Name: "projects_url", Type: proto.ColumnType_STRING, Hydrate: orgHydrateProjectsUrl, Transform: transform.FromValue(), Description: "URL listing organization's projects."},
-		{Name: "saml_identity_provider", Type: proto.ColumnType_JSON, Hydrate: orgHydrateSamlIdentityProvider, Transform: transform.FromValue().NullIfZero(), Description: "The Organization's SAML identity provider. Visible to (1) organization owners, (2) organization owners' personal access tokens (classic) with read:org or admin:org scope, (3) GitHub App with an installation token with read or write access to members, else null."},
-		{Name: "sponsors_listing", Type: proto.ColumnType_JSON, Hydrate: orgHydrateSponsorsListing, Transform: transform.FromValue().NullIfZero(), Description: "The GitHub sponsors listing for this organization."},
-		{Name: "teams_url", Type: proto.ColumnType_STRING, Hydrate: orgHydrateTeamsUrl, Transform: transform.FromValue(), Description: "URL listing organization's teams."},
-		{Name: "total_sponsorship_amount_as_sponsor_in_cents", Type: proto.ColumnType_INT, Hydrate: orgHydrateTotalSponsorshipAmountAsSponsorInCents, Transform: transform.FromValue().NullIfZero(), Description: "The amount in United States cents (e.g., 500 = $5.00 USD) that this entity has spent on GitHub to fund sponsorships. Only returns a value when viewed by the user themselves or by a user who can manage sponsorships for the requested organization."},
-		{Name: "twitter_username", Type: proto.ColumnType_STRING, Hydrate: orgHydrateTwitterUsername, Transform: transform.FromValue(), Description: "The organization's Twitter username."},
-		{Name: "can_administer", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanAdminister, Transform: transform.FromValue(), Description: "If true, you can administer the organization."},
-		{Name: "can_changed_pinned_items", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanChangedPinnedItems, Transform: transform.FromValue(), Description: "If true, you can change the pinned items on the organization's profile."},
-		{Name: "can_create_projects", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanCreateProjects, Transform: transform.FromValue(), Description: "If true, you can create projects for the organization."},
-		{Name: "can_create_repositories", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanCreateRepositories, Transform: transform.FromValue(), Description: "If true, you can create repositories for the organization."},
-		{Name: "can_create_teams", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanCreateTeams, Transform: transform.FromValue(), Description: "If true, you can create teams within the organization."},
-		{Name: "can_sponsor", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateCanSponsor, Transform: transform.FromValue(), Description: "If true, you can sponsor this organization."},
-		{Name: "is_a_member", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateIsAMember, Transform: transform.FromValue(), Description: "If true, you are an active member of the organization."},
-		{Name: "is_following", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateIsFollowing, Transform: transform.FromValue(), Description: "If true, you are following the organization."},
-		{Name: "is_sponsoring", Type: proto.ColumnType_BOOL, Hydrate: orgHydrateIsSponsoring, Transform: transform.FromValue(), Description: "If true, you are sponsoring the organization."},
-		{Name: "website_url", Type: proto.ColumnType_STRING, Hydrate: orgHydrateWebsiteUrl, Transform: transform.FromValue(), Description: "URL for the organization's public website."},
+		{Name: "announcement", Type: proto.ColumnType_STRING, Transform: transform.FromField("Announcement", "Node.Announcement"), Description: "The text of the announcement."},
+		{Name: "announcement_expires_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("AnnouncementExpiresAt", "Node.AnnouncementExpiresAt").NullIfZero().Transform(convertTimestamp), Description: "The expiration date of the announcement, if any."},
+		{Name: "announcement_user_dismissible", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AnnouncementUserDismissible", "Node.AnnouncementUserDismissible"), Description: "If true, the announcement can be dismissed by the user."},
+		{Name: "any_pinnable_items", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AnyPinnableItems", "Node.AnyPinnableItems"), Description: "If true, this organization has items that can be pinned to their profile."},
+		{Name: "avatar_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("AvatarUrl", "Node.AvatarUrl"), Description: "URL pointing to the organization's public avatar."},
+		{Name: "estimated_next_sponsors_payout_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("EstimatedNextSponsorsPayoutInCents", "Node.EstimatedNextSponsorsPayoutInCents"), Description: "The estimated next GitHub Sponsors payout for this organization in cents (USD)."},
+		{Name: "has_sponsors_listing", Type: proto.ColumnType_BOOL, Transform: transform.FromField("HasSponsorsListing", "Node.HasSponsorsListing"), Description: "If true, this organization has a GitHub Sponsors listing."},
+		{Name: "interaction_ability", Type: proto.ColumnType_JSON, Transform: transform.FromField("InteractionAbility", "Node.InteractionAbility").NullIfZero(), Description: "The interaction ability settings for this organization."},
+		{Name: "is_sponsoring_you", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsSponsoringYou", "Node.IsSponsoringYou"), Description: "If true, you are sponsored by this organization."},
+		{Name: "is_verified", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsVerified", "Node.IsVerified"), Description: "If true, the organization has verified its profile email and website."},
+		{Name: "location", Type: proto.ColumnType_STRING, Transform: transform.FromField("Location", "Node.Location"), Description: "The organization's public profile location."},
+		{Name: "monthly_estimated_sponsors_income_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("MonthlyEstimatedSponsorsIncomeInCents", "Node.MonthlyEstimatedSponsorsIncomeInCents"), Description: "The estimated monthly GitHub Sponsors income for this organization in cents (USD)."},
+		{Name: "new_team_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("NewTeamUrl", "Node.NewTeamUrl"), Description: "URL for creating a new team."},
+		{Name: "pinned_items_remaining", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItemsRemaining", "Node.PinnedItemsRemaining"), Description: "Returns how many more items this organization can pin to their profile."},
+		{Name: "projects_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("ProjectsUrl", "Node.ProjectsUrl"), Description: "URL listing organization's projects."},
+		{Name: "saml_identity_provider", Type: proto.ColumnType_JSON, Transform: transform.FromField("SamlIdentityProvider", "Node.SamlIdentityProvider").NullIfZero(), Description: "The Organization's SAML identity provider. Visible to (1) organization owners, (2) organization owners' personal access tokens (classic) with read:org or admin:org scope, (3) GitHub App with an installation token with read or write access to members, else null."},
+		{Name: "sponsors_listing", Type: proto.ColumnType_JSON, Transform: transform.FromField("SponsorsListing", "Node.SponsorsListing").NullIfZero(), Description: "The GitHub sponsors listing for this organization."},
+		{Name: "teams_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TeamsUrl", "Node.TeamsUrl"), Description: "URL listing organization's teams."},
+		{Name: "total_sponsorship_amount_as_sponsor_in_cents", Type: proto.ColumnType_INT, Transform: transform.FromField("TotalSponsorshipAmountAsSponsorInCents", "Node.TotalSponsorshipAmountAsSponsorInCents").NullIfZero(), Description: "The amount in United States cents (e.g., 500 = $5.00 USD) that this entity has spent on GitHub to fund sponsorships. Only returns a value when viewed by the user themselves or by a user who can manage sponsorships for the requested organization."},
+		{Name: "twitter_username", Type: proto.ColumnType_STRING, Transform: transform.FromField("TwitterUsername", "Node.TwitterUsername"), Description: "The organization's Twitter username."},
+		{Name: "can_administer", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanAdminister", "Node.CanAdminister"), Description: "If true, you can administer the organization."},
+		{Name: "can_changed_pinned_items", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanChangedPinnedItems", "Node.CanChangedPinnedItems"), Description: "If true, you can change the pinned items on the organization's profile."},
+		{Name: "can_create_projects", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateProjects", "Node.CanCreateProjects"), Description: "If true, you can create projects for the organization."},
+		{Name: "can_create_repositories", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateRepositories", "Node.CanCreateRepositories"), Description: "If true, you can create repositories for the organization."},
+		{Name: "can_create_teams", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanCreateTeams", "Node.CanCreateTeams"), Description: "If true, you can create teams within the organization."},
+		{Name: "can_sponsor", Type: proto.ColumnType_BOOL, Transform: transform.FromField("CanSponsor", "Node.CanSponsor"), Description: "If true, you can sponsor this organization."},
+		{Name: "is_a_member", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsAMember", "Node.IsAMember"), Description: "If true, you are an active member of the organization."},
+		{Name: "is_following", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsFollowing", "Node.IsFollowing"), Description: "If true, you are following the organization."},
+		{Name: "is_sponsoring", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsSponsoring", "Node.IsSponsoring"), Description: "If true, you are sponsoring the organization."},
+		{Name: "website_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("WebsiteUrl", "Node.WebsiteUrl"), Description: "URL for the organization's public website."},
 		// Columns from v3 api - hydrates
 		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The Hooks of the organization.", Hydrate: hydrateOrganizationHooksFromV3, Transform: transform.FromValue()},
 		{Name: "billing_email", Type: proto.ColumnType_STRING, Description: "The email address for billing.", Hydrate: hydrateOrganizationDataFromV3},
@@ -82,19 +82,19 @@ func sharedOrganizationColumns() []*plugin.Column {
 
 func sharedOrganizationCountColumns() []*plugin.Column {
 	return []*plugin.Column{
-		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateMembersWithRoleTotalCount, Transform: transform.FromValue(), Description: "Count of members with a role within the organization."},
-		{Name: "packages_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePackagesTotalCount, Transform: transform.FromValue(), Description: "Count of packages within the organization."},
-		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnableItemsTotalCount, Transform: transform.FromValue(), Description: "Count of pinnable items within the organization."},
-		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnedItemsTotalCount, Transform: transform.FromValue(), Description: "Count of itesm pinned to the organization's profile."},
-		{Name: "projects_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsTotalCount, Transform: transform.FromValue(), Description: "Count of projects within the organization."},
-		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsV2TotalCount, Transform: transform.FromValue(), Description: "Count of V2 projects within the organization."},
-		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of all repositories within the organization."},
-		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateSponsoringTotalCount, Transform: transform.FromValue(), Description: "Count of users the organization is sponsoring."},
-		{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateSponsorsTotalCount, Transform: transform.FromValue(), Description: "Count of sponsors the organization has."},
-		{Name: "teams_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateTeamsTotalCount, Transform: transform.FromValue(), Description: "Count of teams within the organization."},
-		{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Hydrate: orgHydrateRepositoriesTotalDiskUsage, Transform: transform.FromValue(), Description: "Total disk usage for all repositories within the organization."},
-		{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePrivateRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of private repositories within the organization."},
-		{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePublicRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of public repositories within the organization."},
+		{Name: "members_with_role_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("MembersWithRole.TotalCount", "Node.MembersWithRole.TotalCount"), Description: "Count of members with a role within the organization."},
+		{Name: "packages_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Packages.TotalCount", "Node.Packages.TotalCount"), Description: "Count of packages within the organization."},
+		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnableItems.TotalCount", "Node.PinnableItems.TotalCount"), Description: "Count of pinnable items within the organization."},
+		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PinnedItems.TotalCount", "Node.PinnedItems.TotalCount"), Description: "Count of itesm pinned to the organization's profile."},
+		{Name: "projects_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Projects.TotalCount", "Node.Projects.TotalCount"), Description: "Count of projects within the organization."},
+		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("ProjectsV2.TotalCount", "Node.ProjectsV2.TotalCount"), Description: "Count of V2 projects within the organization."},
+		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalCount", "Node.Repositories.TotalCount"), Description: "Count of all repositories within the organization."},
+		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsoring.TotalCount", "Node.Sponsoring.TotalCount"), Description: "Count of users the organization is sponsoring."},
+		{Name: "sponsors_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Sponsors.TotalCount", "Node.Sponsors.TotalCount"), Description: "Count of sponsors the organization has."},
+		{Name: "teams_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Teams.TotalCount", "Node.Teams.TotalCount"), Description: "Count of teams within the organization."},
+		{Name: "repositories_total_disk_usage", Type: proto.ColumnType_INT, Transform: transform.FromField("Repositories.TotalDiskUsage", "Node.Repositories.TotalDiskUsage"), Description: "Total disk usage for all repositories within the organization."},
+		{Name: "private_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PrivateRepositories.TotalCount", "Node.PrivateRepositories.TotalCount"), Description: "Count of private repositories within the organization."},
+		{Name: "public_repositories_total_count", Type: proto.ColumnType_INT, Transform: transform.FromField("PublicRepositories.TotalCount", "Node.PublicRepositories.TotalCount"), Description: "Count of public repositories within the organization."},
 	}
 }
 
@@ -115,7 +115,7 @@ func tableGitHubOrganization() *plugin.Table {
 	}
 }
 
-func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
 	login := d.EqualsQuals["login"].GetStringValue()
@@ -129,8 +129,6 @@ func tableGitHubOrganizationList(ctx context.Context, d *plugin.QueryData, _ *pl
 	variables := map[string]interface{}{
 		"login": githubv4.String(login),
 	}
-
-	appendOrganizationColumnIncludes(&variables, d.QueryContext.Columns)
 
 	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_organization", &query.RateLimit))
