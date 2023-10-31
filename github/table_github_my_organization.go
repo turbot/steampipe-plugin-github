@@ -41,8 +41,6 @@ func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, h *
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	appendOrganizationColumnIncludes(&variables, d.QueryContext.Columns)
-
 	for {
 		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_organization", &query.RateLimit))
