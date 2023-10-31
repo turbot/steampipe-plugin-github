@@ -38,7 +38,6 @@ type Issue struct {
 	UserDidAuthor           bool                                 `graphql:"userDidAuthor: viewerDidAuthor @include(if:$includeIssueViewer)" json:"user_did_author"`
 	UserSubscription        githubv4.SubscriptionState           `graphql:"userSubscription: viewerSubscription @include(if:$includeIssueViewer)" json:"user_subscription"`
 	Comments                Count                                `graphql:"comments @include(if:$includeIssueCommentCount)" json:"comments"`
-	Assignees               Count                                `graphql:"assignees @include(if:$includeIssueAssigneeCount)" json:"assignees"`
 	Labels                  struct {
 		TotalCount int
 		Nodes      []Label
@@ -46,6 +45,10 @@ type Issue struct {
 	Repo struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
+	Assignees struct {
+		TotalCount int
+		Nodes      []User
+	} `graphql:"assignees(first: 10) @include(if:$includeIssueAssignees)" json:"assignees"`
 }
 
 type IssueTemplate struct {

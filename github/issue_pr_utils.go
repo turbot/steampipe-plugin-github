@@ -33,7 +33,7 @@ func appendIssueColumnIncludes(m *map[string]interface{}, cols []string) {
 		slices.Contains(cols, "user_cannot_update_reasons") ||
 		slices.Contains(cols, "user_did_author") ||
 		slices.Contains(cols, "user_subscription"))
-	(*m)["includeIssueAssigneeCount"] = githubv4.Boolean(slices.Contains(cols, "assignees_total_count"))
+	(*m)["includeIssueAssignees"] = githubv4.Boolean(slices.Contains(cols, "assignees_total_count") || slices.Contains(cols, "assignees"))
 	(*m)["includeIssueCommentCount"] = githubv4.Boolean(slices.Contains(cols, "comments_total_count"))
 	(*m)["includeIssueLabels"] = githubv4.Boolean(slices.Contains(cols, "labels") ||
 		slices.Contains(cols, "labels_src") ||
@@ -339,6 +339,14 @@ func issueHydrateAssigneeCount(_ context.Context, _ *plugin.QueryData, h *plugin
 		return nil, err
 	}
 	return issue.Assignees.TotalCount, nil
+}
+
+func issueHydrateAssignees(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issue, err := extractIssueFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issue.Assignees.Nodes, nil
 }
 
 func issueHydrateCommentCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

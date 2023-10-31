@@ -63,6 +63,7 @@ func sharedIssueColumns() []*plugin.Column {
 		{Name: "user_cannot_update_reasons", Type: proto.ColumnType_JSON, Hydrate: issueHydrateUserCannotUpdateReasons, Transform: transform.FromValue().NullIfZero(), Description: "A list of reason why user cannot update the issue."},
 		{Name: "user_did_author", Type: proto.ColumnType_BOOL, Hydrate: issueHydrateUserDidAuthor, Transform: transform.FromValue(), Description: "If true, user authored the issue."},
 		{Name: "user_subscription", Type: proto.ColumnType_STRING, Hydrate: issueHydrateUserSubscription, Transform: transform.FromValue(), Description: "Subscription state of the user to the issue."},
+		{Name: "assignees", Type: proto.ColumnType_JSON, Hydrate: issueHydrateAssignees, Transform: transform.FromValue().NullIfZero(), Description: "A list of Users assigned to the issue."},
 	}
 }
 
@@ -193,7 +194,7 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 	return nil, nil
 }
 
-func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	issueNumber := int(quals["number"].GetInt64Value())
 	fullName := quals["repository_full_name"].GetStringValue()
@@ -205,7 +206,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		RateLimit  models.RateLimit
 		Repository struct {
 			Issue models.Issue `graphql:"issue(number: $issueNumber)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{
