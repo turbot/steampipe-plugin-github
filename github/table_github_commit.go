@@ -56,6 +56,7 @@ func tableGitHubCommit() *plugin.Table {
 			{Name: "subscription", Type: proto.ColumnType_STRING, Hydrate: commitHydrateSubscription, Transform: transform.FromValue(), Description: "Users subscription state of the commit."},
 			{Name: "url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateUrl, Transform: transform.FromValue(), Description: "URL of the commit."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Hydrate: commitHydrateNodeId, Transform: transform.FromValue(), Description: "The node ID of the commit."},
+			{Name: "message_headline", Type: proto.ColumnType_STRING, Hydrate: commitHydrateMessageHeadline, Transform: transform.FromValue(), Description: "The Git commit message headline."},
 		},
 	}
 }
