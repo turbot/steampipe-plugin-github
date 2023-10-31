@@ -205,7 +205,7 @@ func tableGitHubRepositoryIssueGet(ctx context.Context, d *plugin.QueryData, h *
 		RateLimit  models.RateLimit
 		Repository struct {
 			Issue models.Issue `graphql:"issue(number: $issueNumber)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{

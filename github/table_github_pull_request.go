@@ -196,7 +196,7 @@ func tableGitHubPullRequestGet(ctx context.Context, d *plugin.QueryData, h *plug
 		RateLimit  models.RateLimit
 		Repository struct {
 			PullRequest models.PullRequest `graphql:"pullRequest(number: $number)"`
-		} `graphql:"repository(owner: $owner, name: $name)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
 	variables := map[string]interface{}{
