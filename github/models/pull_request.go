@@ -3,46 +3,46 @@ package models
 import "github.com/shurcooL/githubv4"
 
 type BasicPullRequest struct {
-	Id                  int                                `graphql:"id: databaseId @include(if:$includePRId)" json:"id"`
-	NodeId              string                             `graphql:"nodeId: id @include(if:$includePRNodeId)" json:"node_id"`
+	Id                  int                                `graphql:"id: databaseId" json:"id"`
+	NodeId              string                             `graphql:"nodeId: id" json:"node_id"`
 	Number              int                                `json:"number"`
-	ActiveLockReason    githubv4.LockReason                `graphql:"activeLockReason @include(if:$includePRActiveLockReason)" json:"active_lock_reason"`
-	Additions           int                                `graphql:"additions @include(if:$includePRAdditions)" json:"additions"`
+	ActiveLockReason    githubv4.LockReason                `json:"active_lock_reason"`
+	Additions           int                                `json:"additions"`
 	Author              Actor                              `graphql:"author @include(if:$includePRAuthor)" json:"author"`
-	AuthorAssociation   githubv4.CommentAuthorAssociation  `graphql:"authorAssociation @include(if:$includePRAuthorAssociation)" json:"author_association"`
-	BaseRefName         string                             `graphql:"baseRefName @include(if:$includePRBaseRefName)" json:"base_ref_name"`
+	AuthorAssociation   githubv4.CommentAuthorAssociation  `json:"author_association"`
+	BaseRefName         string                             `json:"base_ref_name"`
 	Body                string                             `graphql:"body @include(if:$includePRBody)" json:"body"`
-	ChangedFiles        int                                `graphql:"changedFiles @include(if:$includePRChangedFiles)" json:"changed_files"`
-	ChecksUrl           string                             `graphql:"checksUrl @include(if:$includePRChecksUrl)" json:"checks_url"`
-	Closed              bool                               `graphql:"closed @include(if:$includePRClosed)" json:"closed"`
-	ClosedAt            NullableTime                       `graphql:"closedAt @include(if:$includePRClosedAt)" json:"closed_at"`
-	CreatedAt           NullableTime                       `graphql:"createdAt @include(if:$includePRCreatedAt)" json:"created_at"`
-	CreatedViaEmail     bool                               `graphql:"createdViaEmail @include(if:$includePRCreatedViaEmail)" json:"created_via_email"`
-	Deletions           int                                `graphql:"deletions @include(if:$includePRDeletions)" json:"deletions"`
+	ChangedFiles        int                                `json:"changed_files"`
+	ChecksUrl           string                             `json:"checks_url"`
+	Closed              bool                               `json:"closed"`
+	ClosedAt            NullableTime                       `json:"closed_at"`
+	CreatedAt           NullableTime                       `json:"created_at"`
+	CreatedViaEmail     bool                               `json:"created_via_email"`
+	Deletions           int                                `json:"deletions"`
 	Editor              Actor                              `graphql:"editor @include(if:$includePREditor)" json:"editor"`
-	HeadRefName         string                             `graphql:"headRefName @include(if:$includePRHeadRefName)" json:"head_ref_name"`
-	HeadRefOid          string                             `graphql:"headRefOid @include(if:$includePRHeadRefOid)" json:"head_ref_oid"`
-	IncludesCreatedEdit bool                               `graphql:"includesCreatedEdit @include(if:$includePRIncludesCreatedEdit)" json:"includes_created_edit"`
-	IsCrossRepository   bool                               `graphql:"isCrossRepository @include(if:$includePRIsCrossRepository)" json:"is_cross_repository"`
-	IsDraft             bool                               `graphql:"isDraft @include(if:$includePRIsDraft)" json:"is_draft"`
-	IsReadByUser        bool                               `graphql:"isReadByUser: isReadByViewer @include(if:$includePRIsReadByUser)" json:"is_read_by_user"`
-	LastEditedAt        NullableTime                       `graphql:"lastEditedAt @include(if:$includePRLastEditedAt)" json:"last_edited_at"`
-	Locked              bool                               `graphql:"locked @include(if:$includePRLocked)" json:"locked"`
-	MaintainerCanModify bool                               `graphql:"maintainerCanModify @include(if:$includePRMaintainerCanModify)" json:"maintainer_can_modify"`
-	Mergeable           githubv4.MergeableState            `graphql:"mergeable @include(if:$includePRMergeable)" json:"mergeable"`
-	Merged              bool                               `graphql:"merged @include(if:$includePRMerged)" json:"merged"`
-	MergedAt            NullableTime                       `graphql:"mergedAt @include(if:$includePRMergedAt)" json:"merged_at"`
+	HeadRefName         string                             `json:"head_ref_name"`
+	HeadRefOid          string                             `json:"head_ref_oid"`
+	IncludesCreatedEdit bool                               `json:"includes_created_edit"`
+	IsCrossRepository   bool                               `json:"is_cross_repository"`
+	IsDraft             bool                               `json:"is_draft"`
+	IsReadByUser        bool                               `graphql:"isReadByUser: isReadByViewer" json:"is_read_by_user"`
+	LastEditedAt        NullableTime                       `json:"last_edited_at"`
+	Locked              bool                               `json:"locked"`
+	MaintainerCanModify bool                               `json:"maintainer_can_modify"`
+	Mergeable           githubv4.MergeableState            `json:"mergeable"`
+	Merged              bool                               `json:"merged"`
+	MergedAt            NullableTime                       `json:"merged_at"`
 	MergedBy            Actor                              `graphql:"mergedBy @include(if:$includePRMergedBy)" json:"merged_by"`
 	Milestone           Milestone                          `graphql:"milestone @include(if:$includePRMilestone)" json:"milestone"`
-	Permalink           string                             `graphql:"permalink @include(if:$includePRPermalink)" json:"permalink"`
-	PublishedAt         NullableTime                       `graphql:"publishedAt @include(if:$includePRPublishedAt)" json:"published_at"`
-	RevertUrl           string                             `graphql:"revertUrl @include(if:$includePRRevertUrl)" json:"revert_url"`
-	ReviewDecision      githubv4.PullRequestReviewDecision `graphql:"reviewDecision @include(if:$includePRReviewDecision)" json:"review_decision"`
-	State               githubv4.PullRequestState          `graphql:"state @include(if:$includePRState)" json:"state"`
-	Title               string                             `graphql:"title @include(if:$includePRTitle)" json:"title"`
-	TotalCommentsCount  int                                `graphql:"totalCommentsCount @include(if:$includePRTotalCommentsCount)" json:"total_comments_count"`
-	UpdatedAt           NullableTime                       `graphql:"updatedAt @include(if:$includePRUpdatedAt)" json:"updated_at"`
-	Url                 string                             `graphql:"url @include(if:$includePRUrl)" json:"url"`
+	Permalink           string                             `json:"permalink"`
+	PublishedAt         NullableTime                       `json:"published_at"`
+	RevertUrl           string                             `json:"revert_url"`
+	ReviewDecision      githubv4.PullRequestReviewDecision `json:"review_decision"`
+	State               githubv4.PullRequestState          `json:"state"`
+	Title               string                             `json:"title"`
+	TotalCommentsCount  int                                `json:"total_comments_count"`
+	UpdatedAt           NullableTime                       `json:"updated_at"`
+	Url                 string                             `json:"url"`
 	Repo                struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`

@@ -3,32 +3,32 @@ package models
 import "github.com/shurcooL/githubv4"
 
 type Issue struct {
-	Id                      int                                  `graphql:"id: databaseId @include(if:$includeIssueId)" json:"id"`
-	NodeId                  string                               `graphql:"nodeId: id @include(if:$includeIssueNodeId)" json:"node_id"`
+	Id                      int                                  `graphql:"id: databaseId" json:"id"`
+	NodeId                  string                               `graphql:"nodeId: id" json:"node_id"`
 	Number                  int                                  `json:"number"`
-	ActiveLockReason        githubv4.LockReason                  `graphql:"activeLockReason @include(if:$includeIssueActiveLockReason)" json:"active_lock_reason"`
+	ActiveLockReason        githubv4.LockReason                  `json:"active_lock_reason"`
 	Author                  Actor                                `graphql:"author @include(if:$includeIssueAuthor)" json:"author"`
-	AuthorAssociation       githubv4.CommentAuthorAssociation    `graphql:"authorAssociation @include(if:$includeIssueAuthorAssociation)" json:"author_association"`
+	AuthorAssociation       githubv4.CommentAuthorAssociation    `json:"author_association"`
 	Body                    string                               `graphql:"body @include(if:$includeIssueBody)" json:"body"`
-	BodyUrl                 string                               `graphql:"bodyUrl @include(if:$includeIssueBodyUrl)" json:"body_url"`
-	Closed                  bool                                 `graphql:"closed @include(if:$includeIssueClosed)" json:"closed"`
-	ClosedAt                NullableTime                         `graphql:"closedAt @include(if:$includeIssueClosedAt)" json:"closed_at"`
-	CreatedAt               NullableTime                         `graphql:"createdAt @include(if:$includeIssueCreatedAt)" json:"created_at"`
-	CreatedViaEmail         bool                                 `graphql:"createdViaEmail @include(if:$includeIssueCreatedViaEmail)" json:"created_via_email"`
+	BodyUrl                 string                               `json:"body_url"`
+	Closed                  bool                                 `json:"closed"`
+	ClosedAt                NullableTime                         `json:"closed_at"`
+	CreatedAt               NullableTime                         `json:"created_at"`
+	CreatedViaEmail         bool                                 `json:"created_via_email"`
 	Editor                  Actor                                `graphql:"editor @include(if:$includeIssueEditor)" json:"editor"`
-	FullDatabaseId          string                               `graphql:"fullDatabaseId @include(if:$includeIssueFullDatabaseId)" json:"full_database_id"`
-	IncludesCreatedEdit     bool                                 `graphql:"includesCreatedEdit @include(if:$includeIssueIncludesCreatedEdit)" json:"includes_created_edit"`
-	IsPinned                bool                                 `graphql:"isPinned @include(if:$includeIssueIsPinned)" json:"is_pinned"`
-	IsReadByUser            bool                                 `graphql:"isReadByUser: isReadByViewer @include(if:$includeIssueIsReadByUser)" json:"is_read_by_user"`
-	LastEditedAt            NullableTime                         `graphql:"lastEditedAt @include(if:$includeIssueLastEditedAt)" json:"last_edited_at"`
-	Locked                  bool                                 `graphql:"locked @include(if:$includeIssueLocked)" json:"locked"`
+	FullDatabaseId          string                               `json:"full_database_id"`
+	IncludesCreatedEdit     bool                                 `json:"includes_created_edit"`
+	IsPinned                bool                                 `json:"is_pinned"`
+	IsReadByUser            bool                                 `graphql:"isReadByUser: isReadByViewer" json:"is_read_by_user"`
+	LastEditedAt            NullableTime                         `json:"last_edited_at"`
+	Locked                  bool                                 `json:"locked"`
 	Milestone               Milestone                            `graphql:"milestone @include(if:$includeIssueMilestone)" json:"milestone"`
-	PublishedAt             NullableTime                         `graphql:"publishedAt @include(if:$includeIssuePublishedAt)" json:"published_at"`
-	State                   githubv4.IssueState                  `graphql:"state @include(if:$includeIssueState)" json:"state"`
-	StateReason             githubv4.IssueStateReason            `graphql:"stateReason @include(if:$includeIssueStateReason)" json:"state_reason"`
-	Title                   string                               `graphql:"title @include(if:$includeIssueTitle)" json:"title"`
-	UpdatedAt               NullableTime                         `graphql:"updatedAt @include(if:$includeIssueUpdatedAt)" json:"updated_at"`
-	Url                     string                               `graphql:"url @include(if:$includeIssueUrl)" json:"url"`
+	PublishedAt             NullableTime                         `json:"published_at"`
+	State                   githubv4.IssueState                  `json:"state"`
+	StateReason             githubv4.IssueStateReason            `json:"state_reason"`
+	Title                   string                               `json:"title"`
+	UpdatedAt               NullableTime                         `json:"updated_at"`
+	Url                     string                               `json:"url"`
 	UserCanClose            bool                                 `graphql:"userCanClose: viewerCanClose @include(if:$includeIssueViewer)" json:"user_can_close"`
 	UserCanReact            bool                                 `graphql:"userCanReact: viewerCanReact @include(if:$includeIssueViewer)" json:"user_can_react"`
 	UserCanReopen           bool                                 `graphql:"userCanReopen: viewerCanReopen @include(if:$includeIssueViewer)" json:"user_can_reopen"`
@@ -46,6 +46,19 @@ type Issue struct {
 	Repo struct {
 		NameWithOwner string `json:"name_with_owner"`
 	} `graphql:"repo: repository" json:"repo"`
+
+	// Assignees [pageable]
+	// LinkedBranches [pageable]
+	// Participants [pageable]
+	// ProjectCards [pageable]
+	// ProjectItems [pageable]
+	// ProjectV2 [find by number]
+	// ProjectsV2 [pageable]
+	// Reactions [pageable]
+	// TimelineItems [pageable]
+	// TrackedInIssues [pageable]
+	// TrackedIssues [pageable]
+	// UserContentEdits [pageable]
 }
 
 type IssueTemplate struct {
@@ -59,26 +72,26 @@ type IssueTemplate struct {
 }
 
 type IssueComment struct {
-	Id                  int                                  `graphql:"id: databaseId @include(if:$includeIssueCommentId)" json:"id"`
-	NodeId              string                               `graphql:"nodeId: id @include(if:$includeIssueCommentNodeId)" json:"node_id"`
-	Author              Actor                                `graphql:"author @include(if:$includeIssueCommentAuthor)" json:"author"`
-	AuthorAssociation   githubv4.CommentAuthorAssociation    `graphql:"authorAssociation @include(if:$includeIssueCommentAuthorAssociation)" json:"author_association"`
-	Body                string                               `graphql:"body @include(if:$includeIssueCommentBody)" json:"body"`
-	BodyText            string                               `graphql:"bodyText @include(if:$includeIssueCommentBodyText)" json:"body_text"`
-	CreatedAt           NullableTime                         `graphql:"createdAt @include(if:$includeIssueCommentCreatedAt)" json:"created_at"`
-	CreatedViaEmail     bool                                 `graphql:"createdViaEmail @include(if:$includeIssueCommentCreatedViaEmail)" json:"created_via_email"`
-	Editor              Actor                                `graphql:"editor @include(if:$includeIssueCommentEditor)" json:"editor"`
-	IncludesCreatedEdit bool                                 `graphql:"includesCreatedEdit @include(if:$includeIssueCommentIncludesCreatedEdit)" json:"includes_created_edit"`
-	IsMinimized         bool                                 `graphql:"isMinimized @include(if:$includeIssueCommentIsMinimized)" json:"is_minimized"`
-	LastEditedAt        NullableTime                         `graphql:"lastEditedAt @include(if:$includeIssueCommentLastEditedAt)" json:"last_edited_at"`
-	MinimizedReason     string                               `graphql:"minimizedReason @include(if:$includeIssueCommentMinimizedReason)" json:"minimized_reason"`
-	PublishedAt         NullableTime                         `graphql:"publishedAt @include(if:$includeIssueCommentPublishedAt)" json:"published_at"`
-	UpdatedAt           NullableTime                         `graphql:"updatedAt @include(if:$includeIssueCommentUpdatedAt)" json:"updated_at"`
-	Url                 string                               `graphql:"url @include(if:$includeIssueCommentUrl)" json:"url"`
-	CanDelete           bool                                 `graphql:"canDelete: viewerCanDelete @include(if:$includeIssueCommentViewer)" json:"can_delete"`
-	CanMinimize         bool                                 `graphql:"canMinimize: viewerCanMinimize @include(if:$includeIssueCommentViewer)" json:"can_minimize"`
-	CanReact            bool                                 `graphql:"canReact: viewerCanReact @include(if:$includeIssueCommentViewer)" json:"can_react"`
-	CanUpdate           bool                                 `graphql:"canUpdate: viewerCanUpdate @include(if:$includeIssueCommentViewer)" json:"can_update"`
-	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons @include(if:$includeIssueCommentViewer)" json:"cannot_update_reasons"`
-	DidAuthor           bool                                 `graphql:"didAuthor: viewerDidAuthor @include(if:$includeIssueCommentViewer)" json:"did_author"`
+	Id                  int                                  `graphql:"id: databaseId" json:"id"`
+	NodeId              string                               `graphql:"nodeId: id" json:"node_id"`
+	Author              Actor                                `json:"author"`
+	AuthorAssociation   githubv4.CommentAuthorAssociation    `json:"author_association"`
+	Body                string                               `json:"body"`
+	BodyText            string                               `json:"body_text"`
+	CreatedAt           NullableTime                         `json:"created_at"`
+	CreatedViaEmail     bool                                 `json:"created_via_email"`
+	Editor              Actor                                `json:"editor"`
+	IncludesCreatedEdit bool                                 `json:"includes_created_edit"`
+	IsMinimized         bool                                 `json:"is_minimized"`
+	LastEditedAt        NullableTime                         `json:"last_edited_at"`
+	MinimizedReason     string                               `json:"minimized_reason"`
+	PublishedAt         NullableTime                         `json:"published_at"`
+	UpdatedAt           NullableTime                         `json:"updated_at"`
+	Url                 string                               `json:"url"`
+	CanDelete           bool                                 `graphql:"canDelete: viewerCanDelete" json:"can_delete"`
+	CanMinimize         bool                                 `graphql:"canMinimize: viewerCanMinimize" json:"can_minimize"`
+	CanReact            bool                                 `graphql:"canReact: viewerCanReact" json:"can_react"`
+	CanUpdate           bool                                 `graphql:"canUpdate: viewerCanUpdate" json:"can_update"`
+	CannotUpdateReasons []githubv4.CommentCannotUpdateReason `graphql:"cannotUpdateReasons: viewerCannotUpdateReasons" json:"cannot_update_reasons"`
+	DidAuthor           bool                                 `graphql:"didAuthor: viewerDidAuthor" json:"did_author"`
 }

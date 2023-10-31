@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -49,7 +48,6 @@ func tableGitHubRepositoryPullRequestCommentList(ctx context.Context, d *plugin.
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
-	appendIssuePRCommentColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
