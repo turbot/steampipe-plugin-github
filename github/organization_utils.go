@@ -10,6 +10,70 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
+func extractOrganizationExternalIdentityFromHydrateItem(h *plugin.HydrateData) (models.OrganizationExternalIdentity, error) {
+	if orgExternalIdentity, ok := h.Item.(models.OrganizationExternalIdentity); ok {
+		return orgExternalIdentity, nil
+	} else {
+		return models.OrganizationExternalIdentity{}, fmt.Errorf("unable to parse hydrate item %v as a OrganizationExternalIdentity", h.Item)
+	}
+}
+
+func appendOrganizationExternalIdentityColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeOrgExternalIdentityGuid"] = githubv4.Boolean(slices.Contains(cols, "guid"))
+	(*m)["includeOrgExternalIdentityUser"] = githubv4.Boolean(slices.Contains(cols, "user_detail") || slices.Contains(cols, "user_login"))
+	(*m)["includeOrgExternalIdentitySamlIdentity"] = githubv4.Boolean(slices.Contains(cols, "saml_identity"))
+	(*m)["includeOrgExternalIdentityScimIdentity"] = githubv4.Boolean(slices.Contains(cols, "scim_identity"))
+	(*m)["includeOrgExternalIdentityOrganizationInvitation"] = githubv4.Boolean(slices.Contains(cols, "organization_invitation"))
+}
+
+func orgExternalIdentityHydrateGuid(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.Guid, nil
+}
+
+func orgExternalIdentityHydrateUserDetail(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.User, nil
+}
+
+func orgExternalIdentityHydrateUserLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.User.Login, nil
+}
+
+func orgExternalIdentityHydrateSamlIdentity(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.SamlIdentity, nil
+}
+
+func orgExternalIdentityHydrateScimIdentity(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.ScimIdentity, nil
+}
+
+func orgExternalIdentityHydrateOrganizationInvitation(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return orgExternalIdentity.OrganizationInvitation, nil
+}
+
 func extractOrganizationFromHydrateItem(h *plugin.HydrateData) (models.OrganizationWithCounts, error) {
 	if org, ok := h.Item.(models.OrganizationWithCounts); ok {
 		return org, nil
@@ -57,7 +121,6 @@ func appendOrganizationColumnIncludes(m *map[string]interface{}, cols []string) 
 	(*m)["includePublicRepositories"] = githubv4.Boolean(slices.Contains(cols, "public_repositories_total_count"))
 	(*m)["includeRepositories"] = githubv4.Boolean(slices.Contains(cols, "repositories_total_count"))
 	(*m)["includeRepositories"] = githubv4.Boolean(slices.Contains(cols, "repositories_total_disk_usage"))
-
 }
 
 func orgHydrateMembersWithRoleTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

@@ -131,10 +131,10 @@ type OrganizationIdentityProvider struct {
 }
 
 type OrganizationExternalIdentity struct {
-	Guid                   string               `json:"guid"`
-	User                   BasicUser            `json:"user"`
-	SamlIdentity           externalIdentitySaml `json:"saml_identity,omitempty"`
-	ScimIdentity           externalIdentityBase `json:"scim_identity,omitempty"`
+	Guid                   string               `graphql:"guid @include(if:$includeOrgExternalIdentityGuid)" json:"guid"`
+	User                   BasicUser            `graphql:"user @include(if:$includeOrgExternalIdentityUser)" json:"user"`
+	SamlIdentity           externalIdentitySaml `graphql:"samlIdentity @include(if:$includeOrgExternalIdentitySamlIdentity)" json:"saml_identity,omitempty"`
+	ScimIdentity           externalIdentityBase `graphql:"scimIdentity @include(if:$includeOrgExternalIdentityScimIdentity)" json:"scim_identity,omitempty"`
 	OrganizationInvitation struct {
 		CreatedAt      NullableTime                        `json:"created_at"`
 		Email          string                              `json:"email"`
@@ -143,7 +143,7 @@ type OrganizationExternalIdentity struct {
 		Inviter        BasicUser                           `json:"inviter"`
 		Organization   BasicOrganization                   `json:"organization"`
 		Role           githubv4.OrganizationInvitationRole `json:"role"`
-	} `json:"organization_invitation"`
+	} `graphql:"organizationInvitation @include(if:$includeOrgExternalIdentityOrganizationInvitation)" json:"organization_invitation"`
 }
 
 type externalIdentityBase struct {

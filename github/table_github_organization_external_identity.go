@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -12,12 +13,12 @@ import (
 func gitHubOrganizationExternalIdentityColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "organization", Type: proto.ColumnType_STRING, Description: "The organization the external identity is associated with.", Transform: transform.FromQual("organization")},
-		{Name: "guid", Type: proto.ColumnType_STRING, Description: "Guid identifier for the external identity.", Transform: transform.FromField("Guid")},
-		{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user login.", Transform: transform.FromField("User.Login")},
-		{Name: "user_detail", Type: proto.ColumnType_JSON, Description: "The GitHub user details.", Transform: transform.FromField("User")},
-		{Name: "saml_identity", Type: proto.ColumnType_JSON, Description: "The external SAML identity."},
-		{Name: "scim_identity", Type: proto.ColumnType_JSON, Description: "The external SCIM identity."},
-		{Name: "organization_invitation", Type: proto.ColumnType_JSON, Description: "The invitation to the organization."},
+		{Name: "guid", Type: proto.ColumnType_STRING, Description: "Guid identifier for the external identity.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateGuid},
+		{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user login.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateUserLogin},
+		{Name: "user_detail", Type: proto.ColumnType_JSON, Description: "The GitHub user details.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateUserDetail},
+		{Name: "saml_identity", Type: proto.ColumnType_JSON, Description: "The external SAML identity.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateSamlIdentity},
+		{Name: "scim_identity", Type: proto.ColumnType_JSON, Description: "The external SCIM identity.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateScimIdentity},
+		{Name: "organization_invitation", Type: proto.ColumnType_JSON, Description: "The invitation to the organization.", Transform: transform.FromValue(), Hydrate: orgExternalIdentityHydrateOrganizationInvitation},
 	}
 }
 
@@ -38,7 +39,7 @@ func tableGitHubOrganizationExternalIdentity() *plugin.Table {
 	}
 }
 
-func tableGitHubOrganizationExternalIdentityList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubOrganizationExternalIdentityList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 
@@ -62,6 +63,7 @@ func tableGitHubOrganizationExternalIdentityList(ctx context.Context, d *plugin.
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendOrganizationExternalIdentityColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
