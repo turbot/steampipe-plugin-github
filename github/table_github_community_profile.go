@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -20,55 +21,25 @@ func tableGitHubCommunityProfile() *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},
-			{Name: "code_of_conduct", Type: proto.ColumnType_JSON, Transform: transform.FromField("CodeOfConduct").NullIfZero(), Description: "Code of conduct for the repository."},
-			{Name: "contributing", Type: proto.ColumnType_JSON, Transform: transform.FromField("ContributingUpper.Blob", "ContributingLower.Blob", "ContributingTitle.Blob").NullIfZero(), Description: "Contributing guidelines for the repository."},
-			{Name: "issue_templates", Type: proto.ColumnType_JSON, Transform: transform.FromField("IssueTemplates").NullIfZero(), Description: "Issue template for the repository."},
-			{Name: "pull_request_templates", Type: proto.ColumnType_JSON, Transform: transform.FromField("PullRequestTemplates").NullIfZero(), Description: "Pull request template for the repository."},
-			{Name: "license_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("LicenseInfo").NullIfZero(), Description: "License for the repository."},
-			{Name: "readme", Type: proto.ColumnType_JSON, Transform: transform.FromField("ReadMeUpper.Blob", "ReadMeLower.Blob", "ReadMeTitle.Blob").NullIfZero(), Description: "README for the repository."},
-			{Name: "security", Type: proto.ColumnType_JSON, Transform: transform.FromField("SecurityUpper.Blob", "SecurityLower.Blob", "SecurityTitle.Blob").NullIfZero(), Description: "Security for the repository."},
+			{Name: "code_of_conduct", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateCodeOfConduct, Description: "Code of conduct for the repository."},
+			{Name: "contributing", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateContributing, Description: "Contributing guidelines for the repository."},
+			{Name: "issue_templates", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateIssueTemplates, Description: "Issue template for the repository."},
+			{Name: "pull_request_templates", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydratePullRequestTemplates, Description: "Pull request template for the repository."},
+			{Name: "license_info", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateLicense, Description: "License for the repository."},
+			{Name: "readme", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateReadme, Description: "README for the repository."},
+			{Name: "security", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateSecurity, Description: "Security for the repository."},
 		},
 	}
 }
 
-func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
 	var query struct {
 		RateLimit  models.RateLimit
 		Repository struct {
-			LicenseInfo          models.License
-			CodeOfConduct        models.RepositoryCodeOfConduct
-			IssueTemplates       []models.IssueTemplate
-			PullRequestTemplates []models.PullRequestTemplate
-			// readme
-			ReadMeLower struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"readMeLower: object(expression: \"HEAD:readme.md\")"`
-			ReadMeUpper struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"readMeUpper: object(expression: \"HEAD:README.md\")"`
-			// contributing
-			ContributingLower struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"contributingLower: object(expression: \"HEAD:contributing.md\")"`
-			ContributingTitle struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"contributingTitle: object(expression: \"HEAD:Contributing.md\")"`
-			ContributingUpper struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"contributingUpper: object(expression: \"HEAD:CONTRIBUTING.md\")"`
-			// security
-			SecurityLower struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"securityLower: object(expression: \"HEAD:security.md\")"`
-			SecurityTitle struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"securityTitle: object(expression: \"HEAD:Security.md\")"`
-			SecurityUpper struct {
-				Blob models.Blob `graphql:"... on Blob"`
-			} `graphql:"securityUpper: object(expression: \"HEAD:SECURITY.md\")"`
+			models.CommunityProfile
 		} `graphql:"repository(owner: $owner, name: $repo)"`
 	}
 
@@ -76,6 +47,7 @@ func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h
 		"owner": githubv4.String(owner),
 		"repo":  githubv4.String(repo),
 	}
+	appendCommunityProfileColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
@@ -86,7 +58,7 @@ func tableGitHubCommunityProfileList(ctx context.Context, d *plugin.QueryData, h
 		return nil, err
 	}
 
-	d.StreamListItem(ctx, query.Repository)
+	d.StreamListItem(ctx, query.Repository.CommunityProfile)
 
 	return nil, nil
 }
