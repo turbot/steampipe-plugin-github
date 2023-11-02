@@ -102,15 +102,15 @@ type PullRequest struct {
 }
 
 type PullRequestReview struct {
-	Id                        int                               `graphql:"id: databaseId" json:"id"`
-	NodeId                    string                            `graphql:"nodeId: id" json:"node_id"`
-	Author                    Actor                             `json:"author"`
-	AuthorAssociation         githubv4.CommentAuthorAssociation `json:"author_association"`
-	AuthorCanPushToRepository bool                              `json:"author_can_push_to_repository"`
-	State                     string                            `json:"state"`
-	Body                      string                            `json:"body"`
-	Url                       string                            `json:"html_url"`
-	SubmittedAt               NullableTime                      `json:"submitted_at"`
+	Id                        int                               `graphql:"id: databaseId @include(if:$includePRReviewId)" json:"id"`
+	NodeId                    string                            `graphql:"nodeId: id @include(if:$includePRReviewNodeId)" json:"node_id"`
+	Author                    Actor                             `graphql:"author @include(if:$includePRReviewAuthor)" json:"author"`
+	AuthorAssociation         githubv4.CommentAuthorAssociation `graphql:"authorAssociation @include(if:$includePRReviewAuthorAssociation)" json:"author_association"`
+	AuthorCanPushToRepository bool                              `graphql:"authorCanPushToRepository @include(if:$includePRReviewAuthorCanPushToRepository)" json:"author_can_push_to_repository"`
+	State                     string                            `graphql:"state @include(if:$includePRReviewState)" json:"state"`
+	Body                      string                            `graphql:"body @include(if:$includePRReviewBody)" json:"body"`
+	Url                       string                            `graphql:"url @include(if:$includePRReviewUrl)" json:"html_url"`
+	SubmittedAt               NullableTime                      `graphql:"submittedAt @include(if:$includePRReviewSubmittedAt)" json:"submitted_at"`
 }
 
 type SuggestedReviewer struct {

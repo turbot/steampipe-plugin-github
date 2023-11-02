@@ -14,16 +14,16 @@ func pullRequestReviewColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 		{Name: "number", Type: proto.ColumnType_INT, Transform: transform.FromQual("number"), Description: "The PR number."},
-		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromField("Id", "Node.Id"), Description: "The ID of the review."},
-		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("NodeId", "Node.NodeId"), Description: "The node ID of the review."},
-		{Name: "author", Type: proto.ColumnType_JSON, Transform: transform.FromField("Author", "Node.Author").NullIfZero(), Description: "The actor who authored the review."},
-		{Name: "author_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Author.Login", "Node.Author.Login"), Description: "The login of the review author."},
-		{Name: "author_association", Type: proto.ColumnType_STRING, Transform: transform.FromField("AuthorAssociation", "Node.AuthorAssociation"), Description: "Author's association with the subject of the pr the review was raised on."},
-		{Name: "author_can_push_to_repository", Type: proto.ColumnType_BOOL, Transform: transform.FromField("AuthorCanPushToRepository", "Node.AuthorCanPushToRepository"), Description: "Indicates whether the author of this review has push access to the repository."},
-		{Name: "body", Type: proto.ColumnType_STRING, Transform: transform.FromField("Body", "Node.Body"), Description: "The body of the review."},
-		{Name: "state", Type: proto.ColumnType_STRING, Transform: transform.FromField("State", "Node.State"), Description: "The state of the review."},
-		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url", "Node.Url"), Description: "The HTTP URL permalink for this PullRequestReview."},
-		{Name: "submitted_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("SubmittedAt", "Node.SubmittedAt").NullIfZero().Transform(convertTimestamp), Description: "Identifies when the Pull Request Review was submitted."},
+		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromValue(), Hydrate: prReviewHydrateId, Description: "The ID of the review."},
+		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateNodeId, Description: "The node ID of the review."},
+		{Name: "author", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: prReviewHydrateAuthor, Description: "The actor who authored the review."},
+		{Name: "author_login", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateAuthorLogin, Description: "The login of the review author."},
+		{Name: "author_association", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateAuthorAssociation, Description: "Author's association with the subject of the pr the review was raised on."},
+		{Name: "author_can_push_to_repository", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prReviewHydrateAuthorCanPushToRepository, Description: "Indicates whether the author of this review has push access to the repository."},
+		{Name: "body", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateBody, Description: "The body of the review."},
+		{Name: "state", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateState, Description: "The state of the review."},
+		{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prReviewHydrateUrl, Description: "The HTTP URL permalink for this PullRequestReview."},
+		{Name: "submitted_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Hydrate: prReviewHydrateSubmittedAt, Description: "Identifies when the Pull Request Review was submitted."},
 	}
 }
 
@@ -40,7 +40,7 @@ func tableGitHubPullRequestReview() *plugin.Table {
 	}
 }
 
-func tableGitHubRepositoryPullRequestReviewList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubRepositoryPullRequestReviewList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	prNumber := int(quals["number"].GetInt64Value())
 	fullName := quals["repository_full_name"].GetStringValue()
@@ -68,6 +68,7 @@ func tableGitHubRepositoryPullRequestReviewList(ctx context.Context, d *plugin.Q
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendPRReviewColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 

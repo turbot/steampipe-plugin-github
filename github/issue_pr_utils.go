@@ -10,6 +10,105 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
+func extractPRReviewFromHydrateItem(h *plugin.HydrateData) (models.PullRequestReview, error) {
+	if prReview, ok := h.Item.(models.PullRequestReview); ok {
+		return prReview, nil
+	} else {
+		return models.PullRequestReview{}, fmt.Errorf("unable to parse hydrate item %v as an PullRequestReview", h.Item)
+	}
+}
+func appendPRReviewColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includePRReviewAuthor"] = githubv4.Boolean(slices.Contains(cols, "author") || slices.Contains(cols, "author_login"))
+	(*m)["includePRReviewId"] = githubv4.Boolean(slices.Contains(cols, "id"))
+	(*m)["includePRReviewNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includePRReviewAuthorAssociation"] = githubv4.Boolean(slices.Contains(cols, "author_association"))
+	(*m)["includePRReviewAuthorCanPushToRepository"] = githubv4.Boolean(slices.Contains(cols, "author_can_push_to_repository"))
+	(*m)["includePRReviewState"] = githubv4.Boolean(slices.Contains(cols, "state"))
+	(*m)["includePRReviewBody"] = githubv4.Boolean(slices.Contains(cols, "body"))
+	(*m)["includePRReviewUrl"] = githubv4.Boolean(slices.Contains(cols, "url"))
+	(*m)["includePRReviewSubmittedAt"] = githubv4.Boolean(slices.Contains(cols, "submitted_at"))
+}
+
+func prReviewHydrateAuthor(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.Author, nil
+}
+
+func prReviewHydrateAuthorLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.Author.Login, nil
+}
+
+func prReviewHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.Id, nil
+}
+
+func prReviewHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.NodeId, nil
+}
+
+func prReviewHydrateAuthorAssociation(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.AuthorAssociation, nil
+}
+
+func prReviewHydrateAuthorCanPushToRepository(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.AuthorCanPushToRepository, nil
+}
+
+func prReviewHydrateBody(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.Body, nil
+}
+
+func prReviewHydrateState(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.State, nil
+}
+
+func prReviewHydrateSubmittedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.SubmittedAt, nil
+}
+
+func prReviewHydrateUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	prReview, err := extractPRReviewFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return prReview.Url, nil
+}
+
 func extractIssueFromHydrateItem(h *plugin.HydrateData) (models.Issue, error) {
 	if issue, ok := h.Item.(models.Issue); ok {
 		return issue, nil
