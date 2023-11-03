@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -21,11 +22,16 @@ func tableGitHubStargazer() *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the stargazer."},
-			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("StarredAt").Transform(convertTimestamp), Description: "Time when the stargazer was created."},
-			{Name: "user_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Node.Login"), Description: "The login name of the user who starred the repository."},
-			{Name: "user_detail", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node"), Description: "Details of the user who starred the repository."},
+			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().Transform(convertTimestamp), Hydrate: strHydrateStarredAt, Description: "Time when the stargazer was created."},
+			{Name: "user_login", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: strHydrateUserLogin, Description: "The login name of the user who starred the repository."},
+			{Name: "user_detail", Type: proto.ColumnType_JSON, Transform: transform.FromValue(), Hydrate: strHydrateUser, Description: "Details of the user who starred the repository."},
 		},
 	}
+}
+
+type Stargazer struct {
+	StarredAt models.NullableTime `graphql:"starredAt @include(if:$includeStargazerStarredAt)" json:"starred_at"`
+	Node      models.BasicUser    `graphql:"node @include(if:$includeStargazerNode)" json:"ndoe"`
 }
 
 func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -39,8 +45,7 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 				TotalCount int
 				PageInfo   models.PageInfo
 				Edges      []struct {
-					StarredAt models.NullableTime
-					Node      models.BasicUser
+					Stargazer
 				}
 			} `graphql:"stargazers(first: $pageSize, after: $cursor)"`
 		} `graphql:"repository(owner: $owner, name: $repo)"`
@@ -53,6 +58,7 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendStargazerColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
@@ -64,7 +70,7 @@ func tableGitHubStargazerList(ctx context.Context, d *plugin.QueryData, h *plugi
 		}
 
 		for _, sg := range query.Repository.Stargazers.Edges {
-			d.StreamListItem(ctx, sg)
+			d.StreamListItem(ctx, Stargazer{sg.StarredAt, sg.Node})
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
