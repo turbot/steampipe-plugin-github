@@ -10,6 +10,73 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
+func extractRepoEnvironmentFromHydrateItem(h *plugin.HydrateData) (models.Environment, error) {
+	if env, ok := h.Item.(models.Environment); ok {
+		return env, nil
+	} else {
+		return models.Environment{}, fmt.Errorf("unable to parse hydrate item %v as a Environment", h.Item)
+	}
+}
+
+func appendRepoEnvironmentColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeEnvironmentName"] = githubv4.Boolean(slices.Contains(cols, "name"))
+	(*m)["includeEnvironmentNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includeEnvironmentId"] = githubv4.Boolean(slices.Contains(cols, "id"))
+}
+
+func envHydrateName(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.Name, nil
+}
+
+func envHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.Id, nil
+}
+
+func envHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.NodeId, nil
+}
+
+func extractRepoCollaboratorFromHydrateItem(h *plugin.HydrateData) (RepositoryCollaborator, error) {
+	if rc, ok := h.Item.(RepositoryCollaborator); ok {
+		return rc, nil
+	} else {
+		return RepositoryCollaborator{}, fmt.Errorf("unable to parse hydrate item %v as a RepositoryCollaborator", h.Item)
+	}
+}
+
+func appendRepoCollaboratorColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeRCPermission"] = githubv4.Boolean(slices.Contains(cols, "permission"))
+	(*m)["includeRCNode"] = githubv4.Boolean(slices.Contains(cols, "user_login"))
+}
+
+func rcHydratePermission(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	rc, err := extractRepoCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return rc.Permission, nil
+}
+
+func rcHydrateUserLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	rc, err := extractRepoCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return rc.Node.Login, nil
+}
+
 func extractRepoVulnerabilityAlertFromHydrateItem(h *plugin.HydrateData) (models.RepositoryVulnerabilityAlert, error) {
 	if vAlert, ok := h.Item.(models.RepositoryVulnerabilityAlert); ok {
 		return vAlert, nil
