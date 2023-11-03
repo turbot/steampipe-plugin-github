@@ -2,9 +2,10 @@ package github
 
 import (
 	"context"
+	"time"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
-	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -22,12 +23,12 @@ func tableGitHubTag() *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the tag."},
-			{Name: "tagger_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("TaggerDate").NullIfZero(), Description: "Date the tag was created."},
-			{Name: "tagger_name", Type: proto.ColumnType_STRING, Description: "Name of user whom created the tag."},
-			{Name: "tagger_login", Type: proto.ColumnType_STRING, Description: "Login of user whom created the tag."},
-			{Name: "message", Type: proto.ColumnType_STRING, Description: "Message associated with the tag."},
-			{Name: "commit", Type: proto.ColumnType_JSON, Description: "Commit the tag is associated with."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateName},
+			{Name: "tagger_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().NullIfZero(), Description: "Date the tag was created.", Hydrate: tagHydrateTaggerDate},
+			{Name: "tagger_name", Type: proto.ColumnType_STRING, Description: "Name of user whom created the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateTaggerName},
+			{Name: "tagger_login", Type: proto.ColumnType_STRING, Description: "Login of user whom created the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateTaggerLogin},
+			{Name: "message", Type: proto.ColumnType_STRING, Description: "Message associated with the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateMessage},
+			{Name: "commit", Type: proto.ColumnType_JSON, Description: "Commit the tag is associated with.", Transform: transform.FromValue(), Hydrate: tagHydrateCommit},
 		},
 	}
 }
@@ -54,6 +55,7 @@ func tableGitHubTagList(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendTagColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
