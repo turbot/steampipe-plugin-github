@@ -39,7 +39,6 @@ func tableGitHubRepositoryContent() *plugin.Table {
 			{Name: "content", Description: "The decoded file content (if the element is a file).", Type: proto.ColumnType_STRING},
 			{Name: "is_generated", Description: "Whether or not this tree entry is generated.", Type: proto.ColumnType_BOOL},
 			{Name: "is_binary", Description: "Indicates whether the Blob is binary or text.", Type: proto.ColumnType_BOOL},
-			{Name: "sha", Description: "The sha of the file.", Type: proto.ColumnType_STRING, Transform: transform.FromField("CommitUrl").Transform(lastPathElement)},
 			{Name: "commit_url", Description: "Git URL (with SHA) of the file.", Type: proto.ColumnType_STRING},
 		},
 	}
