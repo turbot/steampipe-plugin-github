@@ -134,7 +134,6 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 		return nil, client.Query(ctx, &query, variables)
 	}
 
-	// for {
 	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	if err != nil {
 		plugin.Logger(ctx).Error("github_repository_content", "api_error", err, "repository", repo)
