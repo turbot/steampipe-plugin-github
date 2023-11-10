@@ -1,3 +1,9 @@
+## v0.37.0 [2023-11-10]
+
+_Enhancements_
+
+- Added the `run_started_at` column to `github_actions_repository_workflow_run` table. ([#358](https://github.com/turbot/steampipe-plugin-github/pull/358)) (Thanks [@mridang](https://github.com/mridang) for the contribution!)
+
 ## v0.36.1 [2023-10-27]
 
 _Bug fixes_
