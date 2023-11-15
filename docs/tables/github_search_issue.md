@@ -18,7 +18,7 @@ select
 from
   github_search_issue
 where
-  query = 'github_search_commit in:title in:body in:comments';
+  query = 'github_search_commit in:title in:body';
 ```
 
 ### List issues in open state assigned to a specific user
