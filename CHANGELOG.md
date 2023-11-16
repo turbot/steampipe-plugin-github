@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the get config of `github_team_repository` table to add missing includes for dynamic gql. ([#379](https://github.com/turbot/steampipe-plugin-github/pull/379))
+- Fixed the `github_team_repository` table to include support for dynamic GraphQL queries. ([#379](https://github.com/turbot/steampipe-plugin-github/pull/379))
 - Fixed the example queries in `github_commit` doc file. ([#377](https://github.com/turbot/steampipe-plugin-github/pull/377))
 - Fixed the example queries in `github_search_issue` doc file to filter out results from the API. ([#378](https://github.com/turbot/steampipe-plugin-github/pull/378))
 
