@@ -35,7 +35,7 @@ where
   repository_full_name = 'turbot/steampipe'
   and author_login = 'e-gineer'
 order by
-  author_date desc;
+  authored_date desc;
 ```
 
 ### Contributions by author
@@ -68,7 +68,7 @@ where
 and
   signature is null
 order by
-  author_date desc;
+  authored_date desc;
 ```
 
 ### Commits with most file changes
