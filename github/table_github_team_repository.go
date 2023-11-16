@@ -2,9 +2,10 @@ package github
 
 import (
 	"context"
+	"strings"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
-	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -126,6 +127,7 @@ func tableGitHubTeamRepositoryGet(ctx context.Context, d *plugin.QueryData, h *p
 		"name":     githubv4.String(name),
 		"pageSize": githubv4.Int(1),
 	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	err := client.Query(ctx, &query, variables)
