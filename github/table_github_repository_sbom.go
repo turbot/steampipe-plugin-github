@@ -11,7 +11,7 @@ import (
 func tableGitHubRepositorySbom() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_repository_sbom",
-		Description: "SBOM from a repository.",
+		Description: "Get the software bill of materials (SBOM) for a repository.",
 		List: &plugin.ListConfig{
 			KeyColumns: []*plugin.KeyColumn{
 				{
@@ -44,38 +44,32 @@ func tableGitHubRepositorySbom() *plugin.Table {
 			{
 				Name:        "creation_info",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("CreationInfo"),
-				Description: "The version of the SPDX specification that this document conforms to.",
+				Description: "It represents when the SBOM was created and who created it.",
 			},
 			{
 				Name:        "name",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Name"),
 				Description: "The name of the SPDX document.",
 			},
 			{
 				Name:        "data_license",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DataLicense"),
 				Description: "The license under which the SPDX document is licensed.",
 			},
 			{
 				Name:        "document_describes",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DocumentDescribes"),
+				Type:        proto.ColumnType_JSON,
 				Description: "The name of the repository that the SPDX document describes.",
 			},
 			{
 				Name:        "document_namespace",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DocumentNamespace"),
 				Description: "The namespace for the SPDX document.",
 			},
 			{
 				Name:        "packages",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Packages"),
-				Description: "Array of packages in spdx format.",
+				Description: "Array of packages in SPDX format.",
 			},
 		},
 	}
