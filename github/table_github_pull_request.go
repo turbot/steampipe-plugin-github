@@ -41,7 +41,6 @@ func sharedPullRequestColumns() []*plugin.Column {
 		{Name: "locked", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prHydrateLocked, Description: "If true, the pull request is locked."},
 		{Name: "maintainer_can_modify", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prHydrateMaintainerCanModify, Description: "If true, maintainers can modify the pull request."},
 		{Name: "mergeable", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prHydrateMergeable, Description: "Whether or not the pull request can be merged based on the existence of merge conflicts."},
-
 		{Name: "merged", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prHydrateMerged, Description: "If true, the pull request was merged."},
 		{Name: "merged_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Hydrate: prHydrateMergedAt, Description: "Timestamp when pull request was merged."},
 		{Name: "merged_by", Type: proto.ColumnType_JSON, Hydrate: prHydrateMergeBy, Transform: transform.FromValue().NullIfZero(), Description: "The actor who merged the pull request."},
