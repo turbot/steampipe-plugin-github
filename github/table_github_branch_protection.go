@@ -50,7 +50,6 @@ func tableGitHubBranchProtection() *plugin.Table {
 			{Name: "requires_strict_status_checks", Type: proto.ColumnType_BOOL, Hydrate: branchProtectionRuleHydrateRequiresStrictStatusChecks, Transform: transform.FromValue(), Description: "If true, branches required to be up to date before merging."},
 			{Name: "restricts_review_dismissals", Type: proto.ColumnType_BOOL, Hydrate: branchProtectionRuleHydrateRestrictsReviewDismissals, Transform: transform.FromValue(), Description: "If true, review dismissals are restricted."},
 			{Name: "restricts_pushes", Type: proto.ColumnType_BOOL, Hydrate: branchProtectionRuleHydrateRestrictsPushes, Transform: transform.FromValue(), Description: "If true, pushing to matching branches is restricted."},
-
 			{Name: "push_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can push to the branch only if in this list."},
 			{Name: "push_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can push to the branch only if in this list."},
 			{Name: "push_allowance_users", Type: proto.ColumnType_JSON, Description: "Users can push to the branch only if in this list."},
