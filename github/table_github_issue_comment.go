@@ -14,7 +14,6 @@ func sharedCommentsColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 		{Name: "number", Type: proto.ColumnType_INT, Transform: transform.FromQual("number"), Description: "The issue/pr number."},
-
 		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromValue(), Hydrate: issueCommentHydrateId, Description: "The ID of the comment."},
 		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: issueCommentHydrateNodeId, Description: "The node ID of the comment."},
 		{Name: "author", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: issueCommentHydrateAuthor, Description: "The actor who authored the comment."},
