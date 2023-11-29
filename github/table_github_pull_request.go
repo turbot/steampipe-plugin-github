@@ -31,7 +31,6 @@ func sharedPullRequestColumns() []*plugin.Column {
 		{Name: "created_via_email", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prHydrateCreatedViaEmail, Description: "If true, pull request comment was created via email."},
 		{Name: "deletions", Type: proto.ColumnType_INT, Transform: transform.FromValue(), Hydrate: prHydrateDeletions, Description: "The number of deletions in this pull request."},
 		{Name: "editor", Type: proto.ColumnType_JSON, Hydrate: prHydrateEditor, Transform: transform.FromValue().NullIfZero(), Description: "The actor who edited the pull request's body."},
-
 		{Name: "head_ref_name", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prHydrateHeadRefName, Description: "Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted."},
 		{Name: "head_ref_oid", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: prHydrateHeadRefOid, Description: "Identifies the oid/sha of the head ref associated with the pull request, even if the ref has been deleted."},
 		{Name: "includes_created_edit", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: prHydrateIncludesCreatedEdit, Description: "If true, this pull request was edited and includes an edit with the creation data."},
