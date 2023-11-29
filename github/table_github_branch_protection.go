@@ -26,7 +26,6 @@ func tableGitHubBranchProtection() *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "id", Type: proto.ColumnType_INT, Hydrate: branchProtectionRuleHydrateId, Transform: transform.FromValue(), Description: "The ID of the branch protection rule."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The Node ID of the branch protection rule."},
-
 			{Name: "matching_branches", Type: proto.ColumnType_INT, Hydrate: branchProtectionRuleHydrateMatchingBranchesTotalCount, Transform: transform.FromValue(), Description: "Count of branches which match this rule."},
 			{Name: "is_admin_enforced", Type: proto.ColumnType_BOOL, Hydrate: branchProtectionRuleHydrateIsAdminEnforced, Transform: transform.FromValue(), Description: "If true, enforce all configured restrictions for administrators."},
 			{Name: "allows_deletions", Type: proto.ColumnType_BOOL, Hydrate: branchProtectionRuleHydrateAllowsDeletions, Transform: transform.FromValue(), Description: "If true, allow users with push access to delete matching branches."},
