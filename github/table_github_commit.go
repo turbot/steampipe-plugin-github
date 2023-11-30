@@ -32,7 +32,6 @@ func tableGitHubCommit() *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the commit."},
 			{Name: "sha", Type: proto.ColumnType_STRING, Description: "SHA of the commit."},
-
 			{Name: "short_sha", Type: proto.ColumnType_STRING, Hydrate: commitHydrateShortSha, Transform: transform.FromValue(), Description: "Short SHA of the commit."},
 			{Name: "message", Type: proto.ColumnType_STRING, Hydrate: commitHydrateMessage, Transform: transform.FromValue(), Description: "Commit message."},
 			{Name: "author_login", Type: proto.ColumnType_STRING, Hydrate: commitHydrateAuthorLogin, Transform: transform.FromValue(), Description: "The login name of the author of the commit."},
