@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -12,9 +13,9 @@ import (
 func gitHubRepositoryEnvironmentColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
-		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromField("Id", "Node.Id"), Description: "The ID of the environment."},
-		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("NodeId", "Node.NodeId"), Description: "The node ID of the environment."},
-		{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name", "Node.Name"), Description: "The name of the environment."},
+		{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromValue(), Hydrate: envHydrateId, Description: "The ID of the environment."},
+		{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: envHydrateNodeId, Description: "The node ID of the environment."},
+		{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: envHydrateName, Description: "The name of the environment."},
 	}
 }
 
@@ -36,7 +37,7 @@ func tableGitHubRepositoryEnvironment() *plugin.Table {
 	}
 }
 
-func tableGitHubRepositoryEnvironmentList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubRepositoryEnvironmentList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repoName := parseRepoFullName(fullName)
@@ -60,6 +61,7 @@ func tableGitHubRepositoryEnvironmentList(ctx context.Context, d *plugin.QueryDa
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendRepoEnvironmentColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {

@@ -3,11 +3,396 @@ package github
 import (
 	"context"
 	"fmt"
+	"slices"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"slices"
 )
+
+func extractRepoEnvironmentFromHydrateItem(h *plugin.HydrateData) (models.Environment, error) {
+	if env, ok := h.Item.(models.Environment); ok {
+		return env, nil
+	} else {
+		return models.Environment{}, fmt.Errorf("unable to parse hydrate item %v as a Environment", h.Item)
+	}
+}
+
+func appendRepoEnvironmentColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeEnvironmentName"] = githubv4.Boolean(slices.Contains(cols, "name"))
+	(*m)["includeEnvironmentNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includeEnvironmentId"] = githubv4.Boolean(slices.Contains(cols, "id"))
+}
+
+func envHydrateName(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.Name, nil
+}
+
+func envHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.Id, nil
+}
+
+func envHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	env, err := extractRepoEnvironmentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return env.NodeId, nil
+}
+
+func extractRepoCollaboratorFromHydrateItem(h *plugin.HydrateData) (RepositoryCollaborator, error) {
+	if rc, ok := h.Item.(RepositoryCollaborator); ok {
+		return rc, nil
+	} else {
+		return RepositoryCollaborator{}, fmt.Errorf("unable to parse hydrate item %v as a RepositoryCollaborator", h.Item)
+	}
+}
+
+func appendRepoCollaboratorColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeRCPermission"] = githubv4.Boolean(slices.Contains(cols, "permission"))
+	(*m)["includeRCNode"] = githubv4.Boolean(slices.Contains(cols, "user_login"))
+}
+
+func rcHydratePermission(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	rc, err := extractRepoCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return rc.Permission, nil
+}
+
+func rcHydrateUserLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	rc, err := extractRepoCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return rc.Node.Login, nil
+}
+
+func extractRepoVulnerabilityAlertFromHydrateItem(h *plugin.HydrateData) (models.RepositoryVulnerabilityAlert, error) {
+	if vAlert, ok := h.Item.(models.RepositoryVulnerabilityAlert); ok {
+		return vAlert, nil
+	} else {
+		return models.RepositoryVulnerabilityAlert{}, fmt.Errorf("unable to parse hydrate item %v as a VulnerabilityAlert", h.Item)
+	}
+}
+
+func appendRepoVulnerabilityAlertColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeVulnerabilityAlertNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includeVulnerabilityAlertNumber"] = githubv4.Boolean(slices.Contains(cols, "number"))
+	(*m)["includeVulnerabilityAlertAutoDismissedAt"] = githubv4.Boolean(slices.Contains(cols, "auto_dismissed_at"))
+	(*m)["includeVulnerabilityAlertCreatedAt"] = githubv4.Boolean(slices.Contains(cols, "created_at"))
+	(*m)["includeVulnerabilityAlertDependencyScope"] = githubv4.Boolean(slices.Contains(cols, "dependency_scope"))
+	(*m)["includeVulnerabilityAlertDismissComment"] = githubv4.Boolean(slices.Contains(cols, "dismiss_comment"))
+	(*m)["includeVulnerabilityAlertDismissReason"] = githubv4.Boolean(slices.Contains(cols, "dismiss_reason"))
+	(*m)["includeVulnerabilityAlertDismissedAt"] = githubv4.Boolean(slices.Contains(cols, "dismissed_at"))
+	(*m)["includeVulnerabilityAlertDismisser"] = githubv4.Boolean(slices.Contains(cols, "dismisser"))
+	(*m)["includeVulnerabilityAlertFixedAt"] = githubv4.Boolean(slices.Contains(cols, "fixed_at"))
+	(*m)["includeVulnerabilityAlertState"] = githubv4.Boolean(slices.Contains(cols, "state"))
+	(*m)["includeVulnerabilityAlertSecurityAdvisory"] = githubv4.Boolean(slices.Contains(cols, "security_advisory") || slices.Contains(cols, "cvss_score"))
+	(*m)["includeVulnerabilityAlertSecurityVulnerability"] = githubv4.Boolean(slices.Contains(cols, "security_vulnerability") || slices.Contains(cols, "severity"))
+	(*m)["includeVulnerabilityAlertVulnerableManifestFilename"] = githubv4.Boolean(slices.Contains(cols, "vulnerable_manifest_filename"))
+	(*m)["includeVulnerabilityAlertVulnerableManifestPath"] = githubv4.Boolean(slices.Contains(cols, "vulnerable_manifest_path"))
+	(*m)["includeVulnerabilityAlertVulnerableRequirements"] = githubv4.Boolean(slices.Contains(cols, "vulnerable_requirements"))
+}
+
+func vAlertHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.NodeId, nil
+}
+
+func vAlertHydrateNumber(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.Number, nil
+}
+
+func vAlertHydrateAutoDismissedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.AutoDismissedAt, nil
+}
+
+func vAlertHydrateCreatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.CreatedAt, nil
+}
+
+func vAlertHydrateDependencyScope(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.DependencyScope, nil
+}
+
+func vAlertHydrateDismissComment(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.DismissComment, nil
+}
+
+func vAlertHydrateDismissReason(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.DismissReason, nil
+}
+
+func vAlertHydrateDismissedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.DismissedAt, nil
+}
+
+func vAlertHydrateDismisser(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.Dismisser, nil
+}
+
+func vAlertHydrateFixedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.FixedAt, nil
+}
+
+func vAlertHydrateState(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.State, nil
+}
+
+func vAlertHydrateSecurityAdvisory(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.SecurityAdvisory, nil
+}
+
+func vAlertHydrateSecurityVulnerability(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.SecurityVulnerability, nil
+}
+
+func vAlertHydrateVulnerableManifestFilename(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.VulnerableManifestFilename, nil
+}
+
+func vAlertHydrateVulnerableManifestPath(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.VulnerableManifestPath, nil
+}
+
+func vAlertHydrateVulnerableRequirements(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.VulnerableRequirements, nil
+}
+
+func vAlertHydrateSeverity(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.SecurityVulnerability.Severity, nil
+}
+
+func vAlertHydrateCvssScore(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	vAlert, err := extractRepoVulnerabilityAlertFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return vAlert.SecurityAdvisory.Cvss.Score, nil
+}
+
+func extractRepoDeploymentFromHydrateItem(h *plugin.HydrateData) (models.Deployment, error) {
+	if deployment, ok := h.Item.(models.Deployment); ok {
+		return deployment, nil
+	} else {
+		return models.Deployment{}, fmt.Errorf("unable to parse hydrate item %v as a Deployment", h.Item)
+	}
+}
+
+func appendRepoDeploymentColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeDeploymentId"] = githubv4.Boolean(slices.Contains(cols, "id"))
+	(*m)["includeDeploymentNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
+	(*m)["includeDeploymentCommitSha"] = githubv4.Boolean(slices.Contains(cols, "sha"))
+	(*m)["includeDeploymentCreatedAt"] = githubv4.Boolean(slices.Contains(cols, "created_at"))
+	(*m)["includeDeploymentCreator"] = githubv4.Boolean(slices.Contains(cols, "creator"))
+	(*m)["includeDeploymentDescription"] = githubv4.Boolean(slices.Contains(cols, "description"))
+	(*m)["includeDeploymentEnvironment"] = githubv4.Boolean(slices.Contains(cols, "environment"))
+	(*m)["includeDeploymentLatestEnvironment"] = githubv4.Boolean(slices.Contains(cols, "latest_environment"))
+	(*m)["includeDeploymentLatestStatus"] = githubv4.Boolean(slices.Contains(cols, "latest_status"))
+	(*m)["includeDeploymentOriginalEnvironment"] = githubv4.Boolean(slices.Contains(cols, "original_environment"))
+	(*m)["includeDeploymentPayload"] = githubv4.Boolean(slices.Contains(cols, "payload"))
+	(*m)["includeDeploymentRef"] = githubv4.Boolean(slices.Contains(cols, "ref"))
+	(*m)["includeDeploymentState"] = githubv4.Boolean(slices.Contains(cols, "state"))
+	(*m)["includeDeploymentTask"] = githubv4.Boolean(slices.Contains(cols, "task"))
+	(*m)["includeDeploymentUpdatedAt"] = githubv4.Boolean(slices.Contains(cols, "updated_at"))
+}
+
+func deploymentHydrateId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Id, nil
+}
+
+func deploymentHydrateNodeId(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.NodeId, nil
+}
+
+func deploymentHydrateCommitSha(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.CommitSha, nil
+}
+
+func deploymentHydrateCreatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.CreatedAt, nil
+}
+
+func deploymentHydrateCreator(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Creator, nil
+}
+
+func deploymentHydrateDescription(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Description, nil
+}
+
+func deploymentHydrateEnvironment(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Environment, nil
+}
+
+func deploymentHydrateLatestEnvironment(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.LatestEnvironment, nil
+}
+
+func deploymentHydrateLatestStatus(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.LatestStatus, nil
+}
+
+func deploymentHydrateOriginalEnvironment(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.OriginalEnvironment, nil
+}
+
+func deploymentHydratePayload(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Payload, nil
+}
+
+func deploymentHydrateRef(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Ref, nil
+}
+
+func deploymentHydrateState(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.State, nil
+}
+
+func deploymentHydrateTask(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.Task, nil
+}
+
+func deploymentHydrateUpdatedAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	deployment, err := extractRepoDeploymentFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return deployment.UpdatedAt, nil
+}
 
 func extractRepoFromHydrateItem(h *plugin.HydrateData) (models.Repository, error) {
 	if repo, ok := h.Item.(models.Repository); ok {
