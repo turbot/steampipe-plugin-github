@@ -75,7 +75,7 @@ func tableGitHubRepositorySbom() *plugin.Table {
 	}
 }
 
-func tableGitHubRepositorySbomList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRepositorySboms(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
 
 	logger := plugin.Logger(ctx)
