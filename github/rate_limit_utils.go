@@ -25,7 +25,6 @@ func appendRateLimitColumnIncludes(m *map[string]interface{}, cols []string) {
 	(*m)["includeRLLimit"] = githubv4.Boolean(slices.Contains(cols, "limit"))
 	(*m)["includeRLResetAt"] = githubv4.Boolean(slices.Contains(cols, "reset_at"))
 	(*m)["includeRLNodeCount"] = githubv4.Boolean(slices.Contains(cols, "node_count"))
-
 }
 
 func rateLimitHydrateRemaining(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
