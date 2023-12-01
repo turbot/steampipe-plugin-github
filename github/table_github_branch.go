@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -23,15 +24,15 @@ func tableGitHubBranch() *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch.", Transform: transform.FromField("Node.Name")},
-			{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node.Target.Commit"), Description: "Latest commit on the branch."},
-			{Name: "protected", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Node.BranchProtectionRule.NodeId").Transform(HasValue), Description: "If true, the branch is protected."},
-			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Transform: transform.FromField("Node.BranchProtectionRule").NullIfZero(), Description: "Branch protection rule if protected."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
+			{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Target.Commit"), Description: "Latest commit on the branch."},
+			{Name: "protected", Type: proto.ColumnType_BOOL, Hydrate: branchHydrateProtected, Transform: transform.FromValue().Transform(HasValue), Description: "If true, the branch is protected."},
+			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Hydrate: branchHydrateBranchProtectionRule, Transform: transform.FromValue().NullIfZero(), Description: "Branch protection rule if protected."},
 		},
 	}
 }
 
-func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
@@ -58,6 +59,7 @@ func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendBranchColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
 		err := client.Query(ctx, &query, variables)
@@ -68,7 +70,7 @@ func tableGitHubBranchList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 
 		for _, branch := range query.Repository.Refs.Edges {
-			d.StreamListItem(ctx, branch)
+			d.StreamListItem(ctx, branch.Node)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
