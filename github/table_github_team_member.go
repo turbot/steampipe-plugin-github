@@ -2,9 +2,10 @@ package github
 
 import (
 	"context"
+	"strings"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
-	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -39,7 +40,7 @@ func gitHubTeamMemberColumns() []*plugin.Column {
 	return cols
 }
 
-func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	org := quals["organization"].GetStringValue()
 	slug := quals["slug"].GetStringValue()
@@ -68,6 +69,7 @@ func tableGitHubTeamMemberList(ctx context.Context, d *plugin.QueryData, h *plug
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendUserColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 	for {
