@@ -87,6 +87,7 @@ func tableGitHubRepositorySbomList(ctx context.Context, d *plugin.QueryData, h *
 	client := connect(ctx, d)
 	sbom, _, err := client.DependencyGraph.GetSBOM(ctx, owner, repo)
 	if err != nil {
+		logger.Error("github_repository_sbom.listRepositorySboms", "api_error", err)
 		return nil, err
 	}
 
