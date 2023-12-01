@@ -81,7 +81,7 @@ func tableGitHubRepositorySbomList(ctx context.Context, d *plugin.QueryData, h *
 	logger := plugin.Logger(ctx)
 	quals := d.EqualsQuals
 
-	fullName := quals["repository_full_name"].GetStringValue()
+	fullName := d.EqualsQualString("repository_full_name")
 	owner, repo = parseRepoFullName(fullName)
 	logger.Trace("tableGitHubDependabotSbomGet", "owner", owner, "repo", repo)
 
