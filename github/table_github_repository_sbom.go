@@ -79,7 +79,6 @@ func tableGitHubRepositorySbomList(ctx context.Context, d *plugin.QueryData, h *
 	var owner, repo string
 
 	logger := plugin.Logger(ctx)
-	quals := d.EqualsQuals
 
 	fullName := d.EqualsQualString("repository_full_name")
 	owner, repo = parseRepoFullName(fullName)
