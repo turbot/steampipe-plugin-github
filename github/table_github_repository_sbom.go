@@ -83,7 +83,7 @@ func listRepositorySboms(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	fullName := d.EqualsQualString("repository_full_name")
 	owner, repo = parseRepoFullName(fullName)
-	logger.Trace("tableGitHubDependabotSbomGet", "owner", owner, "repo", repo)
+	logger.Trace("tableGitHubRepositorySbomList", "owner", owner, "repo", repo)
 
 	client := connect(ctx, d)
 	sbom, _, err := client.DependencyGraph.GetSBOM(ctx, owner, repo)
