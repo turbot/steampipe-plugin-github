@@ -10,11 +10,11 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-func extractRateLimitFromHydrateItem(h *plugin.HydrateData) (models.RateLimit, error) {
-	if rl, ok := h.Item.(models.RateLimit); ok {
+func extractRateLimitFromHydrateItem(h *plugin.HydrateData) (models.BaseRateLimit, error) {
+	if rl, ok := h.Item.(models.BaseRateLimit); ok {
 		return rl, nil
 	} else {
-		return models.RateLimit{}, fmt.Errorf("unable to parse hydrate item %v as an RateLimit", h.Item)
+		return models.BaseRateLimit{}, fmt.Errorf("unable to parse hydrate item %v as an RateLimit", h.Item)
 	}
 }
 

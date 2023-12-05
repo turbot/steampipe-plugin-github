@@ -92,7 +92,7 @@ type tagRow struct {
 	TaggerName  string
 	TaggerLogin string
 	Message     string
-	Commit      models.Commit
+	Commit      models.BaseCommit
 }
 
 // mapTagRow is required as commit information may reside at upper target level or embedded into the tags target level.

@@ -30,7 +30,7 @@ func tableGitHubRateLimitGraphQL() *plugin.Table {
 
 func listGitHubRateLimitGraphQL(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	var query struct {
-		RateLimit models.RateLimit
+		RateLimit models.BaseRateLimit
 	}
 
 	variables := map[string]interface{}{}
@@ -38,7 +38,6 @@ func listGitHubRateLimitGraphQL(ctx context.Context, d *plugin.QueryData, _ *plu
 
 	client := connectV4(ctx, d)
 	err := client.Query(ctx, &query, variables)
-	plugin.Logger(ctx).Debug(rateLimitLogString("github_rate_limit_graphql", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_rate_limit_graphql", "api_error", err)
 		if strings.Contains(err.Error(), "Could not resolve to an Organization with the login of") {
