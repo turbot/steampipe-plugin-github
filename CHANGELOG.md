@@ -1,3 +1,40 @@
+## v0.38.0 [2023-12-06]
+
+_What's new?_
+
+- New tables added
+  - [github_repository_sbom](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_sbom) ([#353](https://github.com/turbot/steampipe-plugin-github/pull/353)) (Thanks [@lwakefield](https://github.com/lwakefield) for the contribution!)
+
+_Enhancements_
+
+- Updated the following tables to include support for dynamic GraphQL queries:
+  - `github_my_star` ([#369](https://github.com/turbot/steampipe-plugin-github/pull/369))
+  - `github_stargazer` ([#370](https://github.com/turbot/steampipe-plugin-github/pull/370))
+  - `github_tag` ([#371](https://github.com/turbot/steampipe-plugin-github/pull/371))
+  - `github_rate_limit` ([#368](https://github.com/turbot/steampipe-plugin-github/pull/368))
+  - `github_community_profile` ([#367](https://github.com/turbot/steampipe-plugin-github/pull/367))
+  - `github_license` ([#366](https://github.com/turbot/steampipe-plugin-github/pull/366))
+  - `github_organization_member` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_team_member` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_user` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_my_team` ([#363](https://github.com/turbot/steampipe-plugin-github/pull/363))
+  - `github_team` ([#363](https://github.com/turbot/steampipe-plugin-github/pull/363))
+  - `github_commit` ([#362](https://github.com/turbot/steampipe-plugin-github/pull/362))
+  - `github_my_organization` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_organization` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_organization_external_identity` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_branch` ([#360](https://github.com/turbot/steampipe-plugin-github/pull/360))
+  - `github_branch_protection` ([#360](https://github.com/turbot/steampipe-plugin-github/pull/360))
+  - `github_repository_collaborator` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_deployment` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_environment` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_vulnerability_alert` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_issue` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_issue_comment` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request_comment` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request_review` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+
 ## v0.37.1 [2023-11-16]
 
 _Bug fixes_
