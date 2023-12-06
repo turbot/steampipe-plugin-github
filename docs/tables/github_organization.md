@@ -1,16 +1,43 @@
-# Table: github_organization
+---
+title: "Steampipe Table: github_organization - Query GitHub Organizations using SQL"
+description: "Allows users to query GitHub Organizations, specifically details about each organization's profile, including name, email, blog, location, and public repository count."
+---
 
-Organizations are shared accounts where businesses and open-source projects can collaborate across many projects at once. Owners and administrators can manage member access to the organization's data and projects with sophisticated security and administrative features.
+# Table: github_organization - Query GitHub Organizations using SQL
 
-You can query details for **ANY** organization with the `github_organization` table, but you must specify the `login` explicitly in the where or join clause (`where login=`, `join github_organization on login=`).
+GitHub Organizations is a feature within GitHub that allows users to collaborate across many projects at once. Organizations include features such as unified billing, access control, and multiple repositories. It is a way for businesses and open-source projects to manage their projects and teams.
 
-To list organizations **that you are a member of**, use the `github_my_organization` table.
+## Table Usage Guide
+
+The `github_organization` table provides insights into Organizations within GitHub. As a developer or project manager, explore organization-specific details through this table, including profile information, public repository count, and associated metadata. Utilize it to uncover information about organizations, such as their location, public repository count, and other profile details.
+
+**Important Notes**
+- You must specify the `login` column in `where` or `join` clause to query the table.
+- To list organizations that you are a member of, use the `github_my_organization` table.
 
 ## Examples
 
 ### Basic info for a GitHub Organization
+Explore essential details about a specific GitHub organization to understand its structure and activity. This is useful for gaining insights into the organization's verification status, team and member counts, and repository count.
 
-```sql
+```sql+postgres
+select
+  login as organization,
+  name,
+  twitter_username,
+  created_at,
+  updated_at,
+  is_verified,
+  teams_total_count as teams_count,
+  members_with_role_total_count as member_count,
+  repositories_total_count as repo_count
+from
+  github_organization
+where
+  login = 'postgres';
+```
+
+```sql+sqlite
 select
   login as organization,
   name,
@@ -28,8 +55,9 @@ where
 ```
 
 ### List members of an organization
+This query is used to identify members of a specific organization and check if they have two-factor authentication enabled. This can be useful for organizations looking to enforce security measures and ensure all members have additional protection for their accounts.
 
-```sql
+```sql+postgres
 select
   o.login as organization,
   m.login as user_login,
@@ -43,9 +71,33 @@ and
   o.login = m.organization;
 ```
 
+```sql+sqlite
+select
+  o.login as organization,
+  m.login as user_login,
+  m.has_two_factor_enabled as mfa_enabled
+from
+  github_organization o
+join
+  github_organization_member m on o.login = m.organization
+where
+  o.login = 'turbot';
+```
+
 OR
 
-```sql
+```sql+postgres
+select
+  organization,
+  login as user_login,
+  has_two_factor_enabled as mfa_enabled
+from
+  github_organization_member
+where
+  organization = 'turbot';
+```
+
+```sql+sqlite
 select
   organization,
   login as user_login,
