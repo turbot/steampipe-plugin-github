@@ -1,7 +1,11 @@
 package models
 
 type License struct {
-	BasicLicense
+	Key            string        `json:"key"`
+	Name           string        `graphql:"name @include(if:$includeLicenseName)" json:"name"`
+	Nickname       string        `graphql:"nickname @include(if:$includeLicenseNickname)" json:"nickname"`
+	SpdxId         string        `graphql:"spdxId @include(if:$includeLicenseSpdxId)" json:"spdx_id"`
+	Url            string        `graphql:"url @include(if:$includeLicenseUrl)" json:"url"`
 	Body           string        `json:"body"`
 	Conditions     []LicenseRule `graphql:"conditions @include(if:$includeLicenseConditions)" json:"conditions"`
 	Description    string        `graphql:"description @include(if:$includeLicenseDescription)" json:"description"`
@@ -15,10 +19,23 @@ type License struct {
 
 type BasicLicense struct {
 	Key      string `json:"key"`
-	Name     string `graphql:"name @include(if:$includeLicenseName)" json:"name"`
-	Nickname string `graphql:"nickname @include(if:$includeLicenseNickname)" json:"nickname"`
-	SpdxId   string `graphql:"spdxId @include(if:$includeLicenseSpdxId)" json:"spdx_id"`
-	Url      string `graphql:"url @include(if:$includeLicenseUrl)" json:"url"`
+	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
+	SpdxId   string `json:"spdx_id"`
+	Url      string `json:"url"`
+}
+
+type BaseLicense struct {
+	BasicLicense
+	Body           string        `json:"body"`
+	Conditions     []LicenseRule `json:"conditions"`
+	Description    string        `json:"description"`
+	Featured       bool          `json:"featured"`
+	Hidden         bool          `json:"hidden"`
+	Implementation string        `json:"implementation"`
+	Limitations    []LicenseRule `json:"limitations"`
+	Permissions    []LicenseRule `json:"permissions"`
+	PseudoLicense  bool          `json:"pseudo_license"`
 }
 
 type LicenseRule struct {

@@ -47,7 +47,7 @@ type Issue struct {
 	} `graphql:"repo: repository" json:"repo"`
 	Assignees struct {
 		TotalCount int
-		Nodes      []User
+		Nodes      []BaseUser
 	} `graphql:"assignees(first: 10) @include(if:$includeIssueAssignees)" json:"assignees"`
 }
 

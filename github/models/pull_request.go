@@ -81,7 +81,7 @@ type PullRequest struct {
 	} `graphql:"labels(first: 100) @include(if:$includePRLabels)" json:"labels"`
 	Assignees struct {
 		TotalCount int
-		Nodes      []User
+		Nodes      []BaseUser
 	} `graphql:"assignees(first: 10) @include(if:$includePRAssignees)" json:"assignees"`
 
 	// ClosingIssueReferences [pageable]

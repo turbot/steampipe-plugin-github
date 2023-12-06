@@ -1,7 +1,7 @@
 package models
 
 type CommunityProfile struct {
-	LicenseInfo          License                 `graphql:"licenseInfo @include(if:$includeCPLicense)" json:"license_info"`
+	LicenseInfo          BaseLicense             `graphql:"licenseInfo @include(if:$includeCPLicense)" json:"license_info"`
 	CodeOfConduct        RepositoryCodeOfConduct `graphql:"codeOfConduct @include(if:$includeCPCodeOfConduct)" json:"code_of_conduct"`
 	IssueTemplates       []IssueTemplate         `graphql:"issueTemplates @include(if:$includeCPIssueTemplates)" json:"issue_templates"`
 	PullRequestTemplates []PullRequestTemplate   `graphql:"pullRequestTemplates @include(if:$includeCPPullRequestTemplates)" json:"pull_request_templates"`
