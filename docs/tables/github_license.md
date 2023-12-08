@@ -57,12 +57,18 @@ from
 Determine the number of your repositories grouped by their respective licenses. This is useful for understanding the distribution of license usage across your repositories.
 
 ```sql+postgres
+with license_key as (
+  select
+    license_info ->> 'key' as key
+  from
+    github_my_repository
+)
 select
   l.name,
-  count(r.license_key) as num_repos
+  count(k.key) as num_repos
 from
   github_license as l
-  left join github_my_repository as r on l.key = r.license_key
+  left join license_key as k on l.key = k.key
 group by
   l.name
 order by
@@ -70,12 +76,18 @@ order by
 ```
 
 ```sql+sqlite
+with license_key as (
+  select
+    license_info ->> 'key' as key
+  from
+    github_my_repository
+)
 select
   l.name,
-  count(r.license_key) as num_repos
+  count(k.key) as num_repos
 from
   github_license as l
-  left join github_my_repository as r on l.key = r.license_key
+  left join license_key as k on l.key = k.key
 group by
   l.name
 order by
@@ -101,14 +113,14 @@ where
 ```sql+sqlite
 select
   name,
-  key,
+  l.key,
   json_extract(c.value, '$.Key') as condition,
   json_extract(c.value, '$.Description') as condition_desc
 from
-  github_license,
+  github_license as l,
   json_each(conditions) as c
 where
-  key = 'gpl-3.0';
+  l.key = 'gpl-3.0';
 ```
 
 ### View limitations for a specific license
@@ -130,14 +142,14 @@ where
 ```sql+sqlite
 select
   name,
-  key,
+  g.key,
   json_extract(l.value, '$.Key') as limitation,
   json_extract(l.value, '$.Description') as limitation_desc
 from
-  github_license,
+  github_license as g,
   json_each(limitations) as l
 where
-  key = 'gpl-3.0';
+  g.key = 'gpl-3.0';
 ```
 
 ### View permissions for a specific license
@@ -159,12 +171,12 @@ where
 ```sql+sqlite
 select
   name,
-  key,
+  l.key,
   json_extract(p.value, '$.Key') as permission,
   json_extract(p.value, '$.Description') as permission_desc
 from
-  github_license,
+  github_license as l,
   json_each(permissions) as p
 where
-  key = 'gpl-3.0';
+  l.key = 'gpl-3.0';
 ```

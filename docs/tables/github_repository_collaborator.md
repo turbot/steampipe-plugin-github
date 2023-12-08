@@ -50,8 +50,7 @@ from
   github_repository_collaborator
 where
   repository_full_name = 'turbot/steampipe'
-and
-  affiliation = 'OUTSIDE';
+  and affiliation = 'OUTSIDE';
 ```
 
 ```sql+sqlite
@@ -62,8 +61,7 @@ from
   github_repository_collaborator
 where
   repository_full_name = 'turbot/steampipe'
-and
-  affiliation = 'OUTSIDE';
+  and affiliation = 'OUTSIDE';
 ```
 
 ### List all repository admins
@@ -77,8 +75,7 @@ from
   github_repository_collaborator
 where
   repository_full_name = 'turbot/steampipe'
-and
-  permission = 'ADMIN';
+  and permission = 'ADMIN';
 ```
 
 ```sql+sqlite
@@ -89,8 +86,7 @@ from
   github_repository_collaborator
 where
   repository_full_name = 'turbot/steampipe'
-and
-  permission = 'ADMIN';
+  and permission = 'ADMIN';
 ```
 
 ### Obtain a JSON array of admins for all your repositories
@@ -98,44 +94,34 @@ Discover the segments that allow you to identify all the administrators for your
 
 ```sql+postgres
 with repos as (
-  select 
-    name_with_owner 
-  from 
+  select
+    name_with_owner
+  from
     github_my_repository
 )
 select
   r.name_with_owner as repo,
   json_agg(user_login) as admins
-from 
+from
   repos as r
-inner join 
-  github_repository_collaborator as c
-on 
-  r.name_with_owner = c.repository_full_name
-and
-  c.permission = 'ADMIN'
-group by 
+  inner join github_repository_collaborator as c on r.name_with_owner = c.repository_full_name and c.permission = 'ADMIN'
+group by
   r.name_with_owner;
 ```
 
 ```sql+sqlite
 with repos as (
-  select 
-    name_with_owner 
-  from 
+  select
+    name_with_owner
+  from
     github_my_repository
 )
 select
   r.name_with_owner as repo,
   group_concat(user_login) as admins
-from 
+from
   repos as r
-join 
-  github_repository_collaborator as c
-on 
-  r.name_with_owner = c.repository_full_name
-and
-  c.permission = 'ADMIN'
-group by 
+  inner join github_repository_collaborator as c on r.name_with_owner = c.repository_full_name and c.permission = 'ADMIN'
+group by
   r.name_with_owner;
 ```

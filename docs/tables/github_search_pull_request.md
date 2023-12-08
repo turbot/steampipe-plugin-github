@@ -141,7 +141,7 @@ Determine the areas in which pull requests have sparked significant discussion, 
 select
   title,
   id,
-  comments,
+  total_comments_count,
   state,
   created_at,
   url
@@ -155,7 +155,7 @@ where
 select
   title,
   id,
-  comments,
+  total_comments_count,
   state,
   created_at,
   url

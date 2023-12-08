@@ -35,8 +35,7 @@ from
   github_pull_request_comment
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  number = 207;
+  and number = 207;
 ```
 
 ```sql+sqlite
@@ -55,8 +54,7 @@ from
   github_pull_request_comment
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  number = 207;
+  and number = 207;
 ```
 
 ### List comments for a specific pull request which match a certain body content
@@ -75,10 +73,8 @@ from
   github_pull_request_comment
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  number = 207
-and
-  body_text ~~* '%DELAY%';
+  and number = 207
+  and body_text ~~* '%DELAY%';
 ```
 
 ```sql+sqlite
@@ -94,10 +90,8 @@ from
   github_pull_request_comment
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  number = 207
-and
-  body_text like '%DELAY%';
+  and number = 207
+  and body_text like '%DELAY%';
 ```
 
 ### List comments for all open pull requests from a specific repository
@@ -107,16 +101,10 @@ select
   c.*
 from
   github_pull_request r
-join
-  github_pull_request_comment c
-on
-  r.repository_full_name = c.repository_full_name
-and
-  r.number = c.number
+  join github_pull_request_comment c on r.repository_full_name = c.repository_full_name and r.number = c.number
 where
   r.repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  r.state = 'OPEN';
+  and r.state = 'OPEN';
 ```
 
 ```sql+sqlite
@@ -124,14 +112,8 @@ select
   c.*
 from
   github_pull_request r
-join
-  github_pull_request_comment c
-on
-  r.repository_full_name = c.repository_full_name
-and
-  r.number = c.number
+  join github_pull_request_comment c on r.repository_full_name = c.repository_full_name and r.number = c.number
 where
   r.repository_full_name = 'turbot/steampipe-plugin-github'
-and
-  r.state = 'OPEN';
+  and r.state = 'OPEN';
 ```

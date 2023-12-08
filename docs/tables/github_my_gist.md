@@ -68,7 +68,7 @@ cross join
 group by
   language
 order by
-  count desc
+  count desc;
 ```
 
 ```sql+sqlite
@@ -81,5 +81,5 @@ from
 group by
   language
 order by
-  count(*) desc
+  count(*) desc;
 ```

@@ -75,7 +75,7 @@ where
   organization = 'my_org'
   and created_at between '2022-06-27' and '2022-06-29'
 order by
-  created_at
+  created_at;
 ```
 
 ```sql+sqlite
@@ -91,7 +91,7 @@ where
   organization = 'my_org'
   and created_at between '2022-06-27' and '2022-06-29'
 order by
-  created_at
+  created_at;
 ```
 
 ### List repository creation and deletion audit events on a specific date

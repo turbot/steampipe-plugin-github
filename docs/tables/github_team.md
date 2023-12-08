@@ -23,7 +23,9 @@ select
   privacy,
   description
 from
-  github_team;
+  github_team
+where
+  organization = 'turbot';
 ```
 
 ```sql+sqlite
@@ -33,7 +35,9 @@ select
   privacy,
   description
 from
-  github_team;
+  github_team
+where
+  organization = 'turbot';
 ```
 
 ### List all visible teams in an organization
@@ -48,7 +52,7 @@ select
 from
   github_team
 where
-  organization = 'my_org';
+  organization = 'turbot';
 ```
 
 ```sql+sqlite
@@ -60,7 +64,7 @@ select
 from
   github_team
 where
-  organization = 'my_org';
+  organization = 'turbot';
 ```
 
 ### Get the number of members for a single team
@@ -75,8 +79,7 @@ from
   github_team
 where
   organization = 'my_org'
-and
-  slug = 'my_team';
+  and slug = 'my_team';
 ```
 
 ```sql+sqlite
@@ -88,8 +91,7 @@ from
   github_team
 where
   organization = 'my_org'
-and
-  slug = 'my_team';
+  and slug = 'my_team';
 ```
 
 ### Get the number of repositories for a single team
@@ -104,8 +106,7 @@ from
   github_team
 where
   organization = 'my_org'
-and
-  slug = 'my_team';
+  and slug = 'my_team';
 ```
 
 ```sql+sqlite
@@ -117,8 +118,7 @@ from
   github_team
 where
   organization = 'my_org'
-and
-  slug = 'my_team';
+  and slug = 'my_team';
 ```
 
 ### Get parent team details for child teams
@@ -128,26 +128,28 @@ Determine the hierarchical relationships within your organization's teams on Git
 select
   slug,
   organization,
-  parent ->> 'id' as parent_team_id,
-  parent ->> 'node_id' as parent_team_node_id,
-  parent ->> 'slug' as parent_team_slug
+  parent_team ->> 'id' as parent_team_id,
+  parent_team ->> 'node_id' as parent_team_node_id,
+  parent_team ->> 'slug' as parent_team_slug
 from
   github_team
 where
-  parent is not null;
+  organization = 'turbot'
+  and parent_team is not null;
 ```
 
 ```sql+sqlite
 select
   slug,
   organization,
-  json_extract(parent, '$.id') as parent_team_id,
-  json_extract(parent, '$.node_id') as parent_team_node_id,
-  json_extract(parent, '$.slug') as parent_team_slug
+  parent_team ->> 'id' as parent_team_id,
+  parent_team ->> 'node_id' as parent_team_node_id,
+  parent_team ->> 'slug' as parent_team_slug
 from
   github_team
 where
-  parent is not null;
+  organization = 'turbot'
+  and parent_team is not null;
 ```
 
 ### List teams with pending user invitations
@@ -161,7 +163,8 @@ select
 from
   github_team
 where
-  invitations_count > 0;
+  organization = 'turbot'
+  and invitations_total_count > 0;
 ```
 
 ```sql+sqlite
@@ -172,5 +175,6 @@ select
 from
   github_team
 where
-  invitations_count > 0;
+  organization = 'turbot'
+  and invitations_total_count > 0;
 ```

@@ -26,7 +26,7 @@ select
   title,
   state,
   author_login,
-  assignee_logins
+  author_login
 from
   github_my_issue
 where
@@ -40,7 +40,7 @@ select
   title,
   state,
   author_login,
-  assignee_logins
+  author_login
 from
   github_my_issue
 where

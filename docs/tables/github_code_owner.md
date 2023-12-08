@@ -59,7 +59,6 @@ content/actions/deployment/security-hardening-your-deployments/** @github/oidc
 
 You can query all of the rules with the following query:
 
-
 ```sql+postgres
 select
   line,

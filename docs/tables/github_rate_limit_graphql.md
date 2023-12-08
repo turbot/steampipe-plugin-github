@@ -13,12 +13,11 @@ The `github_rate_limit_graphql` table provides insights into the rate limiting s
 
 ## Examples
 
-### List rate limit info for GraphQL 
+### List rate limit info for GraphQL
 Assess the usage and availability of your GraphQL rate limit on GitHub to manage your API requests effectively and avoid exceeding the limit. This helps in planning your application's interactions with GitHub's API and ensures uninterrupted service.
 
 ```sql+postgres
 select
-  limit,
   used,
   remaining,
   reset_at
@@ -28,7 +27,6 @@ from
 
 ```sql+sqlite
 select
-  limit,
   used,
   remaining,
   reset_at

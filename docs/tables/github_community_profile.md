@@ -41,21 +41,21 @@ where
 This example helps identify the GitHub repositories that have a security file in place. This is useful for understanding the security measures implemented in each repository, which is crucial for maintaining project integrity and preventing unauthorized access.
 
 ```sql+postgres
-select 
-  repository_full_name, 
+select
+  repository_full_name,
   security ->> 'text' as security_file_content
 from
-  github_community_profile c 
-  join github_my_repository r on r.full_name = c.repository_full_name
+  github_community_profile c
+  join github_my_repository r on r.name_with_owner = c.repository_full_name
   where security is not null;
 ```
 
 ```sql+sqlite
-select 
-  repository_full_name, 
+select
+  repository_full_name,
   json_extract(security, '$.text') as security_file_content
 from
-  github_community_profile c 
-  join github_my_repository r on r.full_name = c.repository_full_name
+  github_community_profile c
+  join github_my_repository r on r.name_with_owner = c.repository_full_name
   where security is not null;
 ```

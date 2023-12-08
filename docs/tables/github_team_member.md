@@ -30,8 +30,7 @@ from
   github_team_member
 where
   organization = 'my_org'
-and
-  slug = 'my-team';
+  and slug = 'my-team';
 ```
 
 ```sql+sqlite
@@ -45,8 +44,7 @@ from
   github_team_member
 where
   organization = 'my_org'
-and
-  slug = 'my-team';
+  and slug = 'my-team';
 ```
 
 ### List active team members with maintainer role for a specific team
@@ -63,10 +61,8 @@ from
   github_team_member
 where
   organization = 'my_org'
-and 
-  slug = 'my-team'
-and 
-  role = 'MAINTAINER';
+  and slug = 'my-team'
+  and role = 'MAINTAINER';
 ```
 
 ```sql+sqlite
@@ -80,10 +76,8 @@ from
   github_team_member
 where
   organization = 'my_org'
-and 
-  slug = 'my-team'
-and 
-  role = 'MAINTAINER';
+  and slug = 'my-team'
+  and role = 'MAINTAINER';
 ```
 
 ### List team members with maintainer role for visible teams
@@ -120,11 +114,7 @@ select
   tm.status as member_status
 from
   github_team as t
-join 
-  github_team_member as tm
-on
-  t.organization = tm.organization
-  and t.slug = tm.slug
+  join github_team_member as tm on t.organization = tm.organization and t.slug = tm.slug
 where
   tm.role = 'MAINTAINER';
 ```

@@ -24,16 +24,9 @@ select
   repository_full_name,
   name,
   path,
-  text,
-  line_count,
-  size,
-  language,
   node_id,
-  is_truncated,
-  is_generated,
-  is_binary,
-  text_json,
-  pipeline
+  state,
+  url
 from
   github_workflow
 where
@@ -45,16 +38,9 @@ select
   repository_full_name,
   name,
   path,
-  text,
-  line_count,
-  size,
-  language,
   node_id,
-  is_truncated,
-  is_generated,
-  is_binary,
-  text_json,
-  pipeline
+  state,
+  url
 from
   github_workflow
 where

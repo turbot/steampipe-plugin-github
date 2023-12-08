@@ -68,7 +68,7 @@ from
 where
   repository_full_name = 'turbot/steampipe-plugin-github'
   and number = 207
-  and body ~~ * '%minor%';
+  and body like '%minor%';
 ```
 
 ```sql+sqlite
@@ -96,10 +96,7 @@ select
   rv.*
 from
   github_pull_request r
-  join
-    github_pull_request_review rv
-    on r.repository_full_name = rv.repository_full_name
-    and r.number = rv.number
+  join github_pull_request_review rv on r.repository_full_name = rv.repository_full_name and r.number = rv.number
 where
   r.repository_full_name = 'turbot/steampipe-plugin-github'
   and r.state = 'OPEN';
@@ -110,10 +107,7 @@ select
   rv.*
 from
   github_pull_request r
-  join
-    github_pull_request_review rv
-    on r.repository_full_name = rv.repository_full_name
-    and r.number = rv.number
+  join github_pull_request_review rv on r.repository_full_name = rv.repository_full_name and r.number = rv.number
 where
   r.repository_full_name = 'turbot/steampipe-plugin-github'
   and r.state = 'OPEN';

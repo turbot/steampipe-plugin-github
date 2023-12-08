@@ -59,7 +59,7 @@ select
   state,
   closed_at,
   merged_at,
-  merged_by_login
+  merged_by
 from
   github_pull_request
 where
@@ -71,6 +71,7 @@ order by
 ```
 
 ```sql+sqlite
+## Runtime error: parsing time "2023-12-01" as "2006-01-02 15:04:05.999": cannot parse "" as "15"
 select
   repository_full_name,
   number,
@@ -78,7 +79,7 @@ select
   state,
   closed_at,
   merged_at,
-  merged_by_login
+  merged_by
 from
   github_pull_request
 where
@@ -96,32 +97,26 @@ Explore which open pull requests in a specific repository are tagged as 'bug'. T
 select
   repository_full_name,
   number,
-  title,
   state,
-  labels,
-  tags
+  labels
 from
   github_pull_request
 where
-  repository_full_name = 'turbot/steampipe'
-  and state = 'OPEN'
-  and tags ? 'bug';
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+  and labels -> 'bug' = 'true';
 ```
 
 ```sql+sqlite
 select
   repository_full_name,
   number,
-  title,
   state,
-  labels,
-  tags
+  labels
 from
   github_pull_request
 where
-  repository_full_name = 'turbot/steampipe'
-  and state = 'OPEN'
-  and json_extract(tags, '$.bug') is not null;
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+  and json_extract(labels, '$.bug') = 1;
 ```
 
 ### List the open PRs in a repository assigned to a specific user
@@ -133,13 +128,13 @@ select
   number,
   title,
   state,
-  assigned_to
+  assignee_data ->> 'login' as assignee_login
 from
   github_pull_request,
-  jsonb_array_elements_text(assignee_logins) as assigned_to
+  jsonb_array_elements(assignees) as assignee_data
 where
-  repository_full_name = 'turbot/steampipe'
-  and assigned_to = 'binaek89'
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+  and assignee_data ->> 'login' = 'madhushreeray30'
   and state = 'OPEN';
 ```
 
@@ -149,14 +144,15 @@ select
   number,
   title,
   state,
-  assigned_to.value as assigned_to
+  json_extract(assignee_data.value, '$.login') as assignee_login
 from
   github_pull_request,
-  json_each(assignee_logins) as assigned_to
+  json_each(assignees) as assignee_data
 where
-  repository_full_name = 'turbot/steampipe'
-  and assigned_to.value = 'binaek89'
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+  and json_extract(assignee_data.value, '$.login') = 'madhushreeray30'
   and state = 'OPEN';
+
 ```
 
 ### Join with github_my_repository to find open PRs in multiple repos
@@ -170,10 +166,10 @@ select
 from
   github_my_repository as r,
   github_pull_request as i
-where 
-  r.full_name like 'turbot/steampip%'
+where
+  r.name_with_owner like 'turbot/steampip%'
   and i.state = 'OPEN'
-  and i.repository_full_name = r.full_name;
+  and i.repository_full_name = r.name_with_owner;
 ```
 
 ```sql+sqlite
@@ -184,10 +180,10 @@ select
 from
   github_my_repository as r,
   github_pull_request as i
-where 
-  r.full_name like 'turbot/steampip%'
+where
+  r.name_with_owner like 'turbot/steampip%'
   and i.state = 'OPEN'
-  and i.repository_full_name = r.full_name;
+  and i.repository_full_name = r.name_with_owner;
 ```
 
 ### List open PRs in a repository with an array of associated labels
@@ -195,7 +191,7 @@ This query is useful for exploring open pull requests in a specific repository, 
 
 ```sql+postgres
 select
-  r.repository_full_name
+  r.repository_full_name,
   r.number,
   r.title,
   jsonb_agg(l ->> 'name') as labels
@@ -204,8 +200,7 @@ from
   jsonb_array_elements(r.labels_src) as l
 where
   repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
+  and state = 'OPEN'
 group by
   r.repository_full_name, r.number, r.title;
 ```
@@ -221,8 +216,7 @@ from
   json_each(r.labels_src) as l
 where
   repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
+  and state = 'OPEN'
 group by
   r.repository_full_name, r.number, r.title;
 ```
@@ -240,8 +234,7 @@ from
   jsonb_object_keys(r.labels) as t
 where
   repository_full_name = 'turbot/steampipe'
-and 
-  state = 'OPEN'
+  and state = 'OPEN'
 group by
   repository_full_name, number, title;
 ```
@@ -257,49 +250,7 @@ from
   json_each(r.labels) as t
 where
   repository_full_name = 'turbot/steampipe'
-and 
-  state = 'OPEN'
-group by
-  repository_full_name, number, title;
-```
-
-### List all open PRs in a repository with a specific label
-This query is useful for identifying open pull requests in a specific repository that have been labeled as 'bug'. This can assist in prioritizing bug fixes and managing workflow in a software development project.
-
-```sql+postgres
-select
-  repository_full_name,
-  number,
-  title,
-  json_agg(t) as labels
-from
-  github_pull_request r,
-  jsonb_object_keys(labels) as t
-where
-  repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
-and
-  labels ? 'bug'
-group by
-  repository_full_name, number, title;
-```
-
-```sql+sqlite
-select
-  repository_full_name,
-  number,
-  title,
-  json_group_array(t.value) as labels
-from
-  github_pull_request r,
-  json_each(labels) as t
-where
-  repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
-and
-  json_extract(labels, '$.bug') is not null
+  and state = 'OPEN'
 group by
   repository_full_name, number, title;
 ```

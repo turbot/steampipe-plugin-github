@@ -37,78 +37,34 @@ where
   login = 'torvalds';
 ```
 
-### List of users in your organizations
-This example helps you understand who the members of your organization are on Github. It provides insights into their profile details including their name, company, location, and Twitter handle, which can be useful for networking or organizational mapping purposes.
+### List users that are members of multiple organizations
 
 ```sql+postgres
 select
-  u.login,
-  o.login as organization,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
+  name,
+  email,
+  created_at,
+  bio,
+  twitter_username,
+  organizations_total_count
 from
-  github_user as u,
-  github_my_organization as o,
-  jsonb_array_elements_text(o.member_logins) as member_login
+  github_user
 where
-  u.login = member_login;
+  login = 'madhushreeray30'
+  and organizations_total_count > 1;
 ```
 
 ```sql+sqlite
 select
-  u.login,
-  o.login as organization,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
+  name,
+  email,
+  created_at,
+  bio,
+  twitter_username,
+  organizations_total_count
 from
-  github_user as u,
-  github_my_organization as o,
-  json_each(o.member_logins) as member_login
+  github_user
 where
-  u.login = member_login.value;
-```
-
-### List of users that collaborate on a repository that you own
-This query is utilized to identify the collaborators on a specific repository that you manage. It's particularly useful for understanding the team composition, including their affiliations and locations, providing you with a comprehensive view of who is contributing to your project.
-
-```sql+postgres
-select
-  r.full_name as repository,
-  u.login,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
-from
-  github_user as u,
-  github_my_repository as r,
-  jsonb_array_elements_text(r.collaborator_logins) as collaborator_login
-where
-  u.login = collaborator_login
-  and r.full_name = 'turbot/steampipe';
-```
-
-```sql+sqlite
-select
-  r.full_name as repository,
-  u.login,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
-from
-  github_user as u,
-  github_my_repository as r,
-  json_each(r.collaborator_logins) as collaborator_login
-where
-  u.login = collaborator_login.value
-  and r.full_name = 'turbot/steampipe';
+  login = 'madhushreeray30'
+  and organizations_total_count > 1;
 ```

@@ -50,7 +50,7 @@ Explore which permissions each team in your organization has on GitHub. This can
 select
   name,
   organization,
-  permission
+  privacy
 from
   github_my_team;
 ```
@@ -59,7 +59,7 @@ from
 select
   name,
   organization,
-  permission
+  privacy
 from
   github_my_team;
 ```
@@ -71,22 +71,22 @@ Determine the hierarchical structure within your GitHub organization by identify
 select
   slug,
   organization,
-  parent ->> 'id' as parent_team_id,
-  parent ->> 'slug' as parent_team_slug
+  parent_team ->> 'id' as parent_team_id,
+  parent_team ->> 'slug' as parent_team_slug
 from
   github_my_team
 where
-  parent is not null;
+  parent_team is not null;
 ```
 
 ```sql+sqlite
 select
   slug,
   organization,
-  json_extract(parent, '$.id') as parent_team_id,
-  json_extract(parent, '$.slug') as parent_team_slug
+  json_extract(parent_team, '$.id') as parent_team_id,
+  json_extract(parent_team, '$.slug') as parent_team_slug
 from
   github_my_team
 where
-  parent is not null;
+  parent_team is not null;
 ```

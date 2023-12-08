@@ -23,10 +23,9 @@ Explore the deployment history of a specific repository to understand its versio
 select
   id,
   node_id,
-  sha,
+  commit_sha,
   created_at,
   creator ->> 'login' as creator_login,
-  commit_sha,
   description,
   environment,
   latest_status,
@@ -46,10 +45,9 @@ where
 select
   id,
   node_id,
-  sha,
+  commit_sha,
   created_at,
   json_extract(creator, '$.login') as creator_login,
-  commit_sha,
   description,
   environment,
   latest_status,
@@ -72,7 +70,6 @@ Explore the deployment history across all your GitHub repositories. This query h
 select
   id,
   node_id,
-  sha,
   created_at,
   creator ->> 'login' as creator_login,
   commit_sha,
@@ -88,14 +85,13 @@ select
 from
   github_repository_deployment
 where
-  repository_full_name IN (select name_with_owner from github_my_repository);
+  repository_full_name in (select name_with_owner from github_my_repository);
 ```
 
 ```sql+sqlite
 select
   id,
   node_id,
-  sha,
   created_at,
   json_extract(creator, '$.login') as creator_login,
   commit_sha,
@@ -111,5 +107,5 @@ select
 from
   github_repository_deployment
 where
-  repository_full_name IN (select name_with_owner from github_my_repository);
+  repository_full_name in (select name_with_owner from github_my_repository);
 ```

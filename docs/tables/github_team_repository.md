@@ -36,8 +36,7 @@ from
   github_team_repository
 where
   organization = 'my_org'
-and 
-  slug = 'my-team';
+  and slug = 'my-team';
 ```
 
 ```sql+sqlite
@@ -46,18 +45,17 @@ select
   slug as team_slug,
   name as team_name,
   permission,
-  json_extract(primary_language, '$.name') as language,
+  (primary_language ->> 'name') as language,
   fork_count,
   stargazer_count,
-  json_extract(license_info, '$.spdx_id') as license,
+  (license_info ->> 'spdx_id') as license,
   description,
   url
 from
   github_team_repository
 where
   organization = 'my_org'
-and 
-  slug = 'my-team';
+  and slug = 'my-team';
 ```
 
 ### List visible teams and repositories they have admin permissions to
@@ -78,10 +76,8 @@ from
   github_team_repository
 where
   organization = 'my_org'
-and 
-  slug = 'my-team'
-and 
-  permission = 'ADMIN';
+  and slug = 'my-team'
+  and permission = 'ADMIN';
 ```
 
 ```sql+sqlite
@@ -99,8 +95,6 @@ from
   github_team_repository
 where
   organization = 'my_org'
-and 
-  slug = 'my-team'
-and 
-  permission = 'ADMIN';
+  and slug = 'my-team'
+  and permission = 'ADMIN';
 ```

@@ -32,7 +32,7 @@ where
 ```sql+sqlite
 select
   name,
-  json_extract(commit, '$.sha') as commit_sha
+  json_extract("commit", '$.sha') as commit_sha
 from
   github_tag
 where
@@ -79,7 +79,7 @@ select
   commit -> 'signature' ->> 'email' as commit_signature_email,
   commit -> 'signature' -> 'signer' ->> 'login' as commit_signature_login,
   commit ->> 'tarball_url' as tarball_url,
-  commit ->> 'zipball_url' as zipball_url 
+  commit ->> 'zipball_url' as zipball_url
 from
   github_tag
 where
@@ -103,7 +103,7 @@ select
   json_extract(commit, '$.signature.email') as commit_signature_email,
   json_extract(commit, '$.signature.signer.login') as commit_signature_login,
   json_extract(commit, '$.tarball_url') as tarball_url,
-  json_extract(commit, '$.zipball_url') as zipball_url 
+  json_extract(commit, '$.zipball_url') as zipball_url
 from
   github_tag
 where

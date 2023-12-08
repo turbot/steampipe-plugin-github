@@ -5,7 +5,7 @@ description: "Allows users to query GitHub Repositories based on specific search
 
 # Table: github_search_repository - Query GitHub Repositories using SQL
 
-GitHub Repositories represent a location where all the files for a project are stored. Each project corresponds to one repository. Repositories can contain folders and files, images, videos, spreadsheets, and data sets - anything your project needs. 
+GitHub Repositories represent a location where all the files for a project are stored. Each project corresponds to one repository. Repositories can contain folders and files, images, videos, spreadsheets, and data sets - anything your project needs.
 
 ## Table Usage Guide
 
@@ -23,11 +23,11 @@ Identify specific details about a given repository, such as the owner, language 
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -38,11 +38,11 @@ where
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -56,11 +56,11 @@ Discover the segments that are popular among users by identifying repositories b
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -71,11 +71,11 @@ where
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -89,11 +89,11 @@ Determine the areas in which popular repositories on GitHub have amassed a large
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -104,11 +104,11 @@ where
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -122,11 +122,11 @@ Discover the segments that have forked a specific repository within a particular
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where
@@ -137,11 +137,11 @@ where
 select
   name,
   owner_login,
-  language,
-  forks_count,
-  stargazers_count,
+  primary_language,
+  fork_count,
+  stargazer_count,
   subscribers_count,
-  watchers_count
+  watchers_total_count
 from
   github_search_repository
 where

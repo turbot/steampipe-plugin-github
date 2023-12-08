@@ -62,8 +62,7 @@ select
   m.login as member_login
 from
   github_my_organization o
-join github_organization_member m
-on o.login = m.organization;
+  join github_organization_member m on o.login = m.organization;
 ```
 
 ```sql+sqlite
@@ -72,8 +71,7 @@ select
   m.login as member_login
 from
   github_my_organization o
-join github_organization_member m
-on o.login = m.organization;
+  join github_organization_member m on o.login = m.organization;
 ```
 
 ### Show your permissions on the Organization
@@ -154,14 +152,14 @@ from
   jsonb_array_elements(hooks) as hook
 where
   hook -> 'config' ->> 'insecure_ssl' = '1'
-    or hook -> 'config' ->> 'secret' is null
-    or hook -> 'config' ->> 'url' not like '%https:%';
+  or hook -> 'config' ->> 'secret' is null
+  or hook -> 'config' ->> 'url' not like '%https:%';
 ```
 
 ```sql+sqlite
 select
   login as organization,
-  hook
+  hook.value as hook
 from
   github_my_organization,
   json_each(hooks) as hook

@@ -63,11 +63,10 @@ from
   github_issue
 where
   repository_full_name = 'turbot/steampipe'
-and 
+and
   assignees_total_count = 0
-and 
+and
   state = 'OPEN';
-
 ```
 
 ```sql+sqlite
@@ -82,9 +81,9 @@ from
   github_issue
 where
   repository_full_name = 'turbot/steampipe'
-and 
+and
   assignees_total_count = 0
-and 
+and
   state = 'OPEN';
 ```
 
@@ -130,10 +129,10 @@ select
 from
   github_my_repository as r,
   github_issue as i
-where 
-  r.full_name like 'turbot/steampip%'
+where
+  r.name_with_owner like 'turbot/steampip%'
   and i.state = 'OPEN'
-  and i.repository_full_name = r.full_name;
+  and i.repository_full_name = r.name_with_owner;
 ```
 
 ```sql+sqlite
@@ -144,10 +143,10 @@ select
 from
   github_my_repository as r,
   github_issue as i
-where 
-  r.full_name like 'turbot/steampip%'
+where
+  r.name_with_owner like 'turbot/steampip%'
   and i.state = 'OPEN'
-  and i.repository_full_name = r.full_name;
+  and i.repository_full_name = r.name_with_owner;
 ```
 
 ### List all issues with labels as a string array (instead of JSON objects)
@@ -242,16 +241,13 @@ select
   repository_full_name,
   number,
   title,
-  json_group_array(t.key) as labels
+  (select json_group_array(labels.value) FROM json_each(i.labels) as labels) as labels
 from
-  github_issue i,
-  json_each(labels) as t
+  github_issue i
 where
   repository_full_name = 'turbot/steampipe'
-and
-  state = 'OPEN'
-and
-  json_extract(t.value, '$.bug') is not null
+  and state = 'OPEN'
+  and json_extract(i.labels, '$.bug') is not null
 group by
   repository_full_name, number, title;
 ```

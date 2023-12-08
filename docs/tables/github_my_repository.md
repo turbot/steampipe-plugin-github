@@ -197,19 +197,19 @@ from
   jsonb_array_elements(hooks) as hook
 where
   hook -> 'config' ->> 'insecure_ssl' = '1'
-    or hook -> 'config' ->> 'secret' is null
-    or hook -> 'config' ->> 'url' not like '%https:%';
+  or hook -> 'config' ->> 'secret' is null
+  or hook -> 'config' ->> 'url' not like '%https:%';
 ```
 
 ```sql+sqlite
 select
   name as repository,
-  hook
+  hook.value as hook
 from
   github_my_repository,
   json_each(hooks) as hook
 where
   json_extract(hook.value, '$.config.insecure_ssl') = '1'
-    or json_extract(hook.value, '$.config.secret') is null
-    or json_extract(hook.value, '$.config.url') not like '%https:%';
+  or json_extract(hook.value, '$.config.secret') is null
+  or json_extract(hook.value, '$.config.url') not like '%https:%';
 ```
