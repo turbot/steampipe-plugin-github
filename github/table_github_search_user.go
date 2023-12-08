@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -172,9 +173,9 @@ func mapToUserSearchRow(node *userSearchNode, matches *[]models.TextMatch) userS
 }
 
 type userSearchNode struct {
-	Type         string              `graphql:"type: __typename"`
-	User         models.User         `graphql:"... on User"`
-	Organization models.Organization `graphql:"... on Organization"`
+	Type         string                  `graphql:"type: __typename"`
+	User         models.BaseUser         `graphql:"... on User"`
+	Organization models.BaseOrganization `graphql:"... on Organization"`
 }
 
 type userSearchRow struct {
