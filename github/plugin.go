@@ -13,7 +13,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		Name: "steampipe-plugin-github",
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
-			Schema:      ConfigSchema,
 		},
 		DefaultTransform:   transform.FromGo(),
 		DefaultRetryConfig: retryConfig(),
