@@ -172,14 +172,21 @@ select
   repository_full_name,
   number,
   title,
-  json_group_array(t.value) as labels
+  (
+    select json_group_array(label)
+    from (
+      select json_each.key as label
+      from json_each(i.labels)
+    )
+  ) as labels
 from
-  github_issue i,
-  json_each(i.labels) as t
+  github_issue i
 where
   repository_full_name = 'turbot/steampipe'
 group by
-  repository_full_name, number, title;
+  repository_full_name,
+  number,
+  title;
 ```
 
 OR
