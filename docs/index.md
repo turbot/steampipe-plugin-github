@@ -24,14 +24,14 @@ select
   name,
   language,
   forks_count,
-  stargazers_count
+  stargazer_count
 from
   github_my_repository;
 ```
 
 ```
 +-------------------------------+------------+-------------+------------------+
-| name                          | language   | forks_count | stargazers_count |
+| name                          | language   | forks_count | stargazer_count |
 +-------------------------------+------------+-------------+------------------+
 | steampipe                     | Go         | 11          | 254              |
 | steampipe-plugin-aws          | Go         | 8           | 18               |
