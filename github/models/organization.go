@@ -169,3 +169,37 @@ type emailMetadata struct {
 	Type    string `json:"type"`
 	Value   string `json:"value"`
 }
+
+type BaseOrganization struct {
+	BasicOrganization
+	Announcement                           string                       `json:"announcement"`
+	AnnouncementExpiresAt                  NullableTime                 `json:"announcement_expires_at"`
+	AnnouncementUserDismissible            bool                         `json:"announcement_user_dismissible"`
+	AnyPinnableItems                       bool                         `json:"any_pinnable_items"`
+	AvatarUrl                              string                       `json:"avatar_url"`
+	EstimatedNextSponsorsPayoutInCents     int                          `json:"estimated_next_sponsors_payout_in_cents"`
+	HasSponsorsListing                     bool                         `json:"has_sponsors_listing"`
+	InteractionAbility                     RepositoryInteractionAbility `json:"interaction_ability"`
+	IsSponsoringYou                        bool                         `graphql:"isSponsoringYou: isSponsoringViewer" json:"is_sponsoring_you"`
+	IsVerified                             bool                         `json:"is_verified"`
+	Location                               string                       `json:"location"`
+	MonthlyEstimatedSponsorsIncomeInCents  int                          `json:"monthly_estimated_sponsors_income_in_cents"`
+	NewTeamUrl                             string                       `json:"new_team_url"`
+	PinnedItemsRemaining                   int                          `json:"pinned_items_remaining"`
+	ProjectsUrl                            string                       `json:"projects_url"`
+	SamlIdentityProvider                   OrganizationIdentityProvider `json:"saml_identity_provider"`
+	SponsorsListing                        SponsorsListing              `json:"sponsors_listing"`
+	TeamsUrl                               string                       `json:"teams_url"`
+	TotalSponsorshipAmountAsSponsorInCents int                          `json:"total_sponsorship_amount_as_sponsor_in_cents"`
+	TwitterUsername                        string                       `json:"twitter_username"`
+	CanAdminister                          bool                         `graphql:"canAdminister: viewerCanAdminister" json:"can_administer"`
+	CanChangedPinnedItems                  bool                         `graphql:"canChangedPinnedItems: viewerCanChangePinnedItems" json:"can_changed_pinned_items"`
+	CanCreateProjects                      bool                         `graphql:"canCreateProjects: viewerCanCreateProjects" json:"can_create_projects"`
+	CanCreateRepositories                  bool                         `graphql:"canCreateRepositories: viewerCanCreateRepositories" json:"can_create_repositories"`
+	CanCreateTeams                         bool                         `graphql:"canCreateTeams: viewerCanCreateTeams" json:"can_create_teams"`
+	CanSponsor                             bool                         `graphql:"canSponsor: viewerCanSponsor" json:"can_sponsor"`
+	IsAMember                              bool                         `graphql:"isAMember: viewerIsAMember" json:"is_a_member"`
+	IsFollowing                            bool                         `graphql:"isFollowing: viewerIsFollowing" json:"is_following"`
+	IsSponsoring                           bool                         `graphql:"isSponsoring: viewerIsSponsoring" json:"is_sponsoring"`
+	WebsiteUrl                             string                       `json:"website_url"`
+}
