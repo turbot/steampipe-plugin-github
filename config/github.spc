@@ -9,4 +9,18 @@ connection "github" {
   # GitHub Enterprise requires a base_url to be configured to your installation location.
   # Can also be set with the GITHUB_BASE_URL environment variable.
   # base_url = "https://github.example.com"
+
+  # GitHub Apps to authenticate with the GitHub API. This is distinct from personal user authentication. GitHub App authentication typically involves using a private key to create a JSON Web Token (JWT), which is then exchanged for an installation access token.
+
+  # The unique identifier for the GitHub App.
+  # Can also be set with the GITHUB_APP_ID environment variable.
+  # app_id = 1234232
+
+  # The installation ID for a specific installation of the GitHub App.
+  # Can also be set with the GITHUB_INSTALLATION_ID environment variable.
+  # installation_id = 7439287
+
+  # The private key of the GitHub App, used for generating JWTs for authentication.
+  # Can also be set with the GITHUB_PRIVATE_KEY environment variable.
+  # private_key = "/Users/ec2-home/2016-10-19.private-key.pem"
 }

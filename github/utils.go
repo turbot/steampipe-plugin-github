@@ -3,11 +3,14 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 
@@ -30,6 +33,9 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	token := os.Getenv("GITHUB_TOKEN")
 	baseURL := os.Getenv("GITHUB_BASE_URL")
+	appId := os.Getenv("GITHUB_APP_ID")
+	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
+	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
@@ -40,15 +46,58 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		baseURL = *githubConfig.BaseURL
 	}
 
-	if token == "" {
-		panic("'token' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	//// Github App authentication.
+	var githubAppId, githubInstallationId int64
+	if githubConfig.AppId != nil {
+		githubAppId = *githubConfig.AppId
+	}
+	if githubConfig.InstallationId != nil {
+		githubInstallationId = *githubConfig.InstallationId
+	}
+	if githubConfig.PrivateKey != nil {
+		privateKeyPath = *githubConfig.PrivateKey
 	}
 
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	conn := github.NewClient(tc)
+	if appId != "" {
+		num, err := strconv.ParseInt(appId, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		githubAppId = num
+	}
+	if installationId != "" {
+		num, err := strconv.ParseInt(installationId, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		githubInstallationId = int64(num)
+	}
+
+	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
+		panic("'token' or 'app_id', 'installation_id' and 'private_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	}
+
+	var client *github.Client
+
+	// Authentication with Github access token
+	if token != "" {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: token},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		client = github.NewClient(tc)
+
+	}
+
+	// Authentication as Github APP Installation authentication
+	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" {
+		itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, githubAppId, githubInstallationId, privateKeyPath)
+		if err != nil {
+			panic("Error occurred in 'connect()' during GitHub App Installation client creation: " + err.Error())
+		}
+
+		client = github.NewClient(&http.Client{Transport: itr})
+	}
 
 	// If the base URL was provided then set it on the client. Used for
 	// enterprise installs.
@@ -63,18 +112,18 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		}
 
 		// The upload URL is not set as it's not currently required
-		conn, err = github.NewClient(tc).WithEnterpriseURLs(uv4.String(), "")
+		conn, err := github.NewClient(client.Client()).WithEnterpriseURLs(uv4.String(), "")
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
 		}
-
 		conn.BaseURL = uv4
+		client = conn
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, conn)
+	d.ConnectionManager.Cache.Set(cacheKey, client)
 
-	return conn
+	return client
 }
 
 // Create GraphQL API (v4) client
@@ -88,6 +137,9 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 
 	token := os.Getenv("GITHUB_TOKEN")
 	baseURL := os.Getenv("GITHUB_BASE_URL")
+	appId := os.Getenv("GITHUB_APP_ID")
+	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
+	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
@@ -98,15 +150,59 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		baseURL = *githubConfig.BaseURL
 	}
 
-	if token == "" {
-		panic("'token' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	// Github App authentication.
+	var githubAppId, githubInstallationId int64
+	if githubConfig.AppId != nil {
+		githubAppId = *githubConfig.AppId
+	}
+	if githubConfig.InstallationId != nil {
+		githubInstallationId = *githubConfig.InstallationId
+	}
+	if githubConfig.PrivateKey != nil {
+		privateKeyPath = *githubConfig.PrivateKey
 	}
 
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	conn := githubv4.NewClient(tc)
+	if appId != "" {
+		num, err := strconv.ParseInt(appId, 10, 32)
+		if err != nil {
+			panic(err)
+		}
+		githubAppId = num
+	}
+	if installationId != "" {
+		num, err := strconv.ParseInt(installationId, 10, 32)
+		if err != nil {
+			panic(err)
+		}
+		githubInstallationId = int64(num)
+	}
+
+	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
+		panic("'token' or 'app_id', 'installation_id' and 'private_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	}
+
+	var client *githubv4.Client
+	var transport *ghinstallation.Transport
+
+	// Authentication with Github access token
+	if token != "" {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: token},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		client = githubv4.NewClient(tc)
+	}
+
+	// Authentication as Github APP Installation
+	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" {
+		itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, githubAppId, githubInstallationId, privateKeyPath)
+		if err != nil {
+			panic("Error occurred in 'connectV4()' during GitHub App Installation client creation" + err.Error())
+		}
+		transport = itr
+
+		client = githubv4.NewClient(&http.Client{Transport: itr})
+	}
 
 	// If the base URL was provided then set it on the client. Used for
 	// enterprise installs.
@@ -120,13 +216,13 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 			uv4.Path = uv4.Path + "api/graphql"
 		}
 
-		conn = githubv4.NewEnterpriseClient(uv4.String(), tc)
+		client = githubv4.NewEnterpriseClient(uv4.String(), &http.Client{Transport: transport})
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, conn)
+	d.ConnectionManager.Cache.Set(cacheKey, client)
 
-	return conn
+	return client
 }
 
 //// HELPER FUNCTIONS
