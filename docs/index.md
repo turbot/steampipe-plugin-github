@@ -22,8 +22,7 @@ For example:
 ```sql
 select
   name,
-  language,
-  forks_count,
+  fork_count,
   stargazer_count
 from
   github_my_repository;
