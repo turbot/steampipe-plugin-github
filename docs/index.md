@@ -22,6 +22,7 @@ For example:
 ```sql
 select
   name,
+  primary_language -> 'name' as language,
   fork_count,
   stargazer_count
 from
