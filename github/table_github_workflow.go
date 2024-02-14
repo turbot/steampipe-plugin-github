@@ -164,6 +164,7 @@ func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData
 
 	pipeline, err := goPipeline.Parse(strings.NewReader(repContent))
 	if err != nil {
+		plugin.Logger(ctx).Error("github_workflow.decodeFileContentToPipeline", "Pipeline conversion error", err)
 		return nil, err
 	}
 
