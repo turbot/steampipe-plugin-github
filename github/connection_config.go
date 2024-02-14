@@ -2,21 +2,11 @@ package github
 
 import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/schema"
 )
 
 type githubConfig struct {
-	Token   *string `cty:"token"`
-	BaseURL *string `cty:"base_url"`
-}
-
-var ConfigSchema = map[string]*schema.Attribute{
-	"token": {
-		Type: schema.TypeString,
-	},
-	"base_url": {
-		Type: schema.TypeString,
-	},
+	Token   *string `hcl:"token"`
+	BaseURL *string `hcl:"base_url"`
 }
 
 func ConfigInstance() interface{} {
