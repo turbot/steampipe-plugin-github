@@ -1,3 +1,10 @@
+## v0.39.1 [2023-02-15]
+
+_Bug fixes_
+
+- Fixed the `github_workflow` table to return the correct results when all repositories are passed as a subquery. ([#388](https://github.com/turbot/steampipe-plugin-github/issues/388))
+- Fixed the example query in the index.md file by replacing the `stargazers_count` column with `stargazer_count`. ([#397](https://github.com/turbot/steampipe-plugin-github/pull/397))
+
 ## v0.39.0 [2023-12-12]
 
 _What's new?_
