@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
@@ -73,4 +74,13 @@ func rateLimitHydrateNodeCount(_ context.Context, _ *plugin.QueryData, h *plugin
 		return nil, err
 	}
 	return rl.NodeCount, nil
+}
+
+func getRateLimitResetTimeDuration(resetTime time.Time) (time.Duration, error) {
+	currentTime := time.Now().UTC()
+
+	// Calculate duration between current time and reset time
+	duration := resetTime.Sub(currentTime)
+
+	return duration, nil
 }

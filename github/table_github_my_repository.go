@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"time"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -22,7 +24,7 @@ func tableGitHubMyRepository() *plugin.Table {
 func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
-	pageSize := adjustPageSize(50, d.QueryContext.Limit)
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
 	var query struct {
 		RateLimit models.RateLimit
@@ -62,6 +64,17 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 			break
 		}
 		variables["cursor"] = githubv4.NewString(query.Viewer.Repositories.PageInfo.EndCursor)
+
+		plugin.Logger(ctx).Debug("Remains Rate limit", query.RateLimit.Remaining)
+		if query.RateLimit.Remaining <= 5 {
+			sleepDuration, err := getRateLimitResetTimeDuration(query.RateLimit.ResetAt)
+			if err != nil {
+				return nil, err
+			}
+			plugin.Logger(ctx).Debug("Stop making API call to avoid rate-limit error", sleepDuration.Seconds())
+			time.Sleep(sleepDuration)
+		}
+
 	}
 
 	return nil, nil
