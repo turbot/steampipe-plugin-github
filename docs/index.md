@@ -96,6 +96,11 @@ connection "github" {
   # The private key of the GitHub App, used for generating JWTs for authentication.
   # Can also be set with the GITHUB_PRIVATE_KEY environment variable.
   # private_key = "/User/ec2-home/2016-10-19.private-key.pem"
+
+  # The installation access token that enables a GitHub App to make authenticated API requests for the app's installation on an organization or individual account.
+  # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
+  # Can also be set with the GITHUB_APP_TOKEN environment variable.
+  # app_token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 }
 ```
 
@@ -104,3 +109,4 @@ connection "github" {
 - `app_id` - [Github App ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github organization. This can also be set via the `GITHUB_APP_ID` environment variable.
 - `installation_id` - [Github App installation ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github App installation. This can also be set via the `GITHUB_INSTALLATION_ID` environment variable.
 - `private_key` - [Github App private key path](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) for your Github App. This can also be set via the `GITHUB_PRIVATE_KEY` environment variable.
+- `app_token` - [Github App installation access token](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app). This can also be set with the GITHUB_APP_TOKEN environment variable.

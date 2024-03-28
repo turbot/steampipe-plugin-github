@@ -23,4 +23,9 @@ connection "github" {
   # The private key of the GitHub App, used for generating JWTs for authentication.
   # Can also be set with the GITHUB_PRIVATE_KEY environment variable.
   # private_key = "/Users/ec2-home/2016-10-19.private-key.pem"
+
+  # The installation access token that enables a GitHub App to make authenticated API requests for the app's installation on an organization or individual account.
+  # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
+  # Can also be set with the GITHUB_APP_TOKEN environment variable.
+  # app_token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 }
