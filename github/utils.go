@@ -36,7 +36,6 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	appId := os.Getenv("GITHUB_APP_ID")
 	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
 	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
-	appToken := ""
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
@@ -58,9 +57,6 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	if githubConfig.PrivateKey != nil {
 		privateKeyPath = *githubConfig.PrivateKey
 	}
-	if githubConfig.AppInstallationAccessToken != nil {
-		appToken = *githubConfig.AppInstallationAccessToken
-	}
 
 	if appId != "" {
 		num, err := strconv.ParseInt(appId, 10, 64)
@@ -77,14 +73,14 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		githubInstallationId = int64(num)
 	}
 
-	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") && appToken == "" {
+	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
 		panic("'token' or 'app_id', 'installation_id' and 'private_key' or `app_installation_access_token` must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
 	}
 
 	var client *github.Client
 
 	// Authentication with Github access token
-	if token != "" {
+	if token != "" && strings.HasPrefix(token, "ghp_") {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
@@ -92,10 +88,10 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		client = github.NewClient(tc)
 	}
 
-	// Authentication Using AppToken
-	if appToken != "" {
+	// Authentication Using App Installation Access Token
+	if token != "" && strings.HasPrefix(token, "ghs_"){
 		client = github.NewClient(&http.Client{Transport: &oauth2Transport{
-			Token: appToken,
+			Token: token,
 		}})
 	}
 
@@ -150,7 +146,6 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	appId := os.Getenv("GITHUB_APP_ID")
 	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
 	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
-	appToken := ""
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
@@ -159,9 +154,6 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	}
 	if githubConfig.BaseURL != nil {
 		baseURL = *githubConfig.BaseURL
-	}
-	if githubConfig.AppInstallationAccessToken != nil {
-		appToken = *githubConfig.AppInstallationAccessToken
 	}
 
 	// Github App authentication.
@@ -192,21 +184,21 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	}
 	var client *githubv4.Client
 
-	// Authentication Using AppToken
-	if appToken != "" {
+	// Authentication Using App Installation Access Token
+	if token != "" && strings.HasPrefix(token, "ghs_") {
 		return githubv4.NewClient(&http.Client{Transport: &oauth2Transport{
-			Token: appToken,
+			Token: token,
 		}})
 	}
 
-	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") && appToken == "" {
-		panic("'token' or 'app_id', 'installation_id' and 'private_key' or  `app_installation_access_token` must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
+		panic("'token' or 'app_id', 'installation_id' and 'private_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
 	}
 
 	var transport *ghinstallation.Transport
 
 	// Authentication with Github access token
-	if token != "" {
+	if token != "" && strings.HasPrefix(token, "ghp_"){
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
