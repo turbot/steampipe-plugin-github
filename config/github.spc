@@ -26,6 +26,5 @@ connection "github" {
 
   # The installation access token that enables a GitHub App to make authenticated API requests for the app's installation on an organization or individual account.
   # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
-  # Can also be set with the GITHUB_APP_TOKEN environment variable.
-  # app_token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
+  # app_installation_access_token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 }
