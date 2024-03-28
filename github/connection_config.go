@@ -10,6 +10,7 @@ type githubConfig struct {
 	AppId          *int64  `hcl:"app_id,optional"`
 	InstallationId *int64  `hcl:"installation_id,optional"`
 	PrivateKey     *string `hcl:"private_key,optional"`
+	AppToken       *string `hcl:"app_token,optional"`
 }
 
 func ConfigInstance() interface{} {
