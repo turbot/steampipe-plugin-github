@@ -5,9 +5,7 @@ import (
 	"encoding/base64"
 	"strings"
 
-	pipelineConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
-	pipelineHandler "github.com/argonsecurity/pipeline-parser/pkg/handler"
-	pipelineModels "github.com/argonsecurity/pipeline-parser/pkg/models"
+	goPipeline "github.com/buildkite/go-pipeline"
 
 	"github.com/ghodss/yaml"
 	"github.com/google/go-github/v55/github"
@@ -157,11 +155,6 @@ func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (i
 	return string(decodedText), nil
 }
 
-// toPipeline:: Converts the github workflow buffer to generic CI pipeline format
-func toPipeline(buf []byte) (*pipelineModels.Pipeline, error) {
-	return pipelineHandler.Handle(buf, pipelineConsts.GitHubPlatform)
-}
-
 // decodeFileContentToPipeline:: Converts the workflow decoded text to generic CI pipeline.
 func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	repContent, ok := d.Value.(string)
@@ -169,7 +162,7 @@ func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData
 		return nil, nil
 	}
 
-	pipeline, err := toPipeline([]byte(repContent))
+	pipeline, err := goPipeline.Parse(strings.NewReader(repContent))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_workflow.decodeFileContentToPipeline", "Pipeline conversion error", err)
 		return nil, err
