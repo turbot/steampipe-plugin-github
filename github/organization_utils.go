@@ -100,7 +100,7 @@ func ocHydrateUserLogin(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 	if err != nil {
 		return nil, err
 	}
-	return oc.Node.Login, nil
+	return oc.Node, nil
 }
 
 func extractOrganizationFromHydrateItem(h *plugin.HydrateData) (models.OrganizationWithCounts, error) {

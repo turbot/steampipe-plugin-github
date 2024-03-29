@@ -20,21 +20,21 @@ func gitHubOrganizationCollaborators() []*plugin.Column {
 		{Name: "affiliation", Type: proto.ColumnType_STRING, Description: "Affiliation filter - valid values 'ALL' (default), 'OUTSIDE', 'DIRECT'.", Transform: transform.FromQual("affiliation"), Default: "ALL"},
 		{Name: "repository_name", Type: proto.ColumnType_STRING, Description: "The name of the repository", Transform: transform.FromValue(), Hydrate: ocHydrateRepository},
 		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The permission the collaborator has on the repository.", Transform: transform.FromValue(), Hydrate: ocHydratePermission},
-		{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The login of the collaborator", Transform: transform.FromValue(), Hydrate: ocHydrateUserLogin},
+		{Name: "user_login", Type: proto.ColumnType_JSON, Description: "The login of the collaborator", Transform: transform.FromValue(), Hydrate: ocHydrateUserLogin},
 	}
 
-	return append(tableCols, sharedUserColumns()...)
+	return tableCols
 }
 
 type OrgCollaborators struct {
-	RepositoryName *string
+	RepositoryName githubv4.String
 	Permission     githubv4.RepositoryPermission
-	Node           models.BasicUser
+	Node           models.CollaboratorLogin
 }
 
 type CollaboratorEdge struct {
 	Permission githubv4.RepositoryPermission `graphql:"permission @include(if:$includeOCPermission)" json:"permission"`
-	Node       models.BasicUser              `graphql:"node @include(if:$includeOCNode)" json:"node"`
+	Node       models.CollaboratorLogin      `graphql:"node @include(if:$includeOCNode)" json:"node"`
 }
 
 func tableGitHubOrganizationCollaborator() *plugin.Table {
@@ -123,7 +123,7 @@ func listGitHubOrganizationCollaborators(ctx context.Context, d *plugin.QueryDat
 
 		for _, node := range query.Organization.Repositories.Nodes {
 			for _, edge := range node.Collaborators.Edges {
-				d.StreamListItem(ctx, OrgCollaborators{(*string)(&node.Name), edge.Permission, edge.Node})
+				d.StreamListItem(ctx, OrgCollaborators{node.Name, edge.Permission, edge.Node})
 			}
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
