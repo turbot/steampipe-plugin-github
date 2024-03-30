@@ -80,6 +80,7 @@ connection "github" {
   # - GitHub application installation access token, e.g., `ghs_UdmjfiKzVbFJNBsaiePwFPCmKeFakeToken`
   #   https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
   # Can also be set with the GITHUB_TOKEN environment variable.
+  # token = "ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8"
 
   # GitHub Enterprise requires a base_url to be configured to your installation location.
   # Can also be set with the GITHUB_BASE_URL environment variable.

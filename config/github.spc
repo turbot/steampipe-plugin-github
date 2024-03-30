@@ -3,6 +3,8 @@ connection "github" {
 
   # The GitHub personal access token to authenticate to the GitHub APIs, e.g., `ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8`.
   # Please see https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token for more information.
+  # GitHub application installation access token, e.g., `ghs_UdmjfiKzVbFJNBsaiePwFPCmKeFakeToken`
+  # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
   # Can also be set with the GITHUB_TOKEN environment variable.
   # token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 
@@ -23,8 +25,4 @@ connection "github" {
   # The private key of the GitHub App, used for generating JWTs for authentication.
   # Can also be set with the GITHUB_PRIVATE_KEY environment variable.
   # private_key = "/Users/ec2-home/2016-10-19.private-key.pem"
-
-  # The installation access token that enables a GitHub App to make authenticated API requests for the app's installation on an organization or individual account.
-  # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
-  # app_installation_access_token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 }
