@@ -74,12 +74,12 @@ Installing the latest github plugin will create a config file (`~/.steampipe/con
 connection "github" {
   plugin = "github"
 
-  # The GitHub personal access token to authenticate to the GitHub APIs, e.g., `ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8`.
-  # Please see https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token for more information.
-  # The installation access token that enables a GitHub App to make authenticated API requests for the app's installation on an organization or individual account.
-  # Please see https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
+  # The following tokens are currently supported:
+  # - Personal access tokens, e.g., `ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8`.
+  #   https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token for more information.
+  # - GitHub application installation access token, e.g., `ghs_UdmjfiKzVbFJNBsaiePwFPCmKeFakeToken`
+  #   https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
   # Can also be set with the GITHUB_TOKEN environment variable.
-  # token = "ghp_J1jzniKzVbFJNB34cJPwFPCmKeFakeToken"
 
   # GitHub Enterprise requires a base_url to be configured to your installation location.
   # Can also be set with the GITHUB_BASE_URL environment variable.
