@@ -20,7 +20,7 @@ func gitHubOrganizationCollaborators() []*plugin.Column {
 		{Name: "affiliation", Type: proto.ColumnType_STRING, Description: "Affiliation filter - valid values 'ALL' (default), 'OUTSIDE', 'DIRECT'.", Transform: transform.FromQual("affiliation"), Default: "ALL"},
 		{Name: "repository_name", Type: proto.ColumnType_STRING, Description: "The name of the repository", Transform: transform.FromValue(), Hydrate: ocHydrateRepository},
 		{Name: "permission", Type: proto.ColumnType_STRING, Description: "The permission the collaborator has on the repository.", Transform: transform.FromValue(), Hydrate: ocHydratePermission},
-		{Name: "user_login", Type: proto.ColumnType_JSON, Description: "The login of the collaborator", Transform: transform.FromValue(), Hydrate: ocHydrateUserLogin},
+		{Name: "user_login", Type: proto.ColumnType_JSON, Description: "The login details of the collaborator.", Transform: transform.FromValue(), Hydrate: ocHydrateUserLogin},
 	}
 
 	return tableCols
