@@ -26,6 +26,11 @@ func appendOrganizationExternalIdentityColumnIncludes(m *map[string]interface{},
 	(*m)["includeOrgExternalIdentityOrganizationInvitation"] = githubv4.Boolean(slices.Contains(cols, "organization_invitation"))
 }
 
+func appendOrgCollaboratorColumnIncludes(m *map[string]interface{}, cols []string) {
+	(*m)["includeOCPermission"] = githubv4.Boolean(slices.Contains(cols, "permission"))
+	(*m)["includeOCNode"] = githubv4.Boolean(slices.Contains(cols, "user_login"))
+}
+
 func orgExternalIdentityHydrateGuid(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	orgExternalIdentity, err := extractOrganizationExternalIdentityFromHydrateItem(h)
 	if err != nil {
@@ -74,11 +79,43 @@ func orgExternalIdentityHydrateOrganizationInvitation(_ context.Context, _ *plug
 	return orgExternalIdentity.OrganizationInvitation, nil
 }
 
+func ocHydratePermission(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	oc, err := extractOrgCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return oc.Permission, nil
+}
+
+func ocHydrateRepository(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	oc, err := extractOrgCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return oc.RepositoryName, nil
+}
+
+func ocHydrateUserLogin(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	oc, err := extractOrgCollaboratorFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return oc.Node, nil
+}
+
 func extractOrganizationFromHydrateItem(h *plugin.HydrateData) (models.OrganizationWithCounts, error) {
 	if org, ok := h.Item.(models.OrganizationWithCounts); ok {
 		return org, nil
 	} else {
 		return models.OrganizationWithCounts{}, fmt.Errorf("unable to parse hydrate item %v as a Organization", h.Item)
+	}
+}
+
+func extractOrgCollaboratorFromHydrateItem(h *plugin.HydrateData) (OrgCollaborators, error) {
+	if oc, ok := h.Item.(OrgCollaborators); ok {
+		return oc, nil
+	} else {
+		return OrgCollaborators{}, fmt.Errorf("unable to parse hydrate item %v as a OrgCollaborators", h.Item)
 	}
 }
 

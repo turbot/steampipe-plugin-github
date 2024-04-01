@@ -16,6 +16,14 @@ type BasicUser struct {
 	Url       string       `json:"url"`
 }
 
+type CollaboratorLogin struct {
+	Login   string `json:"login"`
+	Email   string `json:"email"`
+	Url     string `json:"url"`
+	Name    string `json:"name"`
+	Company string `json:"company"`
+}
+
 type User struct {
 	BasicUser
 	AnyPinnableItems                      bool                         `graphql:"anyPinnableItems @include(if:$includeUserAnyPinnableItems)" json:"any_pinnable_items"`
