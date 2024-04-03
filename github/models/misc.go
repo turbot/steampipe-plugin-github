@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/shurcooL/githubv4"
 	"time"
+
+	"github.com/shurcooL/githubv4"
 )
 
 type NullableTime struct {
@@ -34,7 +35,7 @@ type BasicRef struct {
 
 type BasicRefWithBranchProtectionRule struct {
 	BasicRef
-	BranchProtectionRule *BranchProtectionRule `json:"branch_protection_rule,omitempty"`
+	BranchProtectionRule *BaseBranchProtectionRule `json:"branch_protection_rule,omitempty"`
 }
 
 type Language struct {

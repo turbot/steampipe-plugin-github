@@ -2,8 +2,9 @@ package github
 
 import (
 	"context"
-	"github.com/turbot/steampipe-plugin-github/github/models"
 	"strings"
+
+	"github.com/turbot/steampipe-plugin-github/github/models"
 
 	"github.com/shurcooL/githubv4"
 
@@ -42,7 +43,7 @@ func tableGitHubOrganizationMember() *plugin.Table {
 	}
 }
 
-func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client := connectV4(ctx, d)
 
 	quals := d.EqualsQuals
@@ -69,13 +70,10 @@ func tableGitHubOrganizationMemberList(ctx context.Context, d *plugin.QueryData,
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil), // Null after argument to get first page.
 	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
+	appendUserColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_organization_member", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_organization_member", "api_error", err)

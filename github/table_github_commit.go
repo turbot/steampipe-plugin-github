@@ -2,11 +2,12 @@ package github
 
 import (
 	"context"
+	"time"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -31,33 +32,35 @@ func tableGitHubCommit() *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the commit."},
 			{Name: "sha", Type: proto.ColumnType_STRING, Description: "SHA of the commit."},
-			{Name: "short_sha", Type: proto.ColumnType_STRING, Description: "Short SHA of the commit."},
-			{Name: "message", Type: proto.ColumnType_STRING, Description: "Commit message."},
-			{Name: "author_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Author.User.Login"), Description: "The login name of the author of the commit."},
-			{Name: "authored_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("AuthoredDate").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the author made this commit."},
-			{Name: "author", Type: proto.ColumnType_JSON, Transform: transform.FromField("Author").NullIfZero(), Description: "The commit author."},
-			{Name: "committer_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Committer.User.Login"), Description: "The login name of the committer."},
-			{Name: "committed_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CommittedDate").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when commit was committed."},
-			{Name: "committer", Type: proto.ColumnType_JSON, Transform: transform.FromField("Committer").NullIfZero(), Description: "The committer."},
-			{Name: "additions", Type: proto.ColumnType_INT, Description: "Number of additions in the commit."},
-			{Name: "deletions", Type: proto.ColumnType_INT, Description: "Number of deletions in the commit."},
-			{Name: "changed_files", Type: proto.ColumnType_INT, Description: "Count of files changed in the commit."},
-			{Name: "committed_via_web", Type: proto.ColumnType_BOOL, Description: "If true, commit was made via GitHub web ui."},
-			{Name: "commit_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("CommitUrl"), Description: "URL of the commit."},
-			{Name: "signature", Type: proto.ColumnType_JSON, Transform: transform.FromField("Signature").NullIfZero(), Description: "The signature of commit."},
-			{Name: "status", Type: proto.ColumnType_JSON, Transform: transform.FromField("Status").NullIfZero(), Description: "Status of the commit."},
-			{Name: "tarball_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TarballUrl"), Description: "URL to download a tar of commit."},
-			{Name: "zipball_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("ZipballUrl"), Description: "URL to download a zip of commit."},
-			{Name: "tree_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeUrl"), Description: "URL to tree of the commit."},
-			{Name: "can_subscribe", Type: proto.ColumnType_BOOL, Description: "If true, user can subscribe to this commit."},
-			{Name: "subscription", Type: proto.ColumnType_STRING, Description: "Users subscription state of the commit."},
-			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Url"), Description: "URL of the commit."},
-			{Name: "node_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("NodeId"), Description: "The node ID of the commit."},
+			{Name: "short_sha", Type: proto.ColumnType_STRING, Hydrate: commitHydrateShortSha, Transform: transform.FromValue(), Description: "Short SHA of the commit."},
+			{Name: "message", Type: proto.ColumnType_STRING, Hydrate: commitHydrateMessage, Transform: transform.FromValue(), Description: "Commit message."},
+			{Name: "author_login", Type: proto.ColumnType_STRING, Hydrate: commitHydrateAuthorLogin, Transform: transform.FromValue(), Description: "The login name of the author of the commit."},
+			{Name: "authored_date", Type: proto.ColumnType_TIMESTAMP, Hydrate: commitHydrateAuthoredDate, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the author made this commit."},
+			{Name: "author", Type: proto.ColumnType_JSON, Hydrate: commitHydrateAuthor, Transform: transform.FromValue().NullIfZero(), Description: "The commit author."},
+			{Name: "committer_login", Type: proto.ColumnType_STRING, Hydrate: commitHydrateCommitterLogin, Transform: transform.FromValue(), Description: "The login name of the committer."},
+			{Name: "committed_date", Type: proto.ColumnType_TIMESTAMP, Hydrate: commitHydrateCommittedDate, Transform: transform.FromValue().NullIfZero().Transform(convertTimestamp), Description: "Timestamp when commit was committed."},
+			{Name: "committer", Type: proto.ColumnType_JSON, Hydrate: commitHydrateCommitter, Transform: transform.FromValue().NullIfZero(), Description: "The committer."},
+			{Name: "additions", Type: proto.ColumnType_INT, Hydrate: commitHydrateAdditions, Transform: transform.FromValue(), Description: "Number of additions in the commit."},
+			{Name: "authored_by_committer", Type: proto.ColumnType_BOOL, Hydrate: commitHydrateAuthoredByCommitter, Transform: transform.FromValue(), Description: "Check if the committer and the author match."},
+			{Name: "deletions", Type: proto.ColumnType_INT, Hydrate: commitHydrateDeletions, Transform: transform.FromValue(), Description: "Number of deletions in the commit."},
+			{Name: "changed_files", Type: proto.ColumnType_INT, Hydrate: commitHydrateChangedFiles, Transform: transform.FromValue(), Description: "Count of files changed in the commit."},
+			{Name: "committed_via_web", Type: proto.ColumnType_BOOL, Hydrate: commitHydrateCommittedViaWeb, Transform: transform.FromValue(), Description: "If true, commit was made via GitHub web ui."},
+			{Name: "commit_url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateCommitUrl, Transform: transform.FromValue(), Description: "URL of the commit."},
+			{Name: "signature", Type: proto.ColumnType_JSON, Hydrate: commitHydrateSignature, Transform: transform.FromValue().NullIfZero(), Description: "The signature of commit."},
+			{Name: "status", Type: proto.ColumnType_JSON, Hydrate: commitHydrateStatus, Transform: transform.FromValue().NullIfZero(), Description: "Status of the commit."},
+			{Name: "tarball_url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateTarballUrl, Transform: transform.FromValue(), Description: "URL to download a tar of commit."},
+			{Name: "zipball_url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateZipballUrl, Transform: transform.FromValue(), Description: "URL to download a zip of commit."},
+			{Name: "tree_url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateTreeUrl, Transform: transform.FromValue(), Description: "URL to tree of the commit."},
+			{Name: "can_subscribe", Type: proto.ColumnType_BOOL, Hydrate: commitHydrateCanSubscribe, Transform: transform.FromValue(), Description: "If true, user can subscribe to this commit."},
+			{Name: "subscription", Type: proto.ColumnType_STRING, Hydrate: commitHydrateSubscription, Transform: transform.FromValue(), Description: "Users subscription state of the commit."},
+			{Name: "url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateUrl, Transform: transform.FromValue(), Description: "URL of the commit."},
+			{Name: "node_id", Type: proto.ColumnType_STRING, Hydrate: commitHydrateNodeId, Transform: transform.FromValue(), Description: "The node ID of the commit."},
+			{Name: "message_headline", Type: proto.ColumnType_STRING, Hydrate: commitHydrateMessageHeadline, Transform: transform.FromValue(), Description: "The Git commit message headline."},
 		},
 	}
 }
 
-func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
@@ -110,13 +113,12 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		} `graphql:"repository(owner: $owner, name: $name)"`
 	}
 
+	appendCommitColumnIncludes(&variables, d.QueryContext.Columns)
+
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
 
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_commit", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_commit", "api_error", err)
@@ -141,7 +143,7 @@ func tableGitHubCommitList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	return nil, nil
 }
 
-func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
@@ -161,14 +163,11 @@ func tableGitHubCommitGet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		"name":  githubv4.String(repo),
 		"sha":   githubv4.GitObjectID(sha),
 	}
+	appendCommitColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
-	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_commit", &query.RateLimit))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_commit", "api_error", err)

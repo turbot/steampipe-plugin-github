@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -18,14 +19,14 @@ func tableGitHubMyStar() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
-			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromField("Node.NameWithOwner")},
-			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("StarredAt").Transform(convertTimestamp), Description: "The timestamp when the repository was starred."},
-			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Node.Url"), Description: "URL of the repository."},
+			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromValue(), Hydrate: starHydrateNameWithOwner},
+			{Name: "starred_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().Transform(convertTimestamp), Hydrate: starHydrateStarredAt, Description: "The timestamp when the repository was starred."},
+			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: starHydrateUrl, Description: "URL of the repository."},
 		},
 	}
 }
 
-func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	var query struct {
 		RateLimit models.RateLimit
 		Viewer    struct {
@@ -37,8 +38,8 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 					Node      struct {
 						NameWithOwner string
 						Url           string
-					}
-				}
+					} `graphql:"node @include(if:$includeStarNode)"`
+				} `graphql:"edges @include(if:$includeStarEdges)"`
 			} `graphql:"starredRepositories(first: $pageSize, after: $cursor)"`
 		}
 	}
@@ -48,13 +49,12 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendStarColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
+
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_star", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_star", "api_error", err)
@@ -62,7 +62,7 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 		}
 
 		for _, star := range query.Viewer.StarredRepositories.Edges {
-			d.StreamListItem(ctx, star)
+			d.StreamListItem(ctx, myStar{star.StarredAt, star.Node.NameWithOwner, star.Node.Url})
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {
@@ -77,4 +77,10 @@ func tableGitHubMyStarredRepositoryList(ctx context.Context, d *plugin.QueryData
 	}
 
 	return nil, nil
+}
+
+type myStar struct {
+	StarredAt     models.NullableTime
+	NameWithOwner string
+	Url           string
 }

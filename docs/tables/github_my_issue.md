@@ -1,21 +1,46 @@
-# Table: github_my_issue
+---
+title: "Steampipe Table: github_my_issue - Query GitHub Issues using SQL"
+description: "Allows users to query personal issues in GitHub, specifically focusing on the details of issues assigned to or created by the authenticated user."
+---
 
-GitHub Issues are used to track ideas, enhancements, tasks, or bugs for work on GitHub. The `github_my_issue` table lists issues that are assigned to you, across all repositories.
+# Table: github_my_issue - Query GitHub Issues using SQL
 
-To view **all the issues belonging to a repository**, use the `github_issue` table.
+GitHub Issues is a feature in GitHub that provides a platform to track bugs, enhancements, or other requests. It allows users to collaborate on tasks, discuss project details, and manage project timelines. Issues are a great way to keep track of tasks, improvements, and bugs for your projects.
+
+## Table Usage Guide
+
+The `github_my_issue` table provides insights into personal issues within GitHub. As a project manager or developer, explore issue-specific details through this table, including the issue title, state, assignee, and associated metadata. Utilize it to manage and track tasks, improvements, and bugs for your projects.
+
+**Important Notes**
+- To view **all the issues belonging to a repository**, use the `github_issue` table.
 
 ## Examples
 
 ### List all of the open issues assigned to you
+Explore which open issues are currently assigned to you on GitHub. This is useful for managing your workload and prioritizing tasks.
 
-```sql
+```sql+postgres
 select
   repository_full_name,
   number,
   title,
   state,
   author_login,
-  assignee_logins
+  author_login
+from
+  github_my_issue
+where
+  state = 'OPEN';
+```
+
+```sql+sqlite
+select
+  repository_full_name,
+  number,
+  title,
+  state,
+  author_login,
+  author_login
 from
   github_my_issue
 where
@@ -23,13 +48,31 @@ where
 ```
 
 ### List your 10 oldest open issues
+Explore which of your open issues have been unresolved the longest to help prioritize your workflow and manage your project effectively.
 
-```sql
+```sql+postgres
 select
   repository_full_name,
   number,
   created_at,
   age(created_at),
+  title,
+  state
+from
+  github_my_issue
+where
+  state = 'OPEN'
+order by
+  created_at
+limit 10;
+```
+
+```sql+sqlite
+select
+  repository_full_name,
+  number,
+  created_at,
+  julianday('now') - julianday(created_at) as age,
   title,
   state
 from

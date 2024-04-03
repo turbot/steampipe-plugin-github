@@ -37,12 +37,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 		RateLimit models.RateLimit
 		Search    struct {
 			PageInfo models.PageInfo
-			Edges    []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.Issue `graphql:"... on Issue"`
-				}
-			}
+			Edges    []models.SearchIssueResult
 		} `graphql:"search(type: ISSUE, first: $pageSize, after: $cursor, query: $query)"`
 	}
 
@@ -52,14 +47,11 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 		"cursor":   (*githubv4.String)(nil),
 		"query":    githubv4.String(input),
 	}
+	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_issue", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_issue", "api_error", err)

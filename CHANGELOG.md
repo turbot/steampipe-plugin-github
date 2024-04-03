@@ -1,3 +1,161 @@
+## v0.39.1 [2024-02-15]
+
+_Bug fixes_
+
+- Fixed the `pipeline` column of the `github_workflow` table to correctly return data instead of an error. ([#388](https://github.com/turbot/steampipe-plugin-github/issues/388))
+- Fixed the example query in the `docs/index.md` file by replacing the `stargazers_count` column with `stargazer_count`. ([#397](https://github.com/turbot/steampipe-plugin-github/pull/397))
+
+## v0.39.0 [2023-12-12]
+
+_What's new?_
+
+- The plugin can now be downloaded and used with the [Steampipe CLI](https://steampipe.io/install/steampipe.sh), as a [Postgres FDW](https://steampipe.io/install/postgres.sh), as a [SQLite extension](https://steampipe.io/install/sqlite.sh) and as a standalone [exporter](https://steampipe.io/install/export.sh).
+- The table docs have been updated to provide corresponding example queries for Postgres FDW and SQLite extension.
+- Docs license updated to match Steampipe [CC BY-NC-ND license](https://github.com/turbot/steampipe-plugin-github/blob/main/docs/LICENSE).
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.8.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v580-2023-12-11) that includes plugin server encapsulation for in-process and GRPC usage, adding Steampipe Plugin SDK version to `_ctx` column, and fixing connection and potential divide-by-zero bugs. ([#394](https://github.com/turbot/steampipe-plugin-github/pull/394))
+
+## v0.38.0 [2023-12-06]
+
+_What's new?_
+
+- New tables added
+  - [github_repository_sbom](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_sbom) ([#353](https://github.com/turbot/steampipe-plugin-github/pull/353)) (Thanks [@lwakefield](https://github.com/lwakefield) for the contribution!)
+
+_Enhancements_
+
+- Updated the following tables to include support for dynamic GraphQL queries:
+  - `github_my_star` ([#369](https://github.com/turbot/steampipe-plugin-github/pull/369))
+  - `github_stargazer` ([#370](https://github.com/turbot/steampipe-plugin-github/pull/370))
+  - `github_tag` ([#371](https://github.com/turbot/steampipe-plugin-github/pull/371))
+  - `github_rate_limit` ([#368](https://github.com/turbot/steampipe-plugin-github/pull/368))
+  - `github_community_profile` ([#367](https://github.com/turbot/steampipe-plugin-github/pull/367))
+  - `github_license` ([#366](https://github.com/turbot/steampipe-plugin-github/pull/366))
+  - `github_organization_member` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_team_member` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_user` ([#364](https://github.com/turbot/steampipe-plugin-github/pull/364))
+  - `github_my_team` ([#363](https://github.com/turbot/steampipe-plugin-github/pull/363))
+  - `github_team` ([#363](https://github.com/turbot/steampipe-plugin-github/pull/363))
+  - `github_commit` ([#362](https://github.com/turbot/steampipe-plugin-github/pull/362))
+  - `github_my_organization` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_organization` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_organization_external_identity` ([#361](https://github.com/turbot/steampipe-plugin-github/pull/361))
+  - `github_branch` ([#360](https://github.com/turbot/steampipe-plugin-github/pull/360))
+  - `github_branch_protection` ([#360](https://github.com/turbot/steampipe-plugin-github/pull/360))
+  - `github_repository_collaborator` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_deployment` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_environment` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_repository_vulnerability_alert` ([#365](https://github.com/turbot/steampipe-plugin-github/pull/365))
+  - `github_issue` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_issue_comment` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request_comment` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+  - `github_pull_request_review` ([#359](https://github.com/turbot/steampipe-plugin-github/pull/359))
+
+## v0.37.1 [2023-11-16]
+
+_Bug fixes_
+
+- Fixed the `GetConfig` of `github_team_repository` table to include support for dynamic GraphQL queries. ([#379](https://github.com/turbot/steampipe-plugin-github/pull/379))
+- Fixed the example queries in `github_commit` doc file. ([#377](https://github.com/turbot/steampipe-plugin-github/pull/377))
+- Fixed the example queries in `github_search_issue` doc file to filter out results from the API. ([#378](https://github.com/turbot/steampipe-plugin-github/pull/378))
+
+## v0.37.0 [2023-11-10]
+
+_Enhancements_
+
+- Added the `run_started_at` column to `github_actions_repository_workflow_run` table. ([#358](https://github.com/turbot/steampipe-plugin-github/pull/358)) (Thanks [@mridang](https://github.com/mridang) for the contribution!)
+
+## v0.36.1 [2023-10-27]
+
+_Bug fixes_
+
+- Fixed the required quals of `github_issue` and `github_pull_request` tables to correctly return data instead of an error. ([#355](https://github.com/turbot/steampipe-plugin-github/pull/355))
+
+## v0.36.0 [2023-10-24]
+
+_What's new_
+
+- Updated `github_issue`, `github_my_issue`, `github_pull_request`, `github_search_issue`, and `github_search_pull_request` tables to only include nested and user permission columns in GraphQL request when requested. This should result in faster queries and large scale queries completing more consistently. ([#342](https://github.com/turbot/steampipe-plugin-github/pull/342))
+
+## v0.35.1 [2023-10-04]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.6.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v562-2023-10-03) which prevents nil pointer reference errors for implicit hydrate configs. ([#346](https://github.com/turbot/steampipe-plugin-github/pull/346))
+
+## v0.35.0 [2023-10-02]
+
+_Dependencies_
+
+- Upgraded to [steampipe-plugin-sdk v5.6.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v561-2023-09-29) with support for rate limiters. ([#341](https://github.com/turbot/steampipe-plugin-github/pull/341))
+
+## v0.34.1 [2023-09-21]
+
+_Bug fixes_
+
+- Empty values will no longer be cached incorrectly for the `github_my_repository`, `github_repository`, and `github_search_repository` tables. ([#340](https://github.com/turbot/steampipe-plugin-github/pull/340))
+- Fixed `github_team_repository table` to include support for dynamic GraphQL queries. ([#339](https://github.com/turbot/steampipe-plugin-github/pull/339))
+
+## v0.34.0 [2023-09-20]
+
+_What's new_
+
+- Updated `github_my_repository`, `github_repository`, and `github_search_repository` tables to only include requested columns in GraphQL request. This should result in faster queries and large scale queries completing more consistently. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
+
+_Dependencies_
+
+- Recompiled plugin with Go 1.21. ([#338](https://github.com/turbot/steampipe-plugin-github/pull/338))
+
+## v0.33.1 [2023-09-19]
+
+_Bug fixes_
+
+- Fixed `github_search_repository` table queries failing when selecting the `has_downloads`, `has_pages`, `hooks`, `network_count`, `subscribers_count`, or `topics` columns. ([#337](https://github.com/turbot/steampipe-plugin-github/pull/337))
+
+## v0.33.0 [2023-09-13]
+
+_Breaking changes_
+
+- Removed the `security_advisory_cwes_cweid` and `security_advisory_cwes_name` columns from `github_organization_dependabot_alert` and `github_repository_dependabot_alert` tables. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
+_Enhancements_
+
+- Added the `security_advisory_cwes` column to `github_organization_dependabot_alert` and `github_repository_dependabot_alert` tables. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+- Added the `actor`, `actor_login`, `triggering_actor`, and `triggering_actor_login` columns to `github_actions_repository_workflow_run` table. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.5.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v551-2023-07-26). ([#325](https://github.com/turbot/steampipe-plugin-github/pull/325))
+- Recompiled plugin with `golang.org/x/oauth2 v0.12.0`. ([#326](https://github.com/turbot/steampipe-plugin-github/pull/326))
+- Recompiled plugin with `Github.com/argonsecurity/pipeline-parser v0.3.3`. ([#330](https://github.com/turbot/steampipe-plugin-github/pull/330))
+- Recompiled plugin with `github.com/turbot/go-kit v0.7.0`. ([#328](https://github.com/turbot/steampipe-plugin-github/pull/328))
+- Recompiled plugin with `github.com/google/go-github v55.0.0`. ([#332](https://github.com/turbot/steampipe-plugin-github/pull/332))
+
+## v0.32.0 [2023-09-07]
+
+_Breaking changes_
+
+- Removed the `temp_clone_token` column from `github_my_repository` and `github_repository` tables to allow queries with fine-grained access tokens. ([#321](https://github.com/turbot/steampipe-plugin-github/pull/321))
+
+_What's new?_
+
+- New tables added
+  - [github_repository_vulnerability_alert](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_vulnerability_alert) ([#318](https://github.com/turbot/steampipe-plugin-github/pull/318))
+
+_Enhancements_
+
+- The plugin has been updated to use `DefaultRetryConfig` rather than `plugin.RetryHydrate` in each table. ([#322](https://github.com/turbot/steampipe-plugin-github/pull/322))
+
+## v0.31.0 [2023-08-17]
+
+_What's new?_
+
+- New tables added
+  - [github_pull_request_review](https://hub.steampipe.io/plugins/turbot/github/tables/github_pull_request_review) ([#313](https://github.com/turbot/steampipe-plugin-github/pull/313)) (Thanks [@jramosf](https://github.com/jramosf) for the contribution!)
+
 ## v0.30.2 [2023-07-28]
 
 _Bug fixes_

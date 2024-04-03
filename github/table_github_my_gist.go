@@ -3,11 +3,9 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubMyGist() *plugin.Table {
 	return &plugin.Table{
@@ -19,8 +17,6 @@ func tableGitHubMyGist() *plugin.Table {
 		Columns: gitHubGistColumns(),
 	}
 }
-
-//// LIST FUNCTION
 
 func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
@@ -34,32 +30,13 @@ func tableGitHubMyGistList(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		}
 	}
 
-	type ListPageResponse struct {
-		myGist []*github.Gist
-		resp   *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		myGist, resp, err := client.Gists.List(ctx, "", opt)
-		return ListPageResponse{
-			myGist: myGist,
-			resp:   resp,
-		}, err
-	}
-
 	for {
-
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		gists, resp, err := client.Gists.List(ctx, "", opt)
 		if err != nil {
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		repos := listResponse.myGist
-		resp := listResponse.resp
-
-		for _, i := range repos {
+		for _, i := range gists {
 			if i != nil {
 				d.StreamListItem(ctx, i)
 			}

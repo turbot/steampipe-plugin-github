@@ -3,14 +3,12 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
-
-//// TABLE DEFINTION
 
 func tableGitHubTrafficViewDaily() *plugin.Table {
 	return &plugin.Table{
@@ -31,36 +29,16 @@ func tableGitHubTrafficViewDaily() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubTrafficViewDailyList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
-
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-
 	opts := &github.TrafficBreakdownOptions{Per: "day"}
 
-	type ListResponse struct {
-		trafficViews *github.TrafficViews
-		resp         *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		trafficViews, resp, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
-		return ListResponse{
-			trafficViews: trafficViews,
-			resp:         resp,
-		}, err
-	}
-
-	listResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	trafficViews, _, err := client.Repositories.ListTrafficViews(ctx, owner, repo, opts)
 	if err != nil {
 		return nil, err
 	}
-
-	result := listResponse.(ListResponse)
-	trafficViews := result.trafficViews
 
 	for _, i := range trafficViews.Views {
 		if i != nil {

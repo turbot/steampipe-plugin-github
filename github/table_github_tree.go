@@ -3,14 +3,12 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubTree() *plugin.Table {
 	return &plugin.Table{
@@ -48,8 +46,6 @@ type treeEntry struct {
 	Truncated *bool
 }
 
-//// GET FUNCTION
-
 func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	client := connect(ctx, d)
@@ -58,32 +54,15 @@ func tableGitHubTreeList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	fullName := quals["repository_full_name"].GetStringValue()
 	sha := quals["tree_sha"].GetStringValue()
 	recursive := quals["recursive"].GetBoolValue()
-
 	owner, repo := parseRepoFullName(fullName)
 
-	type GetResponse struct {
-		tree *github.Tree
-		resp *github.Response
-	}
-
-	getTree := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		tree, resp, err := client.Git.GetTree(ctx, owner, repo, sha, recursive)
-		return GetResponse{
-			tree: tree,
-			resp: resp,
-		}, err
-	}
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getTree, retryConfig())
-
+	tree, _, err := client.Git.GetTree(ctx, owner, repo, sha, recursive)
 	if err != nil {
 		logger.Error("github_tree.tableGitHubTreeList", "api_error", err)
 		return nil, err
 	}
 
-	getResp := getResponse.(GetResponse)
-	tree := getResp.tree
 	entries := tree.Entries
-
 	for _, entry := range entries {
 		entryRow := treeEntry{
 			TreeEntry: entry,

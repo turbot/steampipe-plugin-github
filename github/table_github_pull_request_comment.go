@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -48,15 +49,12 @@ func tableGitHubRepositoryPullRequestCommentList(ctx context.Context, d *plugin.
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendIssuePRCommentColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_pull_request_comment", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_pull_request_comment", "api_error", err)

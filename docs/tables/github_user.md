@@ -1,12 +1,25 @@
-# Table: github_user
+---
+title: "Steampipe Table: github_user - Query GitHub Users using SQL"
+description: "Allows users to query GitHub Users, specifically the user profiles, providing insights into user activities and contributions."
+---
 
-The `github_user` table does not list all users via the API - there is not currently an efficient way to limit the results in a useable way. As a result, you **must specify a user `login` in a `where`** or you will get no results.
+# Table: github_user - Query GitHub Users using SQL
+
+GitHub Users is a resource within GitHub that represents an individual user account on GitHub. It provides information about the user's public profile, such as the user's username, bio, location, email, and the date the user joined GitHub. GitHub Users also include statistics about the user's activities and contributions to GitHub repositories.
+
+## Table Usage Guide
+
+The `github_user` table provides insights into individual user accounts within GitHub. As a developer or project manager, explore user-specific details through this table, including user profiles, activities, and contributions. Utilize it to uncover information about users, such as their public profiles, the date they joined GitHub, and their contributions to repositories.
+
+**Important Notes**
+- You must specify the `login` column in `where` or `join` clause to query the table.
 
 ## Examples
 
 ### Get information for a user
+Explore the details associated with a specific GitHub user to gain insights into their activity and profile. This can be useful for understanding their contributions or for investigating user behavior.
 
-```sql
+```sql+postgres
 select
   *
 from
@@ -15,41 +28,43 @@ where
   login = 'torvalds';
 ```
 
-### List of users in your organizations
-
-```sql
+```sql+sqlite
 select
-  u.login,
-  o.login as organization,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
+  *
 from
-  github_user as u,
-  github_my_organization as o,
-  jsonb_array_elements_text(o.member_logins) as member_login
+  github_user
 where
-  u.login = member_login;
+  login = 'torvalds';
 ```
 
-### List of users that collaborate on a repository that you own
+### List users that are members of multiple organizations
 
-```sql
+```sql+postgres
 select
-  r.full_name as repository,
-  u.login,
-  u.name,
-  u.company,
-  u.location,
-  u.twitter_username,
-  u.bio
+  name,
+  email,
+  created_at,
+  bio,
+  twitter_username,
+  organizations_total_count
 from
-  github_user as u,
-  github_my_repository as r,
-  jsonb_array_elements_text(r.collaborator_logins) as collaborator_login
+  github_user
 where
-  u.login = collaborator_login
-  and r.full_name = 'turbot/steampipe';
+  login = 'madhushreeray30'
+  and organizations_total_count > 1;
+```
+
+```sql+sqlite
+select
+  name,
+  email,
+  created_at,
+  bio,
+  twitter_username,
+  organizations_total_count
+from
+  github_user
+where
+  login = 'madhushreeray30'
+  and organizations_total_count > 1;
 ```

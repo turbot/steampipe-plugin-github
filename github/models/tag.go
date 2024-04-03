@@ -3,9 +3,9 @@ package models
 import "time"
 
 type TagWithCommits struct {
-	Name   string
+	Name   string `graphql:"name @include(if:$includeTagName)" json:"name"`
 	Target struct {
-		Commit Commit `graphql:"... on Commit"`
+		Commit BaseCommit `graphql:"... on Commit"`
 		Tag    struct {
 			Message string
 			Tagger  struct {
@@ -16,8 +16,8 @@ type TagWithCommits struct {
 				}
 			}
 			Target struct {
-				Commit Commit `graphql:"... on Commit"`
+				Commit BaseCommit `graphql:"... on Commit"`
 			}
 		} `graphql:"... on Tag"`
-	}
+	} `graphql:"target @include(if:$includeTagTarget)" json:"target"`
 }

@@ -3,14 +3,12 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 	return &plugin.Table{
@@ -60,24 +58,21 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "head_repository", Type: proto.ColumnType_JSON, Description: "The head repository info for the workflow run."},
 			{Name: "pull_requests", Type: proto.ColumnType_JSON, Description: "The pull request details for the workflow run."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository info for the workflow run."},
+			{Name: "run_started_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("RunStartedAt").Transform(convertTimestamp), Description: "Time when the workflow run was started."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow run was updated."},
+			{Name: "actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the first instance of this workflow run."},
+			{Name: "actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the first instance of the workflow run.", Transform: transform.FromField("Actor.Login")},
+			{Name: "triggering_actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the latest instance of this workflow run."},
+			{Name: "triggering_actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the latest instance of this workflow run.", Transform: transform.FromField("TriggeringActor.Login")},
 		},
 	}
 }
-
-//// LIST FUNCTION
 
 func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(orgName)
-
-	type ListPageResponse struct {
-		workflowRuns *github.WorkflowRuns
-		resp         *github.Response
-	}
-
 	opts := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
@@ -115,23 +110,12 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		workflowRuns, resp, err := client.Actions.ListRepositoryWorkflowRuns(ctx, owner, repo, opts)
-		return ListPageResponse{
-			workflowRuns: workflowRuns,
-			resp:         resp,
-		}, err
-	}
-
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		workflowRuns, resp, err := client.Actions.ListRepositoryWorkflowRuns(ctx, owner, repo, opts)
 		if err != nil {
 			return nil, err
 		}
 
-		listResponse := listPageResponse.(ListPageResponse)
-		workflowRuns := listResponse.workflowRuns
-		resp := listResponse.resp
 		for _, i := range workflowRuns.WorkflowRuns {
 			if i != nil {
 				d.StreamListItem(ctx, i)
@@ -153,8 +137,6 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runId := d.EqualsQuals["id"].GetInt64Value()
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
@@ -169,25 +151,10 @@ func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *
 
 	client := connect(ctx, d)
 
-	type GetResponse struct {
-		workflowRun *github.WorkflowRun
-		resp        *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
-		return GetResponse{
-			workflowRun: detail,
-			resp:        resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	workflowRun, _, err := client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
 	if err != nil {
 		return nil, err
 	}
 
-	getResp := getResponse.(GetResponse)
-
-	return getResp.workflowRun, nil
+	return workflowRun, nil
 }

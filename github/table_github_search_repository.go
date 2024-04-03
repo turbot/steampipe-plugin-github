@@ -37,12 +37,7 @@ func tableGitHubSearchRepositoryList(ctx context.Context, d *plugin.QueryData, h
 		Search    struct {
 			RepositoryCount int
 			PageInfo        models.PageInfo
-			Edges           []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.Repository `graphql:"... on Repository"`
-				}
-			}
+			Edges           []models.SearchRepositoryResult
 		} `graphql:"search(type: REPOSITORY, first: $pageSize, after: $cursor, query: $query)"`
 	}
 
@@ -52,14 +47,11 @@ func tableGitHubSearchRepositoryList(ctx context.Context, d *plugin.QueryData, h
 		"cursor":   (*githubv4.String)(nil),
 		"query":    githubv4.String(input),
 	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_repository", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_repository", "api_error", err)

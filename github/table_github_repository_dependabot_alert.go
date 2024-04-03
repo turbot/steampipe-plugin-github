@@ -3,13 +3,11 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 	return &plugin.Table{
@@ -64,14 +62,10 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
-
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-
 	opt := &github.ListAlertsOptions{
 		ListCursorOptions: github.ListCursorOptions{First: 100},
 	}
@@ -89,21 +83,15 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 		opt.Ecosystem = &ecosystem
 	}
 	if quals["dependency_package_name"] != nil {
-		package_name := quals["dependency_package_name"].GetStringValue()
-		opt.Package = &package_name
+		packageName := quals["dependency_package_name"].GetStringValue()
+		opt.Package = &packageName
 	}
 	if quals["dependency_scope"] != nil {
 		scope := quals["dependency_scope"].GetStringValue()
 		opt.Scope = &scope
 	}
 
-	type ListPageResponse struct {
-		alerts []*github.DependabotAlert
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
-
 	limit := d.QueryContext.Limit
 	if limit != nil {
 		if *limit < int64(opt.ListCursorOptions.First) {
@@ -111,23 +99,11 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		alerts, resp, err := client.Dependabot.ListRepoAlerts(ctx, owner, repo, opt)
-		return ListPageResponse{
-			alerts: alerts,
-			resp:   resp,
-		}, err
-	}
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		alerts, resp, err := client.Dependabot.ListRepoAlerts(ctx, owner, repo, opt)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		alerts := listResponse.alerts
-		resp := listResponse.resp
 
 		for _, i := range alerts {
 			d.StreamListItem(ctx, i)
@@ -148,8 +124,6 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
-
 func tableGitHubRepositoryDependabotAlertGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
 	var alertNumber int
@@ -163,27 +137,10 @@ func tableGitHubRepositoryDependabotAlertGet(ctx context.Context, d *plugin.Quer
 	logger.Trace("tableGitHubDependabotAlertGet", "owner", owner, "repo", repo, "alertNumber", alertNumber)
 
 	client := connect(ctx, d)
-
-	type GetResponse struct {
-		alert *github.DependabotAlert
-		resp  *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		alert, resp, err := client.Dependabot.GetRepoAlert(ctx, owner, repo, alertNumber)
-		return GetResponse{
-			alert: alert,
-			resp:  resp,
-		}, err
-	}
-
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
+	alert, _, err := client.Dependabot.GetRepoAlert(ctx, owner, repo, alertNumber)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	alert := getResp.alert
 
 	return alert, nil
 }

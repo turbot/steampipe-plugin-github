@@ -39,13 +39,10 @@ func tableGitHubMyRepositoryList(ctx context.Context, d *plugin.QueryData, h *pl
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
+	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_repository", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_repository", "api_error", err)

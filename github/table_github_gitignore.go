@@ -3,13 +3,11 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
-
-//// TABLE DEFINITION
 
 func tableGitHubGitignore() *plugin.Table {
 	return &plugin.Table{
@@ -31,32 +29,13 @@ func tableGitHubGitignore() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	type ListPageResponse struct {
-		gitIgnores []string
-		resp       *github.Response
-	}
-
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		gitignore, resp, err := client.Gitignores.List(ctx)
-		return ListPageResponse{
-			gitIgnores: gitignore,
-			resp:       resp,
-		}, err
-	}
-
-	listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+	gitIgnores, _, err := client.Gitignores.List(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	listResponse := listPageResponse.(ListPageResponse)
-	gitIgnores := listResponse.gitIgnores
 
 	for _, i := range gitIgnores {
 		if i != "" {
@@ -70,8 +49,6 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 	}
 	return nil, nil
 }
-
-//// HYDRATE FUNCTIONS
 
 func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var name string
@@ -89,26 +66,10 @@ func tableGitHubGitignoreGetData(ctx context.Context, d *plugin.QueryData, h *pl
 
 	client := connect(ctx, d)
 
-	type GetResponse struct {
-		gitIgnore *github.Gitignore
-		resp      *github.Response
-	}
-
-	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Gitignores.Get(ctx, name)
-		return GetResponse{
-			gitIgnore: detail,
-			resp:      resp,
-		}, err
-	}
-	getResponse, err := plugin.RetryHydrate(ctx, d, h, getDetails, retryConfig())
-
+	gitIgnore, _, err := client.Gitignores.Get(ctx, name)
 	if err != nil {
 		return nil, err
 	}
-
-	getResp := getResponse.(GetResponse)
-	gitIgnore := getResp.gitIgnore
 
 	return gitIgnore, nil
 }

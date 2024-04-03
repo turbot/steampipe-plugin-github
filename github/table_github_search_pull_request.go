@@ -37,12 +37,7 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 		RateLimit models.RateLimit
 		Search    struct {
 			PageInfo models.PageInfo
-			Edges    []struct {
-				TextMatches []models.TextMatch
-				Node        struct {
-					models.BasicPullRequest `graphql:"... on PullRequest"`
-				}
-			}
+			Edges    []models.SearchPullRequestResult
 		} `graphql:"search(type: ISSUE, first: $pageSize, after: $cursor, query: $query)"`
 	}
 
@@ -52,14 +47,11 @@ func tableGitHubSearchPullRequestList(ctx context.Context, d *plugin.QueryData, 
 		"cursor":   (*githubv4.String)(nil),
 		"query":    githubv4.String(input),
 	}
+	appendPullRequestColumnIncludes(&variables, d.QueryContext.Columns)
 
 	client := connectV4(ctx, d)
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
-
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_search_pull_request", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_search_pull_request", "api_error", err)

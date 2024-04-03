@@ -5,25 +5,25 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 func shouldRetryError(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, err error) bool {
-	if _, ok := err.(*github.AbuseRateLimitError); ok {
+	if e, ok := err.(*github.AbuseRateLimitError); ok {
 		var retryAfter *time.Duration
-		if err.(*github.AbuseRateLimitError).RetryAfter != nil {
-			retryAfter = err.(*github.AbuseRateLimitError).RetryAfter
+		if e.RetryAfter != nil {
+			retryAfter = e.RetryAfter
 		}
 		plugin.Logger(ctx).Debug("github_errors.shouldRetryError", "abuse_rate_limit_error", err, "retry_after", retryAfter)
 		return true
 	}
 
-	if _, ok := err.(*github.RateLimitError); ok {
+	if e, ok := err.(*github.RateLimitError); ok {
 		// Get the limit reset timestamp if returned
 		var resetAfter time.Time
-		if err.(*github.RateLimitError).Rate.String() != "" {
-			resetAfter = err.(*github.RateLimitError).Rate.Reset.Time
+		if e.Rate.String() != "" {
+			resetAfter = e.Rate.Reset.Time
 		}
 
 		// Get the remaining time
@@ -61,7 +61,7 @@ func retryConfig() *plugin.RetryConfig {
 	}
 }
 
-// function which returns an ErrorPredicate for Github API calls
+// function which returns an ErrorPredicate for GitHub API calls
 func isNotFoundError(notFoundErrors []string) plugin.ErrorPredicate {
 	return func(err error) bool {
 		if err != nil {

@@ -1,14 +1,37 @@
-# Table: github_organization_member
+---
+title: "Steampipe Table: github_organization_member - Query GitHub Organization Members using SQL"
+description: "Allows users to query GitHub Organization Members, specifically the details of members within an organization, providing insights into member profiles, roles, and status."
+---
 
-The `github_organization_member` table can be used to query information about members of an organization. You must be an owner of the organization in order to successfully query member role and two factor authentication information. If you are not an owner of the organization, these columns will be returned as `null`.
+# Table: github_organization_member - Query GitHub Organization Members using SQL
 
-**You must specify the organization** in the where or join clause (`where organization=`, `join github_organization_member on organization=`).
+GitHub Organization Members is a feature within GitHub that allows you to manage and coordinate teams and repositories within your organization. It provides a centralized way to manage permissions for various repositories, assign roles to members, and monitor the status of each member. GitHub Organization Members helps you maintain control over the resources within your organization and manage member access effectively.
+
+## Table Usage Guide
+
+The `github_organization_member` table provides insights into members within a GitHub organization. As a project manager or team leader, explore member-specific details through this table, including roles, permissions, and status. Utilize it to uncover information about members, such as their roles within the organization, their access permissions, and their activity status.
+
+**Important Notes**
+- You must specify the `organization` column in `where` or `join` clause to query the table.
 
 ## Examples
 
 ### List organization members
+Explore which members belong to your organization and their respective roles, while also identifying if they have two-factor authentication enabled. This can enhance your organization's security by ensuring all members have this additional layer of protection.
 
-```sql
+```sql+postgres
+select
+  organization,
+  login,
+  role,
+  has_two_factor_enabled
+from
+  github_organization_member
+where
+  organization = 'my_org';
+```
+
+```sql+sqlite
 select
   organization,
   login,
@@ -21,8 +44,23 @@ where
 ```
 
 ### List admin members with two factor authentication disabled
+Identify instances where administrative members in your organization have not enabled two-factor authentication, allowing you to enhance your organization's security by addressing these vulnerabilities.
 
-```sql
+```sql+postgres
+select
+  organization,
+  login,
+  role,
+  has_two_factor_enabled
+from
+  github_organization_member
+where
+  organization = 'my_org'
+  and role = 'ADMIN'
+  and not has_two_factor_enabled;
+```
+
+```sql+sqlite
 select
   organization,
   login,

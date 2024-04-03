@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 
@@ -40,12 +41,10 @@ func tableGitHubMyOrganizationList(ctx context.Context, d *plugin.QueryData, h *
 		"cursor":   (*githubv4.String)(nil),
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		return nil, client.Query(ctx, &query, variables)
-	}
+	appendOrganizationColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
-		_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_organization", &query.RateLimit))
 		if err != nil {
 			plugin.Logger(ctx).Error("github_my_organization", "api_error", err)

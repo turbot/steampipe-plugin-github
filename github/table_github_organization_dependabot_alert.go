@@ -3,13 +3,11 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
-
-//// TABLE DEFINITION
 
 func gitHubDependabotAlertColumns() []*plugin.Column {
 	return []*plugin.Column{
@@ -82,25 +80,19 @@ func gitHubDependabotAlertColumns() []*plugin.Column {
 			Name:        "security_advisory_cvss_score",
 			Type:        proto.ColumnType_DOUBLE,
 			Description: "The overall CVSS score of the advisory.",
-			Transform:   transform.FromField("SecurityAdvisory.CVSs.Score"),
+			Transform:   transform.FromField("SecurityAdvisory.CVSS.Score"),
 		},
 		{
 			Name:        "security_advisory_cvss_vector_string",
 			Type:        proto.ColumnType_STRING,
 			Description: "The full CVSS vector string for the advisory.",
-			Transform:   transform.FromField("SecurityAdvisory.CVSs.VectorString"),
+			Transform:   transform.FromField("SecurityAdvisory.CVSS.VectorString"),
 		},
 		{
-			Name:        "security_advisory_cwes_cweid",
-			Type:        proto.ColumnType_STRING,
-			Description: "The unique CWE ID.",
-			Transform:   transform.FromField("SecurityAdvisory.CWEs.CWEID"),
-		},
-		{
-			Name:        "security_advisory_cwes_name",
-			Type:        proto.ColumnType_STRING,
-			Description: "The short, plain text name of the CWE.",
-			Transform:   transform.FromField("SecurityAdvisory.CWEs.Name"),
+			Name:        "security_advisory_cwes",
+			Type:        proto.ColumnType_JSON,
+			Description: "The associated CWEs",
+			Transform:   transform.FromField("SecurityAdvisory.CWEs"),
 		},
 		{
 			Name:        "security_advisory_published_at",
@@ -215,8 +207,6 @@ func tableGitHubOrganizationDependabotAlert() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
-
 func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	quals := d.EqualsQuals
 
@@ -239,21 +229,15 @@ func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.Q
 		opt.Ecosystem = &ecosystem
 	}
 	if quals["dependency_package_name"] != nil {
-		package_name := quals["dependency_package_name"].GetStringValue()
-		opt.Package = &package_name
+		packageName := quals["dependency_package_name"].GetStringValue()
+		opt.Package = &packageName
 	}
 	if quals["dependency_scope"] != nil {
 		scope := quals["dependency_scope"].GetStringValue()
 		opt.Scope = &scope
 	}
 
-	type ListPageResponse struct {
-		alerts []*github.DependabotAlert
-		resp   *github.Response
-	}
-
 	client := connect(ctx, d)
-
 	limit := d.QueryContext.Limit
 	if limit != nil {
 		if *limit < int64(opt.ListCursorOptions.First) {
@@ -261,23 +245,11 @@ func tableGitHubOrganizationDependabotAlertList(ctx context.Context, d *plugin.Q
 		}
 	}
 
-	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		alerts, resp, err := client.Dependabot.ListOrgAlerts(ctx, org, opt)
-		return ListPageResponse{
-			alerts: alerts,
-			resp:   resp,
-		}, err
-	}
 	for {
-		listPageResponse, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
-
+		alerts, resp, err := client.Dependabot.ListOrgAlerts(ctx, org, opt)
 		if err != nil {
 			return nil, err
 		}
-
-		listResponse := listPageResponse.(ListPageResponse)
-		alerts := listResponse.alerts
-		resp := listResponse.resp
 
 		for _, i := range alerts {
 			d.StreamListItem(ctx, i)
