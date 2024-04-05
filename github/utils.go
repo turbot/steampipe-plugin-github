@@ -77,6 +77,11 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		panic("'token' or 'app_id', 'installation_id' and 'private_key' or `app_installation_access_token` must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
 	}
 
+	// Return error for unsupported token by prefix
+	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") {
+		panic("Unsupported token format detected, please ensure your token begins with 'ghs_' or 'ghp_' as these are the supported formats")
+	}
+
 	var client *github.Client
 
 	// Authentication with Github access token
@@ -89,14 +94,14 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	}
 
 	// Authentication Using App Installation Access Token
-	if token != "" && strings.HasPrefix(token, "ghs_"){
+	if token != "" && strings.HasPrefix(token, "ghs_") {
 		client = github.NewClient(&http.Client{Transport: &oauth2Transport{
 			Token: token,
 		}})
 	}
 
 	// Authentication as Github APP Installation authentication
-	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" {
+	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" && token == "" {
 		itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, githubAppId, githubInstallationId, privateKeyPath)
 		if err != nil {
 			panic("Error occurred in 'connect()' during GitHub App Installation client creation: " + err.Error())
@@ -182,6 +187,12 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		}
 		githubInstallationId = int64(num)
 	}
+
+	// Return error for unsupported token by prefix
+	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") {
+		panic("Unsupported token format detected, please ensure your token begins with 'ghs_' or 'ghp_' as these are the supported formats")
+	}
+
 	var client *githubv4.Client
 
 	// Authentication Using App Installation Access Token
@@ -191,14 +202,10 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		}})
 	}
 
-	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
-		panic("'token' or 'app_id', 'installation_id' and 'private_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
-	}
-
 	var transport *ghinstallation.Transport
 
 	// Authentication with Github access token
-	if token != "" && strings.HasPrefix(token, "ghp_"){
+	if token != "" && strings.HasPrefix(token, "ghp_") {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
@@ -206,8 +213,12 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		client = githubv4.NewClient(tc)
 	}
 
+	if token == "" && (githubAppId == 0 || githubInstallationId == 0 || privateKeyPath == "") {
+		panic("'token' or 'app_id', 'installation_id' and 'private_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe")
+	}
+
 	// Authentication as Github APP Installation
-	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" {
+	if githubAppId != 0 && githubInstallationId != 0 && privateKeyPath != "" && token == "" {
 		itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, githubAppId, githubInstallationId, privateKeyPath)
 		if err != nil {
 			panic("Error occurred in 'connectV4()' during GitHub App Installation client creation" + err.Error())
@@ -228,8 +239,15 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 		if uv4.String() != "https://api.github.com/" {
 			uv4.Path = uv4.Path + "api/graphql"
 		}
-
-		client = githubv4.NewEnterpriseClient(uv4.String(), &http.Client{Transport: transport})
+		if token != "" {
+			ts := oauth2.StaticTokenSource(
+				&oauth2.Token{AccessToken: token},
+			)
+			tc := oauth2.NewClient(ctx, ts)
+			client = githubv4.NewEnterpriseClient(uv4.String(), tc)
+		} else {
+			client = githubv4.NewEnterpriseClient(uv4.String(), &http.Client{Transport: transport})
+		}
 	}
 
 	// Save to cache
