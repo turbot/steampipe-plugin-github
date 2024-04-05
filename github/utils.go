@@ -34,8 +34,8 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	token := os.Getenv("GITHUB_TOKEN")
 	baseURL := os.Getenv("GITHUB_BASE_URL")
 	appId := os.Getenv("GITHUB_APP_ID")
-	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
-	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
+	installationId := os.Getenv("GITHUB_APP_INSTALLATION_ID")
+	privateKeyPath := os.Getenv("GITHUB_APP_PEM_FILE")
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
@@ -144,8 +144,8 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	token := os.Getenv("GITHUB_TOKEN")
 	baseURL := os.Getenv("GITHUB_BASE_URL")
 	appId := os.Getenv("GITHUB_APP_ID")
-	installationId := os.Getenv("GITHUB_INSTALLATION_ID")
-	privateKeyPath := os.Getenv("GITHUB_PRIVATE_KEY")
+	installationId := os.Getenv("GITHUB_APP_INSTALLATION_ID")
+	privateKeyPath := os.Getenv("GITHUB_APP_PEM_FILE")
 
 	// Get connection config for plugin
 	githubConfig := GetConfig(d.Connection)
