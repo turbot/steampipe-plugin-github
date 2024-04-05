@@ -80,7 +80,8 @@ func listGitHubOrganizationCollaborators(ctx context.Context, d *plugin.QueryDat
 		}
 	}
 
-	pageSize := adjustPageSize(100, d.QueryContext.Limit)
+	//// For large scale dataset we are hitting the secondary rate-limit while making the API call
+	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
 	var query struct {
 		RateLimit    models.RateLimit
