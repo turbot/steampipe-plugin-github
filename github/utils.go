@@ -72,7 +72,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Return error for unsupported token by prefix
 	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") {
-		panic("Unsupported token format detected, please ensure your token begins with 'ghs_' or 'ghp_' as these are the supported formats")
+		panic("Supported token formats are 'ghp_' and 'ghp_'")
 	}
 
 	var client *github.Client
@@ -184,7 +184,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 
 	// Return error for unsupported token by prefix
 	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") {
-		panic("Unsupported token format detected, please ensure your token begins with 'ghs_' or 'ghp_' as these are the supported formats")
+		panic("Supported token formats are 'ghp_' and 'ghp_'")
 	}
 
 	var client *githubv4.Client
