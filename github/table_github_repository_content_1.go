@@ -212,7 +212,7 @@ func tableGitHubRepositoryContentList1(ctx context.Context, d *plugin.QueryData,
 	}
 
 	allTrees = append(allTrees, treesPathRoot...)
-	// Remove duplicate tree paths, if there are sub directories under a directory then we should keep the dirs where the files are available. Tot the parent directory.
+	// Remove duplicate tree paths, if there are sub directories under a directory then we should keep the sub-dirs where the files are available. Not the parent directory.
 	allTrees = removeDuplicates(allTrees)
 
 	plugin.Logger(ctx).Error("tableGitHubRepositoryContentList", "EXECUTION IN STEP ", "2222222222")
