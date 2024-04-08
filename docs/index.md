@@ -90,15 +90,15 @@ connection "github" {
 
   # The unique identifier for the GitHub App.
   # Can also be set with the GITHUB_APP_ID environment variable.
-  # app_id = 12345678
+  # app_id = "12345678"
 
   # The installation ID for a specific installation of the GitHub App.
   # Can also be set with the GITHUB_APP_INSTALLATION_ID environment variable.
-  # installation_id = 8901234
+  # app_installation_id = "8901234"
 
   # The path to a private key PEM file of the GitHub App, used for generating JWTs for authentication.
   # Can also be set with the GITHUB_APP_PEM_FILE environment variable.
-  # private_key = "/Users/myuser/app_private_key.pem"
+  # app_private_key = "/Users/myuser/app_private_key.pem"
 }
 ```
 
@@ -106,5 +106,5 @@ connection "github" {
  This can also be set via the `GITHUB_TOKEN` environment variable.
 - `base_url` - GitHub Enterprise users have a custom URL location (e.g. `https://github.example.com`). Not required for GitHub cloud. This can also be via the `GITHUB_BASE_URL` environment variable.
 - `app_id` - [Github App ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github organization. This can also be set via the `GITHUB_APP_ID` environment variable.
-- `installation_id` - [Github App installation ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github App installation. This can also be set via the `GITHUB_APP_INSTALLATION_ID` environment variable.
-- `private_key` - [Github App private key path](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) for your Github App. This can also be set via the `GITHUB_APP_PEM_FILE` environment variable.
+- `app_installation_id` - [Github App installation ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github App installation. This can also be set via the `GITHUB_APP_INSTALLATION_ID` environment variable.
+- `app_private_key` - [Github App private key path](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) for your Github App. This can also be set via the `GITHUB_APP_PEM_FILE` environment variable.

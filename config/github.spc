@@ -17,13 +17,13 @@ connection "github" {
 
   # The unique identifier for the GitHub App.
   # Can also be set with the GITHUB_APP_ID environment variable.
-  # app_id = 12345678
+  # app_id = "12345678"
 
   # The installation ID for a specific installation of the GitHub App.
   # Can also be set with the GITHUB_APP_INSTALLATION_ID environment variable.
-  # installation_id = 8901234
+  # app_installation_id = "8901234"
 
   # The path to a private key PEM file of the GitHub App, used for generating JWTs for authentication.
   # Can also be set with the GITHUB_APP_PEM_FILE environment variable.
-  # private_key = "/Users/myuser/app_private_key.pem"
+  # app_private_key = "/Users/myuser/app_private_key.pem"
 }
