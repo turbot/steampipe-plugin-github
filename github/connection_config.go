@@ -5,8 +5,11 @@ import (
 )
 
 type githubConfig struct {
-	Token   *string `hcl:"token"`
-	BaseURL *string `hcl:"base_url"`
+	Token          *string `hcl:"token"`
+	BaseURL        *string `hcl:"base_url"`
+	AppId          *string `hcl:"app_id"`
+	InstallationId *string `hcl:"app_installation_id"`
+	PrivateKey     *string `hcl:"app_private_key"`
 }
 
 func ConfigInstance() interface{} {
