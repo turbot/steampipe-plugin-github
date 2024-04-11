@@ -10,7 +10,7 @@ require (
 	github.com/shurcooL/githubv4 v0.0.0-20231126234147-1cffa1f02456
 	github.com/turbot/go-kit v0.9.0-rc.1
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.8.0
-	golang.org/x/oauth2 v0.15.0
+	golang.org/x/oauth2 v0.19.0
 )
 
 require (
