@@ -80,7 +80,8 @@ func listGitHubOrganizationCollaborators(ctx context.Context, d *plugin.QueryDat
 		}
 	}
 
-	//// For large scale dataset we are hitting the secondary rate-limit while making the API call
+	// We are encountering the secondary rate limit when making API calls with a page size of 100 for large-scale datasets.
+        // Reducing the page size to fetch smaller data amounts per page could be beneficial.
 	pageSize := adjustPageSize(50, d.QueryContext.Limit)
 
 	var query struct {
