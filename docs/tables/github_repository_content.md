@@ -67,7 +67,18 @@ and
 ```
 
 ```sql+sqlite
-
+select
+  repository_full_name,
+  name,
+  type,
+  path,
+  content
+from
+  github_repository_content
+where
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+and
+  repository_content_path = 'aws-tests/tests';
 ```
 
 ### List contents of a specific directory within a repository
