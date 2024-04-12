@@ -13,6 +13,7 @@ To utilize this table effectively, specify the file path or directory within `re
 
 **Important Notes**
 - It's mandatory to specify the `repository_full_name` (including the organization/user prefix) in the `where` or `join` clause when querying this table.
+- To enhance performance, this table supports the optional qualifier `repository_content_path`. Queries that utilize this qualifier are optimized to efficiently retrieve file contents from a subdirectory within a repository.
 
 ## Examples
 
@@ -45,6 +46,28 @@ from
   github_repository_content
 where
   repository_full_name = 'github/docs';
+```
+
+### Get file contents under a folder in a repository
+This enables retrieval of the file contents within a specific directory.
+
+```sql+postgresql
+select
+  repository_full_name,
+  name,
+  type,
+  path,
+  content
+from
+  github_repository_content
+where
+  repository_full_name = 'turbot/steampipe-plugin-aws'
+and
+  repository_content_path = 'aws-tests/tests';
+```
+
+```sql+sqlite
+
 ```
 
 ### List contents of a specific directory within a repository
