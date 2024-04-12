@@ -70,6 +70,16 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	}
 	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentList", "owner", owner, "repo", repo, "path", filterPath)
 
+	err := getFileContents(ctx, d, h, owner, repo, filterPath)
+	if err != nil {
+		plugin.Logger(ctx).Error("github_repository_content.tableGitHubRepositoryContentList", "error", err)
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func getFileContents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, owner string, repo string, filterPath string) error {
 	var query struct {
 		RateLimit  models.RateLimit
 		Repository struct {
@@ -94,27 +104,6 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 								IsBinary       githubv4.Boolean
 								CommitUrl      githubv4.String
 							} `graphql:"... on Blob"`
-							SubTree struct {
-								Entries []struct {
-									Name        githubv4.String
-									Path        githubv4.String
-									Size        githubv4.Int
-									LineCount   githubv4.Int
-									Mode        githubv4.Int
-									PathRaw     githubv4.String
-									IsGenerated githubv4.Boolean
-									Type        githubv4.String
-									Object      struct {
-										Blob struct {
-											Oid            githubv4.String
-											AbbreviatedOid githubv4.String
-											Text           githubv4.String
-											IsBinary       githubv4.Boolean
-											CommitUrl      githubv4.String
-										} `graphql:"... on Blob"`
-									}
-								}
-							} `graphql:"... on Tree"`
 						}
 					}
 				} `graphql:"... on Tree"`
@@ -135,57 +124,41 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 
 	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
 	if err != nil {
-		plugin.Logger(ctx).Error("github_repository_content", "api_error", err, "repository", repo)
-		return nil, err
+		plugin.Logger(ctx).Error("github_repository_content.getFileContents", "api_error", err, "repository", repo)
+		return err
 	}
 
-	var contents []ContentInfo
-
 	for _, data := range query.Repository.Object.Tree.Entries {
-		contents = append(contents, ContentInfo{
-			Oid:            string(data.Object.Blob.Oid),
-			AbbreviatedOid: string(data.Object.Blob.AbbreviatedOid),
-			Name:           string(data.Name),
-			Mode:           int(data.Mode),
-			PathRaw:        string(data.PathRaw),
-			IsGenerated:    bool(data.IsGenerated),
-			Path:           string(data.Path),
-			Size:           int(data.Size),
-			LineCount:      int(data.LineCount),
-			Type:           string(data.Type),
-			Content:        string(data.Object.Blob.Text),
-			IsBinary:       bool(data.Object.Blob.IsBinary),
-			CommitUrl:      string(data.Object.Blob.CommitUrl),
-		})
-		if len(data.Object.SubTree.Entries) > 0 {
-			for _, subData := range data.Object.SubTree.Entries {
-				contents = append(contents, ContentInfo{
-					Oid:            string(subData.Object.Blob.Oid),
-					AbbreviatedOid: string(subData.Object.Blob.AbbreviatedOid),
-					Name:           string(subData.Name),
-					Mode:           int(subData.Mode),
-					PathRaw:        string(subData.PathRaw),
-					IsGenerated:    bool(subData.IsGenerated),
-					Path:           string(subData.Path),
-					Size:           int(subData.Size),
-					LineCount:      int(subData.LineCount),
-					Type:           string(subData.Type),
-					Content:        string(subData.Object.Blob.Text),
-					IsBinary:       bool(subData.Object.Blob.IsBinary),
-					CommitUrl:      string(subData.Object.Blob.CommitUrl),
-				})
+		if string(data.Type) != "tree" {
+			c := ContentInfo{
+				Oid:            string(data.Object.Blob.Oid),
+				AbbreviatedOid: string(data.Object.Blob.AbbreviatedOid),
+				Name:           string(data.Name),
+				Mode:           int(data.Mode),
+				PathRaw:        string(data.PathRaw),
+				IsGenerated:    bool(data.IsGenerated),
+				Path:           string(data.Path),
+				Size:           int(data.Size),
+				LineCount:      int(data.LineCount),
+				Type:           string(data.Type),
+				Content:        string(data.Object.Blob.Text),
+				IsBinary:       bool(data.Object.Blob.IsBinary),
+				CommitUrl:      string(data.Object.Blob.CommitUrl),
+			}
+			d.StreamListItem(ctx, c)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil
+			}
+		}
+		if string(data.Type) == "tree" {
+			err := getFileContents(ctx, d, h, owner, repo, string(data.Path))
+			if err != nil {
+				return err
 			}
 		}
 	}
 
-	for _, c := range contents {
-		d.StreamListItem(ctx, c)
-
-		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.RowsRemaining(ctx) == 0 {
-			return nil, nil
-		}
-	}
-
-	return nil, nil
+	return nil
 }
