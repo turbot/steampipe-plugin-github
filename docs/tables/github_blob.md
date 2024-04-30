@@ -3,7 +3,7 @@ title: "Steampipe Table: github_blob - Query GitHub Repositories using SQL"
 description: "Allows users to query GitHub Repositories, specifically the blob content."
 ---
 
-# Table: github_tree - Query GitHub Repositories using SQL
+# Table: github_blob - Query GitHub Repositories using SQL
 
 GitHub Repositories are a fundamental resource in GitHub. They allow users to host and manage their codebase, track changes, and collaborate with other users. Each repository contains a tree structure that represents the file and directory hierarchy.
 
