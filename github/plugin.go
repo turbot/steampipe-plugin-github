@@ -14,6 +14,12 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
 		},
+		ConnectionKeyColumns: []plugin.ConnectionKeyColumn{
+			{
+				Name:    "login_id",
+				Hydrate: getLoginId,
+			},
+		},
 		DefaultTransform:   transform.FromGo(),
 		DefaultRetryConfig: retryConfig(),
 		TableMap: map[string]*plugin.Table{
@@ -42,7 +48,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_organization_dependabot_alert":   tableGitHubOrganizationDependabotAlert(),
 			"github_organization_external_identity":  tableGitHubOrganizationExternalIdentity(),
 			"github_organization_member":             tableGitHubOrganizationMember(),
-			"github_organization_collaborator":      tableGitHubOrganizationCollaborator(),
+			"github_organization_collaborator":       tableGitHubOrganizationCollaborator(),
 			"github_pull_request":                    tableGitHubPullRequest(),
 			"github_pull_request_comment":            tableGitHubPullRequestComment(),
 			"github_pull_request_review":             tableGitHubPullRequestReview(),

@@ -22,13 +22,13 @@ func tableGitHubBranch() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubBranchList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the branch."},
 			{Name: "commit", Type: proto.ColumnType_JSON, Transform: transform.FromField("Target.Commit"), Description: "Latest commit on the branch."},
 			{Name: "protected", Type: proto.ColumnType_BOOL, Hydrate: branchHydrateProtected, Transform: transform.FromValue().Transform(HasValue), Description: "If true, the branch is protected."},
 			{Name: "branch_protection_rule", Type: proto.ColumnType_JSON, Hydrate: branchHydrateBranchProtectionRule, Transform: transform.FromValue().NullIfZero(), Description: "Branch protection rule if protected."},
-		},
+		}),
 	}
 }
 

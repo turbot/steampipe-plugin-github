@@ -14,7 +14,7 @@ func tableGitHubMyGist() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyGistList,
 		},
-		Columns: gitHubGistColumns(),
+		Columns: commonColumns(gitHubGistColumns()),
 	}
 }
 

@@ -29,7 +29,7 @@ func tableGitHubWorkflow() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubWorkflowGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the workflow."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the workflow."},
@@ -47,7 +47,7 @@ func tableGitHubWorkflow() *plugin.Table {
 			{Name: "workflow_file_content", Type: proto.ColumnType_STRING, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64), Description: "Content of github workflow file in text format."},
 			{Name: "workflow_file_content_json", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(unmarshalYAML), Description: "Content of github workflow file in the JSON format."},
 			{Name: "pipeline", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(decodeFileContentToPipeline), Description: "Github workflow in the generic pipeline entity format to be used across CI/CD platforms."},
-		},
+		}),
 	}
 }
 

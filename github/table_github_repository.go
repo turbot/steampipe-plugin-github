@@ -112,7 +112,7 @@ func tableGitHubRepository() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns:        plugin.SingleColumn("full_name"),
 		},
-		Columns: gitHubRepositoryColumns(),
+		Columns: commonColumns(gitHubRepositoryColumns()),
 	}
 }
 

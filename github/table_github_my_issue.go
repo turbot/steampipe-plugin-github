@@ -31,7 +31,7 @@ func tableGitHubMyIssue() *plugin.Table {
 				{Name: "updated_at", Require: plugin.Optional, Operators: []string{">", ">="}},
 			},
 		},
-		Columns: gitHubMyIssueColumns(),
+		Columns: commonColumns(gitHubMyIssueColumns()),
 	}
 }
 

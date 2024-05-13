@@ -19,7 +19,7 @@ func tableGitHubSearchCommit() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchCommitList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "sha", Type: proto.ColumnType_STRING, Transform: transform.FromField("SHA"), Description: "The SHA of the commit."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the commit."},
 			{Name: "comments_url", Type: proto.ColumnType_STRING, Description: "The API URL of the comments made on the commit."},
@@ -32,7 +32,7 @@ func tableGitHubSearchCommit() *plugin.Table {
 			{Name: "committer", Type: proto.ColumnType_JSON, Description: "The committer details."},
 			{Name: "parents", Type: proto.ColumnType_JSON, Description: "The parent details."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details of the commit."},
-		},
+		}),
 	}
 }
 

@@ -18,7 +18,7 @@ func tableGitHubSearchCode() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchCodeList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the file where the match has been found."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the code."},
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "The complete URL of the file where the match has been found."},
@@ -27,7 +27,7 @@ func tableGitHubSearchCode() *plugin.Table {
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchCodeRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository details of the file where the match has been found."},
 			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
-		},
+		}),
 	}
 }
 

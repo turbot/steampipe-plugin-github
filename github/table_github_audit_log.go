@@ -25,7 +25,7 @@ func tableGitHubAuditLog() *plugin.Table {
 			},
 			Hydrate: tableGitHubAuditLogList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "organization", Type: proto.ColumnType_STRING, Transform: transform.FromQual("organization"), Description: "The GitHub organization."},
 			{Name: "phrase", Type: proto.ColumnType_STRING, Transform: transform.FromQual("phrase"), Description: "The search phrase for your audit events."},
 			{Name: "include", Type: proto.ColumnType_STRING, Transform: transform.FromQual("include"), Description: "The event types to include: web, git, all."},
@@ -42,7 +42,7 @@ func tableGitHubAuditLog() *plugin.Table {
 			{Name: "user_login", Type: proto.ColumnType_STRING, Description: "The GitHub user, when the action relates to a user.", Transform: transform.FromField("User")},
 			{Name: "repo", Type: proto.ColumnType_STRING, Description: "The GitHub repository, when the action relates to a repository."},
 			{Name: "data", Type: proto.ColumnType_JSON, Description: "Additional data relating to the audit event."},
-		},
+		}),
 	}
 }
 

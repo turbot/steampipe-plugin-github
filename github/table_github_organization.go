@@ -111,7 +111,7 @@ func tableGitHubOrganization() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubOrganizationList,
 		},
-		Columns: gitHubOrganizationColumns(),
+		Columns: commonColumns(gitHubOrganizationColumns()),
 	}
 }
 

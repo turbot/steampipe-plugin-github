@@ -45,7 +45,7 @@ func tableGitHubRepositoryDeployment() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryDeploymentList,
 		},
-		Columns: gitHubRepositoryDeploymentColumns(),
+		Columns: commonColumns(gitHubRepositoryDeploymentColumns()),
 	}
 }
 

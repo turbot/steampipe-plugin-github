@@ -19,13 +19,13 @@ func tableGitHubTrafficViewWeekly() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTrafficViewWeeklyList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the branch."},
 			{Name: "timestamp", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Timestamp").Transform(convertTimestamp), Description: "Date for the view data."},
 			{Name: "count", Type: proto.ColumnType_INT, Description: "View count for the week."},
 			{Name: "uniques", Type: proto.ColumnType_INT, Description: "Unique viewer count for the week."},
-		},
+		}),
 	}
 }
 

@@ -19,7 +19,7 @@ func tableGitHubSearchPullRequest() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchPullRequestList,
 		},
-		Columns: gitHubSearchPullRequestColumns(),
+		Columns: commonColumns(gitHubSearchPullRequestColumns()),
 	}
 }
 

@@ -108,7 +108,7 @@ func tableGitHubPullRequest() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubPullRequestGet,
 		},
-		Columns: gitHubPullRequestColumns(),
+		Columns: commonColumns(gitHubPullRequestColumns()),
 	}
 }
 

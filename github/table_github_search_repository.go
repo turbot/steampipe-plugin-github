@@ -20,7 +20,7 @@ func tableGitHubSearchRepository() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchRepositoryList,
 		},
-		Columns: gitHubSearchRepositoryColumns(),
+		Columns: commonColumns(gitHubSearchRepositoryColumns()),
 	}
 }
 

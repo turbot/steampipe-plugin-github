@@ -39,7 +39,7 @@ func tableGitHubOrganizationMember() *plugin.Table {
 			},
 			Hydrate: tableGitHubOrganizationMemberList,
 		},
-		Columns: gitHubOrganizationMemberColumns(),
+		Columns: commonColumns(gitHubOrganizationMemberColumns()),
 	}
 }
 

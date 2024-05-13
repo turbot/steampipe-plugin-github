@@ -36,7 +36,7 @@ func tableGitHubPullRequestReview() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryPullRequestReviewList,
 		},
-		Columns: pullRequestReviewColumns(),
+		Columns: commonColumns(pullRequestReviewColumns()),
 	}
 }
 

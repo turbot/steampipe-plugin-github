@@ -19,7 +19,7 @@ func tableGitHubCommunityProfile() *plugin.Table {
 			Hydrate:           tableGitHubCommunityProfileList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},
 			{Name: "code_of_conduct", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateCodeOfConduct, Description: "Code of conduct for the repository."},
 			{Name: "contributing", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateContributing, Description: "Contributing guidelines for the repository."},
@@ -28,7 +28,7 @@ func tableGitHubCommunityProfile() *plugin.Table {
 			{Name: "license_info", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateLicense, Description: "License for the repository."},
 			{Name: "readme", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateReadme, Description: "README for the repository."},
 			{Name: "security", Type: proto.ColumnType_JSON, Transform: transform.FromValue().NullIfZero(), Hydrate: cpHydrateSecurity, Description: "Security for the repository."},
-		},
+		}),
 	}
 }
 

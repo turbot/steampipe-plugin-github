@@ -55,7 +55,7 @@ func tableGitHubOrganizationCollaborator() *plugin.Table {
 			},
 			Hydrate: listGitHubOrganizationCollaborators,
 		},
-		Columns: gitHubOrganizationCollaborators(),
+		Columns: commonColumns(gitHubOrganizationCollaborators()),
 	}
 }
 

@@ -50,7 +50,7 @@ func tableGitHubIssueComment() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryIssueCommentList,
 		},
-		Columns: sharedCommentsColumns(),
+		Columns: commonColumns(sharedCommentsColumns()),
 	}
 }
 

@@ -40,7 +40,7 @@ func tableGitHubRepositoryCollaborator() *plugin.Table {
 				},
 			},
 		},
-		Columns: gitHubRepositoryCollaboratorColumns(),
+		Columns: commonColumns(gitHubRepositoryCollaboratorColumns()),
 	}
 }
 

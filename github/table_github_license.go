@@ -23,7 +23,7 @@ func tableGitHubLicense() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubLicenseGetData,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: licenseHydrateSpdxId},
 			{Name: "name", Description: "The name of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: licenseHydrateName},
 			{Name: "url", Description: "The HTML URL of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: licenseHydrateUrl},
@@ -40,7 +40,7 @@ func tableGitHubLicense() *plugin.Table {
 			{Name: "permissions", Description: "An array of permissions for the license (private-use, commercial-use,modifications, etc).", Type: proto.ColumnType_JSON, Transform: transform.FromValue(), Hydrate: licenseHydratePermissions},
 			{Name: "nickname", Description: "The customary short name of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: licenseHydrateNickname},
 			{Name: "pseudo_license", Description: "Indicates if the license is a pseudo-license placeholder (e.g. other, no-license).", Type: proto.ColumnType_BOOL, Transform: transform.FromValue(), Hydrate: licenseHydratePseudoLicense},
-		},
+		}),
 	}
 }
 
