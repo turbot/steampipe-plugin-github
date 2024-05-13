@@ -254,3 +254,32 @@ where
 group by
   repository_full_name, number, title;
 ```
+
+OR
+
+```sql+postgres
+select
+  number,
+  created_at,
+  array(select jsonb_object_keys(labels)) as labels
+from
+  github_pull_request
+where
+  state = 'OPEN'
+  and repository_full_name = 'turbot/steampipe';
+```
+
+```sql+sqlite
+select
+  number,
+  created_at,
+  (
+    select group_concat(key)
+    from json_each(labels)
+  ) as labels
+from
+  github_pull_request
+where
+  state = 'OPEN'
+  and repository_full_name = 'turbot/steampipe';
+```

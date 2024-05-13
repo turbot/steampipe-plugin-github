@@ -1,3 +1,15 @@
+## v0.40.0 [2024-04-12]
+
+_What's new?_
+
+- New tables added
+  - [github_outside_collaborator](https://hub.steampipe.io/plugins/turbot/github/tables/github_outside_collaborator) ([#411](https://github.com/turbot/steampipe-plugin-github/pull/411))
+- Added support for plugin authentication using `Github App`. Please refer [Github plugin configuration](https://hub.steampipe.io/plugins/turbot/github#configuration) for more information. ([#414](https://github.com/turbot/steampipe-plugin-github/pull/414))
+
+_Bug fixes_
+
+- Fixed the `github_workflow` table  to correctly return data for dynamic workflows instead of an error. ([#412](https://github.com/turbot/steampipe-plugin-github/pull/412))
+
 ## v0.39.1 [2024-02-15]
 
 _Bug fixes_
