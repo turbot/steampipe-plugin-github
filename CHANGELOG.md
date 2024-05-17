@@ -1,3 +1,25 @@
+## v0.41.0 [2024-05-17]
+
+_What's new?_
+
+- New tables added
+  - [github_repository_content](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_content) ([#317](https://github.com/turbot/steampipe-plugin-github/pull/317))
+  - [github_blob](https://hub.steampipe.io/plugins/turbot/github/tables/github_blob) ([#430](https://github.com/turbot/steampipe-plugin-github/pull/430)) (Thanks [@rmhartog](https://github.com/rmhartog) for the contribution!)
+
+_Enhancements_
+
+- The `login_id` column has now been assigned as a connection key column across all the tables which facilitates more precise and efficient querying across multiple Github connections. ([#422](https://github.com/turbot/steampipe-plugin-github/pull/422))
+- The Plugin and the Steampipe Anywhere binaries are now built with the `netgo` package. ([#219](https://github.com/turbot/steampipe-plugin-kubernetes/pull/219))
+- Added the `version` flag to the plugin's Export tool. ([#65](https://github.com/turbot/steampipe-export/pull/65))
+
+_Bug fixes_
+
+- Fixed the plugin support for Github OAuth Access token to work correctly. ([#432](https://github.com/turbot/steampipe-plugin-github/pull/432))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.10.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v5101-2024-05-09) that adds support for connection key columns. ([#422](https://github.com/turbot/steampipe-plugin-github/pull/422))
+
 ## v0.40.0 [2024-04-12]
 
 _What's new?_
