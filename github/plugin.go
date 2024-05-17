@@ -51,6 +51,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_release":                         tableGitHubRelease(),
 			"github_repository":                      tableGitHubRepository(),
 			"github_repository_collaborator":         tableGitHubRepositoryCollaborator(),
+			"github_repository_content":              tableGitHubRepositoryContent(),
 			"github_repository_dependabot_alert":     tableGitHubRepositoryDependabotAlert(),
 			"github_repository_deployment":           tableGitHubRepositoryDeployment(),
 			"github_repository_environment":          tableGitHubRepositoryEnvironment(),
