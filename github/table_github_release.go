@@ -24,7 +24,7 @@ func tableGitHubRelease() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubReleaseGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the release."},
@@ -48,7 +48,7 @@ func tableGitHubRelease() *plugin.Table {
 			{Name: "upload_url", Type: proto.ColumnType_STRING, Description: "Upload URL for the release."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the release."},
 			{Name: "zipball_url", Type: proto.ColumnType_STRING, Description: "Zipball URL for the release."},
-		},
+		}),
 	}
 }
 

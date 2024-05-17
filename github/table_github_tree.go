@@ -23,7 +23,7 @@ func tableGitHubTree() *plugin.Table {
 				{Name: "recursive", Require: plugin.Optional, CacheMatch: "exact"},
 			},
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tree."},
 			{Name: "tree_sha", Type: proto.ColumnType_STRING, Transform: transform.FromQual("tree_sha"), Description: "SHA1 of the tree."},
@@ -36,7 +36,7 @@ func tableGitHubTree() *plugin.Table {
 			{Name: "size", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Size"), Description: "Size of the blob."},
 			{Name: "type", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.Type"), Description: "Either blob, tree, or commit."},
 			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("TreeEntry.URL"), Description: "URL to the file referenced in the tree."},
-		},
+		}),
 	}
 }
 

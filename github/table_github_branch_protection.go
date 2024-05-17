@@ -22,7 +22,7 @@ func tableGitHubBranchProtection() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("node_id"),
 			Hydrate:    tableGitHubRepositoryBranchProtectionGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "The full name of the repository (login/repo-name)."},
 			{Name: "id", Type: proto.ColumnType_INT, Hydrate: branchProtectionRuleHydrateId, Transform: transform.FromValue(), Description: "The ID of the branch protection rule."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The Node ID of the branch protection rule."},
@@ -59,7 +59,7 @@ func tableGitHubBranchProtection() *plugin.Table {
 			{Name: "bypass_pull_request_allowance_apps", Type: proto.ColumnType_JSON, Description: "Applications can bypass pull requests to the branch only if in this list."},
 			{Name: "bypass_pull_request_allowance_teams", Type: proto.ColumnType_JSON, Description: "Teams can bypass pull requests to the branch only if in this list."},
 			{Name: "bypass_pull_request_allowance_users", Type: proto.ColumnType_JSON, Description: "Users can bypass pull requests to the branch only if in this list."},
-		},
+		}),
 	}
 }
 

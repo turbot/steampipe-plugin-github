@@ -29,7 +29,7 @@ func tableGitHubCommit() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubCommitGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the commit."},
 			{Name: "sha", Type: proto.ColumnType_STRING, Description: "SHA of the commit."},
 			{Name: "short_sha", Type: proto.ColumnType_STRING, Hydrate: commitHydrateShortSha, Transform: transform.FromValue(), Description: "Short SHA of the commit."},
@@ -56,7 +56,7 @@ func tableGitHubCommit() *plugin.Table {
 			{Name: "url", Type: proto.ColumnType_STRING, Hydrate: commitHydrateUrl, Transform: transform.FromValue(), Description: "URL of the commit."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Hydrate: commitHydrateNodeId, Transform: transform.FromValue(), Description: "The node ID of the commit."},
 			{Name: "message_headline", Type: proto.ColumnType_STRING, Hydrate: commitHydrateMessageHeadline, Transform: transform.FromValue(), Description: "The Git commit message headline."},
-		},
+		}),
 	}
 }
 

@@ -21,7 +21,7 @@ func tableGitHubTag() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTagList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateName},
 			{Name: "tagger_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromValue().NullIfZero(), Description: "Date the tag was created.", Hydrate: tagHydrateTaggerDate},
@@ -29,7 +29,7 @@ func tableGitHubTag() *plugin.Table {
 			{Name: "tagger_login", Type: proto.ColumnType_STRING, Description: "Login of user whom created the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateTaggerLogin},
 			{Name: "message", Type: proto.ColumnType_STRING, Description: "Message associated with the tag.", Transform: transform.FromValue(), Hydrate: tagHydrateMessage},
 			{Name: "commit", Type: proto.ColumnType_JSON, Description: "Commit the tag is associated with.", Transform: transform.FromValue(), Hydrate: tagHydrateCommit},
-		},
+		}),
 	}
 }
 

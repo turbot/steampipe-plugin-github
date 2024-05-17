@@ -55,7 +55,7 @@ func tableGitHubSearchUser() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchUserList,
 		},
-		Columns: gitHubSearchUserColumns(),
+		Columns: commonColumns(gitHubSearchUserColumns()),
 	}
 }
 

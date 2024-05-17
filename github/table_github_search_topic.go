@@ -17,7 +17,7 @@ func tableGitHubSearchTopic() *plugin.Table {
 			KeyColumns: plugin.SingleColumn("query"),
 			Hydrate:    tableGitHubSearchTopicList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the topic."},
 			{Name: "query", Type: proto.ColumnType_STRING, Transform: transform.FromQual("query"), Description: "The query used to match the topic."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "The timestamp when the topic was created."},
@@ -29,7 +29,7 @@ func tableGitHubSearchTopic() *plugin.Table {
 			{Name: "score", Type: proto.ColumnType_DOUBLE, Description: "The score of the topic."},
 			{Name: "short_description", Type: proto.ColumnType_STRING, Description: "The short description of the topic."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The timestamp when the topic was updated."},
-		},
+		}),
 	}
 }
 

@@ -25,7 +25,7 @@ func tableGitHubTeamMember() *plugin.Table {
 			Hydrate:           tableGitHubTeamMemberList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		Columns: gitHubTeamMemberColumns(),
+		Columns: commonColumns(gitHubTeamMemberColumns()),
 	}
 }
 

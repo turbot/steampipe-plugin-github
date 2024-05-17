@@ -16,7 +16,7 @@ func tableGitHubMyOrganization() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: tableGitHubMyOrganizationList,
 		},
-		Columns: gitHubOrganizationColumns(),
+		Columns: commonColumns(gitHubOrganizationColumns()),
 	}
 }
 

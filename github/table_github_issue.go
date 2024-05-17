@@ -99,7 +99,7 @@ func tableGitHubIssue() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryIssueGet,
 		},
-		Columns: gitHubIssueColumns(),
+		Columns: commonColumns(gitHubIssueColumns()),
 	}
 }
 

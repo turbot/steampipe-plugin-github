@@ -20,7 +20,7 @@ func tableGitHubSearchLabel() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubSearchLabelList,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "id", Transform: transform.FromField("ID"), Type: proto.ColumnType_INT, Description: "The ID of the label."},
 			{Name: "repository_id", Type: proto.ColumnType_INT, Transform: transform.FromQual("repository_id"), Description: "The ID of the repository."},
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.From(extractSearchLabelRepositoryFullName), Description: "The full name of the repository (login/repo-name)."},
@@ -32,7 +32,7 @@ func tableGitHubSearchLabel() *plugin.Table {
 			{Name: "score", Type: proto.ColumnType_DOUBLE, Description: "The score of the label."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The API URL to get the label details."},
 			{Name: "text_matches", Type: proto.ColumnType_JSON, Description: "The text match details."},
-		},
+		}),
 	}
 }
 

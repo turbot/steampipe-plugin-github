@@ -48,7 +48,7 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertGet,
 		},
-		Columns: append(
+		Columns: commonColumns(append(
 			gitHubDependabotAlertColumns(),
 			[]*plugin.Column{
 				{
@@ -58,7 +58,7 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 					Description: "The full name of the repository (login/repo-name).",
 				},
 			}...,
-		),
+		)),
 	}
 }
 

@@ -24,7 +24,7 @@ func tableGitHubActionsRepositoryRunner() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRunnerGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the runners."},
 			{Name: "id", Type: proto.ColumnType_INT, Transform: transform.FromGo(), Description: "The unique identifier of the runner."},
@@ -33,7 +33,7 @@ func tableGitHubActionsRepositoryRunner() *plugin.Table {
 			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the runner."},
 			{Name: "busy", Type: proto.ColumnType_BOOL, Description: "Indicates whether the runner is currently in use or not."},
 			{Name: "labels", Type: proto.ColumnType_JSON, Description: "Labels represents a collection of labels attached to each runner."},
-		},
+		}),
 	}
 }
 

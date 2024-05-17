@@ -15,7 +15,7 @@ func tableGitHubRateLimit() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listGitHubRateLimit,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "core_limit", Type: proto.ColumnType_INT, Transform: transform.FromField("Core.Limit"), Description: "The number of requests per hour the client is currently limited to."},
 			{Name: "core_remaining", Type: proto.ColumnType_INT, Transform: transform.FromField("Core.Remaining"), Description: "The number of remaining requests the client can make this hour."},
@@ -23,7 +23,7 @@ func tableGitHubRateLimit() *plugin.Table {
 			{Name: "search_limit", Type: proto.ColumnType_INT, Transform: transform.FromField("Search.Limit"), Description: "The number of requests per hour the client is currently limited to."},
 			{Name: "search_remaining", Type: proto.ColumnType_INT, Transform: transform.FromField("Search.Remaining"), Description: "The number of remaining requests the client can make this hour."},
 			{Name: "search_reset", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Search.Reset").Transform(convertTimestamp), Description: "The time at which the current rate limit will reset."},
-		},
+		}),
 	}
 }
 

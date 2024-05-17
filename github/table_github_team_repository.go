@@ -43,7 +43,7 @@ func tableGitHubTeamRepository() *plugin.Table {
 			Hydrate:           tableGitHubTeamRepositoryGet,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		Columns: gitHubTeamRepositoryColumns(),
+		Columns: commonColumns(gitHubTeamRepositoryColumns()),
 	}
 }
 

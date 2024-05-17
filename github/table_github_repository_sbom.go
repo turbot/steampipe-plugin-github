@@ -22,7 +22,7 @@ func tableGitHubRepositorySbom() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           listRepositorySboms,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{
 				Name:        "repository_full_name",
 				Type:        proto.ColumnType_STRING,
@@ -71,7 +71,7 @@ func tableGitHubRepositorySbom() *plugin.Table {
 				Type:        proto.ColumnType_JSON,
 				Description: "Array of packages in SPDX format.",
 			},
-		},
+		}),
 	}
 }
 

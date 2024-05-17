@@ -30,7 +30,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepoWorkflowRunGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that specifies the workflow run."},
 			{Name: "id", Type: proto.ColumnType_INT, Description: "The unque identifier of the workflow run."},
@@ -64,7 +64,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the first instance of the workflow run.", Transform: transform.FromField("Actor.Login")},
 			{Name: "triggering_actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the latest instance of this workflow run."},
 			{Name: "triggering_actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the latest instance of this workflow run.", Transform: transform.FromField("TriggeringActor.Login")},
-		},
+		}),
 	}
 }
 

@@ -21,7 +21,7 @@ func tableGitHubUser() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubUserGet,
 		},
-		Columns: tableGitHubUserColumns(),
+		Columns: commonColumns(tableGitHubUserColumns()),
 	}
 }
 

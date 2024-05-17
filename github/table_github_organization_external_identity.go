@@ -35,7 +35,7 @@ func tableGitHubOrganizationExternalIdentity() *plugin.Table {
 			},
 			Hydrate: tableGitHubOrganizationExternalIdentityList,
 		},
-		Columns: gitHubOrganizationExternalIdentityColumns(),
+		Columns: commonColumns(gitHubOrganizationExternalIdentityColumns()),
 	}
 }
 

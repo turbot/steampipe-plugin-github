@@ -34,7 +34,7 @@ func tableGitHubCodeOwner() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),
 		},
-		Columns: gitHubCodeOwnerColumns(),
+		Columns: commonColumns(gitHubCodeOwnerColumns()),
 	}
 }
 

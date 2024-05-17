@@ -33,7 +33,7 @@ func tableGitHubRepositoryEnvironment() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryEnvironmentList,
 		},
-		Columns: gitHubRepositoryEnvironmentColumns(),
+		Columns: commonColumns(gitHubRepositoryEnvironmentColumns()),
 	}
 }
 

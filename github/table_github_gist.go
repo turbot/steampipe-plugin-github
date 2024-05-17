@@ -40,7 +40,7 @@ func tableGitHubGist() *plugin.Table {
 			KeyColumns:        plugin.SingleColumn("id"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		Columns: gitHubGistColumns(),
+		Columns: commonColumns(gitHubGistColumns()),
 	}
 }
 

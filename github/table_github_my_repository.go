@@ -15,7 +15,7 @@ func tableGitHubMyRepository() *plugin.Table {
 			Hydrate:           tableGitHubMyRepositoryList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
-		Columns: sharedRepositoryColumns(),
+		Columns: commonColumns(sharedRepositoryColumns()),
 	}
 }
 

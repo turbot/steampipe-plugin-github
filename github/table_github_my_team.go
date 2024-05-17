@@ -21,7 +21,7 @@ func tableGitHubMyTeam() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubTeamGet,
 		},
-		Columns: gitHubTeamColumns(),
+		Columns: commonColumns(gitHubTeamColumns()),
 	}
 }
 

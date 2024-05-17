@@ -193,7 +193,7 @@ func tableGitHubOrganizationDependabotAlert() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 			Hydrate:           tableGitHubOrganizationDependabotAlertList,
 		},
-		Columns: append(
+		Columns: commonColumns(append(
 			gitHubDependabotAlertColumns(),
 			[]*plugin.Column{
 				{
@@ -203,7 +203,7 @@ func tableGitHubOrganizationDependabotAlert() *plugin.Table {
 					Transform:   transform.FromQual("organization"),
 				},
 			}...,
-		),
+		)),
 	}
 }
 

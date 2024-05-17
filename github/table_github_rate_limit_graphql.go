@@ -17,14 +17,14 @@ func tableGitHubRateLimitGraphQL() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listGitHubRateLimitGraphQL,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			{Name: "cost", Type: proto.ColumnType_INT, Description: "Number of points used to return this query.", Transform: transform.FromValue(), Hydrate: rateLimitHydrateCost},
 			{Name: "used", Type: proto.ColumnType_INT, Description: "Number of points used from current allocation.", Transform: transform.FromValue(), Hydrate: rateLimitHydrateUsed},
 			{Name: "remaining", Type: proto.ColumnType_INT, Description: "Number of points remaining in current allocation.", Transform: transform.FromValue(), Hydrate: rateLimitHydrateRemaining},
 			{Name: "limit", Type: proto.ColumnType_INT, Description: "Maximum number of points used that can be used in current allocation.", Transform: transform.FromValue(), Hydrate: rateLimitHydrateLimit},
 			{Name: "reset_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when the allocation resets.", Transform: transform.FromValue().NullIfZero(), Hydrate: rateLimitHydrateResetAt},
 			{Name: "node_count", Type: proto.ColumnType_INT, Description: "Number of nodes returned by this query.", Transform: transform.FromValue(), Hydrate: rateLimitHydrateNodeCount},
-		},
+		}),
 	}
 }
 

@@ -24,7 +24,7 @@ func tableGitHubActionsRepositorySecret() *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepoSecretGet,
 		},
-		Columns: []*plugin.Column{
+		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the secrets."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
@@ -34,7 +34,7 @@ func tableGitHubActionsRepositorySecret() *plugin.Table {
 			// Other columns
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the secret was created."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the secret was updated."},
-		},
+		}),
 	}
 }
 
