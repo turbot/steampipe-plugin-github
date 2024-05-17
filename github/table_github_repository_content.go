@@ -68,7 +68,6 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	if d.EqualsQualString("repository_content_path") != "" {
 		filterPath = d.EqualsQualString("repository_content_path")
 	}
-	plugin.Logger(ctx).Trace("tableGitHubRepositoryContentList", "owner", owner, "repo", repo, "path", filterPath)
 
 	err := getFileContents(ctx, d, h, owner, repo, filterPath)
 	if err != nil {
@@ -155,6 +154,7 @@ func getFileContents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		if string(data.Type) == "tree" {
 			err := getFileContents(ctx, d, h, owner, repo, string(data.Path))
 			if err != nil {
+				plugin.Logger(ctx).Error("github_repository_content.getFileContents", "recurssive_api_error", err)
 				return err
 			}
 		}
