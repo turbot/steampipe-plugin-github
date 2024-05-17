@@ -1,5 +1,5 @@
 ---
-title: "Steampipe Table: github_repository_content - Query File and Directory Contents in GitHub Repositories using SQL"
+title: "Steampipe Table: github_repository_content - Query file and directory contents in GitHub repositories using SQL"
 description: "Facilitates querying the contents of files and directories within GitHub repositories, offering insights into file paths, types, sizes, and more."
 ---
 
@@ -13,7 +13,7 @@ To utilize this table effectively, specify the file path or directory within `re
 
 **Important Notes**
 - It's mandatory to specify the `repository_full_name` (including the organization/user prefix) in the `where` or `join` clause when querying this table.
-- To enhance performance, this table supports the optional qualifier `repository_content_path`. Queries that utilize this qualifier are optimized to efficiently retrieve file contents from a subdirectory within a repository.
+- To enhance performance, this table supports the optional qualifier `repository_content_path`. Queries that utilize this qualifier are optimized to efficiently retrieve file contents from a sub-directory within a repository.
 
 ## Examples
 
@@ -82,7 +82,7 @@ and
 ```
 
 ### List contents of a specific directory within a repository
-This query facilitates a deeper inspection into a specific directory within a repository, enabling users to understand its structure and the types of files it contains.
+This query facilitates a deeper inspection of a specific directory within a repository, enabling users to understand its structure and the types of files it contains.
 
 ```sql+postgres
 select
