@@ -179,7 +179,7 @@ func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData
 	pipeline, err := goPipeline.Parse(strings.NewReader(contentDetails.Content))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_workflow.decodeFileContentToPipeline", "Pipeline conversion error", err)
-		return nil, fmt.Errorf("failed to parse the workflow file '%s'", contentDetails.FilePath)
+		return nil, fmt.Errorf("failed to parse the workflow file '%s', %v", contentDetails.FilePath, err)
 	}
 
 	return pipeline, nil
@@ -197,7 +197,7 @@ func unmarshalYAML(_ context.Context, d *transform.TransformData) (interface{}, 
 	if inputStr != "" {
 		err := yaml.Unmarshal([]byte(inputStr), &result)
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert YAML to JSON in file '%s'", contentDetails.FilePath)
+			return nil, fmt.Errorf("failed to convert YAML to JSON in file '%s', %v", contentDetails.FilePath, err)
 		}
 	}
 
