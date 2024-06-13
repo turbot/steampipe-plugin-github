@@ -304,6 +304,7 @@ func rateLimitLogString(table string, rateLimits *models.RateLimit) string {
 // transforms
 
 func convertTimestamp(ctx context.Context, input *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Error("Input Timestamp ==>>", input.Value)
 	switch t := input.Value.(type) {
 	case *github.Timestamp:
 		return t.Format(time.RFC3339), nil
