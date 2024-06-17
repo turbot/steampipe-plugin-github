@@ -157,11 +157,7 @@ where
   and created_at > '2023-01-01T00:00:00Z';
 ```
 
-### Example Query Based on Parameters in Rules
-
-Explore specific rules within the ruleset based on their parameter types. Below are queries for different parameter types:
-
-#### 1. **UpdateParameters**
+### List update parameters
 
 List rules with update parameters, focusing on the `update_allows_fetch_and_merge` setting.
 
@@ -194,7 +190,7 @@ where
   and json_extract(r.value, '$.parameters.Type') = 'UpdateParameters';
 ```
 
-#### 2. **WorkflowsParameters**
+### List workflow parameters
 
 List rules with workflow parameters, focusing on the workflow configurations.
 
@@ -227,7 +223,7 @@ where
   and json_extract(r.value, '$.parameters.Type') = 'WorkflowsParameters';
 ```
 
-#### 3. **PullRequestParameters**
+### List pull request parameters
 
 List rules with pull request parameters, including various settings such as code owner review requirements.
 
@@ -260,103 +256,4 @@ from
 where
   repository_full_name = 'pro-cloud-49/test-rule'
   and json_extract(r.value, '$.parameters.Type') = 'PullRequestParameters';
-```
-
-#### 4. **CodeScanningParameters**
-
-List rules with code scanning parameters, showing tool configurations and thresholds.
-
-```sql+postgres
-select
-  id,
-  name,
-  r -> 'parameters' ->> 'Type' as type,
-  r -> 'parameters' -> 'CodeScanningParameters' ->> 'code_scanning_tools' as code_scanning_tools
-from
-  github_repository_ruleset,
-  jsonb_array_elements(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-and
-  (r -> 'parameters' ->> 'Type') = 'CodeScanningParameters';
-```
-
-```sql+sqlite
-select
-  id,
-  name,
-  json_extract(r.value, '$.parameters.Type') as type,
-  json_extract(r.value, '$.parameters.CodeScanningParameters.code_scanning_tools') as code_scanning_tools
-from
-  github_repository_ruleset,
-  json_each(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-  and json_extract(r.value, '$.parameters.Type') = 'CodeScanningParameters';
-```
-
-#### 5. **TagNamePatternParameters**
-
-List rules with tag name pattern parameters, including pattern configurations.
-
-```sql+postgres
-select
-  id,
-  name,
-  r -> 'parameters' ->> 'Type' as type,
-  r -> 'parameters' -> 'TagNamePatternParameters' ->> 'pattern' as pattern
-from
-  github_repository_ruleset,
-  jsonb_array_elements(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-and
-  (r -> 'parameters' ->> 'Type') = 'TagNamePatternParameters';
-```
-
-```sql+sqlite
-select
-  id,
-  name,
-  json_extract(r.value, '$.parameters.Type') as type,
-  json_extract(r.value, '$.parameters.TagNamePatternParameters.pattern') as pattern
-from
-  github_repository_ruleset,
-  json_each(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-  and json_extract(r.value, '$.parameters.Type') = 'TagNamePatternParameters';
-```
-
-#### 6. **MaxFilePathLengthParameters**
-
-List rules with max file path length parameters, specifying the maximum length allowed.
-
-```sql+postgres
-select
-  id,
-  name,
-  r -> 'parameters' ->> 'Type' as type,
-  r -> 'parameters' -> 'MaxFilePathLengthParameters' ->> 'max_file_path_length' as max_file_path_length
-from
-  github_repository_ruleset,
-  jsonb_array_elements(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-and
-  (r -> 'parameters' ->> 'Type') = 'MaxFilePathLengthParameters';
-```
-
-```sql+sqlite
-select
-  id,
-  name,
-  json_extract(r.value, '$.parameters.Type') as type,
-  json_extract(r.value, '$.parameters.MaxFilePathLengthParameters.max_file_path_length') as max_file_path_length
-from
-  github_repository_ruleset,
-  json_each(rules) as r
-where
-  repository_full_name = 'pro-cloud-49/test-rule'
-  and json_extract(r.value, '$.parameters.Type') = 'MaxFilePathLengthParameters';
 ```
