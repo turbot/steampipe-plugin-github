@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"strings"
 
 	goPipeline "github.com/buildkite/go-pipeline"
@@ -44,11 +45,17 @@ func tableGitHubWorkflow() *plugin.Table {
 			{Name: "state", Type: proto.ColumnType_STRING, Description: "State of the workflow."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow was updated."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "URL of the workflow."},
-			{Name: "workflow_file_content", Type: proto.ColumnType_STRING, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64), Description: "Content of github workflow file in text format."},
-			{Name: "workflow_file_content_json", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(unmarshalYAML), Description: "Content of github workflow file in the JSON format."},
-			{Name: "pipeline", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().Transform(decodeFileContentBase64).Transform(decodeFileContentToPipeline), Description: "Github workflow in the generic pipeline entity format to be used across CI/CD platforms."},
+			{Name: "workflow_file_content", Type: proto.ColumnType_STRING, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().TransformP(decodeFileContentBase64, "workflow_file_content"), Description: "Content of github workflow file in text format."},
+			{Name: "workflow_file_content_json", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().TransformP(decodeFileContentBase64, "workflow_file_content_json").Transform(unmarshalYAML), Description: "Content of github workflow file in the JSON format."},
+			{Name: "pipeline", Type: proto.ColumnType_JSON, Hydrate: GitHubWorkflowFileContent, Transform: transform.FromValue().TransformP(decodeFileContentBase64, "pipeline").Transform(decodeFileContentToPipeline), Description: "Github workflow in the generic pipeline entity format to be used across CI/CD platforms."},
 		}),
 	}
+}
+
+type FileContent struct {
+	Repository string
+	FilePath   string
+	Content    string
 }
 
 func tableGitHubWorkflowList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -155,20 +162,24 @@ func decodeFileContentBase64(ctx context.Context, d *transform.TransformData) (i
 		return nil, err
 	}
 
-	return string(decodedText), nil
+	if d.Param.(string) == "workflow_file_content" {
+		return string(decodedText), nil
+	}
+
+	return FileContent{*repContent.Name, *repContent.HTMLURL, string(decodedText)}, nil
 }
 
 // decodeFileContentToPipeline:: Converts the workflow decoded text to generic CI pipeline.
 func decodeFileContentToPipeline(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	repContent, ok := d.Value.(string)
+	contentDetails, ok := d.Value.(FileContent)
 	if !ok {
 		return nil, nil
 	}
 
-	pipeline, err := goPipeline.Parse(strings.NewReader(repContent))
+	pipeline, err := goPipeline.Parse(strings.NewReader(contentDetails.Content))
 	if err != nil {
 		plugin.Logger(ctx).Error("github_workflow.decodeFileContentToPipeline", "Pipeline conversion error", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to parse the workflow file '%s', %v", contentDetails.FilePath, err)
 	}
 
 	return pipeline, nil
@@ -179,12 +190,14 @@ func unmarshalYAML(_ context.Context, d *transform.TransformData) (interface{}, 
 	if d.Value == nil {
 		return nil, nil
 	}
-	inputStr := types.SafeString(d.Value)
+	contentDetails := d.Value.(FileContent)
+
+	inputStr := types.SafeString(contentDetails.Content)
 	var result interface{}
 	if inputStr != "" {
 		err := yaml.Unmarshal([]byte(inputStr), &result)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to convert YAML to JSON in file '%s', %v", contentDetails.FilePath, err)
 		}
 	}
 
