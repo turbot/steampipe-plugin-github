@@ -27,12 +27,12 @@ type Parameters struct {
 	FileExtensionRestrictionParameters FileExtensionRestrictionParameters `graphql:"... on FileExtensionRestrictionParameters"`
 	FilePathRestrictionParameters      FilePathRestrictionParameters      `graphql:"... on FilePathRestrictionParameters"`
 	MaxFilePathLengthParameters        MaxFilePathLengthParameters        `graphql:"... on MaxFilePathLengthParameters"`
+	MaxFileSizeParameters              MaxFileSizeParameters              `graphql:"... on MaxFileSizeParameters"`
 	RequiredDeploymentsParameters      RequiredDeploymentsParameters      `graphql:"... on RequiredDeploymentsParameters"`
 	RequiredStatusChecksParameters     RequiredStatusChecksParameters     `graphql:"... on RequiredStatusChecksParameters"`
 	TagNamePatternParameters           TagNamePatternParameters           `graphql:"... on TagNamePatternParameters"`
 	UpdateParameters                   UpdateParameters                   `graphql:"... on UpdateParameters"`
 	WorkflowsParameters                WorkflowsParameters                `graphql:"... on WorkflowsParameters"`
-	// Add other parameter types similarly...
 }
 
 type PullRequestParameters struct {
@@ -44,7 +44,7 @@ type PullRequestParameters struct {
 }
 
 type CodeScanningParameters struct {
-	CodeScanningTools CodeScanningTool `json:"code_scanning_tools"`
+	CodeScanningTools []CodeScanningTool `json:"code_scanning_tools"`
 }
 
 type CodeScanningTool struct {
@@ -75,24 +75,28 @@ type CommitterEmailPatternParameters struct {
 }
 
 type FileExtensionRestrictionParameters struct {
-	RestrictedFileExtensions string `json:"restricted_file_extensions"`
+	RestrictedFileExtensions []string `json:"restricted_file_extensions"`
 }
 
 type FilePathRestrictionParameters struct {
-	RestrictedFilePaths string `json:"restricted_file_paths"`
+	RestrictedFilePaths []string `json:"restricted_file_paths"`
 }
 
 type MaxFilePathLengthParameters struct {
 	MaxFilePathLength int `json:"max_file_path_length"`
 }
 
+type MaxFileSizeParameters struct {
+	MaxFileSize int `json:"max_file_size"`
+}
+
 type RequiredDeploymentsParameters struct {
-	RequiredDeploymentEnvironments string `json:"required_deployment_environments"`
+	RequiredDeploymentEnvironments []string `json:"required_deployment_environments"`
 }
 
 type RequiredStatusChecksParameters struct {
-	RequiredStatusChecks             StatusCheckConfiguration `json:"required_status_checks"`
-	StrictRequiredStatusChecksPolicy bool                     `json:"strict_required_status_checks_policy"`
+	RequiredStatusChecks             []StatusCheckConfiguration `json:"required_status_checks"`
+	StrictRequiredStatusChecksPolicy bool                       `json:"strict_required_status_checks_policy"`
 }
 
 type StatusCheckConfiguration struct {
@@ -112,7 +116,7 @@ type UpdateParameters struct {
 }
 
 type WorkflowsParameters struct {
-	Workflows WorkflowFileReference `json:"workflows"`
+	Workflows []WorkflowFileReference `json:"workflows"`
 }
 
 type WorkflowFileReference struct {
