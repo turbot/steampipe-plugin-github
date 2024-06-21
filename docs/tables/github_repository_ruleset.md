@@ -5,14 +5,14 @@ description: "Allows users to query GitHub Repository Rulesets, providing detail
 
 # Table: github_repository_ruleset - Query GitHub Repository Rulesets using SQL
 
-GitHub Repository Rulesets is a feature within GitHub that allows organizations to enforce rules and conditions on repositories. These rulesets help manage repository settings, permissions, and enforce best practices.
+GitHub Repository Rulesets is a feature within GitHub that allows organizations to enforce rules and conditions on repositories. These rulesets help manage repository settings, and permissions, and enforce best practices.
 
 ## Table Usage Guide
 
 The `github_repository_ruleset` table provides insights into the rulesets within GitHub repositories. As a project manager or team lead, you can explore ruleset-specific details through this table, including ruleset ID, name, enforcement level, bypass actors, and conditions. Utilize it to enforce repository policies, manage permissions, and ensure compliance with organizational standards.
 
 **Important Notes**
-- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- You must specify the `repository_full_name` column in the `where` or `join` clause to query the table.
 
 ## Examples
 
@@ -160,7 +160,6 @@ where
 ### List update parameters
 List rules with update parameters, focusing on the `update_allows_fetch_and_merge` setting.
 
-
 ```sql+postgres
 select
   id,
@@ -191,7 +190,6 @@ where
 ```
 
 ### List workflow parameters
-
 List rules with workflow parameters, focusing on the workflow configurations.
 
 ```sql+postgres
@@ -270,7 +268,7 @@ from
   github_repository_ruleset,
   jsonb_array_elements(rules) as r
 where
-  repository_full_name = 'owner/repo';
+  repository_full_name = 'pro-cloud-49/test-rule';
 ```
 
 ```sql+sqlite
@@ -283,5 +281,5 @@ from
   github_repository_ruleset,
   json_each(rules) as r
 where
-  repository_full_name = 'owner/repo';
+  repository_full_name = 'pro-cloud-49/test-rule';
 ```
