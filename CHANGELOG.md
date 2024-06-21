@@ -1,3 +1,18 @@
+## v0.42.0 [2024-06-21]
+
+_What's new?_
+
+- New tables added
+  - [github_repository_ruleset](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_ruleset) ([#440](https://github.com/turbot/steampipe-plugin-github/pull/440))
+
+_Bug fixes_
+
+- Improved the error messaging for file parsing in the `github_workflow` table. ([#438](https://github.com/turbot/steampipe-plugin-github/pull/438))
+
+_Dependencies_
+
+- Recompiled plugin with `github.com/cloudflare/circl v1.3.7`. ([#418](https://github.com/turbot/steampipe-plugin-github/pull/418))
+
 ## v0.41.0 [2024-05-17]
 
 _What's new?_
