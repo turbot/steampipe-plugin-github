@@ -258,7 +258,6 @@ where
 ```
 
 ### List required status check parameters
-
 List rules with required status check parameters.
 
 ```sql+postgres
