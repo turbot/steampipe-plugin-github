@@ -158,8 +158,8 @@ where
 ```
 
 ### List update parameters
-
 List rules with update parameters, focusing on the `update_allows_fetch_and_merge` setting.
+
 
 ```sql+postgres
 select
