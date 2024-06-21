@@ -224,7 +224,6 @@ where
 ```
 
 ### List pull request parameters
-
 List rules with pull request parameters, including various settings such as code owner review requirements.
 
 ```sql+postgres
