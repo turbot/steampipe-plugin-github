@@ -257,3 +257,33 @@ where
   repository_full_name = 'pro-cloud-49/test-rule'
   and json_extract(r.value, '$.parameters.Type') = 'PullRequestParameters';
 ```
+
+### List required status check parameters
+
+List rules with required status check parameters.
+
+```sql+postgres
+select
+  id,
+  name,
+  r -> 'parameters' ->> 'Type' as type,
+  r -> 'parameters' -> 'RequiredStatusChecksParameters' ->> 'required_status_checks' as required_status_checks
+from
+  github_repository_ruleset,
+  jsonb_array_elements(rules) as r
+where
+  repository_full_name = 'owner/repo';
+```
+
+```sql+sqlite
+select
+  id,
+  name,
+  json_extract(r.value, '$.parameters.Type') as type,
+  json_extract(r.value, '$.parameters.RequiredStatusChecksParameters.required_status_checks') as required_status_checks
+from
+  github_repository_ruleset,
+  json_each(rules) as r
+where
+  repository_full_name = 'owner/repo';
+```
