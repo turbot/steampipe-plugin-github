@@ -129,20 +129,23 @@ func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h
 
 	blobData := query.Repository.Object.Blob
 
+	// Return nil for empty response
 	if blobData.Oid == "" {
 		return nil, nil
 	}
 
+	// Extract the file name from path
 	name := strings.Split(path, "/")
-
+	
+	// The fields 'IsGenerated' and 'Mode' cannot be populated from this function.
 	c := ContentInfo{
 		Oid:            string(blobData.Oid),
 		AbbreviatedOid: string(blobData.AbbreviatedOid),
 		Name:           string(name[len(name)-1]),
-		PathRaw:        string(base64.StdEncoding.EncodeToString([]byte(path))),
+		PathRaw:        string(base64.StdEncoding.EncodeToString([]byte(path))), // The Blob GitObject does not have a field 'pathRaw', which is the base64 encoded value of the path.
 		Path:           string(path),
 		Size:           int(blobData.ByteSize),
-		LineCount:      int(len(strings.Split(string(blobData.Text), "\n"))),
+		LineCount:      int(len(strings.Split(string(blobData.Text), "\n"))), // The Blob GitObject does not have a 'lineCount' field, so manual manipulation is needed.
 		Type:           string("blob"),
 		Content:        string(blobData.Text),
 		IsBinary:       bool(blobData.IsBinary),
