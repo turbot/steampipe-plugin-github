@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"encoding/base64"
+	"strings"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
@@ -16,6 +18,11 @@ func tableGitHubRepositoryContent() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_repository_content",
 		Description: "List the content in a repository (list directory, or get file content",
+		Get: &plugin.GetConfig{
+			Hydrate:           tableGitHubRepositoryContentGet,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "path"}),
+		},
 		List: &plugin.ListConfig{
 			Hydrate:           tableGitHubRepositoryContentList,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
@@ -78,6 +85,74 @@ func tableGitHubRepositoryContentList(ctx context.Context, d *plugin.QueryData, 
 	return nil, nil
 }
 
+// HYDRATE FUNCTION
+
+func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	owner, repo := parseRepoFullName(d.EqualsQualString("repository_full_name"))
+	path := d.EqualsQualString("path")
+
+	// Empty check
+	if owner == "" || repo == "" || path == "" {
+		return nil, nil
+	}
+	var query struct {
+		RateLimit  models.RateLimit
+		Repository struct {
+			Object struct {
+				Blob struct {
+					Oid            githubv4.String
+					AbbreviatedOid githubv4.String
+					Text           githubv4.String
+					IsBinary       githubv4.Boolean
+					CommitUrl      githubv4.String
+					ByteSize       githubv4.Int
+				} `graphql:"... on Blob"`
+			} `graphql:"object(expression: $expression)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
+	}
+
+	variables := map[string]interface{}{
+		"owner":      githubv4.String(owner),
+		"repo":       githubv4.String(repo),
+		"expression": githubv4.String("HEAD:" + path),
+	}
+
+	client := connectV4(ctx, d)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	if err != nil {
+		plugin.Logger(ctx).Error("github_repository_content.tableGitHubRepositoryContentGet", "api_error", err, "repository", repo)
+		return nil, err
+	}
+
+	blobData := query.Repository.Object.Blob
+
+	if blobData.Oid == "" {
+		return nil, nil
+	}
+
+	name := strings.Split(path, "/")
+
+	c := ContentInfo{
+		Oid:            string(blobData.Oid),
+		AbbreviatedOid: string(blobData.AbbreviatedOid),
+		Name:           string(name[len(name)-1]),
+		PathRaw:        string(base64.StdEncoding.EncodeToString([]byte(path))),
+		Path:           string(path),
+		Size:           int(blobData.ByteSize),
+		LineCount:      int(len(strings.Split(string(blobData.Text), "\n"))),
+		Type:           string("blob"),
+		Content:        string(blobData.Text),
+		IsBinary:       bool(blobData.IsBinary),
+		CommitUrl:      string(blobData.CommitUrl),
+	}
+
+	return c, nil
+}
+
+// Fetch all the file content recursively
 func getFileContents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData, owner string, repo string, filterPath string) error {
 	var query struct {
 		RateLimit  models.RateLimit
