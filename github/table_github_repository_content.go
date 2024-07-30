@@ -40,11 +40,11 @@ func tableGitHubRepositoryContent() *plugin.Table {
 			{Name: "repository_content_path", Description: "The requested path in repository search.", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_content_path")},
 			{Name: "path", Description: "The path of the file.", Type: proto.ColumnType_STRING},
 			{Name: "path_raw", Description: "A Base64-encoded representation of the file's path.", Type: proto.ColumnType_STRING},
-			{Name: "mode", Description: "The mode of the file.", Type: proto.ColumnType_INT},
+			{Name: "mode", Description: "The mode of the file.", Type: proto.ColumnType_INT, Hydrate: getFileModeAndGeneratedDetails},
 			{Name: "size", Description: "The size of the file (in KB).", Type: proto.ColumnType_INT},
 			{Name: "line_count", Description: "The number of lines available in the file.", Type: proto.ColumnType_INT},
 			{Name: "content", Description: "The decoded file content (if the element is a file).", Type: proto.ColumnType_STRING},
-			{Name: "is_generated", Description: "Whether or not this tree entry is generated.", Type: proto.ColumnType_BOOL},
+			{Name: "is_generated", Description: "Whether or not this tree entry is generated.", Type: proto.ColumnType_BOOL, Hydrate: getFileModeAndGeneratedDetails},
 			{Name: "is_binary", Description: "Indicates whether the Blob is binary or text.", Type: proto.ColumnType_BOOL},
 			{Name: "commit_url", Description: "Git URL (with SHA) of the file.", Type: proto.ColumnType_STRING},
 		},
@@ -55,9 +55,9 @@ type ContentInfo struct {
 	Oid            string
 	AbbreviatedOid string
 	Name           string
-	Mode           int
+	Mode           *int
 	PathRaw        string
-	IsGenerated    bool
+	IsGenerated    *bool
 	Path           string
 	Size           int
 	LineCount      int
@@ -136,7 +136,7 @@ func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h
 
 	// Extract the file name from path
 	name := strings.Split(path, "/")
-	
+
 	// The fields 'IsGenerated' and 'Mode' cannot be populated from this function.
 	c := ContentInfo{
 		Oid:            string(blobData.Oid),
@@ -153,6 +153,77 @@ func tableGitHubRepositoryContentGet(ctx context.Context, d *plugin.QueryData, h
 	}
 
 	return c, nil
+}
+
+// The fields 'IsGenerated' and 'Mode' cannot be populated if our get config is being executed.
+// We need to extract the property from parent node.
+type fileModeAndGeneratedInfo struct {
+	Mode        *int
+	IsGenerated *bool
+}
+
+func getFileModeAndGeneratedDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	hItem := h.Item.(ContentInfo)
+	// From list API call we will have the 'IsGenerated' and 'Mode' attributes.
+	// Restrict the API call if the list query has been executed.
+	if hItem.IsGenerated != nil && hItem.Mode != nil {
+		return fileModeAndGeneratedInfo{hItem.Mode, hItem.IsGenerated}, nil
+	}
+
+	owner, repo := parseRepoFullName(d.EqualsQualString("repository_full_name"))
+	filterPath := ""
+	if d.EqualsQualString("path") != "" {
+		filterPath = d.EqualsQualString("path")
+	}
+
+	parentFilePath := strings.Join(strings.Split(filterPath, "/")[:len(strings.Split(filterPath, "/"))-1], "/")
+
+	var query struct {
+		RateLimit  models.RateLimit
+		Repository struct {
+			Object struct {
+				Tree struct {
+					Oid     githubv4.String
+					Entries []struct {
+						Mode        githubv4.Int
+						IsGenerated githubv4.Boolean
+						Object      struct {
+							Blob struct {
+								Oid githubv4.String
+							} `graphql:"... on Blob"`
+						}
+					}
+				} `graphql:"... on Tree"`
+			} `graphql:"object(expression: $expression)"`
+		} `graphql:"repository(owner: $owner, name: $repo)"`
+	}
+
+	variables := map[string]interface{}{
+		"owner":      githubv4.String(owner),
+		"repo":       githubv4.String(repo),
+		"expression": githubv4.String("HEAD:" + parentFilePath),
+	}
+
+	client := connectV4(ctx, d)
+	listPage := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+		return nil, client.Query(ctx, &query, variables)
+	}
+
+	_, err := plugin.RetryHydrate(ctx, d, h, listPage, retryConfig())
+	if err != nil {
+		plugin.Logger(ctx).Error("github_repository_content.getFileModeAndGeneratedDetails", "api_error", err, "repository", repo)
+		return nil, err
+	}
+
+	for _, data := range query.Repository.Object.Tree.Entries {
+		if data.Object.Blob.Oid == githubv4.String(hItem.Oid) {
+			mode := int(data.Mode)
+			isGenerated := bool(data.IsGenerated)
+			return fileModeAndGeneratedInfo{&mode, &isGenerated}, nil
+		}
+	}
+
+	return nil, nil
 }
 
 // Fetch all the file content recursively
@@ -207,13 +278,15 @@ func getFileContents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	for _, data := range query.Repository.Object.Tree.Entries {
 		if string(data.Type) != "tree" {
+			mode := int(data.Mode)
+			isGenerated := bool(data.IsGenerated)
 			c := ContentInfo{
 				Oid:            string(data.Object.Blob.Oid),
 				AbbreviatedOid: string(data.Object.Blob.AbbreviatedOid),
 				Name:           string(data.Name),
-				Mode:           int(data.Mode),
+				Mode:           &mode,
 				PathRaw:        string(data.PathRaw),
-				IsGenerated:    bool(data.IsGenerated),
+				IsGenerated:    &isGenerated,
 				Path:           string(data.Path),
 				Size:           int(data.Size),
 				LineCount:      int(data.LineCount),
