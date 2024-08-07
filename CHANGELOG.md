@@ -2,7 +2,7 @@
 
 _Enhancements_
 
-- Added `GetConfig` in the `github_repository_content` table. ([#445](https://github.com/turbot/steampipe-plugin-github/pull/445))
+- Added the `GetConfig` in the `github_repository_content` table. ([#445](https://github.com/turbot/steampipe-plugin-github/pull/445))
 
 ## v0.42.0 [2024-06-21]
 
