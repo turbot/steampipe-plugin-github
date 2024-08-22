@@ -75,8 +75,8 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Return error for unsupported token by prefix
 	// https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github#githubs-token-formats
-	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") {
-		panic("Supported token formats are 'ghs_', 'gho_', and 'ghp_'")
+	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") && !strings.HasPrefix(token, "github_pat_") {
+		panic("Supported token formats are 'ghs_', 'gho_', 'ghp_' and 'github_pat_'")
 	}
 
 	var client *github.Client
