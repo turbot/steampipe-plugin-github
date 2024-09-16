@@ -1,3 +1,14 @@
+## v0.44.0 [2024-09-16]
+
+_Bug fixes_
+
+- Fixed an issue where credentials from the imported foreign schema were lost after restarting the session in the Postgres FDW extension of the plugin. ([#2275](https://github.com/turbot/steampipe-plugin-aws/issues/2275))
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.22`. ([#450](https://github.com/turbot/steampipe-plugin-github/pull/450))
+- Recompiled plugin with [steampipe-plugin-sdk v5.10.4](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5104-2024-08-29) that fixes logging in the plugin export tool. ([#450](https://github.com/turbot/steampipe-plugin-github/pull/450))
+
 ## v0.43.0 [2024-08-07]
 
 _Enhancements_
