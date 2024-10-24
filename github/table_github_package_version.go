@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"net/url"
+	"strings"
 
 	"github.com/google/go-github/v55/github"
 
@@ -105,7 +106,13 @@ func tableGitHubPackageVersionList(ctx context.Context, d *plugin.QueryData, h *
 	for {
 		packageVersions, resp, err := client.Organizations.PackageGetAllVersions(ctx, org, *pkg.PackageType, packageName, opts)
 		if err != nil {
-			plugin.Logger(ctx).Error("github_package.tableGitHubPackageVersionList", "api_error", err)
+			// In the case of parent hydrate the ignore config seems to not work for the child table. So we need to handle it manually.
+			// Steampipe SDK issue ref: https://github.com/turbot/steampipe-plugin-sdk/issues/544
+			if strings.Contains(err.Error(), "404") {
+				return nil, nil
+			}
+			
+			plugin.Logger(ctx).Error("github_package_version.tableGitHubPackageVersionList", "api_error", err)
 			return nil, err
 		}
 
@@ -142,7 +149,7 @@ func tableGitHubPackageVersionGet(ctx context.Context, d *plugin.QueryData, h *p
 	// Fetch the package
 	pkgVersion, _, err := client.Organizations.PackageGetVersion(ctx, org, packageType, name, packageVersionID)
 	if err != nil {
-		plugin.Logger(ctx).Error("github_package.tableGitHubPackageVersionGet", "api_error", err)
+		plugin.Logger(ctx).Error("github_package_version.tableGitHubPackageVersionGet", "api_error", err)
 		return nil, err
 	}
 
