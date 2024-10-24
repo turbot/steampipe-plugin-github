@@ -165,12 +165,14 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 		"filters":  filters,
 	}
 	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 
 	for {
 		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
+		// && len(query.Repository.Issues.Nodes) == 0
 		if err != nil {
 			plugin.Logger(ctx).Error("github_issue", "api_error", err)
 			return nil, err
