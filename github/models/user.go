@@ -10,7 +10,7 @@ type basicIdentifiers struct {
 type BasicUser struct {
 	basicIdentifiers
 	Login     string       `json:"login"`
-	Email     string       `json:"email"`
+	Email     string       `json:"email,omitempty"`
 	CreatedAt NullableTime `json:"created_at"`
 	UpdatedAt NullableTime `json:"updated_at"`
 	Url       string       `json:"url"`
@@ -43,7 +43,7 @@ type User struct {
 	IsSiteAdmin                           bool                         `graphql:"isSiteAdmin @include(if:$includeUserIsSiteAdmin)" json:"is_site_admin"`
 	IsSponsoringYou                       bool                         `graphql:"isSponsoringYou: isSponsoringViewer @include(if:$includeUserIsSponsoringYou)" json:"is_sponsoring_you"`
 	IsYou                                 bool                         `graphql:"isYou: isViewer @include(if:$includeUserIsYou)" json:"is_you"`
-	Location                              string                       `graphql:"location @include(if:$includeUserLocation)" json:"location"`
+	Location                              string                       `graphql:"location @include(if:$includeUserLocation)" json:"location,omitempty"`
 	MonthlyEstimatedSponsorsIncomeInCents int                          `graphql:"monthlyEstimatedSponsorsIncomeInCents @include(if:$includeUserMonthlyEstimatedSponsorsIncomeInCents)" json:"monthly_estimated_sponsors_income_in_cents"`
 	PinnedItemsRemaining                  int                          `graphql:"pinnedItemsRemaining @include(if:$includeUserPinnedItemsRemaining)" json:"pinned_items_remaining"`
 	ProjectsUrl                           string                       `graphql:"projectsUrl @include(if:$includeUserProjectsUrl)" json:"projects_url"`
@@ -146,7 +146,7 @@ type BaseUser struct {
 	Company                               string                       `json:"company"`
 	EstimatedNextSponsorsPayoutInCents    int                          `json:"estimated_next_sponsors_payout_in_cents"`
 	HasSponsorsListing                    bool                         `json:"has_sponsors_listing"`
-	InteractionAbility                    RepositoryInteractionAbility `json:"interaction_ability,omitempty"`
+	InteractionAbility                    RepositoryInteractionAbility `graphql:"interactionAbility @include(if:$includeUserInteractionAbility)" json:"interaction_ability,omitempty"`
 	IsBountyHunter                        bool                         `json:"is_bounty_hunter"`
 	IsCampusExpert                        bool                         `json:"is_campus_expert"`
 	IsDeveloperProgramMember              bool                         `json:"is_developer_program_member"`

@@ -3,7 +3,9 @@ package github
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
+	"strings"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
@@ -19,6 +21,19 @@ func extractUserFromHydrateItem(h *plugin.HydrateData) (models.UserWithCounts, e
 		return models.UserWithCounts{User: orgMember.Node}, nil
 	} else {
 		return models.UserWithCounts{}, fmt.Errorf("unable to parse hydrate item %v as an User", h.Item)
+	}
+}
+
+// With Fine-grained access token we are getting field error even though we have proper access. For the column "assignees" column table "github_issue". so we need to avoid this error
+// https://spec.graphql.org/October2021/#sec-Errors.Field-errors
+// https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
+func appendUserInteractionAbilityForIssue(m *map[string]interface{}, cols []string, d *plugin.QueryData) {
+	githubConfig := GetConfig(d.Connection)
+	token := os.Getenv("GITHUB_TOKEN")
+	if slices.Contains(cols, "assignees") && (strings.HasPrefix(token, "github_pat") || strings.HasPrefix(*githubConfig.Token, "github_pat")) {
+		(*m)["includeUserInteractionAbility"] = githubv4.Boolean(false)
+	} else {
+		(*m)["includeUserInteractionAbility"] = githubv4.Boolean(true)
 	}
 }
 

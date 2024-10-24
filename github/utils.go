@@ -75,14 +75,14 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Return error for unsupported token by prefix
 	// https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github#githubs-token-formats
-	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") {
-		panic("Supported token formats are 'ghs_', 'gho_', and 'ghp_'")
+	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") && !strings.HasPrefix(token, "github_pat") {
+		panic("Supported token formats are 'ghs_', 'gho_', 'ghp_', and 'github_pat'")
 	}
 
 	var client *github.Client
 
 	// Authentication with Github access token
-	if token != "" && strings.HasPrefix(token, "ghp_") {
+	if token != "" && (strings.HasPrefix(token, "ghp_") || strings.HasPrefix(token, "github_pat")){
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
@@ -191,8 +191,8 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 
 	// Return error for unsupported token by prefix
 	// https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github#githubs-token-formats
-	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") {
-		panic("Supported token formats are 'ghs_', 'gho_', and 'ghp_'")
+	if token != "" && !strings.HasPrefix(token, "ghs_") && !strings.HasPrefix(token, "ghp_") && !strings.HasPrefix(token, "gho_") && !strings.HasPrefix(token, "github_pat") {
+		panic("Supported token formats are 'ghs_', 'gho_', 'ghp_', and 'github_pat'")
 	}
 
 	var client *githubv4.Client
@@ -207,7 +207,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	var transport *ghinstallation.Transport
 
 	// Authentication with Github access token
-	if token != "" && strings.HasPrefix(token, "ghp_") {
+	if token != "" && (strings.HasPrefix(token, "ghp_") || strings.HasPrefix(token, "github_pat")) {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
