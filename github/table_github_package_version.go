@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/v55/github"
 
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -111,12 +112,19 @@ func tableGitHubPackageVersionList(ctx context.Context, d *plugin.QueryData, h *
 			if strings.Contains(err.Error(), "404") {
 				return nil, nil
 			}
-			
+
 			plugin.Logger(ctx).Error("github_package_version.tableGitHubPackageVersionList", "api_error", err)
 			return nil, err
 		}
 
+		// Find latest tag version
+		latestTagVersion := findLatestPackage(ctx, packageVersions)
+
 		for _, pkgVersion := range packageVersions {
+
+			if helpers.StringSliceContains(pkgVersion.Metadata.Container.Tags, latestTagVersion) {
+				pkgVersion.Metadata.Container.Tags = append(pkgVersion.Metadata.Container.Tags, "latest")
+			}
 			d.StreamListItem(ctx, PackageVersionInfo{*pkg.Name, *pkg.PackageType, *pkg.Visibility, pkgVersion})
 
 			// Stop if we've hit the limit set in the query context
@@ -154,4 +162,29 @@ func tableGitHubPackageVersionGet(ctx context.Context, d *plugin.QueryData, h *p
 	}
 
 	return PackageVersionInfo{name, packageType, "", pkgVersion}, nil
+}
+
+//// HELPER FUNCTION
+
+// Find the latest package based on CreatedAt field
+func findLatestPackage(_ context.Context, packages []*github.PackageVersion) string {
+	var latest *github.PackageVersion
+	if len(packages) > 1 {
+		latest = packages[0]
+	}
+
+	for _, pkg := range packages {
+		if pkg.CreatedAt != nil {
+			t := pkg.CreatedAt.UTC()
+			if pkg.CreatedAt.After(t) {
+				latest = pkg
+			}
+		}
+	}
+
+	container := latest.GetMetadata().GetContainer()
+	if container != nil && len(container.Tags) > 1 {
+		return container.Tags[1] // return the version tag
+	}
+	return ""
 }
