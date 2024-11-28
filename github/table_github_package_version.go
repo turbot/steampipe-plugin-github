@@ -33,7 +33,7 @@ func tableGitHubPackageVersion() *plugin.Table {
 			Hydrate:           tableGitHubPackageVersionGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
-			{Name: "package_name", Type: proto.ColumnType_STRING, Description: "Name of the package version."},
+			{Name: "package_name", Type: proto.ColumnType_STRING, Description: "Name of the package."},
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the package version.", Transform: transform.FromField("PackageVersion.ID")},
 			{Name: "digest", Type: proto.ColumnType_STRING, Description: "The digest (shasum) of the package version.", Transform: transform.FromField("PackageVersion.Name")},
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "HTML URL of the package version.", Transform: transform.FromField("PackageVersion.HTMLURL")},
