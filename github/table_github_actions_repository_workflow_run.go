@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/google/go-github/v55/github"
 
@@ -19,6 +20,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			Hydrate:           tableGitHubRepoWorkflowRunList,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
+				{Name: "workflow_id", Require: plugin.Optional},
 				{Name: "event", Require: plugin.Optional},
 				{Name: "head_branch", Require: plugin.Optional},
 				{Name: "status", Require: plugin.Optional},
@@ -110,8 +112,28 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 		}
 	}
 
+	var workflowId int64
+	if equalQuals["workflow_id"] != nil {
+		if equalQuals["workflow_id"].GetStringValue() != "" {
+			workflowId_, err := strconv.ParseInt(equalQuals["workflow_id"].GetStringValue(), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			workflowId = workflowId_
+		}
+	}
+
 	for {
-		workflowRuns, resp, err := client.Actions.ListRepositoryWorkflowRuns(ctx, owner, repo, opts)
+		var (
+			workflowRuns *github.WorkflowRuns
+			resp         *github.Response
+			err          error
+		)
+		if workflowId != 0 {
+			workflowRuns, resp, err = client.Actions.ListWorkflowRunsByID(ctx, owner, repo, workflowId, opts)
+		} else {
+			workflowRuns, resp, err = client.Actions.ListRepositoryWorkflowRuns(ctx, owner, repo, opts)
+		}
 		if err != nil {
 			return nil, err
 		}
