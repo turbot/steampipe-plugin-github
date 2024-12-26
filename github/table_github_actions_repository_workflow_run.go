@@ -51,6 +51,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "jobs_url", Type: proto.ColumnType_STRING, Description: "The address for the workflow job GitHub web page."},
 			{Name: "logs_url", Type: proto.ColumnType_STRING, Description: "The address for the workflow logs GitHub web page."},
 			{Name: "rerun_url", Type: proto.ColumnType_STRING, Description: "The address for workflow rerun GitHub web page."},
+			{Name: "previous_attempt_url", Type: proto.ColumnType_STRING, Description: "The address for the previous attempt GitHub web page."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The address for the workflow run GitHub web page.", Transform: transform.FromField("URL")},
 			{Name: "workflow_url", Type: proto.ColumnType_STRING, Description: "The address for workflow GitHub web page."},
 
@@ -60,6 +61,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "head_repository", Type: proto.ColumnType_JSON, Description: "The head repository info for the workflow run."},
 			{Name: "pull_requests", Type: proto.ColumnType_JSON, Description: "The pull request details for the workflow run."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository info for the workflow run."},
+			{Name: "run_attempt", Type: proto.ColumnType_INT, Description: "The attempt number of the workflow run."},
 			{Name: "run_started_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("RunStartedAt").Transform(convertTimestamp), Description: "Time when the workflow run was started."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow run was updated."},
 			{Name: "actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the first instance of this workflow run."},
