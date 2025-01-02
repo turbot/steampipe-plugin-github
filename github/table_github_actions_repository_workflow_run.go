@@ -9,6 +9,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/query_cache"
 )
 
 func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
@@ -28,7 +29,11 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			},
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "repository_full_name", Require: plugin.Required, Operators: []string{"="}},
+				{Name: "id", Require: plugin.Required, Operators: []string{"="}},
+				{Name: "run_attempt", Require: plugin.Optional, Operators: []string{"="}, CacheMatch: query_cache.CacheMatchExact},
+			},
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepoWorkflowRunGet,
 		},
@@ -163,6 +168,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 
 func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	runId := d.EqualsQuals["id"].GetInt64Value()
+	runAttempt := int(d.EqualsQuals["run_attempt"].GetInt64Value())
 	orgName := d.EqualsQuals["repository_full_name"].GetStringValue()
 
 	// Empty check for the parameters
@@ -171,11 +177,20 @@ func tableGitHubRepoWorkflowRunGet(ctx context.Context, d *plugin.QueryData, h *
 	}
 
 	owner, repo := parseRepoFullName(orgName)
-	plugin.Logger(ctx).Trace("tableGitHubRepoWorkflowRunGet", "owner", owner, "repo", repo, "runId", runId)
+	plugin.Logger(ctx).Trace("tableGitHubRepoWorkflowRunGet", "owner", owner, "repo", repo, "runId", runId, "runAttempt", runAttempt)
 
 	client := connect(ctx, d)
 
-	workflowRun, _, err := client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
+	var (
+		workflowRun *github.WorkflowRun
+		err         error
+	)
+	if runAttempt != 0 {
+		opts := &github.WorkflowRunAttemptOptions{}
+		workflowRun, _, err = client.Actions.GetWorkflowRunAttempt(ctx, owner, repo, runId, runAttempt, opts)
+	} else {
+		workflowRun, _, err = client.Actions.GetWorkflowRunByID(ctx, owner, repo, runId)
+	}
 	if err != nil {
 		return nil, err
 	}
