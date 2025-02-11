@@ -117,7 +117,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 	fullName := quals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
 
-	pageSize := adjustPageSize(75, d.QueryContext.Limit)
+	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
 	states := []githubv4.PullRequestState{githubv4.PullRequestStateOpen, githubv4.PullRequestStateClosed, githubv4.PullRequestStateMerged}
 	if quals["state"] != nil {
