@@ -120,9 +120,7 @@ func extractOrgCollaboratorFromHydrateItem(h *plugin.HydrateData) (OrgCollaborat
 }
 
 func appendOrganizationColumnIncludes(m *map[string]interface{}, cols []string) {
-	(*m)["includeAnnouncement"] = githubv4.Boolean(slices.Contains(cols, "announcement"))
-	(*m)["includeAnnouncementExpiresAt"] = githubv4.Boolean(slices.Contains(cols, "announcement_expires_at"))
-	(*m)["includeAnnouncementUserDismissible"] = githubv4.Boolean(slices.Contains(cols, "announcement_user_dismissible"))
+	(*m)["includeAnnouncementBanner"] = githubv4.Boolean(slices.Contains(cols, "announcement") || slices.Contains(cols, "announcement_expires_at") || slices.Contains(cols, "announcement_user_dismissible"))
 	(*m)["includeAnyPinnableItems"] = githubv4.Boolean(slices.Contains(cols, "any_pinnable_items"))
 	(*m)["includeAvatarUrl"] = githubv4.Boolean(slices.Contains(cols, "avatar_url"))
 	(*m)["includeEstimatedNextSponsorsPayoutInCents"] = githubv4.Boolean(slices.Contains(cols, "estimated_next_sponsors_payout_in_cents"))
@@ -149,7 +147,6 @@ func appendOrganizationColumnIncludes(m *map[string]interface{}, cols []string) 
 	(*m)["includePackages"] = githubv4.Boolean(slices.Contains(cols, "packages_total_count"))
 	(*m)["includePinnableItems"] = githubv4.Boolean(slices.Contains(cols, "pinnable_items_total_count"))
 	(*m)["includePinnedItems"] = githubv4.Boolean(slices.Contains(cols, "pinned_items_total_count"))
-	(*m)["includeProjects"] = githubv4.Boolean(slices.Contains(cols, "projects_total_count"))
 	(*m)["includeProjectsV2"] = githubv4.Boolean(slices.Contains(cols, "projects_v2_total_count"))
 	(*m)["includeSponsoring"] = githubv4.Boolean(slices.Contains(cols, "sponsoring_total_count"))
 	(*m)["includeSponsors"] = githubv4.Boolean(slices.Contains(cols, "sponsors_total_count"))
@@ -191,15 +188,6 @@ func orgHydratePinnedItemsTotalCount(_ context.Context, _ *plugin.QueryData, h *
 	}
 	return org.PinnedItems.TotalCount, nil
 }
-
-func orgHydrateProjectsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	org, err := extractOrganizationFromHydrateItem(h)
-	if err != nil {
-		return nil, err
-	}
-	return org.Projects.TotalCount, nil
-}
-
 func orgHydrateProjectsV2TotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	org, err := extractOrganizationFromHydrateItem(h)
 	if err != nil {
@@ -269,7 +257,7 @@ func orgHydrateAnnouncement(_ context.Context, _ *plugin.QueryData, h *plugin.Hy
 	if err != nil {
 		return nil, err
 	}
-	return org.Announcement, nil
+	return org.AnnouncementBanner.Message, nil
 }
 
 func orgHydrateAnnouncementExpiresAt(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -277,7 +265,7 @@ func orgHydrateAnnouncementExpiresAt(_ context.Context, _ *plugin.QueryData, h *
 	if err != nil {
 		return nil, err
 	}
-	return org.AnnouncementExpiresAt, nil
+	return org.AnnouncementBanner.ExpiresAt, nil
 }
 
 func orgHydrateAnnouncementUserDismissible(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -285,7 +273,7 @@ func orgHydrateAnnouncementUserDismissible(_ context.Context, _ *plugin.QueryDat
 	if err != nil {
 		return nil, err
 	}
-	return org.AnnouncementUserDismissible, nil
+	return org.AnnouncementBanner.IsUserDismissible, nil
 }
 
 func orgHydrateAnyPinnableItems(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
