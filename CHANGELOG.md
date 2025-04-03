@@ -1,3 +1,17 @@
+## v1.1.0 [2025-04-04]
+
+_Enhancements_
+
+- Updated the GraphQL schema of the `github_organization` table by removing the `projects_total_count` column to avoid query errors. ([#488](https://github.com/turbot/steampipe-plugin-github/pull/488))
+- Added `run_attempt` column as an optional qual to the `GetConfig` of `github_actions_repository_workflow_run` table. ([#464](https://github.com/turbot/steampipe-plugin-github/pull/464)) (Thanks [@tsibley](https://github.com/tsibley) for the contribution!!)
+- Added `run_attempt` and `previous_attempt_url` columns to `github_actions_repository_workflow_run` table. ([#463](https://github.com/turbot/steampipe-plugin-github/pull/463)) (Thanks [@tsibley](https://github.com/tsibley) for the contribution!!)
+- Added `workflow_id` column as an optional qual to the `ListConfig` of `github_actions_repository_workflow_run` table. ([#465](https://github.com/turbot/steampipe-plugin-github/pull/465)) (Thanks [@tsibley](https://github.com/tsibley) for the contribution!!)
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.23.1`. ([#486](https://github.com/turbot/steampipe-plugin-github/pull/486))
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.5](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5115-2025-03-31) ([#486](https://github.com/turbot/steampipe-plugin-github/pull/486))
+
 ## v1.0.0 [2024-10-22]
 
 There are no significant changes in this plugin version; it has been released to align with [Steampipe's v1.0.0](https://steampipe.io/changelog/steampipe-cli-v1-0-0) release. This plugin adheres to [semantic versioning](https://semver.org/#semantic-versioning-specification-semver), ensuring backward compatibility within each major version.
