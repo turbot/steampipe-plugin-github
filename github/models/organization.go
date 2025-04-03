@@ -16,9 +16,7 @@ type BasicOrganization struct {
 
 type Organization struct {
 	BasicOrganization
-	Announcement                           string                       `graphql:"announcement @include(if:$includeAnnouncement)" json:"announcement"`
-	AnnouncementExpiresAt                  NullableTime                 `graphql:"announcementExpiresAt @include(if:$includeAnnouncementExpiresAt)" json:"announcement_expires_at"`
-	AnnouncementUserDismissible            bool                         `graphql:"announcementUserDismissible @include(if:$includeAnnouncementUserDismissible)" json:"announcement_user_dismissible"`
+	AnnouncementBanner                     AnnouncementBannerInfo       `graphql:"announcementBanner @include(if:$includeAnnouncementBanner)" json:"announcement_banner"`
 	AnyPinnableItems                       bool                         `graphql:"anyPinnableItems @include(if:$includeAnyPinnableItems)" json:"any_pinnable_items"`
 	AvatarUrl                              string                       `graphql:"avatarUrl @include(if:$includeAvatarUrl)" json:"avatar_url"`
 	EstimatedNextSponsorsPayoutInCents     int                          `graphql:"estimatedNextSponsorsPayoutInCents @include(if:$includeEstimatedNextSponsorsPayoutInCents)" json:"estimated_next_sponsors_payout_in_cents"`
@@ -84,13 +82,19 @@ type OrganizationWithOwnerProperties struct {
 	WebCommitSignoffRequired                      bool                                                    `json:"web_commit_signoff_required"`
 }
 
+type AnnouncementBannerInfo struct {
+	Message           string       `json:"message"`
+	CreatedAt         NullableTime `json:"created_at"`
+	ExpiresAt         NullableTime `json:"expires_at"`
+	IsUserDismissible bool         `json:"is_user_dismissible"`
+}
+
 type OrganizationWithCounts struct {
 	Organization
 	MembersWithRole     Count `graphql:"membersWithRole @include(if:$includeMembersWithRole)" json:"members_with_role"`
 	Packages            Count `graphql:"packages @include(if:$includePackages)" json:"packages"`
 	PinnableItems       Count `graphql:"pinnableItems @include(if:$includePinnableItems)" json:"pinnable_items"`
 	PinnedItems         Count `graphql:"pinnedItems @include(if:$includePinnedItems)" json:"pinned_items"`
-	Projects            Count `graphql:"projects @include(if:$includeProjects)" json:"projects"`
 	ProjectsV2          Count `graphql:"projectsV2 @include(if:$includeProjectsV2)" json:"projects_v2"`
 	Sponsoring          Count `graphql:"sponsoring @include(if:$includeSponsoring)" json:"sponsoring"`
 	Sponsors            Count `graphql:"sponsors @include(if:$includeSponsors)" json:"sponsors"`

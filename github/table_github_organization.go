@@ -86,7 +86,6 @@ func sharedOrganizationCountColumns() []*plugin.Column {
 		{Name: "packages_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePackagesTotalCount, Transform: transform.FromValue(), Description: "Count of packages within the organization."},
 		{Name: "pinnable_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnableItemsTotalCount, Transform: transform.FromValue(), Description: "Count of pinnable items within the organization."},
 		{Name: "pinned_items_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydratePinnedItemsTotalCount, Transform: transform.FromValue(), Description: "Count of itesm pinned to the organization's profile."},
-		{Name: "projects_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsTotalCount, Transform: transform.FromValue(), Description: "Count of projects within the organization."},
 		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateProjectsV2TotalCount, Transform: transform.FromValue(), Description: "Count of V2 projects within the organization."},
 		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateRepositoriesTotalCount, Transform: transform.FromValue(), Description: "Count of all repositories within the organization."},
 		{Name: "sponsoring_total_count", Type: proto.ColumnType_INT, Hydrate: orgHydrateSponsoringTotalCount, Transform: transform.FromValue(), Description: "Count of users the organization is sponsoring."},
