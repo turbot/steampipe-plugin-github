@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_content - Query file and directory contents in GitHub repositories using SQL"
 description: "Facilitates querying the contents of files and directories within GitHub repositories, offering insights into file paths, types, sizes, and more."
+folder: "Repository"
 ---
 
 # Table: github_repository_content - Query File and Directory Contents in GitHub Repositories using SQL

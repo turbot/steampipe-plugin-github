@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_community_profile - Query Github Community Profiles using SQL"
 description: "Allows users to query Github Community Profiles, providing insights into the health and community activity of repositories."
+folder: "Community"
 ---
 
 # Table: github_community_profile - Query Github Community Profiles using SQL

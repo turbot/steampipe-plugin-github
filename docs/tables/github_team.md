@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_team - Query GitHub Teams using SQL"
 description: "Allows users to query GitHub Teams, specifically providing details about each team within a GitHub organization. This information includes team ID, name, description, privacy level, and more."
+folder: "Team"
 ---
 
 # Table: github_team - Query GitHub Teams using SQL

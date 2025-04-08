@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_license - Query GitHub Licenses using SQL"
 description: "Allows users to query GitHub Licenses, specifically providing detailed information about the various open-source licenses used across GitHub repositories."
+folder: "Repository"
 ---
 
 # Table: github_license - Query GitHub Licenses using SQL

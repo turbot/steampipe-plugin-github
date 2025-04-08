@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_gitignore - Query GitHub Gitignore using SQL"
 description: "Allows users to query GitHub Gitignore templates, providing a list of all templates available for use on GitHub."
+folder: "Repository"
 ---
 
 # Table: github_gitignore - Query GitHub Gitignore using SQL

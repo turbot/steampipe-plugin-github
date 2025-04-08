@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_pull_request_review - Query GitHub Pull Request Reviews using SQL"
 description: "Allows users to query Pull Request Reviews in GitHub, specifically the review comments, review status, and the reviewer details, providing insights into the review process of pull requests."
+folder: "Pull Request"
 ---
 
 # Table: github_pull_request_review - Query GitHub Pull Request Reviews using SQL

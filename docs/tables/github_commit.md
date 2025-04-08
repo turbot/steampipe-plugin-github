@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_commit - Query GitHub Commits using SQL"
 description: "Allows users to query GitHub Commits, specifically the details of individual commits made in a repository, providing insights into code changes and development patterns."
+folder: "Repository"
 ---
 
 # Table: github_commit - Query GitHub Commits using SQL

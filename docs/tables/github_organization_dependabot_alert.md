@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_organization_dependabot_alert - Query GitHub Dependabot Alerts using SQL"
 description: "Allows users to query Dependabot Alerts in GitHub, specifically alert details such as status, severity, and package name, providing insights into security vulnerabilities in your GitHub organization's dependencies."
+folder: "Dependabot"
 ---
 
 # Table: github_organization_dependabot_alert - Query GitHub Dependabot Alerts using SQL

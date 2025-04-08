@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_organization_member - Query GitHub Organization Members using SQL"
 description: "Allows users to query GitHub Organization Members, specifically the details of members within an organization, providing insights into member profiles, roles, and status."
+folder: "Organization"
 ---
 
 # Table: github_organization_member - Query GitHub Organization Members using SQL

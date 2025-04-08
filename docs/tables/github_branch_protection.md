@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_branch_protection - Query GitHub Branch Protections using SQL"
 description: "Allows users to query GitHub Branch Protections, specifically the protection rules applied to branches in a GitHub repository."
+folder: "Branch"
 ---
 
 # Table: github_branch_protection - Query GitHub Branch Protections using SQL

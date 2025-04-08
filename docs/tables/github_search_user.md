@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_user - Query GitHub Users using SQL"
 description: "Allows users to query GitHub Users, specifically the user's login name, type, score, and other details, providing insights into user activity and profile information."
+folder: "Search"
 ---
 
 # Table: github_search_user - Query GitHub Users using SQL

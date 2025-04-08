@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_blob - Query GitHub blobs using SQL"
 description: "Allows users to query GitHub Repositories, specifically the blob content."
+folder: "Repository"
 ---
 
 # Table: github_blob - Query GitHub Repositories using SQL

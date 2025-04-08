@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_ruleset - Query GitHub Repository Rulesets using SQL"
 description: "Allows users to query GitHub Repository Rulesets, providing details about each ruleset within a repository. This information includes ruleset ID, name, enforcement level, bypass actors, and more."
+folder: "Repository"
 ---
 
 # Table: github_repository_ruleset - Query GitHub Repository Rulesets using SQL

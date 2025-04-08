@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_commit - Query GitHub Commits using SQL"
 description: "Allows users to query GitHub Commits, specifically providing the ability to search for commits across repositories based on specified criteria."
+folder: "Repository"
 ---
 
 # Table: github_search_commit - Query GitHub Commits using SQL

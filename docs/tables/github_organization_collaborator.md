@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_organization_collaborator - Query GitHub Organization Collaborators using SQL"
 description: "Allows users to query GitHub Organization Collaborators, providing detailed information about collaboration permissions and the status of invitations."
+folder: "Collaborator"
 ---
 
 # Table: github_organization_collaborator - Query GitHub Organization Collaborators using SQL

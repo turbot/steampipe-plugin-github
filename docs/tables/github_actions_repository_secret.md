@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_actions_repository_secret - Query GitHub Actions Repository Secrets using SQL"
 description: "Allows users to query GitHub Actions Repository Secrets, specifically to retrieve information about secrets stored in a GitHub repository, providing insights into the security measures in place."
+folder: "Actions"
 ---
 
 # Table: github_actions_repository_secret - Query GitHub Actions Repository Secrets using SQL

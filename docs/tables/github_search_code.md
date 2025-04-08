@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_code - Query GitHub Code using SQL"
 description: "Allows users to query Code in GitHub, specifically the details of the code files and their properties, providing insights into the codebase and its structure."
+folder: "Search"
 ---
 
 # Table: github_search_code - Query GitHub Code using SQL

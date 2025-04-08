@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_my_gist - Query GitHub Gists using SQL"
 description: "Allows users to query GitHub Gists, specifically those owned by the authenticated user, providing insights into the user's Gist details."
+folder: "Gist"
 ---
 
 # Table: github_my_gist - Query GitHub Gists using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_environment - Query GitHub Repository Environments using SQL"
 description: "Allows users to query GitHub Repository Environments, specifically details about each environment associated with a repository, providing insights into environment names, URLs, and protection rules."
+folder: "Deployments"
 ---
 
 # Table: github_repository_environment - Query GitHub Repository Environments using SQL

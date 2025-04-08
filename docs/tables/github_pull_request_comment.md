@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_pull_request_comment - Query GitHub Pull Request Comments using SQL"
 description: "Allows users to query GitHub Pull Request Comments, specifically the details of each comment made on pull requests, providing insights into discussions and feedbacks on code changes."
+folder: "Pull Request"
 ---
 
 # Table: github_pull_request_comment - Query GitHub Pull Request Comments using SQL

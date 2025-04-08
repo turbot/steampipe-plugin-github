@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_actions_repository_workflow_run - Query GitHub Actions Repository Workflow Runs using SQL"
 description: "Allows users to query GitHub Actions Repository Workflow Runs, specifically the details of each workflow run in a repository, providing insights into the status, conclusion, and other metadata of the runs."
+folder: "Actions"
 ---
 
 # Table: github_actions_repository_workflow_run - Query GitHub Actions Repository Workflow Runs using SQL

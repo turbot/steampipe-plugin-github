@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_topic - Query GitHub Topics using SQL"
 description: "Allows users to query Topics on GitHub, specifically to find repositories associated with a specific topic, providing insights into the popularity and usage of certain topics across repositories."
+folder: "Search"
 ---
 
 # Table: github_search_topic - Query GitHub Topics using SQL

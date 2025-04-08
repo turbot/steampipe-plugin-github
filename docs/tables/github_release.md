@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_release - Query GitHub Releases using SQL"
 description: "Allows users to query GitHub Releases, specifically providing detailed information about each release of a repository, including release id, tag name, draft status, prerelease status, and more."
+folder: "Release"
 ---
 
 # Table: github_release - Query GitHub Releases using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_tag - Query GitHub Tags using SQL"
 description: "Allows users to query Tags in GitHub, specifically the tag name, ID, commit details, and associated repository information, providing insights into version control and release management."
+folder: "Repository"
 ---
 
 # Table: github_tag - Query GitHub Tags using SQL

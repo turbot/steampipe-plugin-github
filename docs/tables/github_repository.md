@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository - Query GitHub Repositories using SQL"
 description: "Allows users to query GitHub Repositories, providing detailed information about each repository including its owner, name, description, visibility, and more."
+folder: "Repository"
 ---
 
 # Table: github_repository - Query GitHub Repositories using SQL

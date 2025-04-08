@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_issue_comment - Query GitHub Issue Comments using SQL"
 description: "Allows users to query GitHub Issue Comments, specifically the details of comments made on issues across all repositories, providing insights into user interactions and feedback."
+folder: "Issue"
 ---
 
 # Table: github_issue_comment - Query GitHub Issue Comments using SQL
