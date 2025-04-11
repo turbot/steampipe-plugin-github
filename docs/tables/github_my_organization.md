@@ -1,7 +1,7 @@
 ---
 title: "Steampipe Table: github_my_organization - Query GitHub Organizations using SQL"
 description: "Allows users to query GitHub Organizations, specifically details about a user's primary organization on GitHub. This table provides insights into the organization's details, members, teams, repositories, and more."
-folder: "My"
+folder: "Organization"
 ---
 
 # Table: github_my_organization - Query GitHub Organizations using SQL

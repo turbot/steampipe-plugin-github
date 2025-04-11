@@ -1,7 +1,7 @@
 ---
 title: "Steampipe Table: github_rate_limit_graphql - Query GitHub GraphQL API Rate Limits using SQL"
 description: "Allows users to query GitHub GraphQL API Rate Limits, providing insights into the current rate limit status for the GraphQL API."
-folder: "Meta"
+folder: "API"
 ---
 
 # Table: github_rate_limit_graphql - Query GitHub GraphQL API Rate Limits using SQL
