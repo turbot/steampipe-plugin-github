@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_tree - Query GitHub Repositories using SQL"
 description: "Allows users to query GitHub Repositories, specifically the tree structures, providing insights into the file and directory hierarchy of each repository."
+folder: "Repository"
 ---
 
 # Table: github_tree - Query GitHub Repositories using SQL

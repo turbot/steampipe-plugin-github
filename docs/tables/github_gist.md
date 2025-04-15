@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_gist - Query GitHub Gists using SQL"
 description: "Allows users to query GitHub Gists, specifically retrieving details such as gist id, description, comments, files, forks, history, owner, and public status."
+folder: "Gist"
 ---
 
 # Table: github_gist - Query GitHub Gists using SQL

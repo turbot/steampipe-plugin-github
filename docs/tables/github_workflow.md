@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_workflow - Query GitHub Workflows using SQL"
 description: "Allows users to query GitHub Workflows, specifically the details of workflows in GitHub repositories, enabling the tracking of workflow configurations, their state, and the associated branches."
+folder: "Actions"
 ---
 
 # Table: github_workflow - Query GitHub Workflows using SQL

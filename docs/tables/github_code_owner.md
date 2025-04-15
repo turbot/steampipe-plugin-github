@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_code_owner - Query GitHub Code Owners using SQL"
 description: "Allows users to query GitHub Code Owners, providing insights into the users or teams that own certain code in a repository."
+folder: "Repository"
 ---
 
 # Table: github_code_owner - Query GitHub Code Owners using SQL

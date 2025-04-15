@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_pull_request - Query GitHub Pull Requests using SQL"
 description: "Allows users to query GitHub Pull Requests. This table provides extensive details about pull requests across repositories, including the status, creator, and assignee information."
+folder: "Pull Request"
 ---
 
 # Table: github_search_pull_request - Query GitHub Pull Requests using SQL

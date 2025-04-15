@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_rate_limit - Query GitHub Rate Limits using SQL"
 description: "Allows users to query GitHub Rate Limits, providing insights into the maximum number of requests that the user can make to the GitHub API within an hour."
+folder: "API"
 ---
 
 # Table: github_rate_limit - Query GitHub Rate Limits using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_actions_repository_runner - Query GitHub Actions Repository Runners using SQL"
 description: "Allows users to query GitHub Actions Repository Runners, providing insights into the details of self-hosted runners for a repository."
+folder: "Actions"
 ---
 
 # Table: github_actions_repository_runner - Query GitHub Actions Repository Runners using SQL

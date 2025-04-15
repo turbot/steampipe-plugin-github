@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_label - Query GitHub Labels using SQL"
 description: "Allows users to query Labels in GitHub, specifically the metadata and details of labels that exist within a repository."
+folder: "Issue"
 ---
 
 # Table: github_search_label - Query GitHub Labels using SQL

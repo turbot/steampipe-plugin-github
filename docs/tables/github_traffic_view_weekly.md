@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_traffic_view_weekly - Query GitHub Traffic View Weekly using SQL"
 description: "Allows users to query weekly traffic views on GitHub, providing insights into repository visit patterns and potential trends."
+folder: "Repository"
 ---
 
 # Table: github_traffic_view_weekly - Query GitHub Traffic View Weekly using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_sbom - Query GitHub Repositories using SQL"
 description: "Allows users to query GitHub Repositories, specifically the Software Bill of Materials (SBOM), providing insights into the components, their versions, and dependencies in a software application."
+folder: "Repository"
 ---
 
 # Table: github_repository_sbom - Query GitHub Repositories using SQL

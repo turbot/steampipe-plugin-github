@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_organization_external_identity - Query GitHub Organization External Identities using SQL"
 description: "Allows users to query GitHub Organization External Identities, providing information about the external identity of users in a GitHub organization."
+folder: "Organization"
 ---
 
 # Table: github_organization_external_identity - Query GitHub Organization External Identities using SQL

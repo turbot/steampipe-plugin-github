@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_deployment - Query GitHub Repositories using SQL"
 description: "Allows users to query GitHub Repositories, specifically the deployment information, providing insights into the deployment status, environment, and associated metadata."
+folder: "Deployments"
 ---
 
 # Table: github_repository_deployment - Query GitHub Repositories using SQL

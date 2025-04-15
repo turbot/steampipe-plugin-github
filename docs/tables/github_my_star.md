@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_my_star - Query GitHub My Stars using SQL"
 description: "Allows users to query My Stars in GitHub, specifically the repositories starred by the authenticated user, providing insights into user preferences and potential areas of interest."
+folder: "Repository"
 ---
 
 # Table: github_my_star - Query GitHub My Stars using SQL

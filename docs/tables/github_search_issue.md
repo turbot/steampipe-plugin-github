@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_search_issue - Query GitHub Issues using SQL"
 description: "Allows users to query GitHub Issues, specifically to retrieve and analyze issue data related to any GitHub repository, providing insights into repository management and development activities."
+folder: "Issue"
 ---
 
 # Table: github_search_issue - Query GitHub Issues using SQL

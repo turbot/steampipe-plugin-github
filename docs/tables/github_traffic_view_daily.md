@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_traffic_view_daily - Query GitHub Traffic Views using SQL"
 description: "Allows users to query Traffic Views on GitHub, specifically the daily view count, providing insights into repository traffic patterns and potential anomalies."
+folder: "Repository"
 ---
 
 # Table: github_traffic_view_daily - Query GitHub Traffic Views using SQL

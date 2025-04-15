@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_repository_collaborator - Query GitHub Repository Collaborators using SQL"
 description: "Allows users to query GitHub Repository Collaborators, providing detailed information about collaboration permissions and the status of invitations."
+folder: "Collaborator"
 ---
 
 # Table: github_repository_collaborator - Query GitHub Repository Collaborators using SQL

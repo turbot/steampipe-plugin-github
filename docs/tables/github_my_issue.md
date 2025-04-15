@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_my_issue - Query GitHub Issues using SQL"
 description: "Allows users to query personal issues in GitHub, specifically focusing on the details of issues assigned to or created by the authenticated user."
+folder: "Issue"
 ---
 
 # Table: github_my_issue - Query GitHub Issues using SQL

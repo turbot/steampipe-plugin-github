@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_branch - Query GitHub Branches using SQL"
 description: "Allows users to query GitHub Branches, specifically the details of branches for a repository, providing insights into branch information such as name, commit, protected status, and more."
+folder: "Branch"
 ---
 
 # Table: github_branch - Query GitHub Branches using SQL

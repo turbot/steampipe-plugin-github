@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_team_repository - Query GitHub Teams Repositories using SQL"
 description: "Allows users to query GitHub Teams Repositories, specifically the association between teams and repositories within a GitHub organization, providing insights into team access to specific repositories."
+folder: "Repository"
 ---
 
 # Table: github_team_repository - Query GitHub Teams Repositories using SQL

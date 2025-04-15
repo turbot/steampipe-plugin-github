@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_audit_log - Query GitHub Audit Logs using SQL"
 description: "Allows users to query GitHub Audit Logs, specifically the actions, users, and repositories involved, providing insights into user activity and potential security concerns."
+folder: "Audit Log"
 ---
 
 # Table: github_audit_log - Query GitHub Audit Logs using SQL

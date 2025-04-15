@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_stargazer - Query GitHub Stargazers using SQL"
 description: "Allows users to query GitHub Stargazers, specifically the users who have starred a particular repository, providing insights into user engagement and repository popularity."
+folder: "Repository"
 ---
 
 # Table: github_stargazer - Query GitHub Stargazers using SQL
