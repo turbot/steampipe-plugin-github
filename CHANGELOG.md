@@ -1,3 +1,9 @@
+## v1.2.0 [2025-04-15]
+
+_Enhancements_
+
+- Added `folder` metadata to the documentation of all the GitHub tables for improved organization on the Steampipe Hub. ([#491](https://github.com/turbot/steampipe-plugin-github/pull/491))
+
 ## v1.1.0 [2025-04-04]
 
 _Breaking changes_
