@@ -29,7 +29,6 @@ select
   visibility,
   created_at,
   updated_at,
-  owner_login,
   url
 from
   github_package
@@ -46,7 +45,6 @@ select
   visibility,
   created_at,
   updated_at,
-  owner_login,
   url
 from
   github_package
@@ -64,8 +62,7 @@ select
   package_type,
   repository_full_name,
   visibility,
-  html_url,
-  owner_login
+  html_url
 from
   github_package
 where
@@ -80,8 +77,7 @@ select
   package_type,
   repository_full_name,
   visibility,
-  html_url,
-  owner_login
+  html_url
 from
   github_package
 where
@@ -96,26 +92,24 @@ Identify packages that are tied to private repositories within a GitHub organiza
 select
   name,
   repository_full_name,
-  repository_private,
-  owner_login
+  (repository ->> 'private') as repository_private
 from
   github_package
 where
   organization = 'turbot'
-  and repository_private = true;
+  and (repository ->> 'private')::bool = true;
 ```
 
 ```sql+sqlite
 select
   name,
   repository_full_name,
-  repository_private,
-  owner_login
+  json_extract(repository, '$.private') as repository_private
 from
   github_package
 where
   organization = 'turbot'
-  and repository_private = 1;
+  and json_extract(repository, '$.private') = true;
 ```
 
 ### Get the details of a specific package by name
@@ -127,7 +121,6 @@ select
   name,
   package_type,
   repository_full_name,
-  owner_login,
   created_at,
   updated_at,
   url
@@ -144,7 +137,6 @@ select
   name,
   package_type,
   repository_full_name,
-  owner_login,
   created_at,
   updated_at,
   url
@@ -178,4 +170,72 @@ from
 where
   organization = 'turbot'
   and name = 'steampipe/plugin/turbot/aws';
+```
+
+### Get owner information for the packages
+Retrieve package names along with owner information (login, ID, URL, and HTML URL) for all GitHub packages under the turbot organization.
+
+```sql+postgres
+select
+  name,
+  (owner ->> 'login') as owner_login,
+  (owner ->> 'id') as owner_id,
+  (owner ->> 'url') as owner_url,
+  (owner ->> 'html_url') as owner_html_url
+from
+  github_package
+where
+  organization = 'turbot';
+```
+
+```sql+sqlite
+select
+  name,
+  json_extract(owner, '$.login') as owner_login,
+  json_extract(owner, '$.id') as owner_id,
+  json_extract(owner, '$.url') as owner_url,
+  json_extract(owner, '$.html_url') as owner_html_url
+from
+  github_package
+where
+  organization = 'turbot';
+```
+
+### Get repository info for the packages
+Extract key fields (like repository name, full name, visibility, URL, and owner login) from the nested repository object in each GitHub package. This provides a flat, queryable view of essential repository information per package.
+
+```sql+postgres
+select
+  name,
+  repository ->> 'name' as repository_name,
+  repository ->> 'id' as repository_id,
+  repository ->> 'private' as repository_private,
+  repository ->> 'html_url' as repository_html_url,
+  repository ->> 'description' as repository_description,
+  repository ->> 'fork' as repository_fork,
+  repository -> 'owner' ->> 'login' as repository_owner_login,
+  repository ->> 'stargazers_url' as repository_stargazers_url,
+  repository ->> 'contents_url' as repository_contents_url
+from
+  github_package
+where
+  organization = 'turbot';
+```
+
+```sql+sqlite
+select
+  name,
+  json_extract(repository, '$.name') as repository_name,
+  json_extract(repository, '$.id') as repository_id,
+  json_extract(repository, '$.private') as repository_private,
+  json_extract(repository, '$.html_url') as repository_html_url,
+  json_extract(repository, '$.description') as repository_description,
+  json_extract(repository, '$.fork') as repository_fork,
+  json_extract(repository, '$.owner.login') as repository_owner_login,
+  json_extract(repository, '$.stargazers_url') as repository_stargazers_url,
+  json_extract(repository, '$.contents_url') as repository_contents_url
+from
+  github_package
+where
+  organization = 'turbot';
 ```

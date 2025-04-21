@@ -35,7 +35,7 @@ func tableGitHubPackageVersion() *plugin.Table {
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "package_name", Type: proto.ColumnType_STRING, Description: "Name of the package."},
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the package version.", Transform: transform.FromField("PackageVersion.ID")},
-			{Name: "digest", Type: proto.ColumnType_STRING, Description: "The digest (shasum) of the package version.", Transform: transform.FromField("PackageVersion.Name")},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The digest (shasum) of the package version.", Transform: transform.FromField("PackageVersion.Name")},
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "HTML URL of the package version.", Transform: transform.FromField("PackageVersion.HTMLURL")},
 
 			{Name: "organization", Type: proto.ColumnType_STRING, Description: "The name of the GitHub organization.", Transform: transform.FromQual("organization")},
@@ -43,8 +43,8 @@ func tableGitHubPackageVersion() *plugin.Table {
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "Visibility of the package (public or private)."},
 			{Name: "prerelease", Type: proto.ColumnType_BOOL, Description: "Indicates if the package version is a pre-release.", Transform: transform.FromField("PackageVersion.Prerelease")},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the package version.", Transform: transform.FromField("PackageVersion.URL")},
-			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when the package version was created.", Transform: transform.FromField("PackageVersion.CreatedAt").Transform(convertTimestamp)},
-			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when the package version was last updated.", Transform: transform.FromField("PackageVersion.UpdatedAt").Transform(convertTimestamp)},
+			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when the package version was created.", Transform: transform.FromField("PackageVersion.CreatedAt").NullIfZero().Transform(convertTimestamp)},
+			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "Timestamp when the package version was last updated.", Transform: transform.FromField("PackageVersion.UpdatedAt").NullIfZero().Transform(convertTimestamp)},
 
 			// JSON fields
 			{Name: "tags", Type: proto.ColumnType_JSON, Description: "Tags associated with the package version.", Transform: transform.FromField("PackageVersion.Metadata.Container.Tags")},

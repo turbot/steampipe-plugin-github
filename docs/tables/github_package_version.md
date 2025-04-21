@@ -24,7 +24,7 @@ This query retrieves all the versions for a specific package in an organization.
 select
   id,
   package_name,
-  digest,
+  name as digest,
   prerelease,
   created_at,
   visibility
@@ -39,7 +39,7 @@ where
 select
   id,
   package_name,
-  digest,
+  name as digest,
   prerelease,
   created_at,
   visibility
@@ -57,7 +57,7 @@ This query lists all publicly visible versions of packages in a GitHub organizat
 select
   package_name,
   package_type,
-  digest,
+  name as digest,
   visibility,
   created_at,
   updated_at
@@ -72,7 +72,7 @@ where
 select
   package_name,
   package_type,
-  digest,
+  name as digest,
   visibility,
   created_at,
   updated_at

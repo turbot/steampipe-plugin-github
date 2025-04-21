@@ -32,25 +32,16 @@ func tableGitHubPackage() *plugin.Table {
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the package."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the package."},
-			{Name: "package_type", Type: proto.ColumnType_STRING, Description: "Type of the package (e.g., container, npm, etc.)."},
+			{Name: "package_type", Type: proto.ColumnType_STRING, Description: "Type of the package. It can be one of 'npm', 'maven', 'rubygems', 'nuget', 'docker', or 'container'."},
 			{Name: "organization", Type: proto.ColumnType_STRING, Description: "The name of the GitHub organization.", Transform: transform.FromQual("organization")},
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "Visibility of the package (public or private)."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "API URL of the package."},
 			{Name: "html_url", Type: proto.ColumnType_STRING, Description: "HTML URL of the package."},
-			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Timestamp when the package was created."},
-			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Timestamp when the package was last updated."},
-
-			// Package owner details
-			{Name: "owner_login", Type: proto.ColumnType_STRING, Transform: transform.FromField("Owner.Login"), Description: "Login name of the package owner."},
-			{Name: "owner_id", Type: proto.ColumnType_INT, Transform: transform.FromField("Owner.ID"), Description: "ID of the package owner."},
-			{Name: "owner_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Owner.URL"), Description: "API URL of the package owner."},
-			{Name: "owner_html_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Owner.HTMLURL"), Description: "HTML URL of the package owner."},
+			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the package was created."},
+			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").NullIfZero().Transform(convertTimestamp), Description: "Timestamp when the package was last updated."},
 
 			// Repository details
-			{Name: "repository_id", Type: proto.ColumnType_INT, Transform: transform.FromField("Repository.ID"), Description: "ID of the repository associated with the package."},
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Repository.FullName"), Description: "Full name of the repository associated with the package."},
-			{Name: "repository_private", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Repository.Private"), Description: "Indicates if the repository is private."},
-			{Name: "repository_html_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("Repository.HTMLURL"), Description: "HTML URL of the repository."},
 
 			// JSON field
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The information about the repository."},
