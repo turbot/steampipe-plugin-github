@@ -1,7 +1,7 @@
 ---
 title: "Steampipe Table: github_package - Query GitHub Packages using SQL"
 description: "Allows users to query GitHub Packages, including package metadata, versions, owner details, and associated repositories, providing insights into the package management within GitHub repositories."
-folder: Package
+folder: "Package"
 ---
 
 # Table: github_package - Query GitHub Packages using SQL
