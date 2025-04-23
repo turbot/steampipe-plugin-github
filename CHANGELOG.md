@@ -1,3 +1,9 @@
+## v1.3.0 [2025-04-23]
+
+- New tables added
+  - [github_package](https://hub.steampipe.io/plugins/turbot/github/tables/github_package) ([#459](https://github.com/turbot/steampipe-plugin-github/pull/459))
+  - [github_package_version](https://hub.steampipe.io/plugins/turbot/github/tables/github_package_version) ([#459](https://github.com/turbot/steampipe-plugin-github/pull/459))
+
 ## v1.2.0 [2025-04-15]
 
 _Enhancements_
