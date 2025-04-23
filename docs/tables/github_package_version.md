@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: github_package_version - Query GitHub Package Versions using SQL"
 description: "Allows users to query GitHub Package Versions, providing insights into the metadata, release information, visibility, and creation details of each version."
+folder: "Package"
 ---
 
 # Table: github_package_version - Query GitHub Package Versions using SQL
