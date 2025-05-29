@@ -3,11 +3,12 @@ package github
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -86,13 +87,14 @@ func tableGitHubMyIssueList(ctx context.Context, d *plugin.QueryData, h *plugin.
 		"filters":  filters,
 	}
 	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 
 	for {
 		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_my_issue", &query.RateLimit))
-		if err != nil && len(query.Viewer.Issues.Nodes)==0{
+		if err != nil && len(query.Viewer.Issues.Nodes) == 0 {
 			plugin.Logger(ctx).Error("github_my_issue", "api_error", err)
 			return nil, err
 		}

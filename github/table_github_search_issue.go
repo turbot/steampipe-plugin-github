@@ -48,6 +48,7 @@ func tableGitHubSearchIssueList(ctx context.Context, d *plugin.QueryData, h *plu
 		"query":    githubv4.String(input),
 	}
 	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 	for {

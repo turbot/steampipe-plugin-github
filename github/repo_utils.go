@@ -432,7 +432,7 @@ func appendRepoColumnIncludes(m *map[string]interface{}, cols []string) {
 		"has_vulnerability_alerts_enabled": "includeHasVulnerabilityAlertsEnabled",
 		"has_wiki_enabled":                 "includeHasWikiEnabled",
 		"homepage_url":                     "includeHomepageUrl",
-		"interaction_ability":              "includeInteractionAbility",
+		"interaction_ability":              "includeUserInteractionAbility",
 		"is_archived":                      "includeIsArchived",
 		"is_blank_issues_enabled":          "includeIsBlankIssuesEnabled",
 		"is_disabled":                      "includeIsDisabled",

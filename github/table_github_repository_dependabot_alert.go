@@ -40,7 +40,7 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubRepositoryDependabotAlertList,
 		},
 		Get: &plugin.GetConfig{
