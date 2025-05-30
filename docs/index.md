@@ -79,6 +79,8 @@ connection "github" {
   #   https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token for more information.
   # - GitHub application installation access token, e.g., `ghs_UdmjfiKzVbFJNBsaiePwFPCmKeFakeToken`
   #   https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app for more information.
+  # - Fine-grained personal access token, e.g., `github_pat_11AKSHEQA0VptbjTZnO4at_lgZnoGwpuXb1noakeOG337zfnDQYIB5iJSUkUlMt8nH6KPO3NFakeToken`
+  #   https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token for more information.
   # Can also be set with the GITHUB_TOKEN environment variable.
   # token = "ghp_3b99b12218f63bcd702ad90d345975ef6c62f7d8"
 
