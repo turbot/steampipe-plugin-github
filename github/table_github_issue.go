@@ -172,7 +172,6 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 	for {
 		err := client.Query(ctx, &query, variables)
 		plugin.Logger(ctx).Debug(rateLimitLogString("github_issue", &query.RateLimit))
-		// && len(query.Repository.Issues.Nodes) == 0
 		if err != nil {
 			plugin.Logger(ctx).Error("github_issue", "api_error", err)
 			return nil, err
