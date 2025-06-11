@@ -30,11 +30,15 @@ func extractUserFromHydrateItem(h *plugin.HydrateData) (models.UserWithCounts, e
 func appendUserInteractionAbilityForIssue(m *map[string]interface{}, cols []string, d *plugin.QueryData) {
 	githubConfig := GetConfig(d.Connection)
 	token := os.Getenv("GITHUB_TOKEN")
-	if slices.Contains(cols, "assignees") && (strings.HasPrefix(token, "github_pat") || strings.HasPrefix(*githubConfig.Token, "github_pat")) {
+	if slices.Contains(cols, "assignees") && (isGitHubPAT(token) || isGitHubPAT(*githubConfig.Token)) {
 		(*m)["includeUserInteractionAbility"] = githubv4.Boolean(false)
 	} else {
 		(*m)["includeUserInteractionAbility"] = githubv4.Boolean(true)
 	}
+}
+
+func isGitHubPAT(token string) bool {
+	return strings.HasPrefix(token, "github_pat")
 }
 
 func appendUserColumnIncludes(m *map[string]interface{}, cols []string) {
