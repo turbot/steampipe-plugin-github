@@ -27,8 +27,7 @@ select
   path,
   content,
   type,
-  size,
-  sha
+  size
 from
   github_repository_content
 where
@@ -41,8 +40,7 @@ select
   path,
   content,
   type,
-  size,
-  sha
+  size
 from
   github_repository_content
 where

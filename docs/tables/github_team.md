@@ -12,6 +12,11 @@ GitHub Teams is a feature within GitHub that allows organizations to create team
 
 The `github_team` table provides insights into the teams within GitHub organizations. As a project manager or team lead, you can explore team-specific details through this table, including team ID, name, description, and privacy level. Utilize it to manage permissions, simplify @mentions, and understand the social graph of your organization's repo permissions.
 
+**Important Notes**
+- You must specify the `organization` column in the `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Members" organization permissions (read)** – Required for the `issue_templates` and `pull_request_templates` columns.
+
 ## Examples
 
 ### List all visible teams

@@ -14,6 +14,8 @@ The `github_pull_request_review` table provides insights into the review process
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) and `number` (of the PR) columns in the `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Pull requests" repository permissions (read)** – Required to access the all columns.
 
 ## Examples
 

@@ -14,6 +14,8 @@ The `github_release` table provides insights into GitHub Releases within a repos
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Contents" repository permissions (read)** – Required to access the all columns.
 
 ## Examples
 

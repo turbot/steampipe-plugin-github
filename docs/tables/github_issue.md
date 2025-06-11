@@ -15,6 +15,8 @@ The `github_issue` table provides insights into issues within GitHub repositorie
 **Important Notes**
 - You must specify the `repository_full_name` (owner/repository) column in `where` or `join` clause to query the table.
 - The pull requests are technically also issues in GitHub, however we do not include them in the `github_issue` table; You should use the `github_pull_request` table to query PRs.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Issues" repository permission (read)** – Required to access the all columns.
 
 ## Examples
 

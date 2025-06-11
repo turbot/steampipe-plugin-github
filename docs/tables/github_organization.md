@@ -15,6 +15,10 @@ The `github_organization` table provides insights into Organizations within GitH
 **Important Notes**
 - You must specify the `login` column in `where` or `join` clause to query the table.
 - To list organizations that you are a member of, use the `github_my_organization` table.
+- To query this table using Fine-grained access tokens, the following permissions are required(The Fine-Grained access token should be created in Organization level):
+  - **"Members" organization permission (read)** – Required for the column `members_with_role_total_count`, and `teams_total_count`.
+  - **"Webhooks" organization permission (read)** – Required for the column `hooks`.
+  - **"Administration" organization permission (read)** – Required for the column `interaction_ability`.
 
 ## Examples
 

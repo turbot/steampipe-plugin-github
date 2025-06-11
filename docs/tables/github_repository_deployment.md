@@ -14,6 +14,8 @@ The `github_repository_deployment` table offers insights into GitHub repositorie
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Deployments" repository permissions (read)** – Required to access the all columns.
 
 ## Examples
 

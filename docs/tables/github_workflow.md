@@ -14,6 +14,9 @@ The `github_workflow` table provides insights into Workflows within GitHub Actio
 
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Actions" repository permission (read)** – Required to access the all columns.
+  - **"Contents" repository permission (read)** – Required to access the columns `workflow_file_content`, `workflow_file_content_json`, and `pipeline`.
 
 ## Examples
 

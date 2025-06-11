@@ -14,6 +14,8 @@ The `github_tree` table provides insights into the tree structures within GitHub
 
 **Important Notes**
 - You must specify the `repository_full_name` and `tree_sha` columns in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Contents" repository permission (read)** – Required to access the all columns.
 
 ## Examples
 

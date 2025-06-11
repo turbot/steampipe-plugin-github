@@ -14,6 +14,8 @@ The `github_actions_repository_secret` table provides insights into secrets stor
 
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Secrets" repository permission (read)** – Required to access the all columns.
 
 ## Examples
 

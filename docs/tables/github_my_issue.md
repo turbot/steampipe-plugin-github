@@ -14,6 +14,8 @@ The `github_my_issue` table provides insights into personal issues within GitHub
 
 **Important Notes**
 - To view **all the issues belonging to a repository**, use the `github_issue` table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Issues" repository permission (read)** – Required to access the all columns.
 
 ## Examples
 

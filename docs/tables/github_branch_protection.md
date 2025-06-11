@@ -14,6 +14,9 @@ The `github_branch_protection` table provides insights into branch protection ru
 
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Administration" repository permission (read)** – Required to access general branch protection details.
+  - **"Contents" repository permission (read)** – Required to access the `matching_branches` column.
 
 ## Examples
 

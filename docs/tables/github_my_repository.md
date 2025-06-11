@@ -15,6 +15,11 @@ The `github_my_repository` table provides insights into personal GitHub reposito
 **Important Notes**
 - You can own repositories individually, or you can share ownership of repositories with other people in an organization. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
 - To query **ANY** repository, including public repos, use the `github_repository` table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+   - **"Metadata" repository permission (read)** – Required to access general repository metadata.
+  - **"Contents" repository permission (read)** – Required for the `issue_templates` and `pull_request_templates` columns.
+  - **"Webhooks" repository permission (read)** – Required for the `hooks` column.
+  - **"Issues" repository permission (read)** – Required for the `open_issues_total_count` column.
 
 ## Examples
 

@@ -14,6 +14,8 @@ The `github_organization_dependabot_alert` table provides insights into Dependab
 
 **Important Notes**
 - You must specify the `organization` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required(The Fine-Grained access token should be created in Organization level):
+  - **"Dependabot alerts" repository permissions (read)** – Required to access the all columns.
 
 ## Examples
 

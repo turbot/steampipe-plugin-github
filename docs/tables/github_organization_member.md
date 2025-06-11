@@ -11,6 +11,8 @@ GitHub Organization Members is a feature within GitHub that allows you to manage
 ## Table Usage Guide
 
 The `github_organization_member` table provides insights into members within a GitHub organization. As a project manager or team leader, explore member-specific details through this table, including roles, permissions, and status. Utilize it to uncover information about members, such as their roles within the organization, their access permissions, and their activity status.
+- To query this table using Fine-grained access tokens, the following permissions are required(The Fine-Grained access token should be created in Organization level):
+  - **"Members" organization permissions (read)** – Required to access general organization metadata.
 
 **Important Notes**
 - You must specify the `organization` column in `where` or `join` clause to query the table.

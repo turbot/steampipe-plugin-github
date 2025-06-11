@@ -14,6 +14,8 @@ The `github_issue_comment` table provides in-depth insights into Issue Comments 
 
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Issues" repository permission (read)** – Required to access the all columns.
 
 ## Examples
 

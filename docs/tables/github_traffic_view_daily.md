@@ -14,6 +14,8 @@ The `github_traffic_view_daily` table provides insights into daily repository vi
 
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
+- To query this table using Fine-grained access tokens, the following permissions are required:
+  - **"Administration" repository permissions (read)** – Required to access the all columns.
 
 ## Examples
 

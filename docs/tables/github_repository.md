@@ -15,6 +15,12 @@ The `github_repository` table provides insights into repositories within GitHub.
 **Important Notes**
 - You must specify the `full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 - To list all of your repositories use the `github_my_repository` table instead. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
+- To query this table using Fine-grained access tokens, the following repository permissions are required:
+  - **"Metadata" repository permission (read)** – Required to access general repository metadata.
+  - **"Contents" repository permission (read)** – Required for the `issue_templates` and `pull_request_templates` columns.
+  - **"Webhooks" repository permission (read)** – Required for the `hooks` column.
+  - **"Issues" repository permission (read)** – Required for the `open_issues_total_count` column.
+
 
 ## Examples
 
