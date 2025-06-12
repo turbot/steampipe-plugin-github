@@ -15,6 +15,8 @@ The `github_search_topic` table provides insights into topics within GitHub. As 
 **Important Notes**
 - You must always include at least one search term when searching topics in the where or join clause using the `query` column. See [Searching topics](https://docs.github.com/search-github/searching-on-github/searching-topics) for details on the GitHub query syntax.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List topics that are not curated
