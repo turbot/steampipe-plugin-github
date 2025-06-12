@@ -14,8 +14,12 @@ The `github_team_member` table provides insights into team members within GitHub
 
 **Important Notes**
 - You must specify the `organization` and `slug` columns in the `where` or `join` clause to query the table.
-- To query this table using Fine-grained access tokens, the following permissions are required:
-  - **"Members" organization permissions (read)** – Required to access the all columns.
+
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Organization permissions:
+    - Members (Read-only): Required to access all columns.
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
 
 ## Examples
 

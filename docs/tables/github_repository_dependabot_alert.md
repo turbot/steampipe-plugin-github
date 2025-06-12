@@ -14,8 +14,11 @@ The `github_repository_dependabot_alert` table provides insights into Dependabot
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
-- To query this table using Fine-grained access tokens, the following permissions are required:
-  - **"Dependabot alerts" repository permissions (read)** – Required to access the all columns.
+
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created at the organization level):
+  - Repository permissions:
+    - Dependabot alerts (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
 
 ## Examples
 

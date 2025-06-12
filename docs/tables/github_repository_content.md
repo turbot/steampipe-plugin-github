@@ -16,6 +16,10 @@ To utilize this table effectively, specify the file path or directory within `re
 - It's mandatory to specify the `repository_full_name` (including the organization/user prefix) in the `where` or `join` clause when querying this table.
 - To enhance performance, this table supports the optional qualifier `repository_content_path`. Queries that utilize this qualifier are optimized to efficiently retrieve file contents from a sub-directory within a repository.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+
 ## Examples
 
 ### List the root directory contents of a repository

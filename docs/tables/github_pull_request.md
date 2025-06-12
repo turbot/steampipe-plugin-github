@@ -14,10 +14,12 @@ The `github_pull_request` table provides insights into pull requests within GitH
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) `where` or `join` clause to query the table.
-- To query this table using Fine-grained access tokens, the following permissions are required:
-  - **"Pull requests" repository permissions (read)** – Required to access the all columns.
-  - **"Contents" repository permissions (read)** – Required to access the columns `base_ref`, `head_ref`, and `merge_commit`.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access the `base_ref`, `head_ref`, and `merge_commit` columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+    - Pull requests (Read-only): Required to access all columns.
 
 ## Examples
 

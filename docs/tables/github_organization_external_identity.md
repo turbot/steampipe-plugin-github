@@ -14,8 +14,12 @@ The `github_organization_external_identity` table provides insights into the ext
 
 **Important Notes**
 - You must specify the `organization` column in `where` or `join` clause to query the table.
-- To query this table using Fine-grained access tokens, the following permissions are required(The Fine-Grained access token should be created in Organization level):
-  - **"Members" organization permissions (read)** – Required to access general organization metadata.
+
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created at the organization level):
+  - Organization permissions:
+    - Members (Read-only): Required to access general organization metadata.
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
 
 ## Examples
 

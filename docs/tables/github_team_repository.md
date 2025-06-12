@@ -15,10 +15,13 @@ The `github_team_repository` table provides insights into the association betwee
 **Important Notes**
 - You must specify the `organization` and `slug` columns in the `where` or `join` clause to query the table.
 - To list all your repositories use the `github_my_repository` table instead. To get information about any repository, use the `github_repository` table instead.
-- To query this table using Fine-grained access tokens, the following permissions are required:
-  - **"Contents" repository permission (read)** – Required for the `issue_templates` and `pull_request_templates` columns.
-  - **"Webhooks" repository permission (read)** – Required for the `hooks` column.
-  - **"Issues" repository permission (read)** – Required for the `open_issues_total_count` column.
+
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required for the `issue_templates` and `pull_request_templates` columns.
+    - Issues (Read-only): Required for the `open_issues_total_count` column.
+    - Metadata (Read-only): Required to access general repository metadata.
+    - Webhooks (Read-only): Required for the `hooks` column.
 
 ## Examples
 

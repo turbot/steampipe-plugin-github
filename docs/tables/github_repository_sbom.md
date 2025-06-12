@@ -14,8 +14,11 @@ The `github_repository_sbom` table provides insights into the Software Bill of M
 
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
-- To query this table using Fine-grained access tokens, the following permissions are required:
-  - **"Contents" repository permissions (read)** – Required to access the all columns.
+
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
   
 ## Examples
 
