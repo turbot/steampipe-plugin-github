@@ -16,6 +16,8 @@ The `github_package` table provides detailed insights into packages hosted in Gi
 - You must specify the `organization` column in the `where` clause to query the table.
 - OAuth app tokens and personal access tokens (classic) need the `read:packages` scope to use this endpoint. If the package_type belongs to a GitHub Packages registry that only supports repository-scoped permissions, the `repo` scope is also required. Please refer [Permissions for repository-scoped packages](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#permissions-for-repository-scoped-packages) for more information.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List all packages for a specific organization

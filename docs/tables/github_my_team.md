@@ -15,6 +15,12 @@ The `github_my_team` table provides insights into Teams within GitHub. As a deve
 **Important Notes**
 - To view **all teams you have visibility to across your organizations,** use the `github_team` table.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Organization permissions:
+    - Members (Read-only): Required to access all columns.
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+
 ## Examples
 
 ### Basic info

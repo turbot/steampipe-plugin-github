@@ -15,6 +15,12 @@ The `github_my_organization` table provides insights into a user's primary organ
 **Important Notes**
 - The `github_my_organization` table will list the organization **that you are a member of**. To view details of **ANY** organization, use the `github_organization` table.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created at the organization level):
+  - Organization permissions:
+    - Administration (Read-only): Required for the `interaction_ability` column.
+    - Members (Read-only): Required for the `members_with_role_total_count` and `teams_total_count` columns.
+    - Webhooks (Read-only): Required for the `hooks` column.
+
 ## Examples
 
 ### Basic info for the GitHub Organizations to which you belong

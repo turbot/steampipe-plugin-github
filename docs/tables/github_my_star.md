@@ -12,6 +12,11 @@ GitHub Stars is a feature within GitHub that allows users to bookmark repositori
 
 The `github_my_star` table provides insights into the repositories starred by the authenticated GitHub user. As a developer or project manager, explore details through this table, including repository names, owners, and star creation dates. Utilize it to analyze user preferences, discover potential areas of interest, and manage your starred repositories effectively.
 
+**Important Notes**
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+
 ## Examples
 
 ### List of your starred repositories

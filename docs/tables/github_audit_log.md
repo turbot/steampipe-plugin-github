@@ -23,6 +23,8 @@ The `github_audit_log` table provides insights into user activity within GitHub.
   - `organization`
   - `phrase`
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List recent audit events for an organization

@@ -15,6 +15,8 @@ The `github_gist` table provides insights into Gists within GitHub. As a develop
 **Important Notes**
 - You must specify the `id` column in `where` or `join` clause to query the table.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### Get details about ANY public gist (by id)

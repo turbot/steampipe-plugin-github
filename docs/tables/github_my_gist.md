@@ -15,6 +15,8 @@ The `github_my_gist` table provides insights into Gists within GitHub. As a deve
 **Important Notes**
 - To query **ANY** gist that you have access to (including any public gists), use the `github_gist` table.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List your gists
