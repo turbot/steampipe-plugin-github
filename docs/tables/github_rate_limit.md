@@ -12,6 +12,9 @@ GitHub Rate Limits are a part of the GitHub API that sets the maximum number of 
 
 The `github_rate_limit` table provides insights into the rate limits set by GitHub for API usage. As a developer or system administrator, you can use this table to monitor your application's API usage, ensuring it stays within the prescribed limits to avoid service disruption. This table is also useful for planning and optimizing the distribution of API requests to maximize efficiency and avoid hitting the rate limit.
 
+**Important Notes**
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List rate limit of rest apis
