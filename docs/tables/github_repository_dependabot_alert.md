@@ -13,7 +13,6 @@ GitHub Dependabot is a feature within the GitHub platform that monitors your pro
 The `github_repository_dependabot_alert` table provides insights into Dependabot alerts within GitHub repositories. As a project maintainer or security engineer, explore alert-specific details through this table, including the dependency name, version, and associated security vulnerabilities. Utilize it to uncover information about potentially insecure dependencies, helping you to maintain the security and integrity of your projects.
 
 **Important Notes**
-
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
@@ -24,7 +23,6 @@ To query this table using a [fine-grained access token](https://docs.github.com/
 ## Examples
 
 ### List dependabot alerts
-
 Identify the status and type of dependabot alerts for a specific repository to maintain and upgrade dependencies efficiently.
 
 ```sql+postgres
@@ -50,7 +48,6 @@ where
 ```
 
 ### List open dependabot alerts
-
 Discover the segments that have active dependency alerts within a specific GitHub repository. This query is useful for maintaining security and up-to-date dependencies in your projects.
 
 ```sql+postgres
@@ -78,7 +75,6 @@ where
 ```
 
 ### List open critical dependabot alerts
-
 Explore critical alerts in your repository's dependencies that are currently open. This is useful for quickly identifying potential security risks within your project's ecosystem.
 
 ```sql+postgres
