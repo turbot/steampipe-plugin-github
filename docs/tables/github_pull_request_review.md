@@ -17,8 +17,8 @@ The `github_pull_request_review` table provides insights into the review process
 
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
-    - Pull requests (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+    - Pull requests (Read-only): Required to access all columns.
 
 ## Examples
 

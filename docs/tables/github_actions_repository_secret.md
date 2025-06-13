@@ -17,8 +17,8 @@ The `github_actions_repository_secret` table provides insights into secrets stor
 
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
-    - Secrets (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+    - Secrets (Read-only): Required to access all columns.
 
 ## Examples
 
