@@ -12,13 +12,13 @@ GitHub Repositories are a fundamental resource in GitHub. They allow users to ho
 
 The `github_tree` table provides insights into the tree structures within GitHub Repositories. As a developer or project manager, explore each repository's file and directory hierarchy through this table, including file names, types, and associated metadata. Utilize it to uncover information about the organization and structure of repositories, such as the distribution of file types and the depth of directory nesting.
 
-**Important Notes**
-- You must specify the `repository_full_name` and `tree_sha` columns in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Contents (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `repository_full_name` and `tree_sha` columns in `where` or `join` clause to query the table.
 
 ## Examples
 

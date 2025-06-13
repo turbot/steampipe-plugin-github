@@ -12,13 +12,13 @@ GitHub Dependabot is a feature that helps you keep your dependencies up to date.
 
 The `github_organization_dependabot_alert` table provides insights into Dependabot Alerts within GitHub. As a security analyst or a developer, explore alert-specific details through this table, including alert status, severity, and package name. Utilize it to uncover information about security vulnerabilities in your GitHub organization's dependencies, helping you to keep your projects safe and up to date.
 
-**Important Notes**
-- You must specify the `organization` column in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
   - Repository permissions:
     - Dependabot alerts (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `organization` column in `where` or `join` clause to query the table.
 
 ## Examples
 

@@ -12,14 +12,14 @@ GitHub Teams is a feature within GitHub that allows for easy collaboration and a
 
 The `github_my_team` table provides insights into Teams within GitHub. As a developer or project manager, explore team-specific details through this table, including access rights, team structure and associated repositories. Utilize it to uncover information about teams, such as those with admin access to repositories, the distribution of access rights within a team, and the verification of team members.
 
-**Important Notes**
-- To view **all teams you have visibility to across your organizations,** use the `github_team` table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Organization permissions:
     - Members (Read-only): Required to access all columns.
   - Repository permissions:
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- To view **all teams you have visibility to across your organizations,** use the `github_team` table.
 
 ## Examples
 

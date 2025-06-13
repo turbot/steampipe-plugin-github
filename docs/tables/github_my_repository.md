@@ -12,16 +12,16 @@ GitHub is a version control system that allows developers to collaborate on proj
 
 The `github_my_repository` table provides insights into personal GitHub repositories. As a developer or project manager, explore repository-specific details through this table, including repository name, description, owner, and visibility status. Utilize it to manage and monitor your repositories, such as checking the visibility status, reviewing the repository description, and identifying the repository owner.
 
-**Important Notes**
-- You can own repositories individually, or you can share ownership of repositories with other people in an organization. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
-- To query **ANY** repository, including public repos, use the `github_repository` table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Contents (Read-only): Required for the `issue_templates` and `pull_request_templates` columns.
     - Issues (Read-only): Required for the `open_issues_total_count` column.
     - Metadata (Read-only): Required to access general repository metadata.
     - Webhooks (Read-only): Required for the `hooks` column.
+
+**Important Notes**
+- You can own repositories individually, or you can share ownership of repositories with other people in an organization. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
+- To query **ANY** repository, including public repos, use the `github_repository` table.
 
 ## Examples
 

@@ -12,13 +12,13 @@ GitHub Issue Comments are integral parts of the GitHub platform that enable user
 
 The `github_issue_comment` table provides in-depth insights into Issue Comments within GitHub. As a project manager or developer, explore comment-specific details through this table, including the author, creation time, body of the comment, and associated metadata. Utilize it to track user interactions, gather feedback, monitor issue resolution progress, and encourage collaborative problem-solving.
 
-**Important Notes**
-- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Issues (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 
 ## Examples
 

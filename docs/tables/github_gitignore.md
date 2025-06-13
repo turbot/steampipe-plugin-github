@@ -12,7 +12,6 @@ GitHub Gitignore is a feature that specifies intentionally untracked files to ig
 
 The `github_gitignore` table provides insights into Gitignore templates available on GitHub. As a developer or a DevOps engineer, explore template-specific details through this table, including the name of the template and its source. Utilize it to discover available templates, understand their structure, and decide which one to use for your project.
 
-**Important Notes**
 If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
 
 ## Examples

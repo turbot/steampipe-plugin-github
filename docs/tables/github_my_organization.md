@@ -12,14 +12,14 @@ GitHub Organizations are a shared workspace where businesses and open-source pro
 
 The `github_my_organization` table provides insights into a user's primary organization on GitHub. As a project manager or team lead, explore organization-specific details through this table, including member access, repository details, and administrative features. Utilize it to manage and streamline your organization's projects and enhance team productivity.
 
-**Important Notes**
-- The `github_my_organization` table will list the organization **that you are a member of**. To view details of **ANY** organization, use the `github_organization` table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
   - Organization permissions:
     - Administration (Read-only): Required for the `interaction_ability` column.
-    - Members (Read-only): Required for the `members_with_role_total_count` and `teams_total_count` columns.
+    - Members (Read-only): Required to access all columns.
     - Webhooks (Read-only): Required for the `hooks` column.
+
+**Important Notes**
+- The `github_my_organization` table will list the organization **that you are a member of**. To view details of **ANY** organization, use the `github_organization` table.
 
 ## Examples
 

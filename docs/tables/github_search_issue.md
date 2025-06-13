@@ -12,10 +12,10 @@ GitHub Issues is a feature of GitHub, a web-based hosting service for version co
 
 The `github_search_issue` table provides insights into issues within GitHub repositories. As a project manager or developer, explore issue-specific details through this table, including status, assignees, labels, and associated metadata. Utilize it to uncover information about issues, such as those that are open, the assignees working on them, and the labels attached to them.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching source code in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination. See [Searching issues and pull requests](https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests) for details on the GitHub query syntax.
-
-If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
 
 ## Examples
 

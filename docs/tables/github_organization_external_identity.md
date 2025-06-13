@@ -12,14 +12,14 @@ GitHub Organization External Identities represent the mapping between a GitHub u
 
 The `github_organization_external_identity` table provides insights into the external identities of users within a GitHub organization. As a GitHub organization administrator, this table can be used to gain a comprehensive understanding of the linked identities of users at your Identity Provider. This can be particularly useful when managing users in organizations that use SAML single sign-on (SSO) with GitHub.
 
-**Important Notes**
-- You must specify the `organization` column in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
   - Organization permissions:
     - Members (Read-only): Required to access general organization metadata.
   - Repository permissions:
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `organization` column in `where` or `join` clause to query the table.
 
 ## Examples
 

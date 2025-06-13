@@ -12,13 +12,13 @@ GitHub Issues is a feature in GitHub that provides a platform to track bugs, enh
 
 The `github_my_issue` table provides insights into personal issues within GitHub. As a project manager or developer, explore issue-specific details through this table, including the issue title, state, assignee, and associated metadata. Utilize it to manage and track tasks, improvements, and bugs for your projects.
 
-**Important Notes**
-- To view **all the issues belonging to a repository**, use the `github_issue` table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Issues (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- To view **all the issues belonging to a repository**, use the `github_issue` table.
 
 ## Examples
 

@@ -12,14 +12,14 @@ GitHub Pull Requests are a feature of GitHub, a web-based hosting service for ve
 
 The `github_pull_request` table provides insights into pull requests within GitHub. As a developer or project manager, explore pull request-specific details through this table, including the status, assignees, reviewers, and associated metadata. Utilize it to track the progress of pull requests, identify bottlenecks in the review process, and ensure timely merging of approved changes.
 
-**Important Notes**
-- You must specify the `repository_full_name` (repository including org/user prefix) `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Contents (Read-only): Required to access the `base_ref`, `head_ref`, and `merge_commit` columns.
     - Metadata (Read-only): Required to access general repository metadata.
     - Pull requests (Read-only): Required to access all columns.
+
+**Important Notes**
+- You must specify the `repository_full_name` (repository including org/user prefix) `where` or `join` clause to query the table.
 
 ## Examples
 

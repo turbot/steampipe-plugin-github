@@ -12,13 +12,13 @@ GitHub Repositories are a fundamental resource in GitHub that allow users to man
 
 The `github_repository_deployment` table offers insights into GitHub repositories' deployment details. As a developer or project manager, you can use this table to retrieve deployment status, environment, and related metadata for each repository. This can be particularly useful for monitoring deployment progress, identifying deployment patterns, and troubleshooting deployment issues.
 
-**Important Notes**
-- You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Deployments (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 
 ## Examples
 

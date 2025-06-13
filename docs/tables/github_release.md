@@ -12,13 +12,13 @@ GitHub Releases is a feature of GitHub that allows you to present significant po
 
 The `github_release` table provides insights into GitHub Releases within a repository. As a software developer or project manager, explore release-specific details through this table, including release id, tag name, draft status, prerelease status, and more. Utilize it to track the progress and status of different versions of your software, identify any prerelease versions, and manage your software releases more effectively.
 
-**Important Notes**
-- You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Contents (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 
 ## Examples
 

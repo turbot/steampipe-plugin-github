@@ -12,13 +12,13 @@ GitHub Actions is a CI/CD service provided by GitHub which allows automating sof
 
 The `github_actions_repository_runner` table provides insights into the self-hosted runners of GitHub Actions for a specific repository. As a DevOps engineer, you can explore runner-specific details through this table, including runner IDs, names, operating systems, statuses, and associated metadata. Utilize it to manage and monitor your self-hosted runners, ensuring they are functioning properly and are up-to-date.
 
-**Important Notes**
-- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Organization permissions:
     - Metadata (Read-only): Required to access general repository metadata.
     - Self-hosted runners (Read-only): Required to access all columns.
+
+**Important Notes**
+- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 
 ## Examples
 

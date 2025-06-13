@@ -12,14 +12,14 @@ GitHub Branch Protection is a feature within GitHub that allows you to define ce
 
 The `github_branch_protection` table provides insights into branch protection rules within GitHub. As a DevOps engineer or a repository manager, explore branch-specific details through this table, including the enforcement of status checks, pull request reviews, and push restrictions. Utilize it to uncover information about branch protections, such as those with strict requirements, the enforcement of signed commits, and the restrictions on who can push to the branch.
 
-**Important Notes**
-- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
-
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
   - Repository permissions:
     - Administration (Read-only): Required to access general branch protection details.
     - Contents (Read-only): Required to access the `matching_branches` column.
     - Metadata (Read-only): Required to access general repository metadata.
+
+**Important Notes**
+- You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 
 ## Examples
 

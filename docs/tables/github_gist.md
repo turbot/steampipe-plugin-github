@@ -12,10 +12,10 @@ GitHub Gists are a simple way to share snippets and pastes with others. Gists ar
 
 The `github_gist` table provides insights into Gists within GitHub. As a developer or team lead, explore Gist-specific details through this table, including its description, comments, files, forks, history, owner, and public status. Utilize it to uncover information about Gists, such as their version history, fork details, and associated comments.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must specify the `id` column in `where` or `join` clause to query the table.
-
-If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
 
 ## Examples
 
