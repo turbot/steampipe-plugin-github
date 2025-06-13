@@ -20,7 +20,6 @@ To query this table using a [fine-grained access token](https://docs.github.com/
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table. 
 
-
 ## Examples
 
 ### List artifacts
