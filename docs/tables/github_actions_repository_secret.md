@@ -12,6 +12,11 @@ GitHub Actions is a service provided by GitHub that allows you to automate, cust
 
 The `github_actions_repository_secret` table provides insights into secrets stored within a GitHub repository. As a security engineer, explore secret-specific details through this table, including the names of secrets and the dates they were created or updated. Utilize it to uncover information about secrets, such as those that may be outdated or unused, providing a comprehensive view of the repository's security measures.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+    - Secrets (Read-only): Required to access all columns.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

@@ -12,6 +12,8 @@ GitHub Users is a resource within GitHub that represents an individual or organi
 
 The `github_search_user` table provides insights into user profiles within GitHub. As a developer or a security analyst, explore user-specific details through this table, including login name, type, and score. Utilize it to uncover information about users, such as their activity, repositories they have access to, and their general profile information.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching users in the where or join clause using the `query` column. See [Searching users](https://docs.github.com/search-github/searching-on-github/searching-users) for details on the GitHub query syntax.
 

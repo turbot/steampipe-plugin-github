@@ -132,6 +132,7 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 		"name":  githubv4.String(repoName),
 	}
 	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	err := client.Query(ctx, &query, variables)
 	plugin.Logger(ctx).Debug(rateLimitLogString("github_repository", &query.RateLimit))

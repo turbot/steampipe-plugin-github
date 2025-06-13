@@ -12,6 +12,13 @@ GitHub is a web-based hosting service for version control using Git. It offers a
 
 The `github_repository` table provides insights into repositories within GitHub. As a developer or project manager, explore repository-specific details through this table, including owner details, repository names, descriptions, and visibility status. Utilize it to uncover information about repositories, such as those with public or private visibility, the owner of each repository, and the description of what each repository contains.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required for the `issue_templates` and `pull_request_templates` columns.
+    - Issues (Read-only): Required for the `open_issues_total_count` column.
+    - Metadata (Read-only): Required to access general repository metadata.
+    - Webhooks (Read-only): Required for the `hooks` column.
+
 **Important Notes**
 - You must specify the `full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 - To list all of your repositories use the `github_my_repository` table instead. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.

@@ -12,6 +12,8 @@ GitHub Licenses are a set of permissions that developers grant to others to stud
 
 The `github_license` table provides insights into the different licenses used across GitHub repositories. As a software developer or open-source enthusiast, you can explore the specifics of these licenses through this table, including their permissions, conditions, and limitations. Use it to understand the terms under which you can use, modify, or distribute the software in question.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List basic license info

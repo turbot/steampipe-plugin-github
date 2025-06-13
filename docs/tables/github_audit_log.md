@@ -12,6 +12,8 @@ GitHub Audit Logs is a feature within GitHub that allows you to keep track of wh
 
 The `github_audit_log` table provides insights into user activity within GitHub. As a Security Analyst, explore user-specific actions through this table, including performed actions, involved repositories, and action timestamps. Utilize it to uncover information about user actions, such as repository changes, team membership alterations, and other potential security risks.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must specify the `organization` column in `where` or `join` clause to query the table.
 - This table only works for organizations on an [GitHub Enterprise plan](https://docs.github.com/en/enterprise-cloud@latest/admin/overview/about-enterprise-accounts).

@@ -12,6 +12,11 @@ GitHub Branches are references within a repository that point to the state of a 
 
 The `github_branch` table provides insights into branches within GitHub repositories. As a developer or project manager, explore branch-specific details through this table, including name, commit, protected status, and associated metadata. Utilize it to uncover information about branches, such as those with protected status, the commit associated with each branch, and the verification of branch protections.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

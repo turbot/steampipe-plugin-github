@@ -23,7 +23,7 @@ type Repository struct {
 	HasVulnerabilityAlertsEnabled bool                             `graphql:"hasVulnerabilityAlertsEnabled @include(if:$includeHasVulnerabilityAlertsEnabled)" json:"has_vulnerability_alerts_enabled"`
 	HasWikiEnabled                bool                             `graphql:"hasWikiEnabled @include(if:$includeHasWikiEnabled)" json:"has_wiki_enabled"`
 	HomepageUrl                   string                           `graphql:"homepageUrl @include(if:$includeHomepageUrl)" json:"homepage_url"`
-	InteractionAbility            RepositoryInteractionAbility     `graphql:"interactionAbility @include(if:$includeInteractionAbility)" json:"interaction_ability"`
+	InteractionAbility            RepositoryInteractionAbility     `graphql:"interactionAbility @include(if:$includeUserInteractionAbility)" json:"interaction_ability,omitempty"`
 	IsArchived                    bool                             `graphql:"isArchived @include(if:$includeIsArchived)" json:"is_archived"`
 	IsBlankIssuesEnabled          bool                             `graphql:"isBlankIssuesEnabled @include(if:$includeIsBlankIssuesEnabled)" json:"is_blank_issues_enabled"`
 	IsDisabled                    bool                             `graphql:"isDisabled @include(if:$includeIsDisabled)" json:"is_disabled"`

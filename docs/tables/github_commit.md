@@ -12,6 +12,11 @@ GitHub Commits are an integral part of the GitHub service, which provides a coll
 
 The `github_commit` table provides insights into individual commits within a GitHub repository. As a developer or project manager, explore commit-specific details through this table, including author information, commit messages, and timestamps. Utilize it to understand the development history, track code changes, and analyze development patterns within your projects.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

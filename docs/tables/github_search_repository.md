@@ -12,6 +12,8 @@ GitHub Repositories represent a location where all the files for a project are s
 
 The `github_search_repository` table provides insights into repositories within GitHub. As a developer or project manager, explore repository-specific details through this table, including owner, name, description, and more. Utilize it to uncover information about repositories, such as those with specific topics, languages, or other search criteria, and to manage and organize your project's files and resources.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching repositories in the where or join clause using the `query` column. You can search for repositories globally across all of GitHub.com, or search for repositories within a particular organization. See [Searching for repositories](https://docs.github.com/search-github/searching-on-github/searching-for-repositories) for details on the GitHub query syntax.
 

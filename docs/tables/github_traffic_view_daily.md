@@ -12,6 +12,11 @@ GitHub Traffic Views is a feature within GitHub that allows you to monitor and r
 
 The `github_traffic_view_daily` table provides insights into daily repository views within GitHub. As a repository owner, explore view-specific details through this table, including the number of views, unique visitors, and the timestamp of the views. Utilize it to uncover information about views, such as those with high traffic, the peak times for views, and the verification of view patterns.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Administration (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

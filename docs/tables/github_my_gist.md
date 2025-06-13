@@ -12,8 +12,9 @@ GitHub Gists are a simple way to share snippets and pastes with others. Gists ar
 
 The `github_my_gist` table provides insights into Gists within GitHub. As a developer or GitHub user, explore gist-specific details through this table, including file content, comments, and associated metadata. Utilize it to manage and analyze your Gists, such as those with certain content, the number of comments, and the details of the files in the Gists.
 
-**Important Notes**
 - To query **ANY** gist that you have access to (including any public gists), use the `github_gist` table.
+
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
 
 ## Examples
 

@@ -12,6 +12,8 @@ GitHub Pull Requests is a feature within GitHub that allows developers to propos
 
 The `github_search_pull_request` table provides insights into pull requests within GitHub. As a developer or project manager, explore pull request-specific details through this table, including status, creator, assignee, and associated metadata. Utilize it to monitor the progress of proposed changes, manage code reviews, and ensure the quality of the code in your repositories.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching pull requests in the where or join clause using the `query` column. You can narrow the results using these search qualifiers in any combination. See [Searching issues and pull requests](https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests) for details on the GitHub query syntax.
 
