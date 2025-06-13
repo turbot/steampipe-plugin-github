@@ -27,7 +27,7 @@ var allowedPersonalAccessTokenTokenPrefixes = []string{
 	"github_pat",
 }
 
-var allowedInstallationOrOAuthAccessTokenTokenPrefixes = []string{
+var allowedInstallationOrOAuthAccessTokenPrefixes = []string{
 	"ghs_",
 	"gho_",
 }
@@ -42,7 +42,7 @@ func isValidPersonalAccessTokenPrefix(token string) bool {
 }
 
 func isValidInstallationOrOAuthAccessTokenPrefix(token string) bool {
-	for _, prefix := range allowedInstallationOrOAuthAccessTokenTokenPrefixes {
+	for _, prefix := range allowedInstallationOrOAuthAccessTokenPrefixes {
 		if strings.HasPrefix(token, prefix) {
 			return true
 		}
