@@ -15,7 +15,7 @@ The `github_organization_collaborator` table provides insights into the collabor
 **Important Notes**
 - You must specify the `organization` column in the `where` or `join` clause to query the table.
 
-To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created at the organization level):
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
   - Repository permissions:
     - Contents (Read-only): Required to access all columns.
     - Metadata (Read-only): Required to access general repository metadata.

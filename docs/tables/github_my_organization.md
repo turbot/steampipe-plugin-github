@@ -13,17 +13,20 @@ GitHub Organizations are a shared workspace where businesses and open-source pro
 The `github_my_organization` table provides insights into a user's primary organization on GitHub. As a project manager or team lead, explore organization-specific details through this table, including member access, repository details, and administrative features. Utilize it to manage and streamline your organization's projects and enhance team productivity.
 
 **Important Notes**
+
 - The `github_my_organization` table will list the organization **that you are a member of**. To view details of **ANY** organization, use the `github_organization` table.
 
-To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created at the organization level):
-  - Organization permissions:
-    - Administration (Read-only): Required for the `interaction_ability` column.
-    - Members (Read-only): Required for the `members_with_role_total_count` and `teams_total_count` columns.
-    - Webhooks (Read-only): Required for the `hooks` column.
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
+
+- Organization permissions:
+  - Administration (Read-only): Required for the `interaction_ability` column.
+  - Members (Read-only): Required for the `members_with_role_total_count` and `teams_total_count` columns.
+  - Webhooks (Read-only): Required for the `hooks` column.
 
 ## Examples
 
 ### Basic info for the GitHub Organizations to which you belong
+
 Determine the areas in which you hold membership across various GitHub organizations. This query is useful in understanding your involvement and role within these organizations, including details such as the number of private and public repositories, team counts, and member counts.
 
 ```sql+postgres
@@ -61,6 +64,7 @@ from
 ```
 
 ### Show all members for the GitHub Organizations to which you belong
+
 Determine the areas in which you are a member of a GitHub organization, offering insights into your collaborative coding environments and affiliations. This can be useful in managing and understanding your participation in various coding projects and teams.
 
 ```sql+postgres
@@ -82,6 +86,7 @@ from
 ```
 
 ### Show your permissions on the Organization
+
 Explore your access level and permissions within your GitHub organization. This can help in understanding what actions you are authorized to perform, such as administering the organization, changing pinned items, creating projects, repositories, or teams, and whether you are currently a member.
 
 ```sql+postgres
@@ -113,6 +118,7 @@ from
 ```
 
 ### Show Organization security settings
+
 Gain insights into your organization's security settings, such as member permissions and two-factor authentication requirements. This can help ensure your organization's GitHub repositories and pages are appropriately protected.
 
 ```sql+postgres
@@ -148,6 +154,7 @@ from
 ```
 
 ### List organization hooks that are insecure
+
 Explore which organization hooks are potentially insecure due to specific settings, such as lack of SSL security, absence of a secret, or non-HTTPS URLs. This is particularly useful in identifying and mitigating potential security vulnerabilities within your organization's GitHub configuration.
 
 ```sql+postgres
