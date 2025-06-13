@@ -15,9 +15,7 @@ The `github_search_label` table provides insights into Labels within GitHub. As 
 **Important Notes**
 - You must always include at least one search term and repository ID when searching source code in the where or join clause using the `query` and `repository_id` columns respectively.
 
-To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
-  - Repository permissions:
-    - Metadata (Read-only): Required to access general repository metadata.
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
 
 ## Examples
 
