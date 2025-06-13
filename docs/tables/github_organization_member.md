@@ -16,11 +16,10 @@ The `github_organization_member` table provides insights into members within a G
 - You must specify the `organization` column in `where` or `join` clause to query the table.
 
 To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
-
-- Organization permissions:
-  - Members (Read-only): Required to access general organization metadata.
-- Repository permissions:
-  - Metadata (Read-only): Required to access general repository metadata.
+  - Organization permissions:
+    - Members (Read-only): Required to access general organization metadata.
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
 
 ## Examples
 
