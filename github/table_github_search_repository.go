@@ -48,6 +48,7 @@ func tableGitHubSearchRepositoryList(ctx context.Context, d *plugin.QueryData, h
 		"query":    githubv4.String(input),
 	}
 	appendRepoColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 	for {

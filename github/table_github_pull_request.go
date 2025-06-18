@@ -154,6 +154,7 @@ func tableGitHubPullRequestList(ctx context.Context, d *plugin.QueryData, h *plu
 		"states":   states,
 	}
 	appendPullRequestColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 

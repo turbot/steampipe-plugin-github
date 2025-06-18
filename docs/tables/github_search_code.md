@@ -12,6 +12,8 @@ GitHub is a web-based hosting service for version control using Git. It is prima
 
 The `github_search_code` table provides insights into the code files within GitHub repositories. As a developer or DevOps engineer, explore file-specific details through this table, including file names, paths, and associated metadata. Utilize it to uncover information about the codebase, such as the distribution of file types, the structure of the repositories, and the details of the code files.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching source code in the where or join clause using the `query` column. The `query` contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. See [Searching code](https://docs.github.com/search-github/searching-on-github/searching-code) for details on the GitHub query syntax.
 

@@ -165,6 +165,7 @@ func tableGitHubRepositoryIssueList(ctx context.Context, d *plugin.QueryData, h 
 		"filters":  filters,
 	}
 	appendIssueColumnIncludes(&variables, d.QueryContext.Columns)
+	appendUserInteractionAbilityForIssue(&variables, d.QueryContext.Columns, d)
 
 	client := connectV4(ctx, d)
 

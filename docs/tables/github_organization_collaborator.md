@@ -12,6 +12,11 @@ GitHub Organization Collaborators are users who have been granted access to cont
 
 The `github_organization_collaborator` table provides insights into the collaborators associated with GitHub repository within an organization. As a repository manager, you can use this table to explore details about collaborators, including their permissions and the status of their invitations. This can be particularly useful for managing access control and ensuring the appropriate level of access is granted to each collaborator.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required (the token must be created under the resource owner organization):
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `organization` column in the `where` or `join` clause to query the table.
 

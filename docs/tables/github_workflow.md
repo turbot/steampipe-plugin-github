@@ -12,6 +12,12 @@ GitHub Workflows is a feature within GitHub Actions that allows you to automate,
 
 The `github_workflow` table provides insights into Workflows within GitHub Actions. As a DevOps engineer, explore workflow-specific details through this table, including workflow configurations, status, and associated branches. Utilize it to monitor and manage workflows, such as those with specific event triggers, the branches associated with a workflow, and the verification of workflow configurations.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Actions (Read-only): Required to access all columns.
+    - Contents (Read-only): Required to access the `workflow_file_content`, `workflow_file_content_json`, and `pipeline` columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

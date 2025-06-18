@@ -12,6 +12,8 @@ GitHub's GraphQL API Rate Limiting is a feature that prevents excessive use of t
 
 The `github_rate_limit_graphql` table provides insights into the rate limiting status for GitHub's GraphQL API. As a developer or DevOps engineer, you can use this table to monitor the current rate limit status of your application's API usage. This can be particularly useful in managing and optimizing your application's API requests to ensure they stay within the allowed limits.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 ## Examples
 
 ### List rate limit info for GraphQL

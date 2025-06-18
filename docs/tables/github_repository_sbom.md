@@ -12,9 +12,14 @@ GitHub Repositories is a feature offered by GitHub that allows developers to sto
 
 The `github_repository_sbom` table provides insights into the Software Bill of Materials (SBOM) of GitHub Repositories. As a software developer or security analyst, explore the components, their versions, and dependencies in a software application through this table. Utilize it to uncover information about the SBOM, such as the components used in a software application, their versions, and dependencies, which can be crucial for vulnerability management and software maintenance.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
-
+  
 ## Examples
 
 ### List SBOM packages with a specific package version

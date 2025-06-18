@@ -45,7 +45,7 @@ type Language struct {
 }
 
 type SponsorsListing struct {
-	Id                         string               `json:"id"`
+	Id                         string               `json:"id,omitempty"`
 	ActiveGoal                 SponsorsGoal         `json:"active_goal"`
 	ActiveStripeConnectAccount StripeConnectAccount `json:"active_stripe_connect_account"`
 	BillingCountryOrRegion     string               `json:"billing_country_or_region"`

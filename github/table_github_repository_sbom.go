@@ -19,7 +19,7 @@ func tableGitHubRepositorySbom() *plugin.Table {
 					Require: plugin.Required,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           listRepositorySboms,
 		},
 		Columns: commonColumns([]*plugin.Column{

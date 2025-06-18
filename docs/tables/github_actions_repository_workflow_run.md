@@ -12,6 +12,11 @@ GitHub Actions is a CI/CD solution that allows you to automate how you build, te
 
 The `github_actions_repository_workflow_run` table provides insights into GitHub Actions Repository Workflow Runs. As a software developer or DevOps engineer, explore details of each workflow run in a repository through this table, including its status, conclusion, and other metadata. Utilize it to monitor and analyze the performance and results of your CI/CD workflows, ensuring your software development process is efficient and effective.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Actions (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table. 
 

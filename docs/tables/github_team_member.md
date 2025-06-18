@@ -12,6 +12,12 @@ GitHub Team Members are part of GitHub's Team feature which allows users to orga
 
 The `github_team_member` table provides insights into team members within GitHub. As a project manager or team lead, explore team member-specific details through this table, including their roles and permissions within teams. Utilize it to manage and coordinate your team effectively, ensuring that each team member has the appropriate permissions and roles for their tasks.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Organization permissions:
+    - Members (Read-only): Required to access all columns.
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `organization` and `slug` columns in the `where` or `join` clause to query the table.
 

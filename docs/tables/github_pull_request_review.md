@@ -12,6 +12,11 @@ A GitHub Pull Request Review is a feature within GitHub that allows users to pro
 
 The `github_pull_request_review` table provides insights into the review process of pull requests within GitHub. As a developer or a team lead, explore review-specific details through this table, including the review comments, review status, and the reviewer details. Utilize it to understand the feedback on pull requests, the approval process, and to gain insights into the code review practices in your projects.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Metadata (Read-only): Required to access general repository metadata.
+    - Pull requests (Read-only): Required to access all columns.
+
 **Important Notes**
 - You must specify the `repository_full_name` (repository including org/user prefix) and `number` (of the PR) columns in the `where` or `join` clause to query the table.
 

@@ -12,6 +12,11 @@ GitHub Code Owners is a feature within GitHub that allows repository administrat
 
 The `github_code_owner` table provides insights into the code owners within a GitHub repository. As a repository administrator, you can use this table to understand who owns which parts of your codebase and to ensure that all changes are reviewed by the appropriate individuals. This table can also be helpful for developers looking to understand who to contact for specific parts of a codebase, or for project managers looking to understand the distribution of code ownership within a project.
 
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+  - Repository permissions:
+    - Contents (Read-only): Required to access all columns.
+    - Metadata (Read-only): Required to access general repository metadata.
+
 **Important Notes**
 - You must specify the `repository_full_name` column in `where` or `join` clause to query the table.
 

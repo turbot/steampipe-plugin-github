@@ -12,6 +12,8 @@ GitHub Commits is a feature within the GitHub service that allows users to make 
 
 The `github_search_commit` table enables insights into commit activities within GitHub repositories. As a developer or project manager, leverage this table to track changes, monitor project progress, and maintain version control. Utilize it to search for specific commits based on various criteria, such as author, date, and associated message.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term when searching source code in the where or join clause using the `query` column. You can narrow the results using these commit search qualifiers in any combination. See [Searching commits](https://docs.github.com/search-github/searching-on-github/searching-commits) for details on the GitHub query syntax.
 

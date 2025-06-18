@@ -12,6 +12,8 @@ GitHub Users is a resource within GitHub that represents an individual user acco
 
 The `github_user` table provides insights into individual user accounts within GitHub. As a developer or project manager, explore user-specific details through this table, including user profiles, activities, and contributions. Utilize it to uncover information about users, such as their public profiles, the date they joined GitHub, and their contributions to repositories.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must specify the `login` column in `where` or `join` clause to query the table.
 

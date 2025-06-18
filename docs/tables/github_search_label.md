@@ -12,6 +12,8 @@ GitHub Labels are a feature within GitHub that allows users to categorize and fi
 
 The `github_search_label` table provides insights into Labels within GitHub. As a project manager or developer, explore label-specific details through this table, including color, default status, and associated metadata. Utilize it to uncover information about labels, such as their usage across issues and pull requests, and to facilitate efficient project management and issue tracking.
 
+If using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), no permissions are required.
+
 **Important Notes**
 - You must always include at least one search term and repository ID when searching source code in the where or join clause using the `query` and `repository_id` columns respectively.
 
