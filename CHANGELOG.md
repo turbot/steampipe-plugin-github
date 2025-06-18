@@ -1,3 +1,13 @@
+## v1.4.0 [2025-06-18]
+
+_What's new?_
+
+- Add support for [Fine-grained personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) via the `token` config argument, with each table’s documentation updated to specify the required permissions. Refer to the plugin's [Credentials](https://hub.steampipe.io/plugins/turbot/github#credentials) section for additional information. ([#497](https://github.com/turbot/steampipe-plugin-github/pull/497))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.7](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5117-2025-06-04) which resolves an issue where rate limiters were not being applied to hydrate functions correctly. ([#499](https://github.com/turbot/steampipe-plugin-github/pull/499))
+
 ## v1.3.0 [2025-04-23]
 
 - New tables added
