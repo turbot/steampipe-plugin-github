@@ -104,7 +104,7 @@ connection "github" {
 }
 ```
 
-- `token` - [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account or a [Github App installation access token](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app).
+- `token` - [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for your GitHub account or a [Github App installation access token](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app) or a [Fine-grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token).
  This can also be set via the `GITHUB_TOKEN` environment variable.
 - `base_url` - GitHub Enterprise users have a custom URL location (e.g. `https://github.example.com`). Not required for GitHub cloud. This can also be via the `GITHUB_BASE_URL` environment variable.
 - `app_id` - [Github App ID](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) for your Github organization. This can also be set via the `GITHUB_APP_ID` environment variable.
