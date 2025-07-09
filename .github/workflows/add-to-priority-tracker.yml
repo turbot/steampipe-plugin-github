@@ -32,7 +32,7 @@ jobs:
             }
 
             // 2. Add to project
-            const projectId = "PVT_kwDOAlEJmM4At_Ha";
+            const projectId = process.env.ORG_PROJECT_ID;
             await github.graphql(`
               mutation($projectId:ID!, $contentId:ID!) {
                 addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
@@ -43,3 +43,5 @@ jobs:
               projectId,
               contentId: context.payload.issue.node_id
             });
+        env:
+          ORG_PROJECT_ID: ${{ secrets.ORG_PROJECT_ID }}
