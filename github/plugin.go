@@ -80,6 +80,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_team":                            tableGitHubTeam(),
 			"github_team_member":                     tableGitHubTeamMember(),
 			"github_team_repository":                 tableGitHubTeamRepository(),
+			"github_traffic_clone_daily":			  tableGitHubTrafficCloneDaily(),
+			"github_traffic_clone_weekly":			  tableGitHubTrafficCloneWeekly(),
 			"github_traffic_view_daily":              tableGitHubTrafficViewDaily(),
 			"github_traffic_view_weekly":             tableGitHubTrafficViewWeekly(),
 			"github_tree":                            tableGitHubTree(),
