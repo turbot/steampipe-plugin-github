@@ -25,7 +25,19 @@ To query this table using a [fine-grained access token](https://docs.github.com/
 ### List clone statistics
 Explore the weekly clone statistics of the 'turbot/steampipe' repository to assess developer interest and cloning activity. This can help you understand the adoption and popularity of your project over time.
 
-```sql
+```sql+postgres
+select
+  timestamp,
+  count,
+  uniques
+from
+  github_traffic_clone_weekly
+where
+  repository_full_name = 'turbot/steampipe'
+order by
+  timestamp;
+
+```sql+sqlite
 select
   timestamp,
   count,
