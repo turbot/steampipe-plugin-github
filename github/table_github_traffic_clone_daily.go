@@ -43,11 +43,11 @@ func tableGitHubTrafficCloneDailyList(ctx context.Context, d *plugin.QueryData, 
 	for _, i := range cloneStats.Clones {
 		if i != nil {
 			d.StreamListItem(ctx, i)
-			
+
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-		        if d.RowsRemaining(ctx) == 0 {
-			      return nil, nil
-		        }
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 	}
 	return nil, nil
