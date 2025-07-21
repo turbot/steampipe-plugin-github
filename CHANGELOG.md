@@ -1,3 +1,11 @@
+## v1.5.0 [2025-07-21]
+
+_What's new?_
+
+- New tables added
+  - [github_traffic_clone_daily](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_clone_daily) ([#505](https://github.com/turbot/steampipe-plugin-github/pull/505)) (Thanks [@sohanmaheshwar](https://github.com/sohanmaheshwar) for the contribution!!)
+  - [github_traffic_clone_weekly](https://hub.steampipe.io/plugins/turbot/github/tables/github_traffic_clone_weekly) ([#505](https://github.com/turbot/steampipe-plugin-github/pull/505)) (Thanks [@sohanmaheshwar](https://github.com/sohanmaheshwar) for the contribution!!)
+
 ## v1.4.0 [2025-06-18]
 
 _What's new?_
@@ -9,6 +17,8 @@ _Dependencies_
 - Recompiled plugin with [steampipe-plugin-sdk v5.11.7](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5117-2025-06-04) which resolves an issue where rate limiters were not being applied to hydrate functions correctly. ([#499](https://github.com/turbot/steampipe-plugin-github/pull/499))
 
 ## v1.3.0 [2025-04-23]
+
+_What's new?_
 
 - New tables added
   - [github_package](https://hub.steampipe.io/plugins/turbot/github/tables/github_package) ([#459](https://github.com/turbot/steampipe-plugin-github/pull/459))
