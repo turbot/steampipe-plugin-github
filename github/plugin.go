@@ -63,6 +63,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_repository_content":              tableGitHubRepositoryContent(),
 			"github_repository_dependabot_alert":     tableGitHubRepositoryDependabotAlert(),
 			"github_repository_deployment":           tableGitHubRepositoryDeployment(),
+			"github_repository_discussion":           tableGitHubRepositoryDiscussion(),
 			"github_repository_environment":          tableGitHubRepositoryEnvironment(),
 			"github_repository_ruleset":              tableGitHubRepositoryRuleset(),
 			"github_repository_sbom":                 tableGitHubRepositorySbom(),
