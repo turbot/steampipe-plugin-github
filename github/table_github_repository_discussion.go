@@ -240,7 +240,7 @@ func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugi
 	discussionNumber := discussion.Number
 
 	var commentNodeIds []string
-	// Check if the LIST API already fetched all comments the collect all node IDs from the discussion
+	// Check if the LIST API already fetched all comments to collect all node IDs from the discussion
 	if discussion.Comments.TotalCount == len(discussion.Comments.Nodes) {
 		for _, nodeId := range discussion.Comments.Nodes {
 			commentNodeIds = append(commentNodeIds, nodeId.NodeId)
