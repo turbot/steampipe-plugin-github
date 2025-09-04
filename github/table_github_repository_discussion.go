@@ -195,13 +195,7 @@ func discussionHydrateComments(ctx context.Context, d *plugin.QueryData, h *plug
 	var query struct {
 		RateLimit  models.RateLimit
 		Repository struct {
-			Discussion struct {
-				Comments struct {
-					PageInfo   models.PageInfo
-					TotalCount int
-					Nodes      []models.DiscussionComment
-				} `graphql:"comments(first: $pageSize, after: $cursor)"`
-			} `graphql:"discussion(number: $number)"`
+			Discussion models.DiscussionComments `graphql:"discussion(number: $number)"`
 		} `graphql:"repository(owner: $owner, name: $name)"`
 	}
 
@@ -311,13 +305,7 @@ func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugi
 		var repliesQuery struct {
 			RateLimit models.RateLimit
 			Node      struct {
-				DiscussionComment struct {
-					Replies struct {
-						PageInfo   models.PageInfo
-						TotalCount int
-						Nodes      []models.DiscussionComment
-					} `graphql:"replies(first: $pageSize, after: $cursor)"`
-				} `graphql:"... on DiscussionComment"`
+				DiscussionComment models.DiscussionCommentReplies `graphql:"... on DiscussionComment"`
 			} `graphql:"node(id: $nodeId)"`
 		}
 

@@ -16,7 +16,7 @@ type Discussion struct {
 	Comments struct {
 		TotalCount int
 		Nodes      []DiscussionComment
-	} `graphql:"comments(first: 100)" json:"comments"`
+	} `graphql:"comments(first: 10)" json:"comments"`
 }
 
 type DiscussionComments struct {
