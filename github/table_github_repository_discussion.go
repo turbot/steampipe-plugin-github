@@ -112,6 +112,7 @@ func tableGitHubRepositoryDiscussionList(ctx context.Context, d *plugin.QueryDat
 		"pageSize": githubv4.Int(pageSize),
 		"cursor":   (*githubv4.String)(nil),
 	}
+	appendDiscussionColumnIncludes(&variables, d.QueryContext.Columns)
 
 	for {
 		err := client.Query(ctx, &query, variables)
@@ -231,7 +232,6 @@ func discussionHydrateComments(ctx context.Context, d *plugin.QueryData, h *plug
 
 func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	discussion := h.Item.(models.Discussion)
-	discussionNumber := discussion.Number
 
 	var commentNodeIds []string
 	// Check if the LIST API already fetched all comments to collect all node IDs from the discussion
@@ -274,7 +274,7 @@ func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugi
 		commentsVariables := map[string]interface{}{
 			"owner":    githubv4.String(owner),
 			"name":     githubv4.String(repoName),
-			"number":   githubv4.Int(discussionNumber),
+			"number":   githubv4.Int(discussion.Number),
 			"pageSize": githubv4.Int(pageSize),
 			"cursor":   (*githubv4.String)(nil),
 		}

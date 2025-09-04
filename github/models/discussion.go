@@ -1,22 +1,22 @@
 package models
 
 type Discussion struct {
-	Id        int          `graphql:"id: databaseId" json:"id"`
-	NodeId    string       `graphql:"nodeId: id" json:"node_id"`
+	Id        int          `graphql:"id: databaseId @include(if:$includeDiscussionId)" json:"id"`
+	NodeId    string       `graphql:"nodeId: id @include(if:$includeDiscussionNodeId)" json:"node_id"`
 	Number    int          `graphql:"number" json:"number"`
 	Title     string       `graphql:"title" json:"title"`
 	Url       string       `graphql:"url" json:"url"`
-	CreatedAt NullableTime `graphql:"createdAt" json:"created_at"`
-	UpdatedAt NullableTime `graphql:"updatedAt" json:"updated_at"`
-	Author    Actor        `graphql:"author" json:"author"`
+	CreatedAt NullableTime `graphql:"createdAt @include(if:$includeDiscussionCreatedAt)" json:"created_at"`
+	UpdatedAt NullableTime `graphql:"updatedAt @include(if:$includeDiscussionUpdatedAt)" json:"updated_at"`
+	Author    Actor        `graphql:"author @include(if:$includeDiscussionAuthor)" json:"author"`
 	Category  struct {
 		Name string `graphql:"name" json:"name"`
-	} `graphql:"category" json:"category"`
-	Answer   *DiscussionComment `graphql:"answer" json:"answer"`
+	} `graphql:"category @include(if:$includeDiscussionCategory)" json:"category"`
+	Answer   *DiscussionComment `graphql:"answer @include(if:$includeDiscussionAnswer)" json:"answer"`
 	Comments struct {
 		TotalCount int
 		Nodes      []DiscussionComment
-	} `graphql:"comments(first: 10)" json:"comments"`
+	} `graphql:"comments(first: 10) @include(if:$includeDiscussionComments)" json:"comments"`
 }
 
 type DiscussionComments struct {
