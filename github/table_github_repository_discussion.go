@@ -175,21 +175,13 @@ func tableGitHubRepositoryDiscussionGet(ctx context.Context, d *plugin.QueryData
 
 func discussionHydrateComments(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	discussion := h.Item.(models.Discussion)
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
+	owner, repoName := parseRepoFullName(fullName)
 
 	// check if the the LIST API already fetched all the comments
 	if discussion.Comments.TotalCount == len(discussion.Comments.Nodes) {
 		return discussion.Comments.Nodes, nil
 	}
-
-	// Parse repository info from the discussion URL
-	// URL format: https://github.com/owner/repo/discussions/123
-	urlParts := strings.Split(discussion.Url, "/")
-	if len(urlParts) < 5 {
-		return nil, fmt.Errorf("invalid discussion URL format")
-	}
-
-	owner := urlParts[3]
-	repoName := urlParts[4]
 
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 
@@ -232,6 +224,8 @@ func discussionHydrateComments(ctx context.Context, d *plugin.QueryData, h *plug
 
 func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	discussion := h.Item.(models.Discussion)
+	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
+	owner, repoName := parseRepoFullName(fullName)
 
 	var commentNodeIds []string
 	// Check if the LIST API already fetched all comments to collect all node IDs from the discussion
@@ -253,9 +247,6 @@ func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugi
 	// if the commentNodeIds is empty, we need to fetch all the comment node IDs from the discussion
 	// Step 1: Get all comment node IDs from the discussion
 	if len(commentNodeIds) == 0 {
-		owner := urlParts[3]
-		repoName := urlParts[4]
-
 		var commentsQuery struct {
 			RateLimit  models.RateLimit
 			Repository struct {
