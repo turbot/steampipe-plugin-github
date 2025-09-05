@@ -2,8 +2,6 @@ package github
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/shurcooL/githubv4"
 	"github.com/turbot/steampipe-plugin-github/github/models"
@@ -235,12 +233,6 @@ func discussionHydrateReplies(ctx context.Context, d *plugin.QueryData, h *plugi
 		}
 	}
 
-	// Parse repository info from the discussion URL
-	// URL format: https://github.com/owner/repo/discussions/123
-	urlParts := strings.Split(discussion.Url, "/")
-	if len(urlParts) < 5 {
-		return nil, fmt.Errorf("invalid discussion URL format")
-	}
 	pageSize := adjustPageSize(100, d.QueryContext.Limit)
 	client := connectV4(ctx, d)
 
