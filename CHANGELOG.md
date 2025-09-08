@@ -1,3 +1,15 @@
+## v1.6.0 [2025-09-08]
+
+_What's new?_
+
+- New tables added
+  - [github_repository_discussion](https://hub.steampipe.io/plugins/turbot/github/tables/github_repository_discussion) ([#513](https://github.com/turbot/steampipe-plugin-github/pull/513))
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.24`. ([#509](https://github.com/turbot/steampipe-plugin-github/pull/509))
+- Recompiled plugin with [steampipe-plugin-sdk v5.13.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5130-2025-07-21) that addresses critical and high vulnerabilities in dependent packages. ([#509](https://github.com/turbot/steampipe-plugin-github/pull/509))
+
 ## v1.5.0 [2025-07-21]
 
 _What's new?_
