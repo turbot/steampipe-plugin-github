@@ -24,8 +24,11 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		DefaultRetryConfig: retryConfig(),
 		TableMap: map[string]*plugin.Table{
 			"github_actions_artifact":                tableGitHubActionsArtifact(),
+			"github_actions_environment_variable":    tableGitHubActionsEnvironmentVariable(),
+			"github_actions_organization_variable":   tableGitHubActionsOrganizationVariable(),
 			"github_actions_repository_runner":       tableGitHubActionsRepositoryRunner(),
 			"github_actions_repository_secret":       tableGitHubActionsRepositorySecret(),
+			"github_actions_repository_variable":     tableGitHubActionsRepositoryVariable(),
 			"github_actions_repository_workflow_run": tableGitHubActionsRepositoryWorkflowRun(),
 			"github_audit_log":                       tableGitHubAuditLog(),
 			"github_blob":                            tableGitHubBlob(),
