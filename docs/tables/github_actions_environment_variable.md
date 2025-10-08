@@ -122,45 +122,6 @@ order by
   updated_at desc;
 ```
 
-### Compare variables across environments
-Compare variable values across different environments in the same repository.
-
-```sql+postgres
-select
-  p.name,
-  p.value as production_value,
-  s.value as staging_value
-from
-  github_actions_environment_variable p
-  full outer join github_actions_environment_variable s
-    on p.name = s.name
-    and p.repository_full_name = s.repository_full_name
-where
-  p.repository_full_name = 'turbot/steampipe'
-  and p.environment_name = 'production'
-  and s.environment_name = 'staging'
-order by
-  p.name;
-```
-
-```sql+sqlite
-select
-  coalesce(p.name, s.name) as name,
-  p.value as production_value,
-  s.value as staging_value
-from
-  github_actions_environment_variable p
-  full outer join github_actions_environment_variable s
-    on p.name = s.name
-    and p.repository_full_name = s.repository_full_name
-where
-  p.repository_full_name = 'turbot/steampipe'
-  and p.environment_name = 'production'
-  and s.environment_name = 'staging'
-order by
-  coalesce(p.name, s.name);
-```
-
 ### List all variables for all environments in a repository
 Get a comprehensive view of all environment variables in a repository.
 
@@ -197,35 +158,3 @@ where
 order by
   e.name, v.name;
 ```
-
-### Count variables per environment
-Analyze the number of variables configured in each environment.
-
-```sql+postgres
-select
-  environment_name,
-  count(*) as variable_count
-from
-  github_actions_environment_variable
-where
-  repository_full_name = 'turbot/steampipe'
-group by
-  environment_name
-order by
-  variable_count desc;
-```
-
-```sql+sqlite
-select
-  environment_name,
-  count(*) as variable_count
-from
-  github_actions_environment_variable
-where
-  repository_full_name = 'turbot/steampipe'
-group by
-  environment_name
-order by
-  variable_count desc;
-```
-
