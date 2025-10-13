@@ -1,3 +1,9 @@
+## v1.6.1 [2025-10-13]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.13.1](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5131-2025-09-25) that addresses critical and high vulnerabilities in dependent packages. ([#517](https://github.com/turbot/steampipe-plugin-github/pull/517))
+
 ## v1.6.0 [2025-09-08]
 
 _What's new?_
