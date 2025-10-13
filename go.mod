@@ -1,6 +1,6 @@
 module github.com/turbot/steampipe-plugin-github
 
-go 1.24
+go 1.24.0
 
 toolchain go1.24.1
 
@@ -13,7 +13,7 @@ require (
 	github.com/turbot/go-kit v1.1.0
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.13.1
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
-	golang.org/x/oauth2 v0.27.0
+	golang.org/x/oauth2 v0.32.0
 )
 
 require (
