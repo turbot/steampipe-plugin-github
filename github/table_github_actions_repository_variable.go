@@ -13,7 +13,7 @@ import (
 func tableGitHubActionsRepositoryVariable() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_repository_variable",
-		Description: "Variables are unencrypted environment variables that you create in a repository for use in GitHub Actions workflows.",
+		Description: "Variables are unencrypted environment variables created in a repository for use in GitHub Actions workflows.",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("repository_full_name"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
