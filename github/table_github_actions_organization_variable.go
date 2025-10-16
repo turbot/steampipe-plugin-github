@@ -13,7 +13,7 @@ import (
 func tableGitHubActionsOrganizationVariable() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_actions_organization_variable",
-		Description: "Variables are unencrypted environment variables that you create in an organization for use in GitHub Actions workflows.",
+		Description: "Variables are unencrypted environment variables created in an organization for use in GitHub Actions workflows.",
 		List: &plugin.ListConfig{
 			KeyColumns:        plugin.SingleColumn("org"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
