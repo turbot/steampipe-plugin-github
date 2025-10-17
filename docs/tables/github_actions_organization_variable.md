@@ -19,7 +19,7 @@ To query this table using a [fine-grained access token](https://docs.github.com/
     - Variables (Read-only): Required to access all columns.
 
 **Important Notes**
-- You must specify the `org` column in `where` or `join` clause to query the table.
+- You must specify the `organization` column in `where` or `join` clause to query the table.
 - The `visibility` column indicates whether the variable is visible to `all`, `private`, or `selected` repositories.
 
 ## Examples
@@ -37,7 +37,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org';
+  organization = 'my-org';
 ```
 
 ```sql+sqlite
@@ -50,7 +50,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org';
+  organization = 'my-org';
 ```
 
 ### Get a specific organization variable
@@ -66,7 +66,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and name = 'MY_VARIABLE';
 ```
 
@@ -80,7 +80,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and name = 'MY_VARIABLE';
 ```
 
@@ -89,7 +89,7 @@ Find organization variables that have been modified recently to track configurat
 
 ```sql+postgres
 select
-  org,
+  organization,
   name,
   value,
   visibility,
@@ -97,7 +97,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and updated_at > now() - interval '7 days'
 order by
   updated_at desc;
@@ -105,7 +105,7 @@ order by
 
 ```sql+sqlite
 select
-  org,
+  organization,
   name,
   value,
   visibility,
@@ -113,7 +113,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and updated_at > datetime('now', '-7 days')
 order by
   updated_at desc;
@@ -131,7 +131,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
 order by
   visibility, name;
 ```
@@ -145,7 +145,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
 order by
   visibility, name;
 ```
@@ -155,26 +155,26 @@ Analyze the number of variables configured across multiple organizations.
 
 ```sql+postgres
 select
-  org,
+  organization,
   count(*) as variable_count
 from
   github_actions_organization_variable
 where
-  org in ('org-1', 'org-2', 'org-3')
+  organization in ('org-1', 'org-2', 'org-3')
 group by
-  org;
+  organization;
 ```
 
 ```sql+sqlite
 select
-  org,
+  organization,
   count(*) as variable_count
 from
   github_actions_organization_variable
 where
-  org in ('org-1', 'org-2', 'org-3')
+  organization in ('org-1', 'org-2', 'org-3')
 group by
-  org;
+  organization;
 ```
 
 ### List all organization variables across your organizations
@@ -182,26 +182,26 @@ Get a comprehensive view of all variables across organizations you have access t
 
 ```sql+postgres
 select
-  o.login as org,
+  o.login as organization,
   v.name,
   v.value,
   v.visibility
 from
   github_my_organization o
-  left join github_actions_organization_variable v on o.login = v.org
+  left join github_actions_organization_variable v on o.login = v.organization
 order by
   o.login, v.name;
 ```
 
 ```sql+sqlite
 select
-  o.login as org,
+  o.login as organization,
   v.name,
   v.value,
   v.visibility
 from
   github_my_organization o
-  left join github_actions_organization_variable v on o.login = v.org
+  left join github_actions_organization_variable v on o.login = v.organization
 order by
   o.login, v.name;
 ```
@@ -218,7 +218,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and visibility = 'selected';
 ```
 
@@ -231,7 +231,7 @@ select
 from
   github_actions_organization_variable
 where
-  org = 'my-org'
+  organization = 'my-org'
   and visibility = 'selected';
 ```
 
