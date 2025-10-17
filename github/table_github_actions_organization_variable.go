@@ -39,7 +39,7 @@ func tableGitHubActionsOrganizationVariable() *plugin.Table {
 func tableGitHubOrgVariableList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	org := d.EqualsQuals["org"].GetStringValue()
+	org := d.EqualsQuals["organization"].GetStringValue()
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -78,7 +78,7 @@ func tableGitHubOrgVariableList(ctx context.Context, d *plugin.QueryData, h *plu
 
 func tableGitHubOrgVariableGet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	name := d.EqualsQuals["name"].GetStringValue()
-	org := d.EqualsQuals["org"].GetStringValue()
+	org := d.EqualsQuals["organization"].GetStringValue()
 
 	// Empty check for the parameters
 	if name == "" || org == "" {
