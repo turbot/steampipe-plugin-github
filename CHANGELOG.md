@@ -7,7 +7,6 @@ _What's new?_
   - [github_actions_organization_variable](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_organization_variable)
   - [github_actions_repository_variable](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_variable)
 
-
 ## v1.6.1 [2025-10-13]
 
 _Dependencies_
