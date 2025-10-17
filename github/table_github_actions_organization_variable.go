@@ -15,17 +15,17 @@ func tableGitHubActionsOrganizationVariable() *plugin.Table {
 		Name:        "github_actions_organization_variable",
 		Description: "Variables are unencrypted environment variables created in an organization for use in GitHub Actions workflows.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("org"),
+			KeyColumns:        plugin.SingleColumn("organization"),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubOrgVariableList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"org", "name"}),
+			KeyColumns:        plugin.AllColumns([]string{"organization", "name"}),
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubOrgVariableGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
-			{Name: "org", Type: proto.ColumnType_STRING, Transform: transform.FromQual("org"), Description: "The organization name."},
+			{Name: "organization", Type: proto.ColumnType_STRING, Transform: transform.FromQual("organization"), Description: "The organization name."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the variable."},
 			{Name: "value", Type: proto.ColumnType_STRING, Description: "The value of the variable."},
 			{Name: "visibility", Type: proto.ColumnType_STRING, Description: "The visibility of the variable (all, private, or selected)."},
