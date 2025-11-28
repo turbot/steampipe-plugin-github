@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
 
 	"github.com/shurcooL/githubv4"
@@ -407,6 +408,10 @@ func extractRepoFromHydrateItem(h *plugin.HydrateData) (models.Repository, error
 }
 
 func appendRepoColumnIncludes(m *map[string]interface{}, cols []string) {
+	appendRepoColumnIncludesWithQueryData(m, cols, nil)
+}
+
+func appendRepoColumnIncludesWithQueryData(m *map[string]interface{}, cols []string, d *plugin.QueryData) {
 	optionals := map[string]string{
 		"allow_update_branch":              "includeAllowUpdateBranch",
 		"archived_at":                      "includeArchivedAt",
@@ -479,6 +484,18 @@ func appendRepoColumnIncludes(m *map[string]interface{}, cols []string) {
 
 	for key, value := range optionals {
 		(*m)[value] = githubv4.Boolean(slices.Contains(cols, key))
+	}
+
+	// Handle interaction_ability for Fine-Grained PATs in github_my_repository table
+	// With Fine-grained access token we are getting field error even though we have proper access.
+	// https://spec.graphql.org/October2021/#sec-Errors.Field-errors
+	// https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
+	if d != nil && slices.Contains(cols, "interaction_ability") {
+		githubConfig := GetConfig(d.Connection)
+		token := os.Getenv("GITHUB_TOKEN")
+		if isGitHubPAT(token) || (githubConfig.Token != nil && isGitHubPAT(*githubConfig.Token)) {
+			(*m)["includeUserInteractionAbility"] = githubv4.Boolean(false)
+		}
 	}
 }
 
