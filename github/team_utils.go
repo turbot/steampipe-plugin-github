@@ -37,7 +37,6 @@ func appendTeamColumnIncludes(m *map[string]interface{}, cols []string) {
 	(*m)["includeTeamSubscription"] = githubv4.Boolean(slices.Contains(cols, "subscription"))
 	(*m)["includeTeamAncestors"] = githubv4.Boolean(slices.Contains(cols, "ancestors_total_count"))
 	(*m)["includeTeamChildTeams"] = githubv4.Boolean(slices.Contains(cols, "child_teams_total_count"))
-	(*m)["includeTeamDiscussions"] = githubv4.Boolean(slices.Contains(cols, "discussions_total_count"))
 	(*m)["includeTeamInvitations"] = githubv4.Boolean(slices.Contains(cols, "invitations_total_count"))
 	(*m)["includeTeamMembers"] = githubv4.Boolean(slices.Contains(cols, "members_total_count"))
 	(*m)["includeTeamProjectsV2"] = githubv4.Boolean(slices.Contains(cols, "projects_v2_total_count"))
@@ -186,14 +185,6 @@ func teamHydrateChildTeamsTotalCount(_ context.Context, _ *plugin.QueryData, h *
 		return nil, err
 	}
 	return teamWithCounts.ChildTeams.TotalCount, nil
-}
-
-func teamHydrateDiscussionsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	teamWithCounts, err := extractTeamFromHydrateItem(h)
-	if err != nil {
-		return nil, err
-	}
-	return teamWithCounts.Discussions.TotalCount, nil
 }
 
 func teamHydrateInvitationsTotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

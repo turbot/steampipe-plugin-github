@@ -35,7 +35,6 @@ type TeamWithCounts struct {
 	Team
 	Ancestors    Count `graphql:"ancestors @include(if:$includeTeamAncestors)" json:"ancestors"`
 	ChildTeams   Count `graphql:"childTeams @include(if:$includeTeamChildTeams)" json:"child_teams"`
-	Discussions  Count `graphql:"discussions @include(if:$includeTeamDiscussions)" json:"discussions"`
 	Invitations  Count `graphql:"invitations @include(if:$includeTeamInvitations)" json:"invitations"`
 	Members      Count `graphql:"members @include(if:$includeTeamMembers)" json:"members"`
 	ProjectsV2   Count `graphql:"projectsV2 @include(if:$includeTeamProjectsV2)" json:"projects_v2"`

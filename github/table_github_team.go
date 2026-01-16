@@ -27,7 +27,6 @@ func gitHubTeamColumns() []*plugin.Column {
 		{Name: "privacy", Type: proto.ColumnType_STRING, Description: "The privacy setting of the team (VISIBLE or SECRET).", Transform: transform.FromValue(), Hydrate: teamHydratePrivacy},
 		{Name: "ancestors_total_count", Type: proto.ColumnType_INT, Description: "Count of ancestors this team has.", Transform: transform.FromValue(), Hydrate: teamHydrateAncestorsTotalCount},
 		{Name: "child_teams_total_count", Type: proto.ColumnType_INT, Description: "Count of children teams this team has.", Transform: transform.FromValue(), Hydrate: teamHydrateChildTeamsTotalCount},
-		{Name: "discussions_total_count", Type: proto.ColumnType_INT, Description: "Count of team discussions.", Transform: transform.FromValue(), Hydrate: teamHydrateDiscussionsTotalCount},
 		{Name: "invitations_total_count", Type: proto.ColumnType_INT, Description: "Count of outstanding team member invitations for the team.", Transform: transform.FromValue(), Hydrate: teamHydrateInvitationsTotalCount},
 		{Name: "members_total_count", Type: proto.ColumnType_INT, Description: "Count of team members.", Transform: transform.FromValue(), Hydrate: teamHydrateMembersTotalCount},
 		{Name: "projects_v2_total_count", Type: proto.ColumnType_INT, Description: "Count of the teams v2 projects.", Transform: transform.FromValue(), Hydrate: teamHydrateProjectsV2TotalCount},
