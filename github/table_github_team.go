@@ -34,7 +34,6 @@ func gitHubTeamColumns() []*plugin.Column {
 		{Name: "repositories_total_count", Type: proto.ColumnType_INT, Description: "Count of repositories the team has.", Transform: transform.FromValue(), Hydrate: teamHydrateRepositoriesTotalCount},
 		{Name: "url", Type: proto.ColumnType_STRING, Description: "URL for the team page in GitHub.", Transform: transform.FromValue(), Hydrate: teamHydrateUrl},
 		{Name: "avatar_url", Type: proto.ColumnType_STRING, Description: "URL for teams avatar.", Transform: transform.FromValue(), Hydrate: teamHydrateAvatarUrl},
-		{Name: "discussions_url", Type: proto.ColumnType_STRING, Description: "URL for team discussions.", Transform: transform.FromValue(), Hydrate: teamHydrateDiscussionsUrl},
 		{Name: "edit_team_url", Type: proto.ColumnType_STRING, Description: "URL for editing this team.", Transform: transform.FromValue(), Hydrate: teamHydrateEditTeamUrl},
 		{Name: "members_url", Type: proto.ColumnType_STRING, Description: "URL for team members.", Transform: transform.FromValue(), Hydrate: teamHydrateMembersUrl},
 		{Name: "new_team_url", Type: proto.ColumnType_STRING, Description: "The HTTP URL creating a new team.", Transform: transform.FromValue(), Hydrate: teamHydrateNewTeamUrl},

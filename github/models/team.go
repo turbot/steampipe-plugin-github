@@ -12,7 +12,6 @@ type Team struct {
 	CombinedSlug   string            `graphql:"combinedSlug @include(if:$includeTeamCombinedSlug)" json:"combined_slug"`
 	CreatedAt      time.Time         `graphql:"createdAt @include(if:$includeTeamCreatedAt)" json:"created_at"`
 	Description    string            `graphql:"description @include(if:$includeTeamDescription)" json:"description"`
-	DiscussionsUrl string            `graphql:"discussionsUrl @include(if:$includeTeamDiscussionsUrl)" json:"discussions_url"`
 	EditTeamUrl    string            `graphql:"editTeamUrl @include(if:$includeTeamEditTeamUrl)" json:"edit_team_url"`
 	MembersUrl     string            `graphql:"membersUrl @include(if:$includeTeamMembersUrl)" json:"members_url"`
 	NewTeamUrl     string            `graphql:"newTeamUrl @include(if:$includeTeamNewTeamUrl)" json:"new_team_url"`

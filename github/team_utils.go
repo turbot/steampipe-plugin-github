@@ -23,7 +23,6 @@ func appendTeamColumnIncludes(m *map[string]interface{}, cols []string) {
 	(*m)["includeTeamCombinedSlug"] = githubv4.Boolean(slices.Contains(cols, "combined_slug"))
 	(*m)["includeTeamCreatedAt"] = githubv4.Boolean(slices.Contains(cols, "created_at"))
 	(*m)["includeTeamDescription"] = githubv4.Boolean(slices.Contains(cols, "description"))
-	(*m)["includeTeamDiscussionsUrl"] = githubv4.Boolean(slices.Contains(cols, "discussions_url"))
 	(*m)["includeTeamEditTeamUrl"] = githubv4.Boolean(slices.Contains(cols, "edit_team_url"))
 	(*m)["includeTeamMembersUrl"] = githubv4.Boolean(slices.Contains(cols, "members_url"))
 	(*m)["includeTeamNewTeamUrl"] = githubv4.Boolean(slices.Contains(cols, "new_team_url"))
@@ -75,14 +74,6 @@ func teamHydrateDescription(_ context.Context, _ *plugin.QueryData, h *plugin.Hy
 		return nil, err
 	}
 	return team.Description, nil
-}
-
-func teamHydrateDiscussionsUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	team, err := extractTeamFromHydrateItem(h)
-	if err != nil {
-		return nil, err
-	}
-	return team.DiscussionsUrl, nil
 }
 
 func teamHydrateEditTeamUrl(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
