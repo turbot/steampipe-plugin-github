@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
+const maxCommitContributionsRepositories = 100
+
 func tableGitHubUserContributionStats() *plugin.Table {
 	return &plugin.Table{
 		Name:        "github_user_contribution_stats",
@@ -47,7 +49,7 @@ func tableGitHubUserContributionStatsList(ctx context.Context, d *plugin.QueryDa
 
 	var fromDate *githubv4.DateTime
 	var toDate *githubv4.DateTime
-	maxRepositories := 100
+	maxRepositories := maxCommitContributionsRepositories
 
 	if d.EqualsQuals["from_date"] != nil {
 		fromTime := d.EqualsQuals["from_date"].GetTimestampValue().AsTime()
@@ -65,6 +67,10 @@ func tableGitHubUserContributionStatsList(ctx context.Context, d *plugin.QueryDa
 
 	if maxRepositories <= 0 {
 		return nil, fmt.Errorf("invalid value for 'max_repositories' must be greater than 0")
+	}
+
+	if maxRepositories > maxCommitContributionsRepositories {
+		return nil, fmt.Errorf("invalid value for 'max_repositories' must be <= %d", maxCommitContributionsRepositories)
 	}
 
 	var query struct {

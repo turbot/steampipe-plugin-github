@@ -4,7 +4,7 @@ description: "Query GitHub user contribution summaries and calendar data from th
 folder: "User"
 ---
 
-# Table: github_user_contribution_stats - Query GitHub user contributions summary using SQL
+## Table: github_user_contribution_stats - Query GitHub user contributions summary using SQL
 
 The `github_user_contribution_stats` table provides access to GitHub's ContributionsCollection data for a user, including total contribution counts and the contribution calendar (weeks/days). This makes it possible to build dashboards and reports similar to a user's public contribution graph.
 
@@ -12,8 +12,10 @@ The `github_user_contribution_stats` table provides access to GitHub's Contribut
 
 The table is scoped to a single user per query. Optionally specify `from_date` and `to_date` to constrain the contribution window, and `max_repositories` to control how many repositories are returned for commit contributions by repository.
 
-**Important Notes**
+## Important Notes
+
 - You must specify the `login` column in the `where` clause.
+- The `commit_contributions_by_repository` field returns at most 100 repositories (default 100).
 
 ## Examples
 
@@ -67,6 +69,7 @@ where
   login = 'octocat'
   and from_date = '2025-01-01'
   and to_date = '2025-12-31';
+```
 
 ### Limit repositories in commit contributions breakdown
 
@@ -77,7 +80,7 @@ from
   github_user_contribution_stats
 where
   login = 'octocat'
-  and max_repositories = 200;
+  and max_repositories = 100;
 ```
 
 ```sql+sqlite
@@ -87,6 +90,5 @@ from
   github_user_contribution_stats
 where
   login = 'octocat'
-  and max_repositories = 200;
-```
+  and max_repositories = 100;
 ```
