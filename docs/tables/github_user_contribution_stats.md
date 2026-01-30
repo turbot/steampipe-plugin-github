@@ -10,7 +10,7 @@ The `github_user_contribution_stats` table provides access to GitHub's Contribut
 
 ## Table Usage Guide
 
-The table is scoped to a single user per query. Optionally specify `from_date` and `to_date` to constrain the contribution window.
+The table is scoped to a single user per query. Optionally specify `from_date` and `to_date` to constrain the contribution window, and `max_repositories` to control how many repositories are returned for commit contributions by repository.
 
 **Important Notes**
 - You must specify the `login` column in the `where` clause.
@@ -67,4 +67,26 @@ where
   login = 'octocat'
   and from_date = '2025-01-01'
   and to_date = '2025-12-31';
+
+### Limit repositories in commit contributions breakdown
+
+```sql+postgres
+select
+  commit_contributions_by_repository
+from
+  github_user_contribution_stats
+where
+  login = 'octocat'
+  and max_repositories = 200;
+```
+
+```sql+sqlite
+select
+  commit_contributions_by_repository
+from
+  github_user_contribution_stats
+where
+  login = 'octocat'
+  and max_repositories = 200;
+```
 ```

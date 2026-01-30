@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/shurcooL/githubv4"
@@ -20,6 +21,7 @@ func tableGitHubUserContributionStats() *plugin.Table {
 				{Name: "login", Require: plugin.Required},
 				{Name: "from_date", Require: plugin.Optional, Operators: []string{"="}},
 				{Name: "to_date", Require: plugin.Optional, Operators: []string{"="}},
+				{Name: "max_repositories", Require: plugin.Optional},
 			},
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			Hydrate:           tableGitHubUserContributionStatsList,
@@ -28,6 +30,7 @@ func tableGitHubUserContributionStats() *plugin.Table {
 			{Name: "login", Type: proto.ColumnType_STRING, Description: "The login name of the user.", Transform: transform.FromQual("login")},
 			{Name: "from_date", Type: proto.ColumnType_TIMESTAMP, Description: "Start date for the contribution window.", Transform: transform.FromQual("from_date")},
 			{Name: "to_date", Type: proto.ColumnType_TIMESTAMP, Description: "End date for the contribution window.", Transform: transform.FromQual("to_date")},
+			{Name: "max_repositories", Type: proto.ColumnType_INT, Description: "Maximum repositories returned for commit contributions by repository.", Transform: transform.FromQual("max_repositories")},
 			{Name: "total_commit_contributions", Type: proto.ColumnType_INT, Description: "Total count of commit contributions.", Transform: transform.FromField("TotalCommitContributions")},
 			{Name: "total_issue_contributions", Type: proto.ColumnType_INT, Description: "Total count of issue contributions.", Transform: transform.FromField("TotalIssueContributions")},
 			{Name: "total_pull_request_contributions", Type: proto.ColumnType_INT, Description: "Total count of pull request contributions.", Transform: transform.FromField("TotalPullRequestContributions")},
@@ -44,6 +47,7 @@ func tableGitHubUserContributionStatsList(ctx context.Context, d *plugin.QueryDa
 
 	var fromDate *githubv4.DateTime
 	var toDate *githubv4.DateTime
+	maxRepositories := 100
 
 	if d.EqualsQuals["from_date"] != nil {
 		fromTime := d.EqualsQuals["from_date"].GetTimestampValue().AsTime()
@@ -53,6 +57,14 @@ func tableGitHubUserContributionStatsList(ctx context.Context, d *plugin.QueryDa
 	if d.EqualsQuals["to_date"] != nil {
 		toTime := d.EqualsQuals["to_date"].GetTimestampValue().AsTime()
 		toDate = githubv4.NewDateTime(githubv4.DateTime{Time: toTime})
+	}
+
+	if d.EqualsQuals["max_repositories"] != nil {
+		maxRepositories = int(d.EqualsQuals["max_repositories"].GetInt64Value())
+	}
+
+	if maxRepositories <= 0 {
+		return nil, fmt.Errorf("invalid value for 'max_repositories' must be greater than 0")
 	}
 
 	var query struct {
@@ -66,7 +78,7 @@ func tableGitHubUserContributionStatsList(ctx context.Context, d *plugin.QueryDa
 		"login":           githubv4.String(login),
 		"from":            (*githubv4.DateTime)(nil),
 		"to":              (*githubv4.DateTime)(nil),
-		"maxRepositories": githubv4.Int(100),
+		"maxRepositories": githubv4.Int(maxRepositories),
 	}
 
 	if fromDate != nil {
