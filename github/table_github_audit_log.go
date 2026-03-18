@@ -87,8 +87,8 @@ func tableGitHubAuditLogList(ctx context.Context, d *plugin.QueryData, h *plugin
 	// Reduce the basic request limit down if the user has only requested a small number of rows
 	limit := d.QueryContext.Limit
 	if limit != nil {
-		if *limit < int64(opts.ListCursorOptions.PerPage) {
-			opts.ListCursorOptions.PerPage = int(*limit)
+		if *limit < int64(opts.PerPage) {
+			opts.PerPage = int(*limit)
 		}
 	}
 

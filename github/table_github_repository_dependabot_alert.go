@@ -94,8 +94,8 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 	client := connect(ctx, d)
 	limit := d.QueryContext.Limit
 	if limit != nil {
-		if *limit < int64(opt.ListCursorOptions.First) {
-			opt.ListCursorOptions.First = int(*limit)
+		if *limit < int64(opt.First) {
+			opt.First = int(*limit)
 		}
 	}
 
@@ -118,7 +118,7 @@ func tableGitHubRepositoryDependabotAlertList(ctx context.Context, d *plugin.Que
 			break
 		}
 
-		opt.ListCursorOptions.After = resp.After
+		opt.After = resp.After
 	}
 
 	return nil, nil
