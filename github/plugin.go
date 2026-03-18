@@ -90,6 +90,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_traffic_view_weekly":             tableGitHubTrafficViewWeekly(),
 			"github_tree":                            tableGitHubTree(),
 			"github_user":                            tableGitHubUser(),
+			"github_user_contribution_stats":         tableGitHubUserContributionStats(),
 			"github_workflow":                        tableGitHubWorkflow(),
 		},
 	}
