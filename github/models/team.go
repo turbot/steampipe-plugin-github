@@ -12,7 +12,6 @@ type Team struct {
 	CombinedSlug   string            `graphql:"combinedSlug @include(if:$includeTeamCombinedSlug)" json:"combined_slug"`
 	CreatedAt      time.Time         `graphql:"createdAt @include(if:$includeTeamCreatedAt)" json:"created_at"`
 	Description    string            `graphql:"description @include(if:$includeTeamDescription)" json:"description"`
-	DiscussionsUrl string            `graphql:"discussionsUrl @include(if:$includeTeamDiscussionsUrl)" json:"discussions_url"`
 	EditTeamUrl    string            `graphql:"editTeamUrl @include(if:$includeTeamEditTeamUrl)" json:"edit_team_url"`
 	MembersUrl     string            `graphql:"membersUrl @include(if:$includeTeamMembersUrl)" json:"members_url"`
 	NewTeamUrl     string            `graphql:"newTeamUrl @include(if:$includeTeamNewTeamUrl)" json:"new_team_url"`
@@ -36,7 +35,6 @@ type TeamWithCounts struct {
 	Team
 	Ancestors    Count `graphql:"ancestors @include(if:$includeTeamAncestors)" json:"ancestors"`
 	ChildTeams   Count `graphql:"childTeams @include(if:$includeTeamChildTeams)" json:"child_teams"`
-	Discussions  Count `graphql:"discussions @include(if:$includeTeamDiscussions)" json:"discussions"`
 	Invitations  Count `graphql:"invitations @include(if:$includeTeamInvitations)" json:"invitations"`
 	Members      Count `graphql:"members @include(if:$includeTeamMembers)" json:"members"`
 	ProjectsV2   Count `graphql:"projectsV2 @include(if:$includeTeamProjectsV2)" json:"projects_v2"`
