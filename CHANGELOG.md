@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Removed unsupported `discussions_url` and `discussions_total_count` columns from the `github_team` table. ([#531](https://github.com/turbot/steampipe-plugin-github/pull/531)) (Thanks [@JayRovacsek](https://github.com/JayRovacsek) for the contribution!!)
+- Fixed the `github_team` table by removing unsupported `discussions_url` and `discussions_total_count` columns. ([#531](https://github.com/turbot/steampipe-plugin-github/pull/531)) (Thanks [@JayRovacsek](https://github.com/JayRovacsek) for the contribution!!)
 
 _Dependencies_
 
