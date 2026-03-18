@@ -1,3 +1,14 @@
+## v1.8.0 [2026-03-18]
+
+_Bug fixes_
+
+- Fixed the `github_team` table by removing unsupported `discussions_url` and `discussions_total_count` columns. ([#531](https://github.com/turbot/steampipe-plugin-github/pull/531)) (Thanks [@JayRovacsek](https://github.com/JayRovacsek) for the contribution!!)
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.26.0`. ([#539](https://github.com/turbot/steampipe-plugin-github/pull/539))
+- Recompiled plugin with [steampipe-plugin-sdk v5.14.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5140-2026-02-25) that fixes several caching issues. ([#539](https://github.com/turbot/steampipe-plugin-github/pull/539))
+
 ## v1.7.0 [2025-10-17]
 
 _What's new?_
