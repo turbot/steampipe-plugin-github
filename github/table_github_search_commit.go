@@ -57,8 +57,8 @@ func tableGitHubSearchCommitList(ctx context.Context, d *plugin.QueryData, h *pl
 	// Reduce the basic request limit down if the user has only requested a small number of rows
 	limit := d.QueryContext.Limit
 	if limit != nil {
-		if *limit < int64(opt.ListOptions.PerPage) {
-			opt.ListOptions.PerPage = int(*limit)
+		if *limit < int64(opt.PerPage) {
+			opt.PerPage = int(*limit)
 		}
 	}
 
