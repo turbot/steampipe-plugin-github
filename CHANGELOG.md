@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed `ExpiredToken`-style errors on long-running queries when Turbot Pipes refreshes GitHub App installation tokens mid-query. The plugin now reads the connection config via the SDK's `GetConfig` accessor (which holds a read lock) on every API call, so in-flight goroutines pick up rotated credentials. ([#<PR>](https://github.com/turbot/steampipe-plugin-github/pull/<PR>))
+- Fixed `ExpiredToken`-style errors on long-running queries when Turbot Pipes refreshes GitHub App installation tokens mid-query. The plugin now reads the connection config via the SDK's `GetConfig` accessor (which holds a read lock) on every API call, so in-flight goroutines pick up rotated credentials. ([#546](https://github.com/turbot/steampipe-plugin-github/pull/546))
 
 _Dependencies_
 
