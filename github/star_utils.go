@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/shurcooL/githubv4"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 func extractStarFromHydrateItem(h *plugin.HydrateData) (myStar, error) {

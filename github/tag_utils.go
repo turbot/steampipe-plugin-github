@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/shurcooL/githubv4"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 func extractTagFromHydrateItem(h *plugin.HydrateData) (tagRow, error) {

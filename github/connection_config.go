@@ -1,7 +1,7 @@
 package github
 
 import (
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type githubConfig struct {
@@ -18,9 +18,13 @@ func ConfigInstance() interface{} {
 
 // GetConfig :: retrieve and cast connection config from query data
 func GetConfig(connection *plugin.Connection) githubConfig {
-	if connection == nil || connection.Config == nil {
+	if connection == nil {
 		return githubConfig{}
 	}
-	config, _ := connection.Config.(githubConfig)
+	raw := connection.GetConfig()
+	if raw == nil {
+		return githubConfig{}
+	}
+	config, _ := raw.(githubConfig)
 	return config
 }

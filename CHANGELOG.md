@@ -1,3 +1,13 @@
+## v1.8.2 [2026-05-20]
+
+_Bug fixes_
+
+- Fixed `ExpiredToken`-style errors on long-running queries when Turbot Pipes refreshes GitHub App installation tokens mid-query. The plugin now reads the connection config via the SDK's `GetConfig` accessor (which holds a read lock) on every API call, so in-flight goroutines pick up rotated credentials. ([#<PR>](https://github.com/turbot/steampipe-plugin-github/pull/<PR>))
+
+_Dependencies_
+
+- Upgraded `steampipe-plugin-sdk` to v6.0.0, which adds the `Connection.GetConfig` / `SetConfig` accessors and the per-connection `sync.RWMutex` that the rotation fix above depends on. Plugin builds now require Go 1.26.
+
 ## v1.8.1 [2026-04-03]
 
 _Bug fixes_
