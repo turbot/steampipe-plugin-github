@@ -49,6 +49,14 @@ type Issue struct {
 		TotalCount int
 		Nodes      []BaseUser
 	} `graphql:"assignees(first: 10) @include(if:$includeIssueAssignees)" json:"assignees"`
+	ProjectItems struct {
+		TotalCount int
+		Nodes      []struct {
+			Project struct {
+				Id string `graphql:"id" json:"id"`
+			} `json:"project"`
+		}
+	} `graphql:"projectItems(first: 100) @include(if:$includeIssueProjectItems)" json:"project_items"`
 }
 
 type IssueTemplate struct {
