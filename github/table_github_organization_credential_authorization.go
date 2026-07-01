@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/go-github/v55/github"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -45,7 +46,7 @@ func tableGitHubOrganizationCredentialAuthorizationList(ctx context.Context, d *
 
 	// Empty check
 	if org == "" {
-		return nil, nil
+		return nil, fmt.Errorf("'organization' qual is required for the github_organization_credential_authorization table")
 	}
 
 	opts := &github.ListOptions{PerPage: 100}
