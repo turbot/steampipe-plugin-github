@@ -43,7 +43,7 @@ where
   repository_full_name = 'turbot/steampipe';
 ```
 
-### List failure workflow runs
+### List failed workflow runs
 Identify instances where workflow runs have failed within the 'turbot/steampipe' repository. This can be useful for debugging and identifying problematic workflows.
 
 ```sql+postgres
@@ -60,7 +60,8 @@ select
 from
     github_actions_repository_workflow_run
 where
-  repository_full_name = 'turbot/steampipe' and conclusion = 'failure';
+  repository_full_name = 'turbot/steampipe'
+  and conclusion = 'failure';
 ```
 
 ```sql+sqlite
@@ -77,7 +78,8 @@ select
 from
   github_actions_repository_workflow_run
 where
-  repository_full_name = 'turbot/steampipe' and conclusion = 'failure';
+  repository_full_name = 'turbot/steampipe'
+  and conclusion = 'failure';
 ```
 
 ### List manual workflow runs
@@ -99,7 +101,8 @@ select
 from
   github_actions_repository_workflow_run
 where
-  repository_full_name = 'turbot/steampipe' and event = 'workflow_dispatch';
+  repository_full_name = 'turbot/steampipe'
+  and event = 'workflow_dispatch';
 ```
 
 ```sql+sqlite
@@ -118,5 +121,6 @@ select
 from
   github_actions_repository_workflow_run
 where
-  repository_full_name = 'turbot/steampipe' and event = 'workflow_dispatch';
+  repository_full_name = 'turbot/steampipe'
+  and event = 'workflow_dispatch';
 ```

@@ -29,6 +29,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_actions_repository_runner":       tableGitHubActionsRepositoryRunner(),
 			"github_actions_repository_secret":       tableGitHubActionsRepositorySecret(),
 			"github_actions_repository_variable":     tableGitHubActionsRepositoryVariable(),
+			"github_actions_repository_workflow_job": tableGitHubActionsRepositoryWorkflowJob(),
 			"github_actions_repository_workflow_run": tableGitHubActionsRepositoryWorkflowRun(),
 			"github_audit_log":                       tableGitHubAuditLog(),
 			"github_blob":                            tableGitHubBlob(),
