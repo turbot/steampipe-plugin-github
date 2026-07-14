@@ -19,6 +19,16 @@ func gitHubRepositoryColumns() []*plugin.Column {
 	return append(repoColumns, sharedRepositoryColumns()...)
 }
 
+func repositoryCustomPropertiesColumn() *plugin.Column {
+	return &plugin.Column{
+		Name:        "custom_properties",
+		Type:        proto.ColumnType_JSON,
+		Description: "A map of custom property names and values assigned to the repository.",
+		Hydrate:     hydrateRepositoryCustomPropertiesFromV3,
+		Transform:   transform.FromValue(),
+	}
+}
+
 func sharedRepositoryColumns() []*plugin.Column {
 	return []*plugin.Column{
 		{Name: "id", Type: proto.ColumnType_INT, Description: "The numeric ID of the repository.", Transform: transform.FromField("Id", "Node.Id")},
@@ -94,6 +104,7 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "open_issues_total_count", Type: proto.ColumnType_INT, Hydrate: repoHydrateOpenIssuesCount, Transform: transform.FromValue(), Description: "Count of issues open on the repository."},
 		{Name: "watchers_total_count", Type: proto.ColumnType_INT, Hydrate: repoHydrateWatchersCount, Transform: transform.FromValue(), Description: "Count of watchers on the repository."},
 		// Columns from v3 api - hydrates
+		repositoryCustomPropertiesColumn(),
 		{Name: "hooks", Type: proto.ColumnType_JSON, Description: "The API Hooks URL.", Hydrate: hydrateRepositoryHooksFromV3, Transform: transform.FromValue()},
 		{Name: "topics", Type: proto.ColumnType_JSON, Description: "The topics (similar to tags or labels) associated with the repository.", Hydrate: hydrateRepositoryDataFromV3},
 		{Name: "subscribers_count", Type: proto.ColumnType_INT, Description: "The number of users who have subscribed to the repository.", Hydrate: hydrateRepositoryDataFromV3},
@@ -144,6 +155,47 @@ func tableGitHubRepositoryList(ctx context.Context, d *plugin.QueryData, h *plug
 	d.StreamListItem(ctx, query.Repository)
 
 	return nil, nil
+}
+
+type repositoryCustomPropertyValue struct {
+	PropertyName string      `json:"property_name"`
+	Value        interface{} `json:"value"`
+}
+
+func hydrateRepositoryCustomPropertiesFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	repo, err := extractRepoFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+
+	owner := repo.Owner.Login
+	repoName := repo.Name
+
+	client := connect(ctx, d)
+	req, err := client.NewRequest("GET", "repos/"+owner+"/"+repoName+"/properties/values", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var values []repositoryCustomPropertyValue
+	_, err = client.Do(ctx, req, &values)
+	if err != nil {
+		if strings.Contains(err.Error(), "404") {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if len(values) == 0 {
+		return nil, nil
+	}
+
+	customProperties := map[string]interface{}{}
+	for _, v := range values {
+		customProperties[v.PropertyName] = v.Value
+	}
+
+	return customProperties, nil
 }
 
 func hydrateRepositoryDataFromV3(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

@@ -102,3 +102,26 @@ from
 where
   full_name = 'turbot/steampipe';
 ```
+
+### Get custom property values for a repository
+Explore the custom property key/value pairs assigned to a repository.
+
+```sql+postgres
+select
+  full_name,
+  custom_properties
+from
+  github_repository
+where
+  full_name = 'my-org/my-repo';
+```
+
+```sql+sqlite
+select
+  full_name,
+  custom_properties
+from
+  github_repository
+where
+  full_name = 'my-org/my-repo';
+```

@@ -221,3 +221,26 @@ where
   or json_extract(hook.value, '$.config.secret') is null
   or json_extract(hook.value, '$.config.url') not like '%https:%';
 ```
+
+### List repositories with custom property values
+Explore custom property key/value pairs configured on repositories you can access.
+
+```sql+postgres
+select
+  name_with_owner,
+  custom_properties
+from
+  github_my_repository
+where
+  custom_properties is not null;
+```
+
+```sql+sqlite
+select
+  name_with_owner,
+  custom_properties
+from
+  github_my_repository
+where
+  custom_properties is not null;
+```

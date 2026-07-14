@@ -136,6 +136,31 @@ where
   query = 'tinyspotifyr in:name created:2021-01-01..2021-01-05 fork:only';
 ```
 
+### Get custom property values from search results
+Explore custom property key/value pairs for repositories returned by a search query.
+
+```sql+postgres
+select
+  name_with_owner,
+  custom_properties
+from
+  github_search_repository
+where
+  query = 'org:my-org archived:false'
+  and custom_properties is not null;
+```
+
+```sql+sqlite
+select
+  name_with_owner,
+  custom_properties
+from
+  github_search_repository
+where
+  query = 'org:my-org archived:false'
+  and custom_properties is not null;
+```
+
 ```sql+sqlite
 select
   name,
