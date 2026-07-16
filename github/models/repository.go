@@ -48,33 +48,34 @@ type Repository struct {
 	Owner                         struct {
 		Login string `json:"login"`
 	} `json:"owner"`
-	PrimaryLanguage          Language                          `graphql:"primaryLanguage @include(if:$includePrimaryLanguage)" json:"primary_language"`
-	ProjectsUrl              string                            `graphql:"projectsUrl @include(if:$includeProjectsUrl)" json:"projects_url"`
-	PullRequestTemplates     []PullRequestTemplate             `graphql:"pullRequestTemplates @include(if:$includePullRequestTemplates)" json:"pull_request_templates"`
-	PushedAt                 NullableTime                      `graphql:"pushedAt @include(if:$includePushedAt)" json:"pushed_at"`
-	RebaseMergeAllowed       bool                              `graphql:"rebaseMergeAllowed @include(if:$includeRebaseMergeAllowed)" json:"rebase_merge_allowed"`
-	SecurityPolicyUrl        string                            `graphql:"securityPolicyUrl @include(if:$includeSecurityPolicyUrl)" json:"security_policy_url"`
-	SquashMergeAllowed       bool                              `graphql:"squashMergeAllowed @include(if:$includeSquashMergeAllowed)" json:"squash_merge_allowed"`
-	SquashMergeCommitMessage githubv4.SquashMergeCommitMessage `graphql:"squashMergeCommitMessage @include(if:$includeSquashMergeCommitMessage)" json:"squash_merge_commit_message"`
-	SquashMergeCommitTitle   githubv4.SquashMergeCommitTitle   `graphql:"squashMergeCommitTitle @include(if:$includeSquashMergeCommitTitle)" json:"squash_merge_commit_title"`
-	SshUrl                   string                            `graphql:"sshUrl @include(if:$includeSshUrl)" json:"ssh_url"`
-	StargazerCount           int                               `graphql:"stargazerCount @include(if:$includeStargazerCount)" json:"stargazer_count"`
-	UpdatedAt                NullableTime                      `graphql:"updatedAt @include(if:$includeUpdatedAt)" json:"updated_at"`
-	Url                      string                            `graphql:"url @include(if:$includeUrl)" json:"url"`
-	UsesCustomOpenGraphImage bool                              `graphql:"usesCustomOpenGraphImage @include(if:$includeUsesCustomOpenGraphImage)" json:"uses_custom_open_graph_image"`
-	CanAdminister            bool                              `graphql:"canAdminister: viewerCanAdminister @include(if:$includeCanAdminister)" json:"can_administer"`
-	CanCreateProjects        bool                              `graphql:"canCreateProjects: viewerCanCreateProjects @include(if:$includeCanCreateProjects)" json:"can_create_projects"`
-	CanSubscribe             bool                              `graphql:"canSubscribe: viewerCanSubscribe @include(if:$includeCanSubscribe)" json:"can_subscribe"`
-	CanUpdateTopics          bool                              `graphql:"canUpdateTopics: viewerCanUpdateTopics @include(if:$includeCanUpdateTopics)" json:"can_update_topics"`
-	HasStarred               bool                              `graphql:"hasStarred: viewerHasStarred @include(if:$includeHasStarred)" json:"has_starred"`
-	YourPermission           githubv4.RepositoryPermission     `graphql:"yourPermission: viewerPermission  @include(if:$includeYourPermission)" json:"your_permission"`
-	PossibleCommitEmails     []string                          `graphql:"possibleCommitEmails: viewerPossibleCommitEmails @include(if:$includePossibleCommitEmails)" json:"possible_commit_emails"`
-	Subscription             githubv4.SubscriptionState        `graphql:"subscription: viewerSubscription @include(if:$includeSubscription)" json:"subscription"`
-	Visibility               githubv4.RepositoryVisibility     `graphql:"visibility @include(if:$includeVisibility)" json:"visibility"`
-	WebCommitSignoffRequired bool                              `graphql:"webCommitSignoffRequired @include(if:$includeWebCommitSignoffRequired)" json:"web_commit_signoff_required"`
-	RepositoryTopics         Count                             `graphql:"repositoryTopics @include(if:$includeRepositoryTopics)" json:"repository_topics"`
-	OpenIssues               Count                             `graphql:"issues(states: OPEN) @include(if:$includeOpenIssues)" json:"open_issues"`
-	Watchers                 Count                             `graphql:"watchers @include(if:$includeWatchers)" json:"watchers"`
+	PrimaryLanguage                Language                                `graphql:"primaryLanguage @include(if:$includePrimaryLanguage)" json:"primary_language"`
+	ProjectsUrl                    string                                  `graphql:"projectsUrl @include(if:$includeProjectsUrl)" json:"projects_url"`
+	PullRequestTemplates           []PullRequestTemplate                   `graphql:"pullRequestTemplates @include(if:$includePullRequestTemplates)" json:"pull_request_templates"`
+	PushedAt                       NullableTime                            `graphql:"pushedAt @include(if:$includePushedAt)" json:"pushed_at"`
+	RebaseMergeAllowed             bool                                    `graphql:"rebaseMergeAllowed @include(if:$includeRebaseMergeAllowed)" json:"rebase_merge_allowed"`
+	SecurityPolicyUrl              string                                  `graphql:"securityPolicyUrl @include(if:$includeSecurityPolicyUrl)" json:"security_policy_url"`
+	SquashMergeAllowed             bool                                    `graphql:"squashMergeAllowed @include(if:$includeSquashMergeAllowed)" json:"squash_merge_allowed"`
+	SquashMergeCommitMessage       githubv4.SquashMergeCommitMessage       `graphql:"squashMergeCommitMessage @include(if:$includeSquashMergeCommitMessage)" json:"squash_merge_commit_message"`
+	SquashMergeCommitTitle         githubv4.SquashMergeCommitTitle         `graphql:"squashMergeCommitTitle @include(if:$includeSquashMergeCommitTitle)" json:"squash_merge_commit_title"`
+	SshUrl                         string                                  `graphql:"sshUrl @include(if:$includeSshUrl)" json:"ssh_url"`
+	StargazerCount                 int                                     `graphql:"stargazerCount @include(if:$includeStargazerCount)" json:"stargazer_count"`
+	UpdatedAt                      NullableTime                            `graphql:"updatedAt @include(if:$includeUpdatedAt)" json:"updated_at"`
+	Url                            string                                  `graphql:"url @include(if:$includeUrl)" json:"url"`
+	UsesCustomOpenGraphImage       bool                                    `graphql:"usesCustomOpenGraphImage @include(if:$includeUsesCustomOpenGraphImage)" json:"uses_custom_open_graph_image"`
+	CanAdminister                  bool                                    `graphql:"canAdminister: viewerCanAdminister @include(if:$includeCanAdminister)" json:"can_administer"`
+	CanCreateProjects              bool                                    `graphql:"canCreateProjects: viewerCanCreateProjects @include(if:$includeCanCreateProjects)" json:"can_create_projects"`
+	CanSubscribe                   bool                                    `graphql:"canSubscribe: viewerCanSubscribe @include(if:$includeCanSubscribe)" json:"can_subscribe"`
+	CanUpdateTopics                bool                                    `graphql:"canUpdateTopics: viewerCanUpdateTopics @include(if:$includeCanUpdateTopics)" json:"can_update_topics"`
+	HasStarred                     bool                                    `graphql:"hasStarred: viewerHasStarred @include(if:$includeHasStarred)" json:"has_starred"`
+	YourPermission                 githubv4.RepositoryPermission           `graphql:"yourPermission: viewerPermission  @include(if:$includeYourPermission)" json:"your_permission"`
+	PossibleCommitEmails           []string                                `graphql:"possibleCommitEmails: viewerPossibleCommitEmails @include(if:$includePossibleCommitEmails)" json:"possible_commit_emails"`
+	Subscription                   githubv4.SubscriptionState              `graphql:"subscription: viewerSubscription @include(if:$includeSubscription)" json:"subscription"`
+	Visibility                     githubv4.RepositoryVisibility           `graphql:"visibility @include(if:$includeVisibility)" json:"visibility"`
+	WebCommitSignoffRequired       bool                                    `graphql:"webCommitSignoffRequired @include(if:$includeWebCommitSignoffRequired)" json:"web_commit_signoff_required"`
+	RepositoryTopics               Count                                   `graphql:"repositoryTopics @include(if:$includeRepositoryTopics)" json:"repository_topics"`
+	RepositoryCustomPropertyValues RepositoryCustomPropertyValueConnection `graphql:"repositoryCustomPropertyValues(first: 100) @include(if:$includeRepositoryCustomPropertyValues)" json:"repository_custom_property_values"`
+	OpenIssues                     Count                                   `graphql:"issues(states: OPEN) @include(if:$includeOpenIssues)" json:"open_issues"`
+	Watchers                       Count                                   `graphql:"watchers @include(if:$includeWatchers)" json:"watchers"`
 	// AssignableUsers [pageable]
 	// BranchProtectionRules [pageable]
 	// CodeOwners [search by refName]
@@ -145,4 +146,13 @@ type RepositoryContactLink struct {
 type RepositoryFundingLinks struct {
 	Url      string                   `json:"url"`
 	Platform githubv4.FundingPlatform `json:"platform"`
+}
+
+type RepositoryCustomPropertyValue struct {
+	PropertyName string      `json:"property_name"`
+	Value        interface{} `json:"value"`
+}
+
+type RepositoryCustomPropertyValueConnection struct {
+	Nodes []RepositoryCustomPropertyValue `json:"nodes"`
 }
