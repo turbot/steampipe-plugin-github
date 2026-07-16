@@ -53,6 +53,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_organization_external_identity":  tableGitHubOrganizationExternalIdentity(),
 			"github_organization_member":             tableGitHubOrganizationMember(),
 			"github_organization_collaborator":       tableGitHubOrganizationCollaborator(),
+			"github_organization_ruleset":            tableGitHubOrganizationRuleset(),
 			"github_package":                         tableGitHubPackage(),
 			"github_package_version":                 tableGitHubPackageVersion(),
 			"github_pull_request":                    tableGitHubPullRequest(),
