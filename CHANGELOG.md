@@ -2,7 +2,7 @@
 
 _Dependencies_
 
-- Recompiled plugin with [steampipe-plugin-sdk v6.0.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v600-2026-05-20) that fixes a data race on connection config. ([#557](https://github.com/turbot/steampipe-plugin-github/pull/557))
+- Recompiled plugin with [steampipe-plugin-sdk v6.0.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v600-2026-05-20) that fixes a data race on connection config.
 
 ## v1.9.0 [2026-07-16]
 
