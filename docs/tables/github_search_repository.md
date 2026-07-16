@@ -136,6 +136,21 @@ where
   query = 'tinyspotifyr in:name created:2021-01-01..2021-01-05 fork:only';
 ```
 
+```sql+sqlite
+select
+  name,
+  owner_login,
+  primary_language,
+  fork_count,
+  stargazer_count,
+  subscribers_count,
+  watchers_total_count
+from
+  github_search_repository
+where
+  query = 'tinyspotifyr in:name created:2021-01-01..2021-01-05 fork:only';
+```
+
 ### Get custom property values from search results
 Explore custom property key/value pairs for repositories returned by a search query.
 
@@ -159,19 +174,4 @@ from
 where
   query = 'org:my-org archived:false'
   and custom_properties is not null;
-```
-
-```sql+sqlite
-select
-  name,
-  owner_login,
-  primary_language,
-  fork_count,
-  stargazer_count,
-  subscribers_count,
-  watchers_total_count
-from
-  github_search_repository
-where
-  query = 'tinyspotifyr in:name created:2021-01-01..2021-01-05 fork:only';
 ```

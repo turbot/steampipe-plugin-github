@@ -65,6 +65,7 @@ where
   organization = 'my_org'
   and slug = 'my-team';
 ```
+
 ### List visible teams and repositories they have admin permissions to
 Explore the teams and associated repositories within your organization that have administrative permissions. This is useful to ensure appropriate access rights and maintain security within your GitHub organization.
 
@@ -121,6 +122,7 @@ where
   organization = 'my_org'
   and slug = 'my-team';
 ```
+
 ```sql+sqlite
 select
   organization,
