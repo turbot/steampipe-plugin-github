@@ -1,3 +1,9 @@
+## v1.9.1 [2026-07-16]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v6.0.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v600-2026-05-20) that fixes a data race on connection config. ([#557](https://github.com/turbot/steampipe-plugin-github/pull/557))
+
 ## v1.9.0 [2026-07-16]
 
 _What's new?_
@@ -9,10 +15,6 @@ _What's new?_
 _Enhancements_
 
 - Added `custom_properties` column to `github_my_repository`, `github_repository`, `github_search_repository`, and `github_team_repository` tables to return the custom property values assigned to a repository. ([#556](https://github.com/turbot/steampipe-plugin-github/pull/556)) (Thanks [@Recurzion](https://github.com/Recurzion) for the contribution!)
-
-_Dependencies_
-
-- Recompiled plugin with [steampipe-plugin-sdk v6.0.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v600-2026-05-20) that fixes a data race on connection config. ([#557](https://github.com/turbot/steampipe-plugin-github/pull/557))
 
 ## v1.8.1 [2026-04-03]
 
