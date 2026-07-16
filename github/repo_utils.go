@@ -417,6 +417,7 @@ func appendRepoColumnIncludes(m *map[string]interface{}, cols []string) {
 		"can_update_topics":                "includeCanUpdateTopics",
 		"code_of_conduct":                  "includeCodeOfConduct",
 		"contact_links":                    "includeContactLinks",
+		"custom_properties":                "includeRepositoryCustomPropertyValues",
 		"created_at":                       "includeCreatedAt",
 		"default_branch_ref":               "includeDefaultBranchRef",
 		"delete_branch_on_merge":           "includeDeleteBranchOnMerge",
@@ -1193,6 +1194,17 @@ func repoHydrateRepositoryTopicsCount(_ context.Context, _ *plugin.QueryData, h 
 		return r.Node.RepositoryTopics.TotalCount, nil
 	} else if r, ok := h.Item.(models.TeamRepositoryWithPermission); ok {
 		return r.Node.RepositoryTopics.TotalCount, nil
+	}
+	return nil, nil
+}
+
+func repoHydrateRepositoryCustomPropertyValues(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	if r, ok := h.Item.(models.Repository); ok {
+		return r.RepositoryCustomPropertyValues.Nodes, nil
+	} else if r, ok := h.Item.(models.SearchRepositoryResult); ok {
+		return r.Node.RepositoryCustomPropertyValues.Nodes, nil
+	} else if r, ok := h.Item.(models.TeamRepositoryWithPermission); ok {
+		return r.Node.RepositoryCustomPropertyValues.Nodes, nil
 	}
 	return nil, nil
 }

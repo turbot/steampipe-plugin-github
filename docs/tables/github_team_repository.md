@@ -106,3 +106,32 @@ where
   and slug = 'my-team'
   and permission = 'ADMIN';
 ```
+
+### List custom property values for a team's repositories
+Explore custom property key/value pairs for repositories visible to a team.
+
+```sql+postgres
+select
+  organization,
+  slug,
+  name,
+  custom_properties
+from
+  github_team_repository
+where
+  organization = 'my_org'
+  and slug = 'my-team';
+```
+
+```sql+sqlite
+select
+  organization,
+  slug,
+  name,
+  custom_properties
+from
+  github_team_repository
+where
+  organization = 'my_org'
+  and slug = 'my-team';
+```
