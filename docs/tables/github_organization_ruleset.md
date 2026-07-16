@@ -12,9 +12,9 @@ GitHub Organization Rulesets is a feature within GitHub that allows organization
 
 The `github_organization_ruleset` table provides insights into the rulesets within a GitHub organization. As a security engineer or team lead, you can explore ruleset-specific details through this table, including ruleset ID, name, enforcement level, bypass actors, and conditions. Utilize it to enforce organization-wide policies, manage permissions, and ensure compliance with organizational standards.
 
-To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required:
+To query this table using a [fine-grained access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token), the following permissions are required [according to the doc](https://docs.github.com/en/rest/orgs/rules?apiVersion=2026-03-10):
   - Organization permissions:
-    - Members (Read-only): Required to access organization rulesets.
+    - Administration (Write): Required to access organization rulesets.
 
 **Important Notes**
 - You must specify the `organization` column in the `where` or `join` clause to query the table.
@@ -113,7 +113,7 @@ where
 ```
 
 ### List rulesets with specific enforcement levels
-Identify rulesets within an organization that have specific enforcement levels.
+Identify rulesets within an organization that have specific enforcement levels (`ACTIVE`, `EVALUATE`, `DISABLED`).
 
 ```sql+postgres
 select
@@ -123,7 +123,7 @@ from
   github_organization_ruleset
 where
   organization = 'my-org'
-  and enforcement = 'active';
+  and enforcement = 'ACTIVE';
 ```
 
 ```sql+sqlite
@@ -134,7 +134,7 @@ from
   github_organization_ruleset
 where
   organization = 'my-org'
-  and enforcement = 'active';
+  and enforcement = 'EVALUATE';
 ```
 
 ### List all rulesets created after a specific date
@@ -162,7 +162,7 @@ where
   and created_at > '2023-01-01T00:00:00Z';
 ```
 
-### List pull request parameters
+### List rulesets with pull request parameters
 List rules with pull request parameters, including code owner review requirements.
 
 ```sql+postgres
@@ -195,7 +195,7 @@ where
   and json_extract(r.value, '$.parameters.Type') = 'PullRequestParameters';
 ```
 
-### List required status check parameters
+### List rulesets with required status check parameters
 List rules with required status check parameters.
 
 ```sql+postgres
@@ -208,7 +208,8 @@ from
   github_organization_ruleset,
   jsonb_array_elements(rules) as r
 where
-  organization = 'my-org';
+  organization = 'my-org'
+  and (r -> 'parameters' ->> 'Type') = 'RequiredStatusChecksParameters';
 ```
 
 ```sql+sqlite
@@ -221,5 +222,6 @@ from
   github_organization_ruleset,
   json_each(rules) as r
 where
-  organization = 'my-org';
+  organization = 'my-org'
+  and json_extract(r.value, '$.parameters.Type') = 'RequiredStatusChecksParameters';
 ```

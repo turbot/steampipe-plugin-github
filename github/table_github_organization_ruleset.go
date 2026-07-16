@@ -20,7 +20,7 @@ func tableGitHubOrganizationRuleset() *plugin.Table {
 				{Name: "organization", Require: plugin.Required},
 			},
 		},
-		Columns: gitHubOrganizationRulesetColumns(),
+		Columns: commonColumns(gitHubOrganizationRulesetColumns()),
 	}
 }
 
@@ -104,7 +104,7 @@ func tableGitHubOrganizationRulesetList(ctx context.Context, d *plugin.QueryData
 				rules = append(rules, rule.Node)
 			}
 			if edge.Node.Rules.PageInfo.HasNextPage {
-				additionalRules := getAdditionalOrgRules(ctx, d, client, edge.Node.DatabaseID, org, "")
+				additionalRules := getAdditionalOrgRules(ctx, client, org, edge.Node.DatabaseID, "")
 				rules = append(rules, additionalRules...)
 			}
 
@@ -113,7 +113,7 @@ func tableGitHubOrganizationRulesetList(ctx context.Context, d *plugin.QueryData
 				bypassActors = append(bypassActors, actor.Node)
 			}
 			if edge.Node.BypassActors.PageInfo.HasNextPage {
-				additionalBypassActors := getAdditionalOrgBypassActors(ctx, d, client, org, edge.Node.DatabaseID, "")
+				additionalBypassActors := getAdditionalOrgBypassActors(ctx, client, org, edge.Node.DatabaseID, "")
 				bypassActors = append(bypassActors, additionalBypassActors...)
 			}
 
@@ -144,7 +144,7 @@ func tableGitHubOrganizationRulesetList(ctx context.Context, d *plugin.QueryData
 	return nil, nil
 }
 
-func getAdditionalOrgRules(ctx context.Context, d *plugin.QueryData, client *githubv4.Client, databaseID int, org string, initialCursor githubv4.String) []models.Rule {
+func getAdditionalOrgRules(ctx context.Context, client *githubv4.Client, org string, databaseID int, initialCursor githubv4.String) []models.Rule {
 	var query struct {
 		RateLimit    models.RateLimit
 		Organization struct {
@@ -191,7 +191,7 @@ func getAdditionalOrgRules(ctx context.Context, d *plugin.QueryData, client *git
 	return rules
 }
 
-func getAdditionalOrgBypassActors(ctx context.Context, d *plugin.QueryData, client *githubv4.Client, org string, databaseID int, initialCursor githubv4.String) []models.BypassActor {
+func getAdditionalOrgBypassActors(ctx context.Context, client *githubv4.Client, org string, databaseID int, initialCursor githubv4.String) []models.BypassActor {
 	var query struct {
 		RateLimit    models.RateLimit
 		Organization struct {
