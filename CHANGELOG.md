@@ -1,3 +1,15 @@
+## v1.9.0 [2026-07-16]
+
+_What's new?_
+
+- New tables added
+  - [github_actions_repository_workflow_job](https://hub.steampipe.io/plugins/turbot/github/tables/github_actions_repository_workflow_job) ([#555](https://github.com/turbot/steampipe-plugin-github/pull/555)) (Thanks [@WallyGuzman](https://github.com/WallyGuzman) for the contribution!)
+  - [github_organization_ruleset](https://hub.steampipe.io/plugins/turbot/github/tables/github_organization_ruleset) ([#547](https://github.com/turbot/steampipe-plugin-github/pull/547)) (Thanks [@romain-pix-cyber](https://github.com/romain-pix-cyber) for the contribution!)
+
+_Enhancements_
+
+- Added `custom_properties` column to `github_my_repository`, `github_repository`, `github_search_repository`, and `github_team_repository` tables to return the custom property values assigned to a repository. ([#556](https://github.com/turbot/steampipe-plugin-github/pull/556)) (Thanks [@Recurzion](https://github.com/Recurzion) for the contribution!)
+
 ## v1.8.1 [2026-04-03]
 
 _Bug fixes_
