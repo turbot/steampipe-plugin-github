@@ -24,6 +24,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		DefaultRetryConfig: retryConfig(),
 		TableMap: map[string]*plugin.Table{
 			"github_actions_artifact":                tableGitHubActionsArtifact(),
+			"github_actions_cache":                   tableGitHubActionsCache(),
 			"github_actions_environment_variable":    tableGitHubActionsEnvironmentVariable(),
 			"github_actions_organization_variable":   tableGitHubActionsOrganizationVariable(),
 			"github_actions_repository_runner":       tableGitHubActionsRepositoryRunner(),
