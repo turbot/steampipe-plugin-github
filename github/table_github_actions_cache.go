@@ -32,7 +32,7 @@ func tableGitHubActionsCache() *plugin.Table {
 			// Other columns
 			{Name: "ref", Type: proto.ColumnType_STRING, Description: "The git reference of the cache."},
 			{Name: "version", Type: proto.ColumnType_STRING, Description: "Hash generated from combination of compression tool, runner OS, and path."},
-			{Name: "last_accessed_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastAccessedAt").Transform(convertTimestamp), Description: "Time of the most recent cache access."},
+			{Name: "last_accessed_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastAccessedAt").NullIfZero().Transform(convertTimestamp), Description: "Time of the most recent cache access."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreatedAt").Transform(convertTimestamp), Description: "Time when the cache was created."},
 			{Name: "size_in_bytes", Type: proto.ColumnType_INT, Description: "Size of the cache in bytes."},
 		}),

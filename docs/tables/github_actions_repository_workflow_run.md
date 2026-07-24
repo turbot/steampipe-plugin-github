@@ -43,6 +43,49 @@ where
   repository_full_name = 'turbot/steampipe';
 ```
 
+### List workflow runs between dates
+Identify workflow runs between given dates within the 'turbot/steampipe' repository. This can be useful for tracking workflows over time.
+
+```sql+postgres
+select
+  id,
+  event,
+  workflow_id,
+  conclusion,
+  status,
+  run_number,
+  workflow_url,
+  head_commit,
+  head_branch,
+  created_at
+from
+  github_actions_repository_workflow_run
+where
+  repository_full_name = 'turbot/steampipe'
+  and created_at >= '2026-01-01'
+  and created_at <= '2026-02-01';
+```
+
+```sql+sqlite
+select
+  id,
+  event,
+  workflow_id,
+  conclusion,
+  status,
+  run_number,
+  workflow_url,
+  head_commit,
+  head_branch,
+  created_at
+from
+  github_actions_repository_workflow_run
+where
+  repository_full_name = 'turbot/steampipe'
+  and created_at >= '2026-01-01'
+  and created_at <= '2026-02-01';
+```
+
 ### List failed workflow runs
 Identify instances where workflow runs have failed within the 'turbot/steampipe' repository. This can be useful for debugging and identifying problematic workflows.
 

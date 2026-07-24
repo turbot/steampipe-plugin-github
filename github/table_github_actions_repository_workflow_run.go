@@ -2,7 +2,7 @@ package github
 
 import (
 	"context"
-	"strconv"
+	"time"
 
 	"github.com/google/go-github/v55/github"
 
@@ -24,8 +24,11 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 				{Name: "workflow_id", Require: plugin.Optional},
 				{Name: "event", Require: plugin.Optional},
 				{Name: "head_branch", Require: plugin.Optional},
+				{Name: "head_sha", Require: plugin.Optional},
 				{Name: "status", Require: plugin.Optional},
 				{Name: "conclusion", Require: plugin.Optional},
+				{Name: "actor_login", Require: plugin.Optional},
+				{Name: "created_at", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
 			},
 		},
 		Get: &plugin.GetConfig{
@@ -40,9 +43,9 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that specifies the workflow run."},
-			{Name: "id", Type: proto.ColumnType_INT, Description: "The unque identifier of the workflow run."},
+			{Name: "id", Type: proto.ColumnType_INT, Description: "The unique identifier of the workflow run."},
 			{Name: "event", Type: proto.ColumnType_STRING, Description: "The event for which workflow triggered off."},
-			{Name: "workflow_id", Type: proto.ColumnType_STRING, Description: "The workflow id of the workflow run."},
+			{Name: "workflow_id", Type: proto.ColumnType_INT, Description: "The workflow id of the workflow run."},
 			{Name: "node_id", Type: proto.ColumnType_STRING, Description: "The node id of the workflow run."},
 			{Name: "conclusion", Type: proto.ColumnType_STRING, Description: "The conclusion for workflow run."},
 			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the workflow run."},
@@ -67,7 +70,7 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 			{Name: "pull_requests", Type: proto.ColumnType_JSON, Description: "The pull request details for the workflow run."},
 			{Name: "repository", Type: proto.ColumnType_JSON, Description: "The repository info for the workflow run."},
 			{Name: "run_attempt", Type: proto.ColumnType_INT, Description: "The attempt number of the workflow run."},
-			{Name: "run_started_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("RunStartedAt").Transform(convertTimestamp), Description: "Time when the workflow run was started."},
+			{Name: "run_started_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("RunStartedAt").NullIfZero().Transform(convertTimestamp), Description: "Time when the workflow run was started."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("UpdatedAt").Transform(convertTimestamp), Description: "Time when the workflow run was updated."},
 			{Name: "actor", Type: proto.ColumnType_JSON, Description: "The user whom initiated the first instance of this workflow run."},
 			{Name: "actor_login", Type: proto.ColumnType_STRING, Description: "The login of the user whom initiated the first instance of the workflow run.", Transform: transform.FromField("Actor.Login")},
@@ -85,29 +88,60 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 	opts := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
-	equalQuals := d.EqualsQuals
-	if equalQuals["event"] != nil {
-		if equalQuals["event"].GetStringValue() != "" {
-			opts.Event = equalQuals["event"].GetStringValue()
-		}
+	if event := d.EqualsQualString("event"); event != "" {
+		opts.Event = event
 	}
-	if equalQuals["head_branch"] != nil {
-		if equalQuals["head_branch"].GetStringValue() != "" {
-			opts.Branch = equalQuals["head_branch"].GetStringValue()
-		}
+	if branch := d.EqualsQualString("head_branch"); branch != "" {
+		opts.Branch = branch
 	}
-	if equalQuals["status"] != nil {
-		if equalQuals["status"].GetStringValue() != "" {
-			opts.Status = equalQuals["status"].GetStringValue()
-		}
+	if headSha := d.EqualsQualString("head_sha"); headSha != "" {
+		opts.HeadSHA = headSha
+	}
+	if status := d.EqualsQualString("status"); status != "" {
+		opts.Status = status
+	}
+	if actorLogin := d.EqualsQualString("actor_login"); actorLogin != "" {
+		opts.Actor = actorLogin
 	}
 
 	// Status param can take the value from both status and conclusion column
-	// https://docs.github.com/en/rest/reference/actions#workflow-runs
-	if equalQuals["conclusion"] != nil {
+	// https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository
+	if conclusion := d.EqualsQualString("conclusion"); conclusion != "" {
 		if opts.Status == "" {
-			if equalQuals["conclusion"].GetStringValue() != "" {
-				opts.Status = equalQuals["conclusion"].GetStringValue()
+			opts.Status = conclusion
+		}
+	}
+
+	// Convert quals into GitHub search syntax
+	// https://docs.github.com/en/search-github/getting-started-with-searching-on-github/understanding-the-search-syntax#query-for-dates
+	if createdAt := d.Quals["created_at"]; createdAt != nil {
+		var lowerBound, upperBound time.Time
+		for _, q := range createdAt.Quals {
+			t := q.Value.GetTimestampValue().AsTime()
+			// Note: This logic returns boundary rows regardless of operator, but qual recheck will filter those out client-side
+			// Keep the _latest_ lower bound and _earliest_ upper bound in case of overlapping filters
+			switch q.Operator {
+			case "=":
+				opts.Created = t.Format(time.DateOnly)
+			case ">", ">=":
+				if lowerBound.IsZero() || t.After(lowerBound) {
+					lowerBound = t
+				}
+			case "<", "<=":
+				if upperBound.IsZero() || t.Before(upperBound) {
+					upperBound = t
+				}
+			}
+		}
+		if opts.Created == "" {
+			var lower, upper = lowerBound.Format(time.RFC3339), upperBound.Format(time.RFC3339)
+			switch {
+			case !lowerBound.IsZero() && !upperBound.IsZero():
+				opts.Created = lower + ".." + upper
+			case !lowerBound.IsZero():
+				opts.Created = ">=" + lower
+			case !upperBound.IsZero():
+				opts.Created = "<=" + upper
 			}
 		}
 	}
@@ -119,16 +153,7 @@ func tableGitHubRepoWorkflowRunList(ctx context.Context, d *plugin.QueryData, h 
 		}
 	}
 
-	var workflowId int64
-	if equalQuals["workflow_id"] != nil {
-		if equalQuals["workflow_id"].GetStringValue() != "" {
-			workflowId_, err := strconv.ParseInt(equalQuals["workflow_id"].GetStringValue(), 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			workflowId = workflowId_
-		}
-	}
+	workflowId := d.EqualsQuals["workflow_id"].GetInt64Value()
 
 	for {
 		var (
