@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
@@ -46,7 +46,9 @@ func tableGitHubArtifactList(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	fullName := d.EqualsQuals["repository_full_name"].GetStringValue()
 	owner, repo := parseRepoFullName(fullName)
-	opts := &github.ListOptions{PerPage: 100}
+	opts := &github.ListArtifactsOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
 
 	limit := d.QueryContext.Limit
 	if limit != nil {

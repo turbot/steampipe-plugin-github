@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
@@ -39,7 +39,7 @@ func tableGitHubGitignoreList(ctx context.Context, d *plugin.QueryData, h *plugi
 
 	for _, i := range gitIgnores {
 		if i != "" {
-			d.StreamListItem(ctx, github.Gitignore{Name: github.String(i)})
+			d.StreamListItem(ctx, github.Gitignore{Name: &i})
 		}
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit

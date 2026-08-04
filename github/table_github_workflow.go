@@ -9,7 +9,7 @@ import (
 	goPipeline "github.com/buildkite/go-pipeline"
 
 	"github.com/ghodss/yaml"
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"

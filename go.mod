@@ -6,8 +6,8 @@ require (
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/buildkite/go-pipeline v0.3.1
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/go-github/v55 v55.0.0
-	github.com/shurcooL/githubv4 v0.0.0-20231126234147-1cffa1f02456
+	github.com/google/go-github/v89 v89.0.0
+	github.com/shurcooL/githubv4 v0.0.0-20260209031235-2402fdf4a9ed
 	github.com/turbot/go-kit v1.1.0
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
 	golang.org/x/oauth2 v0.27.0
@@ -18,7 +18,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
 	cloud.google.com/go/storage v1.38.0 // indirect
-	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
@@ -30,7 +29,6 @@ require (
 	github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
 	github.com/dgraph-io/ristretto v0.2.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
@@ -47,9 +45,9 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-github/v29 v29.0.2 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect

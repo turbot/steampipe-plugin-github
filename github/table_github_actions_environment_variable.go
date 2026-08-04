@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
@@ -43,15 +43,6 @@ func tableGitHubEnvVariableList(ctx context.Context, d *plugin.QueryData, h *plu
 
 	owner, repo := parseRepoFullName(repoFullName)
 
-	// Get repository to obtain its ID
-	repository, _, err := client.Repositories.Get(ctx, owner, repo)
-	if err != nil {
-		return nil, err
-	}
-	if repository == nil || repository.ID == nil {
-		return nil, nil
-	}
-
 	opts := &github.ListOptions{PerPage: 100}
 
 	limit := d.QueryContext.Limit
@@ -62,7 +53,7 @@ func tableGitHubEnvVariableList(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	for {
-		variables, resp, err := client.Actions.ListEnvVariables(ctx, int(*repository.ID), environmentName, opts)
+		variables, resp, err := client.Actions.ListEnvVariables(ctx, owner, repo, environmentName, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -103,22 +94,13 @@ func tableGitHubEnvVariableGet(ctx context.Context, d *plugin.QueryData, h *plug
 
 	client := connect(ctx, d)
 
-	// Get repository to obtain its ID
-	repository, _, err := client.Repositories.Get(ctx, owner, repo)
-	if err != nil {
-		return nil, err
-	}
-	if repository == nil || repository.ID == nil {
-		return nil, nil
-	}
-
 	type GetResponse struct {
 		variable *github.ActionsVariable
 		resp     *github.Response
 	}
 
 	getDetails := func(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-		detail, resp, err := client.Actions.GetEnvVariable(ctx, int(*repository.ID), environmentName, name)
+		detail, resp, err := client.Actions.GetEnvVariable(ctx, owner, repo, environmentName, name)
 		return GetResponse{
 			variable: detail,
 			resp:     resp,

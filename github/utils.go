@@ -14,7 +14,7 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 
@@ -115,14 +115,20 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			&oauth2.Token{AccessToken: token},
 		)
 		tc := oauth2.NewClient(ctx, ts)
-		client = github.NewClient(tc)
+		conn, err := github.NewClient(github.WithHTTPClient(tc))
+		if err != nil {
+			panic(err)
+		}
+		client = conn
 	}
 
 	// Authentication Using App Installation Access Token or OAuth Access token
 	if token != "" && isValidInstallationOrOAuthAccessTokenPrefix(token) {
-		client = github.NewClient(&http.Client{Transport: &oauth2Transport{
-			Token: token,
-		}})
+		conn, err := github.NewClient(github.WithAuthToken(token))
+		if err != nil {
+			panic(err)
+		}
+		client = conn
 	}
 
 	// Authentication as Github APP Installation authentication
@@ -140,7 +146,11 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			panic("Error occurred in 'connect()' during GitHub App Installation client creation: " + err.Error())
 		}
 
-		client = github.NewClient(&http.Client{Transport: itr})
+		conn, err := github.NewClient(github.WithTransport(itr))
+		if err != nil {
+			panic(err)
+		}
+		client = conn
 	}
 
 	// If the base URL was provided then set it on the client. Used for
@@ -151,16 +161,10 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			panic(fmt.Sprintf("github.base_url is invalid: %s", baseURL))
 		}
 
-		if uv4.String() != "https://api.github.com/" {
-			uv4.Path = uv4.Path + "api/v3/"
-		}
-
-		// The upload URL is not set as it's not currently required
-		conn, err := github.NewClient(client.Client()).WithEnterpriseURLs(uv4.String(), "")
+		conn, err := github.NewClient(github.WithEnterpriseURLs(uv4.String(), uv4.String()))
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
 		}
-		conn.BaseURL = uv4
 		client = conn
 	}
 
