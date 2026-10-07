@@ -1,3 +1,9 @@
+## v1.10.1 [2026-10-07]
+
+_Bug fixes_
+
+- Fixed the `sponsors_listing` column in `github_my_organization`, `github_organization`, `github_organization_member`, `github_team_member`, and `github_user` tables to no longer error when the sponsors listing has a next payout date. The `next_payout_date` field is now returned as a date (e.g., `2024-08-11`), or `null` when unset. ([#563](https://github.com/turbot/steampipe-plugin-github/pull/563)) (Thanks [@dark-panda](https://github.com/dark-panda) for the contribution!)
+
 ## v1.10.0 [2026-08-06]
 
 _What's new?_
