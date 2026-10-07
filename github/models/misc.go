@@ -45,7 +45,7 @@ func (d NullableDate) MarshalJSON() ([]byte, error) {
 	if d.IsZero() {
 		return []byte("null"), nil
 	}
-	return []byte(`"` + d.Time.Format("2006-01-02") + `"`), nil
+	return []byte(`"` + d.Format("2006-01-02") + `"`), nil
 }
 
 type NameSlug struct {
