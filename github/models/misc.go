@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -16,6 +17,35 @@ func (t NullableTime) MarshalJSON() ([]byte, error) {
 	} else {
 		return t.Time.MarshalJSON()
 	}
+}
+
+// NullableDate wraps time.Time to support unmarshalling the GraphQL `Date`
+// scalar (e.g. "2024-08-11"), which does not include a time-of-day or
+// timezone component like `DateTime`/`ISO8601DateTime` scalars do.
+type NullableDate struct {
+	time.Time
+}
+
+func (d *NullableDate) UnmarshalJSON(data []byte) error {
+	s := strings.Trim(string(data), `"`)
+	if s == "" || s == "null" {
+		d.Time = time.Time{}
+		return nil
+	}
+
+	parsed, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	d.Time = parsed
+	return nil
+}
+
+func (d NullableDate) MarshalJSON() ([]byte, error) {
+	if d.IsZero() {
+		return []byte("null"), nil
+	}
+	return []byte(`"` + d.Time.Format("2006-01-02") + `"`), nil
 }
 
 type NameSlug struct {
@@ -55,7 +85,7 @@ type SponsorsListing struct {
 	FullDescription            string               `json:"full_description"`
 	IsPublic                   bool                 `json:"is_public"`
 	Name                       string               `json:"name"`
-	NextPayoutDate             time.Time            `json:"next_payout_date"`
+	NextPayoutDate             NullableDate         `json:"next_payout_date"`
 	ResidenceCountryOrRegion   string               `json:"residence_country_or_region"`
 	ShortDescription           string               `json:"short_description"`
 	Slug                       string               `json:"slug"`
