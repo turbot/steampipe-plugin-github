@@ -30,7 +30,7 @@ func tableGitHubRateLimit() *plugin.Table {
 func listGitHubRateLimit(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client := connect(ctx, d)
 
-	rateLimits, _, err := client.RateLimits(ctx)
+	rateLimits, _, err := client.RateLimit.Get(ctx)
 	if err != nil {
 		return nil, err
 	}

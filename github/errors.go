@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 

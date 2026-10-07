@@ -8,15 +8,15 @@ import (
 
 type Team struct {
 	basicIdentifiers
-	AvatarUrl      string            `graphql:"avatarUrl @include(if:$includeTeamAvatarUrl)" json:"avatar_url"`
-	CombinedSlug   string            `graphql:"combinedSlug @include(if:$includeTeamCombinedSlug)" json:"combined_slug"`
-	CreatedAt      time.Time         `graphql:"createdAt @include(if:$includeTeamCreatedAt)" json:"created_at"`
-	Description    string            `graphql:"description @include(if:$includeTeamDescription)" json:"description"`
-	EditTeamUrl    string            `graphql:"editTeamUrl @include(if:$includeTeamEditTeamUrl)" json:"edit_team_url"`
-	MembersUrl     string            `graphql:"membersUrl @include(if:$includeTeamMembersUrl)" json:"members_url"`
-	NewTeamUrl     string            `graphql:"newTeamUrl @include(if:$includeTeamNewTeamUrl)" json:"new_team_url"`
-	Organization   BasicOrganization `json:"organization"`
-	ParentTeam     struct {
+	AvatarUrl    string            `graphql:"avatarUrl @include(if:$includeTeamAvatarUrl)" json:"avatar_url"`
+	CombinedSlug string            `graphql:"combinedSlug @include(if:$includeTeamCombinedSlug)" json:"combined_slug"`
+	CreatedAt    time.Time         `graphql:"createdAt @include(if:$includeTeamCreatedAt)" json:"created_at"`
+	Description  string            `graphql:"description @include(if:$includeTeamDescription)" json:"description"`
+	EditTeamUrl  string            `graphql:"editTeamUrl @include(if:$includeTeamEditTeamUrl)" json:"edit_team_url"`
+	MembersUrl   string            `graphql:"membersUrl @include(if:$includeTeamMembersUrl)" json:"members_url"`
+	NewTeamUrl   string            `graphql:"newTeamUrl @include(if:$includeTeamNewTeamUrl)" json:"new_team_url"`
+	Organization BasicOrganization `json:"organization"`
+	ParentTeam   struct {
 		basicIdentifiers
 		Slug string `json:"slug,omitempty"`
 	} `graphql:"parentTeam @include(if:$includeTeamParentTeam)" json:"parent_team"`
