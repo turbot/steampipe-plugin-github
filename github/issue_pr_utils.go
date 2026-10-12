@@ -158,6 +158,7 @@ func appendIssueColumnIncludes(m *map[string]interface{}, cols []string) {
 	(*m)["includeIssueNodeId"] = githubv4.Boolean(slices.Contains(cols, "node_id"))
 	(*m)["includeIssueId"] = githubv4.Boolean(slices.Contains(cols, "id"))
 	(*m)["includeIssueIsReadByUser"] = githubv4.Boolean(slices.Contains(cols, "is_read_by_user"))
+	(*m)["includeIssueProjectsV2"] = githubv4.Boolean(slices.Contains(cols, "projects_v2") || slices.Contains(cols, "projects_v2_total_count"))
 }
 
 func issueHydrateIsReadByUser(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -470,6 +471,25 @@ func issueHydrateLabels(_ context.Context, _ *plugin.QueryData, h *plugin.Hydrat
 		return nil, err
 	}
 	return issue.Labels.Nodes, nil
+}
+
+func issueHydrateProjectsV2(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issue, err := extractIssueFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	if len(issue.ProjectsV2.Nodes) == 0 {
+		return nil, nil
+	}
+	return issue.ProjectsV2.Nodes, nil
+}
+
+func issueHydrateProjectsV2TotalCount(_ context.Context, _ *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	issue, err := extractIssueFromHydrateItem(h)
+	if err != nil {
+		return nil, err
+	}
+	return issue.ProjectsV2.TotalCount, nil
 }
 
 func extractIssueCommentFromHydrateItem(h *plugin.HydrateData) (models.IssueComment, error) {

@@ -49,6 +49,20 @@ type Issue struct {
 		TotalCount int
 		Nodes      []BaseUser
 	} `graphql:"assignees(first: 10) @include(if:$includeIssueAssignees)" json:"assignees"`
+	ProjectsV2 struct {
+		TotalCount int
+		Nodes      []struct {
+			Id        string       `graphql:"id: fullDatabaseId" json:"id"`
+			NodeId    string       `graphql:"nodeId: id" json:"node_id"`
+			Number    int          `json:"number"`
+			Title     string       `json:"title"`
+			Closed    bool         `json:"closed"`
+			ClosedAt  NullableTime `json:"closed_at"`
+			CreatedAt NullableTime `json:"created_at"`
+			UpdatedAt NullableTime `json:"updated_at"`
+			Url       string       `json:"url"`
+		}
+	} `graphql:"projectsV2(first: 100) @include(if:$includeIssueProjectsV2)" json:"projects_v2"`
 }
 
 type IssueTemplate struct {
