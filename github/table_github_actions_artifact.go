@@ -15,14 +15,14 @@ func tableGitHubActionsArtifact() *plugin.Table {
 		Name:        "github_actions_artifact",
 		Description: "Artifacts allow you to share data between jobs in a workflow and store data once that workflow has completed.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubArtifactList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubArtifactList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubArtifactGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "id"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubArtifactGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

@@ -15,9 +15,9 @@ func tableGitHubCommunityProfile() *plugin.Table {
 		Name:        "github_community_profile",
 		Description: "Community profile information for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			Hydrate:           tableGitHubCommunityProfileList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			Hydrate:      tableGitHubCommunityProfileList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the tag."},

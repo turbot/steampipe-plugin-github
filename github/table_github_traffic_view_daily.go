@@ -15,9 +15,9 @@ func tableGitHubTrafficViewDaily() *plugin.Table {
 		Name:        "github_traffic_view_daily",
 		Description: "Daily traffic view over the last 14 days for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubTrafficViewDailyList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubTrafficViewDailyList,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

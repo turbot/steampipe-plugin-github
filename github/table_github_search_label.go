@@ -16,9 +16,9 @@ func tableGitHubSearchLabel() *plugin.Table {
 		Name:        "github_search_label",
 		Description: "Find labels in a repository with names or descriptions that match search keywords.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.AllColumns([]string{"query", "repository_id"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubSearchLabelList,
+			KeyColumns:   plugin.AllColumns([]string{"query", "repository_id"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubSearchLabelList,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "id", Transform: transform.FromField("ID"), Type: proto.ColumnType_INT, Description: "The ID of the label."},

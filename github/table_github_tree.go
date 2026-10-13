@@ -15,8 +15,8 @@ func tableGitHubTree() *plugin.Table {
 		Name:        "github_tree",
 		Description: "Lists directories and files in the given repository's git tree.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubTreeList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubTreeList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "tree_sha", Require: plugin.Required},

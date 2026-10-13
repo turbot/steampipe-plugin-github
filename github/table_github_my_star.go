@@ -15,8 +15,8 @@ func tableGitHubMyStar() *plugin.Table {
 		Name:        "github_my_star",
 		Description: "GitHub stars owned by you. GitHub stars are repositories.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubMyStarredRepositoryList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubMyStarredRepositoryList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Description: "The full name of the repository, including the owner and repo name.", Transform: transform.FromValue(), Hydrate: starHydrateNameWithOwner},

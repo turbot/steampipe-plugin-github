@@ -42,13 +42,13 @@ func tableGitHubRepositoryDiscussion() *plugin.Table {
 					Require: plugin.Required,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryDiscussionList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryDiscussionList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "number"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryDiscussionGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "number"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryDiscussionGet,
 		},
 		Columns: commonColumns(gitHubRepositoryDiscussionColumns()),
 	}

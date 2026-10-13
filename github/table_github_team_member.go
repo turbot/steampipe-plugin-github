@@ -22,8 +22,8 @@ func tableGitHubTeamMember() *plugin.Table {
 				{Name: "slug", Require: plugin.Required},
 				{Name: "role", Require: plugin.Optional},
 			},
-			Hydrate:           tableGitHubTeamMemberList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubTeamMemberList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns(gitHubTeamMemberColumns()),
 	}

@@ -15,14 +15,14 @@ func tableGitHubActionsRepositorySecret() *plugin.Table {
 		Name:        "github_actions_repository_secret",
 		Description: "Secrets are encrypted environment variables that you create in a repository",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoSecretList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoSecretList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "name"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoSecretGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "name"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoSecretGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

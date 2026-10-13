@@ -26,8 +26,8 @@ func tableGitHubRepositoryCollaborator() *plugin.Table {
 		Name:        "github_repository_collaborator",
 		Description: "Collaborators are users that have contributed to the repository.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubRepositoryCollaboratorList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubRepositoryCollaboratorList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "repository_full_name",

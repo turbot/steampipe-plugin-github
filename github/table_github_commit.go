@@ -17,7 +17,7 @@ func tableGitHubCommit() *plugin.Table {
 		Name:        "github_commit",
 		Description: "GitHub Commits bundle project files for download by users.",
 		List: &plugin.ListConfig{
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "authored_date", Require: plugin.Optional, Operators: []string{">", ">=", "=", "<", "<="}},
@@ -25,9 +25,9 @@ func tableGitHubCommit() *plugin.Table {
 			Hydrate: tableGitHubCommitList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "sha"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubCommitGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "sha"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubCommitGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the commit."},

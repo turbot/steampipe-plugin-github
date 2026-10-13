@@ -15,14 +15,14 @@ func tableGitHubRelease() *plugin.Table {
 		Name:        "github_release",
 		Description: "GitHub Releases bundle project files for download by users.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubReleaseList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubReleaseList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubReleaseGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "id"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubReleaseGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 

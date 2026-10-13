@@ -15,9 +15,9 @@ func tableGitHubTrafficCloneWeekly() *plugin.Table {
 		Name:        "github_traffic_clone_weekly",
 		Description: "Weekly traffic clone stats over the last 14 days for the given repository.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubTrafficCloneWeeklyList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubTrafficCloneWeeklyList,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

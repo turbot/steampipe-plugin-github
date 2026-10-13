@@ -15,14 +15,14 @@ func tableGitHubActionsEnvironmentVariable() *plugin.Table {
 		Name:        "github_actions_environment_variable",
 		Description: "Variables are unencrypted environment variables that you create in a repository environment for use in GitHub Actions workflows.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "environment_name"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubEnvVariableList,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "environment_name"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubEnvVariableList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "environment_name", "name"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubEnvVariableGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "environment_name", "name"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubEnvVariableGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "repository_full_name", Type: proto.ColumnType_STRING, Transform: transform.FromQual("repository_full_name"), Description: "Full name of the repository that contains the environment."},

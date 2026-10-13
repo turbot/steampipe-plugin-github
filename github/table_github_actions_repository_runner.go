@@ -15,14 +15,14 @@ func tableGitHubActionsRepositoryRunner() *plugin.Table {
 		Name:        "github_actions_repository_runner",
 		Description: "The runner is the application that runs a job from a GitHub Actions workflow",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRunnerList,
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRunnerList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "id"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRunnerGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "id"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRunnerGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

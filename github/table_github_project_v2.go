@@ -68,8 +68,8 @@ func tableGitHubProjectV2() *plugin.Table {
 					Operators: []string{">", ">="},
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubProjectV2List,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubProjectV2List,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.KeyColumnSlice{
@@ -86,8 +86,8 @@ func tableGitHubProjectV2() *plugin.Table {
 					Require: plugin.AnyOf,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubProjectV2Get,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubProjectV2Get,
 		},
 		Columns: commonColumns(gitHubProjectV2Columns()),
 	}

@@ -30,9 +30,9 @@ func tableGitHubCodeOwner() *plugin.Table {
 		Name:        "github_code_owner",
 		Description: "Individuals or teams that are responsible for code in a repository.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubCodeOwnerList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			KeyColumns:        plugin.SingleColumn("repository_full_name"),
+			Hydrate:      tableGitHubCodeOwnerList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			KeyColumns:   plugin.SingleColumn("repository_full_name"),
 		},
 		Columns: commonColumns(gitHubCodeOwnerColumns()),
 	}

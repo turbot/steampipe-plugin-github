@@ -19,16 +19,16 @@ func tableGitHubActionsRepositoryWorkflowJob() *plugin.Table {
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "run_id", Require: plugin.Required},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoWorkflowJobList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoWorkflowJobList,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required, Operators: []string{"="}},
 				{Name: "id", Require: plugin.Required, Operators: []string{"="}},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoWorkflowJobGet,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoWorkflowJobGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

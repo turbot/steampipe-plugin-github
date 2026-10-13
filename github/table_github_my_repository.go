@@ -12,8 +12,8 @@ func tableGitHubMyRepository() *plugin.Table {
 		Name:        "github_my_repository",
 		Description: "GitHub Repositories that you are associated with. GitHub Repositories contain all of your project's files and each file's revision history.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubMyRepositoryList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubMyRepositoryList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns(sharedRepositoryColumns()),
 	}

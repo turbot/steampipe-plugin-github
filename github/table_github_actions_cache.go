@@ -20,8 +20,8 @@ func tableGitHubActionsCache() *plugin.Table {
 				{Name: "key", Require: plugin.Optional},
 				{Name: "ref", Require: plugin.Optional},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubCacheList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubCacheList,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns
