@@ -1,3 +1,15 @@
+## v1.11.0 [2026-10-13]
+
+_What's new?_
+
+- New tables added
+  - [github_project_v2](https://hub.steampipe.io/plugins/turbot/github/tables/github_project_v2) ([#548](https://github.com/turbot/steampipe-plugin-github/pull/548)) (Thanks [@dark-panda](https://github.com/dark-panda) for the contribution!)
+  - [github_project_v2_item](https://hub.steampipe.io/plugins/turbot/github/tables/github_project_v2_item) ([#567](https://github.com/turbot/steampipe-plugin-github/pull/567))
+
+_Bug fixes_
+
+- Fixed the `github_issue` and `github_pull_request` tables to no longer error when querying by `repository_full_name` and `number`. ([#567](https://github.com/turbot/steampipe-plugin-github/pull/567))
+
 ## v1.10.1 [2026-10-07]
 
 _Bug fixes_
