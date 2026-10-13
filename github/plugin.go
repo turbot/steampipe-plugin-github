@@ -59,6 +59,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"github_package":                         tableGitHubPackage(),
 			"github_package_version":                 tableGitHubPackageVersion(),
 			"github_project_v2":                      tableGitHubProjectV2(),
+			"github_project_v2_item":                 tableGitHubProjectV2Item(),
 			"github_pull_request":                    tableGitHubPullRequest(),
 			"github_pull_request_comment":            tableGitHubPullRequestComment(),
 			"github_pull_request_review":             tableGitHubPullRequestReview(),
