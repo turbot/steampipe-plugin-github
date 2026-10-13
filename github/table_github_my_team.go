@@ -17,9 +17,9 @@ func tableGitHubMyTeam() *plugin.Table {
 			Hydrate: tableGitHubMyTeamList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"organization", "slug"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubTeamGet,
+			KeyColumns:   plugin.AllColumns([]string{"organization", "slug"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubTeamGet,
 		},
 		Columns: commonColumns(gitHubTeamColumns()),
 	}

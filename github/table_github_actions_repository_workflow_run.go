@@ -17,8 +17,8 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 		Name:        "github_actions_repository_workflow_run",
 		Description: "WorkflowRun represents a repository action workflow run",
 		List: &plugin.ListConfig{
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoWorkflowRunList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoWorkflowRunList,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "workflow_id", Require: plugin.Optional},
@@ -37,8 +37,8 @@ func tableGitHubActionsRepositoryWorkflowRun() *plugin.Table {
 				{Name: "id", Require: plugin.Required, Operators: []string{"="}},
 				{Name: "run_attempt", Require: plugin.Optional, Operators: []string{"="}, CacheMatch: query_cache.CacheMatchExact},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepoWorkflowRunGet,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepoWorkflowRunGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

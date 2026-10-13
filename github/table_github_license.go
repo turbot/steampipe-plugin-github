@@ -19,9 +19,9 @@ func tableGitHubLicense() *plugin.Table {
 			Hydrate: tableGitHubLicenseList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("key"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubLicenseGetData,
+			KeyColumns:   plugin.SingleColumn("key"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubLicenseGetData,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "spdx_id", Description: "The Software Package Data Exchange (SPDX) id of the license.", Type: proto.ColumnType_STRING, Transform: transform.FromValue(), Hydrate: licenseHydrateSpdxId},

@@ -19,8 +19,8 @@ func tableGitHubRepositorySbom() *plugin.Table {
 					Require: plugin.Required,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           listRepositorySboms,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      listRepositorySboms,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{
@@ -75,7 +75,7 @@ func tableGitHubRepositorySbom() *plugin.Table {
 	}
 }
 
-//// LIST FUNCTION
+// // LIST FUNCTION
 func listRepositorySboms(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var owner, repo string
 

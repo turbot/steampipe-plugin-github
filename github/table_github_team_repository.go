@@ -31,8 +31,8 @@ func tableGitHubTeamRepository() *plugin.Table {
 				{Name: "organization", Require: plugin.Required},
 				{Name: "slug", Require: plugin.Required},
 			},
-			Hydrate:           tableGitHubTeamRepositoryList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubTeamRepositoryList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: []*plugin.KeyColumn{
@@ -40,8 +40,8 @@ func tableGitHubTeamRepository() *plugin.Table {
 				{Name: "slug", Require: plugin.Required},
 				{Name: "name", Require: plugin.Required},
 			},
-			Hydrate:           tableGitHubTeamRepositoryGet,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubTeamRepositoryGet,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns(gitHubTeamRepositoryColumns()),
 	}

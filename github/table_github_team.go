@@ -49,14 +49,14 @@ func tableGitHubTeam() *plugin.Table {
 		Name:        "github_team",
 		Description: "GitHub Teams in a given organization. GitHub Teams are groups of organization members that reflect your company or group's structure with cascading access permissions and mentions.",
 		List: &plugin.ListConfig{
-			KeyColumns:        plugin.SingleColumn("organization"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubTeamList,
+			KeyColumns:   plugin.SingleColumn("organization"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubTeamList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"organization", "slug"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubTeamGet,
+			KeyColumns:   plugin.AllColumns([]string{"organization", "slug"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubTeamGet,
 		},
 		Columns: commonColumns(gitHubTeamColumns()),
 	}

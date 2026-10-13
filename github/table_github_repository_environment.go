@@ -30,8 +30,8 @@ func tableGitHubRepositoryEnvironment() *plugin.Table {
 					Require: plugin.Required,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryEnvironmentList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryEnvironmentList,
 		},
 		Columns: commonColumns(gitHubRepositoryEnvironmentColumns()),
 	}

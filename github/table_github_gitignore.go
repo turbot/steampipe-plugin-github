@@ -17,9 +17,9 @@ func tableGitHubGitignore() *plugin.Table {
 			Hydrate: tableGitHubGitignoreList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("name"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubGitignoreGetData,
+			KeyColumns:   plugin.SingleColumn("name"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubGitignoreGetData,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			// Top columns

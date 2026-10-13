@@ -91,13 +91,13 @@ func tableGitHubIssue() *plugin.Table {
 					Operators: []string{">", ">="},
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryIssueList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryIssueList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "number"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryIssueGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "number"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryIssueGet,
 		},
 		Columns: commonColumns(gitHubIssueColumns()),
 	}

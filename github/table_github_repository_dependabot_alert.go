@@ -40,13 +40,13 @@ func tableGitHubRepositoryDependabotAlert() *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryDependabotAlertList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryDependabotAlertList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "alert_number"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubRepositoryDependabotAlertGet,
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "alert_number"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubRepositoryDependabotAlertGet,
 		},
 		Columns: commonColumns(append(
 			gitHubDependabotAlertColumns(),

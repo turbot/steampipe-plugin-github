@@ -21,13 +21,13 @@ func tableGitHubPackage() *plugin.Table {
 				{Name: "package_type", Require: plugin.Optional},
 				{Name: "visibility", Require: plugin.Optional},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubPackageList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubPackageList,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"organization", "name", "package_type"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			Hydrate:           tableGitHubPackageGet,
+			KeyColumns:   plugin.AllColumns([]string{"organization", "name", "package_type"}),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			Hydrate:      tableGitHubPackageGet,
 		},
 		Columns: commonColumns([]*plugin.Column{
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique ID of the package."},

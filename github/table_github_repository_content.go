@@ -19,13 +19,13 @@ func tableGitHubRepositoryContent() *plugin.Table {
 		Name:        "github_repository_content",
 		Description: "List the content in a repository (list directory, or get file content",
 		Get: &plugin.GetConfig{
-			Hydrate:           tableGitHubRepositoryContentGet,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
-			KeyColumns:        plugin.AllColumns([]string{"repository_full_name", "path"}),
+			Hydrate:      tableGitHubRepositoryContentGet,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
+			KeyColumns:   plugin.AllColumns([]string{"repository_full_name", "path"}),
 		},
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubRepositoryContentList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubRepositoryContentList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "repository_content_path", Require: plugin.Optional, CacheMatch: "exact"},

@@ -61,9 +61,9 @@ func retryConfig() *plugin.RetryConfig {
 	}
 }
 
-// function which returns an ErrorPredicate for GitHub API calls
-func isNotFoundError(notFoundErrors []string) plugin.ErrorPredicate {
-	return func(err error) bool {
+// function which returns an ErrorPredicateWithContext for GitHub API calls
+func isNotFoundError(notFoundErrors []string) plugin.ErrorPredicateWithContext {
+	return func(_ context.Context, _ *plugin.QueryData, _ *plugin.HydrateData, err error) bool {
 		if err != nil {
 			for _, item := range notFoundErrors {
 				if strings.Contains(err.Error(), item) {

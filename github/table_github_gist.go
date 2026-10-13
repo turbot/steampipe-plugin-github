@@ -36,9 +36,9 @@ func tableGitHubGist() *plugin.Table {
 		Name:        "github_gist",
 		Description: "GitHub Gist is a simple way to share snippets and pastes with others.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubGistList,
-			KeyColumns:        plugin.SingleColumn("id"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubGistList,
+			KeyColumns:   plugin.SingleColumn("id"),
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: commonColumns(gitHubGistColumns()),
 	}

@@ -13,8 +13,8 @@ func tableGitHubBlob() *plugin.Table {
 		Name:        "github_blob",
 		Description: "Gets a blob from a repository.",
 		List: &plugin.ListConfig{
-			Hydrate:           tableGitHubBlobList,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      tableGitHubBlobList,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "repository_full_name", Require: plugin.Required},
 				{Name: "blob_sha", Require: plugin.Required},
