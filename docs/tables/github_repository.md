@@ -22,6 +22,7 @@ To query this table using a [fine-grained access token](https://docs.github.com/
 **Important Notes**
 - You must specify the `full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
 - To list all of your repositories use the `github_my_repository` table instead. The `github_my_repository` table will list tables you own, you collaborate on, or that belong to your organizations.
+- The `security_and_analysis` column is null unless the authenticated user has admin permissions for the repository, or is an owner or security manager for the organization that owns it ([Get a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-a-repository)).
 
 ## Examples
 
@@ -120,6 +121,35 @@ where
 select
   full_name,
   custom_properties
+from
+  github_repository
+where
+  full_name = 'my-org/my-repo';
+```
+
+### Get the security and analysis settings for a repository
+Check whether secret scanning, push protection, GitHub Advanced Security and Dependabot security updates are enabled for a repository.
+
+```sql+postgres
+select
+  full_name,
+  security_and_analysis -> 'advanced_security' ->> 'status' as advanced_security,
+  security_and_analysis -> 'secret_scanning' ->> 'status' as secret_scanning,
+  security_and_analysis -> 'secret_scanning_push_protection' ->> 'status' as secret_scanning_push_protection,
+  security_and_analysis -> 'dependabot_security_updates' ->> 'status' as dependabot_security_updates
+from
+  github_repository
+where
+  full_name = 'my-org/my-repo';
+```
+
+```sql+sqlite
+select
+  full_name,
+  json_extract(security_and_analysis, '$.advanced_security.status') as advanced_security,
+  json_extract(security_and_analysis, '$.secret_scanning.status') as secret_scanning,
+  json_extract(security_and_analysis, '$.secret_scanning_push_protection.status') as secret_scanning_push_protection,
+  json_extract(security_and_analysis, '$.dependabot_security_updates.status') as dependabot_security_updates
 from
   github_repository
 where
