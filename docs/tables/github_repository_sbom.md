@@ -18,7 +18,10 @@ To query this table using a [fine-grained access token](https://docs.github.com/
     - Metadata (Read-only): Required to access general repository metadata.
 
 **Important Notes**
+
 - You must specify the `repository_full_name` (repository including org/user prefix) column in the `where` or `join` clause to query the table.
+- The table requests SBOM generation and waits for the report. Generation can increase query time.
+- The wait ends after five minutes or when the query reaches its deadline or you cancel it.
   
 ## Examples
 

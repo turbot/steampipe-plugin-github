@@ -2,7 +2,14 @@ package github
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
 
+	"github.com/google/go-github/v93/github"
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v6/plugin/transform"
@@ -86,7 +93,7 @@ func listRepositorySboms(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	logger.Trace("tableGitHubRepositorySbomList", "owner", owner, "repo", repo)
 
 	client := connect(ctx, d)
-	sbom, _, err := client.DependencyGraph.GetSBOM(ctx, owner, repo)
+	sbom, err := getRepositorySBOM(ctx, client, owner, repo, 2*time.Second)
 	if err != nil {
 		logger.Error("github_repository_sbom.listRepositorySboms", "api_error", err)
 		return nil, err
@@ -95,4 +102,48 @@ func listRepositorySboms(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	d.StreamListItem(ctx, sbom.SBOM)
 
 	return sbom, nil
+}
+
+// getRepositorySBOM waits for one generated report within the query deadline or five minutes.
+func getRepositorySBOM(ctx context.Context, client *github.Client, owner, repo string, pollInterval time.Duration) (*github.SBOM, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer cancel()
+
+	generation, _, err := client.DependencyGraph.GenerateSBOM(ctx, owner, repo)
+	if err != nil {
+		return nil, err
+	}
+
+	reportURL, err := url.Parse(generation.GetSBOMURL())
+	if err != nil {
+		return nil, fmt.Errorf("invalid SBOM report URL: %w", err)
+	}
+	_, uuid, found := strings.Cut(reportURL.Path, "/fetch-report/")
+	if !found || uuid == "" || strings.Contains(uuid, "/") {
+		return nil, fmt.Errorf("SBOM generation returned no valid report identifier")
+	}
+
+	// Signed download URLs require a client without GitHub authentication.
+	downloadClient := &http.Client{Timeout: time.Minute}
+	for {
+		sbom, _, _, err := client.DependencyGraph.FetchSBOM(ctx, owner, repo, uuid, downloadClient)
+		if err == nil {
+			if sbom == nil || sbom.SBOM == nil {
+				return nil, fmt.Errorf("SBOM download returned an empty document")
+			}
+			return sbom, nil
+		}
+		var accepted *github.AcceptedError
+		if !errors.As(err, &accepted) {
+			return nil, err
+		}
+
+		timer := time.NewTimer(pollInterval)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return nil, ctx.Err()
+		case <-timer.C:
+		}
+	}
 }
