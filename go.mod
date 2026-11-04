@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/bradleyfalzon/ghinstallation v1.1.1
-	github.com/buildkite/go-pipeline v0.3.1
+	github.com/buildkite/go-pipeline v0.18.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v55 v55.0.0
 	github.com/shurcooL/githubv4 v0.0.0-20231126234147-1cffa1f02456
@@ -66,7 +66,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/btubbs/datetime v0.1.1 // indirect
-	github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251 // indirect
+	github.com/buildkite/interpolate v0.1.5 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/eko/gocache/store/ristretto/v4 v4.2.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -111,7 +111,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/run v1.0.0 // indirect
-	github.com/oleiade/reflections v1.0.1 // indirect
+	github.com/oleiade/reflections v1.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
