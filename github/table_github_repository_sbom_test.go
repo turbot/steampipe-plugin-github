@@ -36,7 +36,9 @@ func TestGetRepositorySBOM(t *testing.T) {
 		if r.Header.Get("Authorization") != "" {
 			t.Error("download must not contain GitHub authentication")
 		}
-		fmt.Fprint(w, `{"SPDXID":"SPDXRef-DOCUMENT","spdxVersion":"SPDX-2.3","name":"owner/repo","packages":[{"name":"example","versionInfo":"1.0"}]}`)
+		if _, err := fmt.Fprint(w, `{"SPDXID":"SPDXRef-DOCUMENT","spdxVersion":"SPDX-2.3","name":"owner/repo","packages":[{"name":"example","versionInfo":"1.0"}]}`); err != nil {
+			t.Errorf("write test response: %v", err)
+		}
 	}))
 	defer download.Close()
 	client := newSBOMTestClient(t, func(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +49,9 @@ func TestGetRepositorySBOM(t *testing.T) {
 		case "/api/v3/repos/owner/repo/dependency-graph/sbom/generate-report":
 			generations.Add(1)
 			w.WriteHeader(http.StatusCreated)
-			fmt.Fprint(w, `{"sbom_url":"https://api.github.com/repos/owner/repo/dependency-graph/sbom/fetch-report/report-id"}`)
+			if _, err := fmt.Fprint(w, `{"sbom_url":"https://api.github.com/repos/owner/repo/dependency-graph/sbom/fetch-report/report-id"}`); err != nil {
+				t.Errorf("write test response: %v", err)
+			}
 		case "/api/v3/repos/owner/repo/dependency-graph/sbom/fetch-report/report-id":
 			if fetches.Add(1) <= 2 {
 				w.WriteHeader(http.StatusAccepted)
@@ -96,7 +100,9 @@ func TestGetRepositorySBOMErrors(t *testing.T) {
 				if tt.downloadStatus != 0 {
 					w.WriteHeader(tt.downloadStatus)
 				}
-				fmt.Fprint(w, tt.document)
+				if _, err := fmt.Fprint(w, tt.document); err != nil {
+					t.Errorf("write test response: %v", err)
+				}
 			}))
 			defer download.Close()
 			client := newSBOMTestClient(t, func(w http.ResponseWriter, r *http.Request) {
@@ -107,9 +113,13 @@ func TestGetRepositorySBOMErrors(t *testing.T) {
 					}
 					w.WriteHeader(http.StatusCreated)
 					if tt.generation != "" {
-						fmt.Fprint(w, tt.generation)
+						if _, err := fmt.Fprint(w, tt.generation); err != nil {
+							t.Errorf("write test response: %v", err)
+						}
 					} else {
-						fmt.Fprint(w, `{"sbom_url":"https://api.github.com/fetch-report/report-id"}`)
+						if _, err := fmt.Fprint(w, `{"sbom_url":"https://api.github.com/fetch-report/report-id"}`); err != nil {
+							t.Errorf("write test response: %v", err)
+						}
 					}
 					return
 				}
@@ -144,7 +154,9 @@ func TestGetRepositorySBOMCancellation(t *testing.T) {
 			client := newSBOMTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 				if strings.HasSuffix(r.URL.Path, "/generate-report") {
 					w.WriteHeader(http.StatusCreated)
-					fmt.Fprint(w, `{"sbom_url":"https://api.github.com/fetch-report/report-id"}`)
+					if _, err := fmt.Fprint(w, `{"sbom_url":"https://api.github.com/fetch-report/report-id"}`); err != nil {
+						t.Errorf("write test response: %v", err)
+					}
 					return
 				}
 				fetches.Add(1)

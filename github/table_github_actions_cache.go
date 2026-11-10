@@ -48,10 +48,10 @@ func tableGitHubCacheList(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 	if key := d.EqualsQualString("key"); key != "" {
-		opts.Key = github.String(key)
+		opts.Key = new(key)
 	}
 	if ref := d.EqualsQualString("ref"); ref != "" {
-		opts.Ref = github.String(ref)
+		opts.Ref = new(ref)
 	}
 
 	limit := d.QueryContext.Limit
