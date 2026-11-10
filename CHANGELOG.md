@@ -1,3 +1,16 @@
+## v1.11.1 [2026-11-04]
+
+_Dependencies_
+
+- Bumped `github.com/cloudflare/circl` from v1.3.7 to v1.6.3. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+- Bumped `github.com/go-jose/go-jose/v4` from v4.1.4 to v4.1.6. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+- Bumped `github.com/hashicorp/go-getter` from v1.7.9 to v1.8.6. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+- Bumped `github.com/klauspost/compress` from v1.17.2 to v1.18.7. ([#570](https://github.com/turbot/steampipe-plugin-github/pull/570))
+- Bumped `go.opentelemetry.io/otel/sdk` from v1.44.0 to v1.47.0. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+- Bumped `golang.org/x/crypto` from v0.51.0 to v0.57.0. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+- Bumped `google.golang.org/grpc` from v1.66.0 to v1.83.1. ([#562](https://github.com/turbot/steampipe-plugin-github/pull/562))
+- Bumped `google.golang.org/grpc` from v1.83.1 to v1.83.2. ([#573](https://github.com/turbot/steampipe-plugin-github/pull/573))
+
 ## v1.11.0 [2026-10-13]
 
 _What's new?_
