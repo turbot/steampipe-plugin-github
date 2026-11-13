@@ -55,7 +55,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "github_v3"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*github.Client)
 	}
 
@@ -165,7 +165,9 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, client)
+	if err := d.ConnectionCache.Set(ctx, cacheKey, client); err != nil {
+		plugin.Logger(ctx).Warn("github.connect", "cache_key", cacheKey, "error", err)
+	}
 
 	return client
 }
@@ -175,7 +177,7 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "github_v4"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*githubv4.Client)
 	}
 
@@ -289,7 +291,9 @@ func connectV4(ctx context.Context, d *plugin.QueryData) *githubv4.Client {
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, client)
+	if err := d.ConnectionCache.Set(ctx, cacheKey, client); err != nil {
+		plugin.Logger(ctx).Warn("github.connect", "cache_key", cacheKey, "error", err)
+	}
 
 	return client
 }
