@@ -101,6 +101,7 @@ func sharedRepositoryColumns() []*plugin.Column {
 		{Name: "has_downloads", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Downloads feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
 		{Name: "has_pages", Type: proto.ColumnType_BOOL, Description: "If true, the GitHub Pages feature is enabled on the repository.", Hydrate: hydrateRepositoryDataFromV3},
 		{Name: "network_count", Type: proto.ColumnType_INT, Description: "The number of member repositories in the network.", Hydrate: hydrateRepositoryDataFromV3},
+		{Name: "security_and_analysis", Type: proto.ColumnType_JSON, Description: "The status of the repository's security and analysis features: advanced_security, secret_scanning, secret_scanning_push_protection and dependabot_security_updates. Null unless the authenticated user is a repository admin, or an owner or security manager of the organization that owns the repository.", Hydrate: hydrateRepositoryDataFromV3},
 	}
 }
 
