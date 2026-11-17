@@ -14,7 +14,7 @@ import (
 	"github.com/turbot/steampipe-plugin-github/github/models"
 	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v93/github"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 
@@ -107,7 +107,7 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 		panic("Supported token formats are 'ghs_', 'gho_', 'ghp_', and 'github_pat'")
 	}
 
-	var client *github.Client
+	var httpClient *http.Client
 
 	// Authentication with Github access token
 	if token != "" && isValidPersonalAccessTokenPrefix(token) {
@@ -115,14 +115,14 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			&oauth2.Token{AccessToken: token},
 		)
 		tc := oauth2.NewClient(ctx, ts)
-		client = github.NewClient(tc)
+		httpClient = tc
 	}
 
 	// Authentication Using App Installation Access Token or OAuth Access token
 	if token != "" && isValidInstallationOrOAuthAccessTokenPrefix(token) {
-		client = github.NewClient(&http.Client{Transport: &oauth2Transport{
+		httpClient = &http.Client{Transport: &oauth2Transport{
 			Token: token,
-		}})
+		}}
 	}
 
 	// Authentication as Github APP Installation authentication
@@ -140,7 +140,12 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			panic("Error occurred in 'connect()' during GitHub App Installation client creation: " + err.Error())
 		}
 
-		client = github.NewClient(&http.Client{Transport: itr})
+		httpClient = &http.Client{Transport: itr}
+	}
+
+	client, err := github.NewClient(github.WithHTTPClient(httpClient))
+	if err != nil {
+		panic(fmt.Sprintf("error creating GitHub client: %v", err))
 	}
 
 	// If the base URL was provided then set it on the client. Used for
@@ -155,12 +160,17 @@ func connect(ctx context.Context, d *plugin.QueryData) *github.Client {
 			uv4.Path = uv4.Path + "api/v3/"
 		}
 
-		// The upload URL is not set as it's not currently required
-		conn, err := github.NewClient(client.Client()).WithEnterpriseURLs(uv4.String(), "")
+		// The SDK requires an upload URL, although this plugin does not upload files.
+		uploadURL := "https://uploads.github.com/"
+		if uv4.String() != "https://api.github.com/" {
+			uvUpload := *uv4
+			uvUpload.Path = strings.TrimSuffix(uv4.Path, "api/v3/") + "api/uploads/"
+			uploadURL = uvUpload.String()
+		}
+		conn, err := client.Clone(github.WithEnterpriseURLs(uv4.String(), uploadURL))
 		if err != nil {
 			panic(fmt.Sprintf("error creating GitHub client: %v", err))
 		}
-		conn.BaseURL = uv4
 		client = conn
 	}
 

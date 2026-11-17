@@ -62,7 +62,7 @@ func tableGitHubBlobList(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		d.StreamListItem(ctx, blobRow{
 			Sha:      *blob.SHA,
 			NodeID:   *blob.NodeID,
-			Content:  *blob.Content,
+			Content:  blob.Content,
 			Encoding: *blob.Encoding,
 			Size:     *blob.Size,
 		})
